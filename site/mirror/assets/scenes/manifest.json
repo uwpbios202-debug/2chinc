@@ -1,0 +1,2121 @@
+{
+  "dimensions": [
+    [
+      "housing",
+      "Housing",
+      "At home"
+    ],
+    [
+      "physical_health",
+      "Physical health",
+      "Meeting with a clinician"
+    ],
+    [
+      "mental_health",
+      "Mental health",
+      "Taking time to journal"
+    ],
+    [
+      "identity_legal",
+      "Identity and legal",
+      "Organizing personal paperwork"
+    ],
+    [
+      "food",
+      "Food and necessities",
+      "Choosing produce"
+    ],
+    [
+      "transportation",
+      "Transportation",
+      "Using public transit"
+    ],
+    [
+      "technology",
+      "Technology",
+      "Using a laptop at the library"
+    ],
+    [
+      "work",
+      "Education and employment",
+      "At work"
+    ],
+    [
+      "finances",
+      "Financial stability",
+      "Planning a household budget"
+    ],
+    [
+      "self_care",
+      "Self-care",
+      "Folding clean clothes"
+    ],
+    [
+      "relationships",
+      "Relationships",
+      "Sharing a meal with friends"
+    ],
+    [
+      "life_skills",
+      "Independent living skills",
+      "Preparing a meal"
+    ],
+    [
+      "safety",
+      "Personal safety",
+      "Checking a smoke alarm"
+    ],
+    [
+      "development",
+      "Personal development",
+      "Painting for enjoyment"
+    ],
+    [
+      "purpose",
+      "Purpose and contribution",
+      "Giving back"
+    ]
+  ],
+  "people": [
+    {
+      "id": "maya",
+      "name": "Maya",
+      "age": 26,
+      "role": "Small-appliance repair trainee",
+      "scenes": {
+        "housing": {
+          "src": "images/maya/housing.webp",
+          "alt": "Maya — At home"
+        },
+        "physical_health": {
+          "src": "images/maya/physical_health.webp",
+          "alt": "Maya — Meeting with a clinician"
+        },
+        "mental_health": {
+          "src": "images/maya/mental_health.webp",
+          "alt": "Maya — Taking time to journal"
+        },
+        "identity_legal": {
+          "src": "images/maya/identity_legal.webp",
+          "alt": "Maya — Organizing personal paperwork"
+        },
+        "food": {
+          "src": "images/maya/food.webp",
+          "alt": "Maya — Choosing produce"
+        },
+        "transportation": {
+          "src": "images/maya/transportation.webp",
+          "alt": "Maya — Using public transit"
+        },
+        "technology": {
+          "src": "images/maya/technology.webp",
+          "alt": "Maya — Using a laptop at the library"
+        },
+        "work": {
+          "src": "images/maya/work.webp",
+          "alt": "Maya — Small-appliance repair trainee"
+        },
+        "finances": {
+          "src": "images/maya/finances.webp",
+          "alt": "Maya — Planning a household budget"
+        },
+        "self_care": {
+          "src": "images/maya/self_care.webp",
+          "alt": "Maya — Folding clean clothes"
+        },
+        "relationships": {
+          "src": "images/maya/relationships.webp",
+          "alt": "Maya — Sharing a meal with friends"
+        },
+        "life_skills": {
+          "src": "images/maya/life_skills.webp",
+          "alt": "Maya — Preparing a meal"
+        },
+        "safety": {
+          "src": "images/maya/safety.webp",
+          "alt": "Maya — Checking a smoke alarm"
+        },
+        "development": {
+          "src": "images/maya/development.webp",
+          "alt": "Maya — Painting for enjoyment"
+        },
+        "purpose": {
+          "src": "images/maya/purpose.webp",
+          "alt": "Maya — Giving back"
+        }
+      }
+    },
+    {
+      "id": "mateo",
+      "name": "Mateo",
+      "age": 34,
+      "role": "Bicycle mechanic",
+      "scenes": {
+        "housing": {
+          "src": "images/mateo/housing.webp",
+          "alt": "Mateo — At home"
+        },
+        "physical_health": {
+          "src": "images/mateo/physical_health.webp",
+          "alt": "Mateo — Meeting with a clinician"
+        },
+        "mental_health": {
+          "src": "images/mateo/mental_health.webp",
+          "alt": "Mateo — Taking time to journal"
+        },
+        "identity_legal": {
+          "src": "images/mateo/identity_legal.webp",
+          "alt": "Mateo — Organizing personal paperwork"
+        },
+        "food": {
+          "src": "images/mateo/food.webp",
+          "alt": "Mateo — Choosing produce"
+        },
+        "transportation": {
+          "src": "images/mateo/transportation.webp",
+          "alt": "Mateo — Using public transit"
+        },
+        "technology": {
+          "src": "images/mateo/technology.webp",
+          "alt": "Mateo — Using a laptop at the library"
+        },
+        "work": {
+          "src": "images/mateo/work.webp",
+          "alt": "Mateo — Bicycle mechanic"
+        },
+        "finances": {
+          "src": "images/mateo/finances.webp",
+          "alt": "Mateo — Planning a household budget"
+        },
+        "self_care": {
+          "src": "images/mateo/self_care.webp",
+          "alt": "Mateo — Folding clean clothes"
+        },
+        "relationships": {
+          "src": "images/mateo/relationships.webp",
+          "alt": "Mateo — Sharing a meal with friends"
+        },
+        "life_skills": {
+          "src": "images/mateo/life_skills.webp",
+          "alt": "Mateo — Preparing a meal"
+        },
+        "safety": {
+          "src": "images/mateo/safety.webp",
+          "alt": "Mateo — Checking a smoke alarm"
+        },
+        "development": {
+          "src": "images/mateo/development.webp",
+          "alt": "Mateo — Painting for enjoyment"
+        },
+        "purpose": {
+          "src": "images/mateo/purpose.webp",
+          "alt": "Mateo — Giving back"
+        }
+      }
+    },
+    {
+      "id": "avery",
+      "name": "Avery",
+      "age": 44,
+      "role": "Tailor",
+      "scenes": {
+        "housing": {
+          "src": "images/avery/housing.webp",
+          "alt": "Avery — At home"
+        },
+        "physical_health": {
+          "src": "images/avery/physical_health.webp",
+          "alt": "Avery — Meeting with a clinician"
+        },
+        "mental_health": {
+          "src": "images/avery/mental_health.webp",
+          "alt": "Avery — Taking time to journal"
+        },
+        "identity_legal": {
+          "src": "images/avery/identity_legal.webp",
+          "alt": "Avery — Organizing personal paperwork"
+        },
+        "food": {
+          "src": "images/avery/food.webp",
+          "alt": "Avery — Choosing produce"
+        },
+        "transportation": {
+          "src": "images/avery/transportation.webp",
+          "alt": "Avery — Using public transit"
+        },
+        "technology": {
+          "src": "images/avery/technology.webp",
+          "alt": "Avery — Using a laptop at the library"
+        },
+        "work": {
+          "src": "images/avery/work.webp",
+          "alt": "Avery — Tailor"
+        },
+        "finances": {
+          "src": "images/avery/finances.webp",
+          "alt": "Avery — Planning a household budget"
+        },
+        "self_care": {
+          "src": "images/avery/self_care.webp",
+          "alt": "Avery — Folding clean clothes"
+        },
+        "relationships": {
+          "src": "images/avery/relationships.webp",
+          "alt": "Avery — Sharing a meal with friends"
+        },
+        "life_skills": {
+          "src": "images/avery/life_skills.webp",
+          "alt": "Avery — Preparing a meal"
+        },
+        "safety": {
+          "src": "images/avery/safety.webp",
+          "alt": "Avery — Checking a smoke alarm"
+        },
+        "development": {
+          "src": "images/avery/development.webp",
+          "alt": "Avery — Painting for enjoyment"
+        },
+        "purpose": {
+          "src": "images/avery/purpose.webp",
+          "alt": "Avery — Giving back"
+        }
+      }
+    },
+    {
+      "id": "denise",
+      "name": "Denise",
+      "age": 67,
+      "role": "Bakery assistant",
+      "scenes": {
+        "housing": {
+          "src": "images/denise/housing.webp",
+          "alt": "Denise — At home"
+        },
+        "physical_health": {
+          "src": "images/denise/physical_health.webp",
+          "alt": "Denise — Meeting with a clinician"
+        },
+        "mental_health": {
+          "src": "images/denise/mental_health.webp",
+          "alt": "Denise — Taking time to journal"
+        },
+        "identity_legal": {
+          "src": "images/denise/identity_legal.webp",
+          "alt": "Denise — Organizing personal paperwork"
+        },
+        "food": {
+          "src": "images/denise/food.webp",
+          "alt": "Denise — Choosing produce"
+        },
+        "transportation": {
+          "src": "images/denise/transportation.webp",
+          "alt": "Denise — Using public transit"
+        },
+        "technology": {
+          "src": "images/denise/technology.webp",
+          "alt": "Denise — Using a laptop at the library"
+        },
+        "work": {
+          "src": "images/denise/work.webp",
+          "alt": "Denise — Bakery assistant"
+        },
+        "finances": {
+          "src": "images/denise/finances.webp",
+          "alt": "Denise — Planning a household budget"
+        },
+        "self_care": {
+          "src": "images/denise/self_care.webp",
+          "alt": "Denise — Folding clean clothes"
+        },
+        "relationships": {
+          "src": "images/denise/relationships.webp",
+          "alt": "Denise — Sharing a meal with friends"
+        },
+        "life_skills": {
+          "src": "images/denise/life_skills.webp",
+          "alt": "Denise — Preparing a meal"
+        },
+        "safety": {
+          "src": "images/denise/safety.webp",
+          "alt": "Denise — Checking a smoke alarm"
+        },
+        "development": {
+          "src": "images/denise/development.webp",
+          "alt": "Denise — Painting for enjoyment"
+        },
+        "purpose": {
+          "src": "images/denise/purpose.webp",
+          "alt": "Denise — Giving back"
+        }
+      }
+    },
+    {
+      "id": "samir",
+      "name": "Samir",
+      "age": 58,
+      "role": "Inventory clerk",
+      "scenes": {
+        "housing": {
+          "src": "images/samir/housing.webp",
+          "alt": "Samir — At home"
+        },
+        "physical_health": {
+          "src": "images/samir/physical_health.webp",
+          "alt": "Samir — Meeting with a clinician"
+        },
+        "mental_health": {
+          "src": "images/samir/mental_health.webp",
+          "alt": "Samir — Taking time to journal"
+        },
+        "identity_legal": {
+          "src": "images/samir/identity_legal.webp",
+          "alt": "Samir — Organizing personal paperwork"
+        },
+        "food": {
+          "src": "images/samir/food.webp",
+          "alt": "Samir — Choosing produce"
+        },
+        "transportation": {
+          "src": "images/samir/transportation.webp",
+          "alt": "Samir — Using public transit"
+        },
+        "technology": {
+          "src": "images/samir/technology.webp",
+          "alt": "Samir — Using a laptop at the library"
+        },
+        "work": {
+          "src": "images/samir/work.webp",
+          "alt": "Samir — Inventory clerk"
+        },
+        "finances": {
+          "src": "images/samir/finances.webp",
+          "alt": "Samir — Planning a household budget"
+        },
+        "self_care": {
+          "src": "images/samir/self_care.webp",
+          "alt": "Samir — Folding clean clothes"
+        },
+        "relationships": {
+          "src": "images/samir/relationships.webp",
+          "alt": "Samir — Sharing a meal with friends"
+        },
+        "life_skills": {
+          "src": "images/samir/life_skills.webp",
+          "alt": "Samir — Preparing a meal"
+        },
+        "safety": {
+          "src": "images/samir/safety.webp",
+          "alt": "Samir — Checking a smoke alarm"
+        },
+        "development": {
+          "src": "images/samir/development.webp",
+          "alt": "Samir — Painting for enjoyment"
+        },
+        "purpose": {
+          "src": "images/samir/purpose.webp",
+          "alt": "Samir — Giving back"
+        }
+      }
+    },
+    {
+      "id": "robin",
+      "name": "Robin",
+      "age": 23,
+      "role": "Solar installation trainee",
+      "scenes": {
+        "housing": {
+          "src": "images/robin/housing.webp",
+          "alt": "Robin — At home"
+        },
+        "physical_health": {
+          "src": "images/robin/physical_health.webp",
+          "alt": "Robin — Meeting with a clinician"
+        },
+        "mental_health": {
+          "src": "images/robin/mental_health.webp",
+          "alt": "Robin — Taking time to journal"
+        },
+        "identity_legal": {
+          "src": "images/robin/identity_legal.webp",
+          "alt": "Robin — Organizing personal paperwork"
+        },
+        "food": {
+          "src": "images/robin/food.webp",
+          "alt": "Robin — Choosing produce"
+        },
+        "transportation": {
+          "src": "images/robin/transportation.webp",
+          "alt": "Robin — Using public transit"
+        },
+        "technology": {
+          "src": "images/robin/technology.webp",
+          "alt": "Robin — Using a laptop at the library"
+        },
+        "work": {
+          "src": "images/robin/work.webp",
+          "alt": "Robin — Solar installation trainee"
+        },
+        "finances": {
+          "src": "images/robin/finances.webp",
+          "alt": "Robin — Planning a household budget"
+        },
+        "self_care": {
+          "src": "images/robin/self_care.webp",
+          "alt": "Robin — Folding clean clothes"
+        },
+        "relationships": {
+          "src": "images/robin/relationships.webp",
+          "alt": "Robin — Sharing a meal with friends"
+        },
+        "life_skills": {
+          "src": "images/robin/life_skills.webp",
+          "alt": "Robin — Preparing a meal"
+        },
+        "safety": {
+          "src": "images/robin/safety.webp",
+          "alt": "Robin — Checking a smoke alarm"
+        },
+        "development": {
+          "src": "images/robin/development.webp",
+          "alt": "Robin — Painting for enjoyment"
+        },
+        "purpose": {
+          "src": "images/robin/purpose.webp",
+          "alt": "Robin — Giving back"
+        }
+      }
+    },
+    {
+      "id": "amina",
+      "name": "Amina",
+      "age": 31,
+      "role": "Welder",
+      "scenes": {
+        "housing": {
+          "src": "images/amina/housing.webp",
+          "alt": "Amina — At home"
+        },
+        "physical_health": {
+          "src": "images/amina/physical_health.webp",
+          "alt": "Amina — Meeting with a clinician"
+        },
+        "mental_health": {
+          "src": "images/amina/mental_health.webp",
+          "alt": "Amina — Taking time to journal"
+        },
+        "identity_legal": {
+          "src": "images/amina/identity_legal.webp",
+          "alt": "Amina — Organizing personal paperwork"
+        },
+        "food": {
+          "src": "images/amina/food.webp",
+          "alt": "Amina — Choosing produce"
+        },
+        "transportation": {
+          "src": "images/amina/transportation.webp",
+          "alt": "Amina — Using public transit"
+        },
+        "technology": {
+          "src": "images/amina/technology.webp",
+          "alt": "Amina — Using a laptop at the library"
+        },
+        "work": {
+          "src": "images/amina/work.webp",
+          "alt": "Amina — Welder"
+        },
+        "finances": {
+          "src": "images/amina/finances.webp",
+          "alt": "Amina — Planning a household budget"
+        },
+        "self_care": {
+          "src": "images/amina/self_care.webp",
+          "alt": "Amina — Folding clean clothes"
+        },
+        "relationships": {
+          "src": "images/amina/relationships.webp",
+          "alt": "Amina — Sharing a meal with friends"
+        },
+        "life_skills": {
+          "src": "images/amina/life_skills.webp",
+          "alt": "Amina — Preparing a meal"
+        },
+        "safety": {
+          "src": "images/amina/safety.webp",
+          "alt": "Amina — Checking a smoke alarm"
+        },
+        "development": {
+          "src": "images/amina/development.webp",
+          "alt": "Amina — Painting for enjoyment"
+        },
+        "purpose": {
+          "src": "images/amina/purpose.webp",
+          "alt": "Amina — Giving back"
+        }
+      }
+    },
+    {
+      "id": "devon",
+      "name": "Devon",
+      "age": 48,
+      "role": "Security guard",
+      "scenes": {
+        "housing": {
+          "src": "images/devon/housing.webp",
+          "alt": "Devon — At home"
+        },
+        "physical_health": {
+          "src": "images/devon/physical_health.webp",
+          "alt": "Devon — Meeting with a clinician"
+        },
+        "mental_health": {
+          "src": "images/devon/mental_health.webp",
+          "alt": "Devon — Taking time to journal"
+        },
+        "identity_legal": {
+          "src": "images/devon/identity_legal.webp",
+          "alt": "Devon — Organizing personal paperwork"
+        },
+        "food": {
+          "src": "images/devon/food.webp",
+          "alt": "Devon — Choosing produce"
+        },
+        "transportation": {
+          "src": "images/devon/transportation.webp",
+          "alt": "Devon — Using public transit"
+        },
+        "technology": {
+          "src": "images/devon/technology.webp",
+          "alt": "Devon — Using a laptop at the library"
+        },
+        "work": {
+          "src": "images/devon/work.webp",
+          "alt": "Devon — Security guard"
+        },
+        "finances": {
+          "src": "images/devon/finances.webp",
+          "alt": "Devon — Planning a household budget"
+        },
+        "self_care": {
+          "src": "images/devon/self_care.webp",
+          "alt": "Devon — Folding clean clothes"
+        },
+        "relationships": {
+          "src": "images/devon/relationships.webp",
+          "alt": "Devon — Sharing a meal with friends"
+        },
+        "life_skills": {
+          "src": "images/devon/life_skills.webp",
+          "alt": "Devon — Preparing a meal"
+        },
+        "safety": {
+          "src": "images/devon/safety.webp",
+          "alt": "Devon — Checking a smoke alarm"
+        },
+        "development": {
+          "src": "images/devon/development.webp",
+          "alt": "Devon — Painting for enjoyment"
+        },
+        "purpose": {
+          "src": "images/devon/purpose.webp",
+          "alt": "Devon — Giving back"
+        }
+      }
+    },
+    {
+      "id": "lucia",
+      "name": "Lucía",
+      "age": 52,
+      "role": "Commercial cleaning technician",
+      "scenes": {
+        "housing": {
+          "src": "images/lucia/housing.webp",
+          "alt": "Lucía — At home"
+        },
+        "physical_health": {
+          "src": "images/lucia/physical_health.webp",
+          "alt": "Lucía — Meeting with a clinician"
+        },
+        "mental_health": {
+          "src": "images/lucia/mental_health.webp",
+          "alt": "Lucía — Taking time to journal"
+        },
+        "identity_legal": {
+          "src": "images/lucia/identity_legal.webp",
+          "alt": "Lucía — Organizing personal paperwork"
+        },
+        "food": {
+          "src": "images/lucia/food.webp",
+          "alt": "Lucía — Choosing produce"
+        },
+        "transportation": {
+          "src": "images/lucia/transportation.webp",
+          "alt": "Lucía — Using public transit"
+        },
+        "technology": {
+          "src": "images/lucia/technology.webp",
+          "alt": "Lucía — Using a laptop at the library"
+        },
+        "work": {
+          "src": "images/lucia/work.webp",
+          "alt": "Lucía — Commercial cleaning technician"
+        },
+        "finances": {
+          "src": "images/lucia/finances.webp",
+          "alt": "Lucía — Planning a household budget"
+        },
+        "self_care": {
+          "src": "images/lucia/self_care.webp",
+          "alt": "Lucía — Folding clean clothes"
+        },
+        "relationships": {
+          "src": "images/lucia/relationships.webp",
+          "alt": "Lucía — Sharing a meal with friends"
+        },
+        "life_skills": {
+          "src": "images/lucia/life_skills.webp",
+          "alt": "Lucía — Preparing a meal"
+        },
+        "safety": {
+          "src": "images/lucia/safety.webp",
+          "alt": "Lucía — Checking a smoke alarm"
+        },
+        "development": {
+          "src": "images/lucia/development.webp",
+          "alt": "Lucía — Painting for enjoyment"
+        },
+        "purpose": {
+          "src": "images/lucia/purpose.webp",
+          "alt": "Lucía — Giving back"
+        }
+      }
+    },
+    {
+      "id": "linh",
+      "name": "Linh",
+      "age": 29,
+      "role": "Mobile phone repair technician",
+      "scenes": {
+        "housing": {
+          "src": "images/linh/housing.webp",
+          "alt": "Linh — At home"
+        },
+        "physical_health": {
+          "src": "images/linh/physical_health.webp",
+          "alt": "Linh — Meeting with a clinician"
+        },
+        "mental_health": {
+          "src": "images/linh/mental_health.webp",
+          "alt": "Linh — Taking time to journal"
+        },
+        "identity_legal": {
+          "src": "images/linh/identity_legal.webp",
+          "alt": "Linh — Organizing personal paperwork"
+        },
+        "food": {
+          "src": "images/linh/food.webp",
+          "alt": "Linh — Choosing produce"
+        },
+        "transportation": {
+          "src": "images/linh/transportation.webp",
+          "alt": "Linh — Using public transit"
+        },
+        "technology": {
+          "src": "images/linh/technology.webp",
+          "alt": "Linh — Using a laptop at the library"
+        },
+        "work": {
+          "src": "images/linh/work.webp",
+          "alt": "Linh — Mobile phone repair technician"
+        },
+        "finances": {
+          "src": "images/linh/finances.webp",
+          "alt": "Linh — Planning a household budget"
+        },
+        "self_care": {
+          "src": "images/linh/self_care.webp",
+          "alt": "Linh — Folding clean clothes"
+        },
+        "relationships": {
+          "src": "images/linh/relationships.webp",
+          "alt": "Linh — Sharing a meal with friends"
+        },
+        "life_skills": {
+          "src": "images/linh/life_skills.webp",
+          "alt": "Linh — Preparing a meal"
+        },
+        "safety": {
+          "src": "images/linh/safety.webp",
+          "alt": "Linh — Checking a smoke alarm"
+        },
+        "development": {
+          "src": "images/linh/development.webp",
+          "alt": "Linh — Painting for enjoyment"
+        },
+        "purpose": {
+          "src": "images/linh/purpose.webp",
+          "alt": "Linh — Giving back"
+        }
+      }
+    },
+    {
+      "id": "rasheed",
+      "name": "Rasheed",
+      "age": 41,
+      "role": "Plumbing apprentice",
+      "scenes": {
+        "housing": {
+          "src": "images/rasheed/housing.webp",
+          "alt": "Rasheed — At home"
+        },
+        "physical_health": {
+          "src": "images/rasheed/physical_health.webp",
+          "alt": "Rasheed — Meeting with a clinician"
+        },
+        "mental_health": {
+          "src": "images/rasheed/mental_health.webp",
+          "alt": "Rasheed — Taking time to journal"
+        },
+        "identity_legal": {
+          "src": "images/rasheed/identity_legal.webp",
+          "alt": "Rasheed — Organizing personal paperwork"
+        },
+        "food": {
+          "src": "images/rasheed/food.webp",
+          "alt": "Rasheed — Choosing produce"
+        },
+        "transportation": {
+          "src": "images/rasheed/transportation.webp",
+          "alt": "Rasheed — Using public transit"
+        },
+        "technology": {
+          "src": "images/rasheed/technology.webp",
+          "alt": "Rasheed — Using a laptop at the library"
+        },
+        "work": {
+          "src": "images/rasheed/work.webp",
+          "alt": "Rasheed — Plumbing apprentice"
+        },
+        "finances": {
+          "src": "images/rasheed/finances.webp",
+          "alt": "Rasheed — Planning a household budget"
+        },
+        "self_care": {
+          "src": "images/rasheed/self_care.webp",
+          "alt": "Rasheed — Folding clean clothes"
+        },
+        "relationships": {
+          "src": "images/rasheed/relationships.webp",
+          "alt": "Rasheed — Sharing a meal with friends"
+        },
+        "life_skills": {
+          "src": "images/rasheed/life_skills.webp",
+          "alt": "Rasheed — Preparing a meal"
+        },
+        "safety": {
+          "src": "images/rasheed/safety.webp",
+          "alt": "Rasheed — Checking a smoke alarm"
+        },
+        "development": {
+          "src": "images/rasheed/development.webp",
+          "alt": "Rasheed — Painting for enjoyment"
+        },
+        "purpose": {
+          "src": "images/rasheed/purpose.webp",
+          "alt": "Rasheed — Giving back"
+        }
+      }
+    },
+    {
+      "id": "jules",
+      "name": "Jules",
+      "age": 24,
+      "role": "Tile setter",
+      "scenes": {
+        "housing": {
+          "src": "images/jules/housing.webp",
+          "alt": "Jules — At home"
+        },
+        "physical_health": {
+          "src": "images/jules/physical_health.webp",
+          "alt": "Jules — Meeting with a clinician"
+        },
+        "mental_health": {
+          "src": "images/jules/mental_health.webp",
+          "alt": "Jules — Taking time to journal"
+        },
+        "identity_legal": {
+          "src": "images/jules/identity_legal.webp",
+          "alt": "Jules — Organizing personal paperwork"
+        },
+        "food": {
+          "src": "images/jules/food.webp",
+          "alt": "Jules — Choosing produce"
+        },
+        "transportation": {
+          "src": "images/jules/transportation.webp",
+          "alt": "Jules — Using public transit"
+        },
+        "technology": {
+          "src": "images/jules/technology.webp",
+          "alt": "Jules — Using a laptop at the library"
+        },
+        "work": {
+          "src": "images/jules/work.webp",
+          "alt": "Jules — Tile setter"
+        },
+        "finances": {
+          "src": "images/jules/finances.webp",
+          "alt": "Jules — Planning a household budget"
+        },
+        "self_care": {
+          "src": "images/jules/self_care.webp",
+          "alt": "Jules — Folding clean clothes"
+        },
+        "relationships": {
+          "src": "images/jules/relationships.webp",
+          "alt": "Jules — Sharing a meal with friends"
+        },
+        "life_skills": {
+          "src": "images/jules/life_skills.webp",
+          "alt": "Jules — Preparing a meal"
+        },
+        "safety": {
+          "src": "images/jules/safety.webp",
+          "alt": "Jules — Checking a smoke alarm"
+        },
+        "development": {
+          "src": "images/jules/development.webp",
+          "alt": "Jules — Painting for enjoyment"
+        },
+        "purpose": {
+          "src": "images/jules/purpose.webp",
+          "alt": "Jules — Giving back"
+        }
+      }
+    },
+    {
+      "id": "nia",
+      "name": "Nia",
+      "age": 37,
+      "role": "Electrician apprentice",
+      "scenes": {
+        "housing": {
+          "src": "images/nia/housing.webp",
+          "alt": "Nia — At home"
+        },
+        "physical_health": {
+          "src": "images/nia/physical_health.webp",
+          "alt": "Nia — Meeting with a clinician"
+        },
+        "mental_health": {
+          "src": "images/nia/mental_health.webp",
+          "alt": "Nia — Taking time to journal"
+        },
+        "identity_legal": {
+          "src": "images/nia/identity_legal.webp",
+          "alt": "Nia — Organizing personal paperwork"
+        },
+        "food": {
+          "src": "images/nia/food.webp",
+          "alt": "Nia — Choosing produce"
+        },
+        "transportation": {
+          "src": "images/nia/transportation.webp",
+          "alt": "Nia — Using public transit"
+        },
+        "technology": {
+          "src": "images/nia/technology.webp",
+          "alt": "Nia — Using a laptop at the library"
+        },
+        "work": {
+          "src": "images/nia/work.webp",
+          "alt": "Nia — Electrician apprentice"
+        },
+        "finances": {
+          "src": "images/nia/finances.webp",
+          "alt": "Nia — Planning a household budget"
+        },
+        "self_care": {
+          "src": "images/nia/self_care.webp",
+          "alt": "Nia — Folding clean clothes"
+        },
+        "relationships": {
+          "src": "images/nia/relationships.webp",
+          "alt": "Nia — Sharing a meal with friends"
+        },
+        "life_skills": {
+          "src": "images/nia/life_skills.webp",
+          "alt": "Nia — Preparing a meal"
+        },
+        "safety": {
+          "src": "images/nia/safety.webp",
+          "alt": "Nia — Checking a smoke alarm"
+        },
+        "development": {
+          "src": "images/nia/development.webp",
+          "alt": "Nia — Painting for enjoyment"
+        },
+        "purpose": {
+          "src": "images/nia/purpose.webp",
+          "alt": "Nia — Giving back"
+        }
+      }
+    },
+    {
+      "id": "kenji",
+      "name": "Kenji",
+      "age": 63,
+      "role": "Shoe repair worker",
+      "scenes": {
+        "housing": {
+          "src": "images/kenji/housing.webp",
+          "alt": "Kenji — At home"
+        },
+        "physical_health": {
+          "src": "images/kenji/physical_health.webp",
+          "alt": "Kenji — Meeting with a clinician"
+        },
+        "mental_health": {
+          "src": "images/kenji/mental_health.webp",
+          "alt": "Kenji — Taking time to journal"
+        },
+        "identity_legal": {
+          "src": "images/kenji/identity_legal.webp",
+          "alt": "Kenji — Organizing personal paperwork"
+        },
+        "food": {
+          "src": "images/kenji/food.webp",
+          "alt": "Kenji — Choosing produce"
+        },
+        "transportation": {
+          "src": "images/kenji/transportation.webp",
+          "alt": "Kenji — Using public transit"
+        },
+        "technology": {
+          "src": "images/kenji/technology.webp",
+          "alt": "Kenji — Using a laptop at the library"
+        },
+        "work": {
+          "src": "images/kenji/work.webp",
+          "alt": "Kenji — Shoe repair worker"
+        },
+        "finances": {
+          "src": "images/kenji/finances.webp",
+          "alt": "Kenji — Planning a household budget"
+        },
+        "self_care": {
+          "src": "images/kenji/self_care.webp",
+          "alt": "Kenji — Folding clean clothes"
+        },
+        "relationships": {
+          "src": "images/kenji/relationships.webp",
+          "alt": "Kenji — Sharing a meal with friends"
+        },
+        "life_skills": {
+          "src": "images/kenji/life_skills.webp",
+          "alt": "Kenji — Preparing a meal"
+        },
+        "safety": {
+          "src": "images/kenji/safety.webp",
+          "alt": "Kenji — Checking a smoke alarm"
+        },
+        "development": {
+          "src": "images/kenji/development.webp",
+          "alt": "Kenji — Painting for enjoyment"
+        },
+        "purpose": {
+          "src": "images/kenji/purpose.webp",
+          "alt": "Kenji — Giving back"
+        }
+      }
+    },
+    {
+      "id": "zuri",
+      "name": "Zuri",
+      "age": 28,
+      "role": "Upholstery trainee",
+      "scenes": {
+        "housing": {
+          "src": "images/zuri/housing.webp",
+          "alt": "Zuri — At home"
+        },
+        "physical_health": {
+          "src": "images/zuri/physical_health.webp",
+          "alt": "Zuri — Meeting with a clinician"
+        },
+        "mental_health": {
+          "src": "images/zuri/mental_health.webp",
+          "alt": "Zuri — Taking time to journal"
+        },
+        "identity_legal": {
+          "src": "images/zuri/identity_legal.webp",
+          "alt": "Zuri — Organizing personal paperwork"
+        },
+        "food": {
+          "src": "images/zuri/food.webp",
+          "alt": "Zuri — Choosing produce"
+        },
+        "transportation": {
+          "src": "images/zuri/transportation.webp",
+          "alt": "Zuri — Using public transit"
+        },
+        "technology": {
+          "src": "images/zuri/technology.webp",
+          "alt": "Zuri — Using a laptop at the library"
+        },
+        "work": {
+          "src": "images/zuri/work.webp",
+          "alt": "Zuri — Upholstery trainee"
+        },
+        "finances": {
+          "src": "images/zuri/finances.webp",
+          "alt": "Zuri — Planning a household budget"
+        },
+        "self_care": {
+          "src": "images/zuri/self_care.webp",
+          "alt": "Zuri — Folding clean clothes"
+        },
+        "relationships": {
+          "src": "images/zuri/relationships.webp",
+          "alt": "Zuri — Sharing a meal with friends"
+        },
+        "life_skills": {
+          "src": "images/zuri/life_skills.webp",
+          "alt": "Zuri — Preparing a meal"
+        },
+        "safety": {
+          "src": "images/zuri/safety.webp",
+          "alt": "Zuri — Checking a smoke alarm"
+        },
+        "development": {
+          "src": "images/zuri/development.webp",
+          "alt": "Zuri — Painting for enjoyment"
+        },
+        "purpose": {
+          "src": "images/zuri/purpose.webp",
+          "alt": "Zuri — Giving back"
+        }
+      }
+    },
+    {
+      "id": "omar",
+      "name": "Omar",
+      "age": 55,
+      "role": "Kitchen prep worker",
+      "scenes": {
+        "housing": {
+          "src": "images/omar/housing.webp",
+          "alt": "Omar — At home"
+        },
+        "physical_health": {
+          "src": "images/omar/physical_health.webp",
+          "alt": "Omar — Meeting with a clinician"
+        },
+        "mental_health": {
+          "src": "images/omar/mental_health.webp",
+          "alt": "Omar — Taking time to journal"
+        },
+        "identity_legal": {
+          "src": "images/omar/identity_legal.webp",
+          "alt": "Omar — Organizing personal paperwork"
+        },
+        "food": {
+          "src": "images/omar/food.webp",
+          "alt": "Omar — Choosing produce"
+        },
+        "transportation": {
+          "src": "images/omar/transportation.webp",
+          "alt": "Omar — Using public transit"
+        },
+        "technology": {
+          "src": "images/omar/technology.webp",
+          "alt": "Omar — Using a laptop at the library"
+        },
+        "work": {
+          "src": "images/omar/work.webp",
+          "alt": "Omar — Kitchen prep worker"
+        },
+        "finances": {
+          "src": "images/omar/finances.webp",
+          "alt": "Omar — Planning a household budget"
+        },
+        "self_care": {
+          "src": "images/omar/self_care.webp",
+          "alt": "Omar — Folding clean clothes"
+        },
+        "relationships": {
+          "src": "images/omar/relationships.webp",
+          "alt": "Omar — Sharing a meal with friends"
+        },
+        "life_skills": {
+          "src": "images/omar/life_skills.webp",
+          "alt": "Omar — Preparing a meal"
+        },
+        "safety": {
+          "src": "images/omar/safety.webp",
+          "alt": "Omar — Checking a smoke alarm"
+        },
+        "development": {
+          "src": "images/omar/development.webp",
+          "alt": "Omar — Painting for enjoyment"
+        },
+        "purpose": {
+          "src": "images/omar/purpose.webp",
+          "alt": "Omar — Giving back"
+        }
+      }
+    },
+    {
+      "id": "marisol",
+      "name": "Marisol",
+      "age": 39,
+      "role": "Food packing worker",
+      "scenes": {
+        "housing": {
+          "src": "images/marisol/housing.webp",
+          "alt": "Marisol — At home"
+        },
+        "physical_health": {
+          "src": "images/marisol/physical_health.webp",
+          "alt": "Marisol — Meeting with a clinician"
+        },
+        "mental_health": {
+          "src": "images/marisol/mental_health.webp",
+          "alt": "Marisol — Taking time to journal"
+        },
+        "identity_legal": {
+          "src": "images/marisol/identity_legal.webp",
+          "alt": "Marisol — Organizing personal paperwork"
+        },
+        "food": {
+          "src": "images/marisol/food.webp",
+          "alt": "Marisol — Choosing produce"
+        },
+        "transportation": {
+          "src": "images/marisol/transportation.webp",
+          "alt": "Marisol — Using public transit"
+        },
+        "technology": {
+          "src": "images/marisol/technology.webp",
+          "alt": "Marisol — Using a laptop at the library"
+        },
+        "work": {
+          "src": "images/marisol/work.webp",
+          "alt": "Marisol — Food packing worker"
+        },
+        "finances": {
+          "src": "images/marisol/finances.webp",
+          "alt": "Marisol — Planning a household budget"
+        },
+        "self_care": {
+          "src": "images/marisol/self_care.webp",
+          "alt": "Marisol — Folding clean clothes"
+        },
+        "relationships": {
+          "src": "images/marisol/relationships.webp",
+          "alt": "Marisol — Sharing a meal with friends"
+        },
+        "life_skills": {
+          "src": "images/marisol/life_skills.webp",
+          "alt": "Marisol — Preparing a meal"
+        },
+        "safety": {
+          "src": "images/marisol/safety.webp",
+          "alt": "Marisol — Checking a smoke alarm"
+        },
+        "development": {
+          "src": "images/marisol/development.webp",
+          "alt": "Marisol — Painting for enjoyment"
+        },
+        "purpose": {
+          "src": "images/marisol/purpose.webp",
+          "alt": "Marisol — Giving back"
+        }
+      }
+    },
+    {
+      "id": "meera",
+      "name": "Meera",
+      "age": 60,
+      "role": "Plant nursery worker",
+      "scenes": {
+        "housing": {
+          "src": "images/meera/housing.webp",
+          "alt": "Meera — At home"
+        },
+        "physical_health": {
+          "src": "images/meera/physical_health.webp",
+          "alt": "Meera — Meeting with a clinician"
+        },
+        "mental_health": {
+          "src": "images/meera/mental_health.webp",
+          "alt": "Meera — Taking time to journal"
+        },
+        "identity_legal": {
+          "src": "images/meera/identity_legal.webp",
+          "alt": "Meera — Organizing personal paperwork"
+        },
+        "food": {
+          "src": "images/meera/food.webp",
+          "alt": "Meera — Choosing produce"
+        },
+        "transportation": {
+          "src": "images/meera/transportation.webp",
+          "alt": "Meera — Using public transit"
+        },
+        "technology": {
+          "src": "images/meera/technology.webp",
+          "alt": "Meera — Using a laptop at the library"
+        },
+        "work": {
+          "src": "images/meera/work.webp",
+          "alt": "Meera — Plant nursery worker"
+        },
+        "finances": {
+          "src": "images/meera/finances.webp",
+          "alt": "Meera — Planning a household budget"
+        },
+        "self_care": {
+          "src": "images/meera/self_care.webp",
+          "alt": "Meera — Folding clean clothes"
+        },
+        "relationships": {
+          "src": "images/meera/relationships.webp",
+          "alt": "Meera — Sharing a meal with friends"
+        },
+        "life_skills": {
+          "src": "images/meera/life_skills.webp",
+          "alt": "Meera — Preparing a meal"
+        },
+        "safety": {
+          "src": "images/meera/safety.webp",
+          "alt": "Meera — Checking a smoke alarm"
+        },
+        "development": {
+          "src": "images/meera/development.webp",
+          "alt": "Meera — Painting for enjoyment"
+        },
+        "purpose": {
+          "src": "images/meera/purpose.webp",
+          "alt": "Meera — Giving back"
+        }
+      }
+    },
+    {
+      "id": "isaac",
+      "name": "Isaac",
+      "age": 27,
+      "role": "Irrigation assistant",
+      "scenes": {
+        "housing": {
+          "src": "images/isaac/housing.webp",
+          "alt": "Isaac — At home"
+        },
+        "physical_health": {
+          "src": "images/isaac/physical_health.webp",
+          "alt": "Isaac — Meeting with a clinician"
+        },
+        "mental_health": {
+          "src": "images/isaac/mental_health.webp",
+          "alt": "Isaac — Taking time to journal"
+        },
+        "identity_legal": {
+          "src": "images/isaac/identity_legal.webp",
+          "alt": "Isaac — Organizing personal paperwork"
+        },
+        "food": {
+          "src": "images/isaac/food.webp",
+          "alt": "Isaac — Choosing produce"
+        },
+        "transportation": {
+          "src": "images/isaac/transportation.webp",
+          "alt": "Isaac — Using public transit"
+        },
+        "technology": {
+          "src": "images/isaac/technology.webp",
+          "alt": "Isaac — Using a laptop at the library"
+        },
+        "work": {
+          "src": "images/isaac/work.webp",
+          "alt": "Isaac — Irrigation assistant"
+        },
+        "finances": {
+          "src": "images/isaac/finances.webp",
+          "alt": "Isaac — Planning a household budget"
+        },
+        "self_care": {
+          "src": "images/isaac/self_care.webp",
+          "alt": "Isaac — Folding clean clothes"
+        },
+        "relationships": {
+          "src": "images/isaac/relationships.webp",
+          "alt": "Isaac — Sharing a meal with friends"
+        },
+        "life_skills": {
+          "src": "images/isaac/life_skills.webp",
+          "alt": "Isaac — Preparing a meal"
+        },
+        "safety": {
+          "src": "images/isaac/safety.webp",
+          "alt": "Isaac — Checking a smoke alarm"
+        },
+        "development": {
+          "src": "images/isaac/development.webp",
+          "alt": "Isaac — Painting for enjoyment"
+        },
+        "purpose": {
+          "src": "images/isaac/purpose.webp",
+          "alt": "Isaac — Giving back"
+        }
+      }
+    },
+    {
+      "id": "elena",
+      "name": "Elena",
+      "age": 46,
+      "role": "Laundry attendant",
+      "scenes": {
+        "housing": {
+          "src": "images/elena/housing.webp",
+          "alt": "Elena — At home"
+        },
+        "physical_health": {
+          "src": "images/elena/physical_health.webp",
+          "alt": "Elena — Meeting with a clinician"
+        },
+        "mental_health": {
+          "src": "images/elena/mental_health.webp",
+          "alt": "Elena — Taking time to journal"
+        },
+        "identity_legal": {
+          "src": "images/elena/identity_legal.webp",
+          "alt": "Elena — Organizing personal paperwork"
+        },
+        "food": {
+          "src": "images/elena/food.webp",
+          "alt": "Elena — Choosing produce"
+        },
+        "transportation": {
+          "src": "images/elena/transportation.webp",
+          "alt": "Elena — Using public transit"
+        },
+        "technology": {
+          "src": "images/elena/technology.webp",
+          "alt": "Elena — Using a laptop at the library"
+        },
+        "work": {
+          "src": "images/elena/work.webp",
+          "alt": "Elena — Laundry attendant"
+        },
+        "finances": {
+          "src": "images/elena/finances.webp",
+          "alt": "Elena — Planning a household budget"
+        },
+        "self_care": {
+          "src": "images/elena/self_care.webp",
+          "alt": "Elena — Folding clean clothes"
+        },
+        "relationships": {
+          "src": "images/elena/relationships.webp",
+          "alt": "Elena — Sharing a meal with friends"
+        },
+        "life_skills": {
+          "src": "images/elena/life_skills.webp",
+          "alt": "Elena — Preparing a meal"
+        },
+        "safety": {
+          "src": "images/elena/safety.webp",
+          "alt": "Elena — Checking a smoke alarm"
+        },
+        "development": {
+          "src": "images/elena/development.webp",
+          "alt": "Elena — Painting for enjoyment"
+        },
+        "purpose": {
+          "src": "images/elena/purpose.webp",
+          "alt": "Elena — Giving back"
+        }
+      }
+    },
+    {
+      "id": "tariq",
+      "name": "Tariq",
+      "age": 22,
+      "role": "Barber trainee",
+      "scenes": {
+        "housing": {
+          "src": "images/tariq/housing.webp",
+          "alt": "Tariq — At home"
+        },
+        "physical_health": {
+          "src": "images/tariq/physical_health.webp",
+          "alt": "Tariq — Meeting with a clinician"
+        },
+        "mental_health": {
+          "src": "images/tariq/mental_health.webp",
+          "alt": "Tariq — Taking time to journal"
+        },
+        "identity_legal": {
+          "src": "images/tariq/identity_legal.webp",
+          "alt": "Tariq — Organizing personal paperwork"
+        },
+        "food": {
+          "src": "images/tariq/food.webp",
+          "alt": "Tariq — Choosing produce"
+        },
+        "transportation": {
+          "src": "images/tariq/transportation.webp",
+          "alt": "Tariq — Using public transit"
+        },
+        "technology": {
+          "src": "images/tariq/technology.webp",
+          "alt": "Tariq — Using a laptop at the library"
+        },
+        "work": {
+          "src": "images/tariq/work.webp",
+          "alt": "Tariq — Barber trainee"
+        },
+        "finances": {
+          "src": "images/tariq/finances.webp",
+          "alt": "Tariq — Planning a household budget"
+        },
+        "self_care": {
+          "src": "images/tariq/self_care.webp",
+          "alt": "Tariq — Folding clean clothes"
+        },
+        "relationships": {
+          "src": "images/tariq/relationships.webp",
+          "alt": "Tariq — Sharing a meal with friends"
+        },
+        "life_skills": {
+          "src": "images/tariq/life_skills.webp",
+          "alt": "Tariq — Preparing a meal"
+        },
+        "safety": {
+          "src": "images/tariq/safety.webp",
+          "alt": "Tariq — Checking a smoke alarm"
+        },
+        "development": {
+          "src": "images/tariq/development.webp",
+          "alt": "Tariq — Painting for enjoyment"
+        },
+        "purpose": {
+          "src": "images/tariq/purpose.webp",
+          "alt": "Tariq — Giving back"
+        }
+      }
+    },
+    {
+      "id": "jo",
+      "name": "Jo",
+      "age": 36,
+      "role": "Market stall worker",
+      "scenes": {
+        "housing": {
+          "src": "images/jo/housing.webp",
+          "alt": "Jo — At home"
+        },
+        "physical_health": {
+          "src": "images/jo/physical_health.webp",
+          "alt": "Jo — Meeting with a clinician"
+        },
+        "mental_health": {
+          "src": "images/jo/mental_health.webp",
+          "alt": "Jo — Taking time to journal"
+        },
+        "identity_legal": {
+          "src": "images/jo/identity_legal.webp",
+          "alt": "Jo — Organizing personal paperwork"
+        },
+        "food": {
+          "src": "images/jo/food.webp",
+          "alt": "Jo — Choosing produce"
+        },
+        "transportation": {
+          "src": "images/jo/transportation.webp",
+          "alt": "Jo — Using public transit"
+        },
+        "technology": {
+          "src": "images/jo/technology.webp",
+          "alt": "Jo — Using a laptop at the library"
+        },
+        "work": {
+          "src": "images/jo/work.webp",
+          "alt": "Jo — Market stall worker"
+        },
+        "finances": {
+          "src": "images/jo/finances.webp",
+          "alt": "Jo — Planning a household budget"
+        },
+        "self_care": {
+          "src": "images/jo/self_care.webp",
+          "alt": "Jo — Folding clean clothes"
+        },
+        "relationships": {
+          "src": "images/jo/relationships.webp",
+          "alt": "Jo — Sharing a meal with friends"
+        },
+        "life_skills": {
+          "src": "images/jo/life_skills.webp",
+          "alt": "Jo — Preparing a meal"
+        },
+        "safety": {
+          "src": "images/jo/safety.webp",
+          "alt": "Jo — Checking a smoke alarm"
+        },
+        "development": {
+          "src": "images/jo/development.webp",
+          "alt": "Jo — Painting for enjoyment"
+        },
+        "purpose": {
+          "src": "images/jo/purpose.webp",
+          "alt": "Jo — Giving back"
+        }
+      }
+    },
+    {
+      "id": "pavel",
+      "name": "Pavel",
+      "age": 57,
+      "role": "Assembly quality checker",
+      "scenes": {
+        "housing": {
+          "src": "images/pavel/housing.webp",
+          "alt": "Pavel — At home"
+        },
+        "physical_health": {
+          "src": "images/pavel/physical_health.webp",
+          "alt": "Pavel — Meeting with a clinician"
+        },
+        "mental_health": {
+          "src": "images/pavel/mental_health.webp",
+          "alt": "Pavel — Taking time to journal"
+        },
+        "identity_legal": {
+          "src": "images/pavel/identity_legal.webp",
+          "alt": "Pavel — Organizing personal paperwork"
+        },
+        "food": {
+          "src": "images/pavel/food.webp",
+          "alt": "Pavel — Choosing produce"
+        },
+        "transportation": {
+          "src": "images/pavel/transportation.webp",
+          "alt": "Pavel — Using public transit"
+        },
+        "technology": {
+          "src": "images/pavel/technology.webp",
+          "alt": "Pavel — Using a laptop at the library"
+        },
+        "work": {
+          "src": "images/pavel/work.webp",
+          "alt": "Pavel — Assembly quality checker"
+        },
+        "finances": {
+          "src": "images/pavel/finances.webp",
+          "alt": "Pavel — Planning a household budget"
+        },
+        "self_care": {
+          "src": "images/pavel/self_care.webp",
+          "alt": "Pavel — Folding clean clothes"
+        },
+        "relationships": {
+          "src": "images/pavel/relationships.webp",
+          "alt": "Pavel — Sharing a meal with friends"
+        },
+        "life_skills": {
+          "src": "images/pavel/life_skills.webp",
+          "alt": "Pavel — Preparing a meal"
+        },
+        "safety": {
+          "src": "images/pavel/safety.webp",
+          "alt": "Pavel — Checking a smoke alarm"
+        },
+        "development": {
+          "src": "images/pavel/development.webp",
+          "alt": "Pavel — Painting for enjoyment"
+        },
+        "purpose": {
+          "src": "images/pavel/purpose.webp",
+          "alt": "Pavel — Giving back"
+        }
+      }
+    },
+    {
+      "id": "imani",
+      "name": "Imani",
+      "age": 33,
+      "role": "Building maintenance assistant",
+      "scenes": {
+        "housing": {
+          "src": "images/imani/housing.webp",
+          "alt": "Imani — At home"
+        },
+        "physical_health": {
+          "src": "images/imani/physical_health.webp",
+          "alt": "Imani — Meeting with a clinician"
+        },
+        "mental_health": {
+          "src": "images/imani/mental_health.webp",
+          "alt": "Imani — Taking time to journal"
+        },
+        "identity_legal": {
+          "src": "images/imani/identity_legal.webp",
+          "alt": "Imani — Organizing personal paperwork"
+        },
+        "food": {
+          "src": "images/imani/food.webp",
+          "alt": "Imani — Choosing produce"
+        },
+        "transportation": {
+          "src": "images/imani/transportation.webp",
+          "alt": "Imani — Using public transit"
+        },
+        "technology": {
+          "src": "images/imani/technology.webp",
+          "alt": "Imani — Using a laptop at the library"
+        },
+        "work": {
+          "src": "images/imani/work.webp",
+          "alt": "Imani — Building maintenance assistant"
+        },
+        "finances": {
+          "src": "images/imani/finances.webp",
+          "alt": "Imani — Planning a household budget"
+        },
+        "self_care": {
+          "src": "images/imani/self_care.webp",
+          "alt": "Imani — Folding clean clothes"
+        },
+        "relationships": {
+          "src": "images/imani/relationships.webp",
+          "alt": "Imani — Sharing a meal with friends"
+        },
+        "life_skills": {
+          "src": "images/imani/life_skills.webp",
+          "alt": "Imani — Preparing a meal"
+        },
+        "safety": {
+          "src": "images/imani/safety.webp",
+          "alt": "Imani — Checking a smoke alarm"
+        },
+        "development": {
+          "src": "images/imani/development.webp",
+          "alt": "Imani — Painting for enjoyment"
+        },
+        "purpose": {
+          "src": "images/imani/purpose.webp",
+          "alt": "Imani — Giving back"
+        }
+      }
+    },
+    {
+      "id": "sofie",
+      "name": "Sofie",
+      "age": 43,
+      "role": "Home support worker trainee",
+      "scenes": {
+        "housing": {
+          "src": "images/sofie/housing.webp",
+          "alt": "Sofie — At home"
+        },
+        "physical_health": {
+          "src": "images/sofie/physical_health.webp",
+          "alt": "Sofie — Meeting with a clinician"
+        },
+        "mental_health": {
+          "src": "images/sofie/mental_health.webp",
+          "alt": "Sofie — Taking time to journal"
+        },
+        "identity_legal": {
+          "src": "images/sofie/identity_legal.webp",
+          "alt": "Sofie — Organizing personal paperwork"
+        },
+        "food": {
+          "src": "images/sofie/food.webp",
+          "alt": "Sofie — Choosing produce"
+        },
+        "transportation": {
+          "src": "images/sofie/transportation.webp",
+          "alt": "Sofie — Using public transit"
+        },
+        "technology": {
+          "src": "images/sofie/technology.webp",
+          "alt": "Sofie — Using a laptop at the library"
+        },
+        "work": {
+          "src": "images/sofie/work.webp",
+          "alt": "Sofie — Home support worker trainee"
+        },
+        "finances": {
+          "src": "images/sofie/finances.webp",
+          "alt": "Sofie — Planning a household budget"
+        },
+        "self_care": {
+          "src": "images/sofie/self_care.webp",
+          "alt": "Sofie — Folding clean clothes"
+        },
+        "relationships": {
+          "src": "images/sofie/relationships.webp",
+          "alt": "Sofie — Sharing a meal with friends"
+        },
+        "life_skills": {
+          "src": "images/sofie/life_skills.webp",
+          "alt": "Sofie — Preparing a meal"
+        },
+        "safety": {
+          "src": "images/sofie/safety.webp",
+          "alt": "Sofie — Checking a smoke alarm"
+        },
+        "development": {
+          "src": "images/sofie/development.webp",
+          "alt": "Sofie — Painting for enjoyment"
+        },
+        "purpose": {
+          "src": "images/sofie/purpose.webp",
+          "alt": "Sofie — Giving back"
+        }
+      }
+    },
+    {
+      "id": "kofi",
+      "name": "Kofi",
+      "age": 64,
+      "role": "Materials recovery worker",
+      "scenes": {
+        "housing": {
+          "src": "images/kofi/housing.webp",
+          "alt": "Kofi — At home"
+        },
+        "physical_health": {
+          "src": "images/kofi/physical_health.webp",
+          "alt": "Kofi — Meeting with a clinician"
+        },
+        "mental_health": {
+          "src": "images/kofi/mental_health.webp",
+          "alt": "Kofi — Taking time to journal"
+        },
+        "identity_legal": {
+          "src": "images/kofi/identity_legal.webp",
+          "alt": "Kofi — Organizing personal paperwork"
+        },
+        "food": {
+          "src": "images/kofi/food.webp",
+          "alt": "Kofi — Choosing produce"
+        },
+        "transportation": {
+          "src": "images/kofi/transportation.webp",
+          "alt": "Kofi — Using public transit"
+        },
+        "technology": {
+          "src": "images/kofi/technology.webp",
+          "alt": "Kofi — Using a laptop at the library"
+        },
+        "work": {
+          "src": "images/kofi/work.webp",
+          "alt": "Kofi — Materials recovery worker"
+        },
+        "finances": {
+          "src": "images/kofi/finances.webp",
+          "alt": "Kofi — Planning a household budget"
+        },
+        "self_care": {
+          "src": "images/kofi/self_care.webp",
+          "alt": "Kofi — Folding clean clothes"
+        },
+        "relationships": {
+          "src": "images/kofi/relationships.webp",
+          "alt": "Kofi — Sharing a meal with friends"
+        },
+        "life_skills": {
+          "src": "images/kofi/life_skills.webp",
+          "alt": "Kofi — Preparing a meal"
+        },
+        "safety": {
+          "src": "images/kofi/safety.webp",
+          "alt": "Kofi — Checking a smoke alarm"
+        },
+        "development": {
+          "src": "images/kofi/development.webp",
+          "alt": "Kofi — Painting for enjoyment"
+        },
+        "purpose": {
+          "src": "images/kofi/purpose.webp",
+          "alt": "Kofi — Giving back"
+        }
+      }
+    },
+    {
+      "id": "leilani",
+      "name": "Leilani",
+      "age": 35,
+      "role": "Print finishing operator",
+      "scenes": {
+        "housing": {
+          "src": "images/leilani/housing.webp",
+          "alt": "Leilani — At home"
+        },
+        "physical_health": {
+          "src": "images/leilani/physical_health.webp",
+          "alt": "Leilani — Meeting with a clinician"
+        },
+        "mental_health": {
+          "src": "images/leilani/mental_health.webp",
+          "alt": "Leilani — Taking time to journal"
+        },
+        "identity_legal": {
+          "src": "images/leilani/identity_legal.webp",
+          "alt": "Leilani — Organizing personal paperwork"
+        },
+        "food": {
+          "src": "images/leilani/food.webp",
+          "alt": "Leilani — Choosing produce"
+        },
+        "transportation": {
+          "src": "images/leilani/transportation.webp",
+          "alt": "Leilani — Using public transit"
+        },
+        "technology": {
+          "src": "images/leilani/technology.webp",
+          "alt": "Leilani — Using a laptop at the library"
+        },
+        "work": {
+          "src": "images/leilani/work.webp",
+          "alt": "Leilani — Print finishing operator"
+        },
+        "finances": {
+          "src": "images/leilani/finances.webp",
+          "alt": "Leilani — Planning a household budget"
+        },
+        "self_care": {
+          "src": "images/leilani/self_care.webp",
+          "alt": "Leilani — Folding clean clothes"
+        },
+        "relationships": {
+          "src": "images/leilani/relationships.webp",
+          "alt": "Leilani — Sharing a meal with friends"
+        },
+        "life_skills": {
+          "src": "images/leilani/life_skills.webp",
+          "alt": "Leilani — Preparing a meal"
+        },
+        "safety": {
+          "src": "images/leilani/safety.webp",
+          "alt": "Leilani — Checking a smoke alarm"
+        },
+        "development": {
+          "src": "images/leilani/development.webp",
+          "alt": "Leilani — Painting for enjoyment"
+        },
+        "purpose": {
+          "src": "images/leilani/purpose.webp",
+          "alt": "Leilani — Giving back"
+        }
+      }
+    },
+    {
+      "id": "nadia",
+      "name": "Nadia",
+      "age": 50,
+      "role": "Pottery studio assistant",
+      "scenes": {
+        "housing": {
+          "src": "images/nadia/housing.webp",
+          "alt": "Nadia — At home"
+        },
+        "physical_health": {
+          "src": "images/nadia/physical_health.webp",
+          "alt": "Nadia — Meeting with a clinician"
+        },
+        "mental_health": {
+          "src": "images/nadia/mental_health.webp",
+          "alt": "Nadia — Taking time to journal"
+        },
+        "identity_legal": {
+          "src": "images/nadia/identity_legal.webp",
+          "alt": "Nadia — Organizing personal paperwork"
+        },
+        "food": {
+          "src": "images/nadia/food.webp",
+          "alt": "Nadia — Choosing produce"
+        },
+        "transportation": {
+          "src": "images/nadia/transportation.webp",
+          "alt": "Nadia — Using public transit"
+        },
+        "technology": {
+          "src": "images/nadia/technology.webp",
+          "alt": "Nadia — Using a laptop at the library"
+        },
+        "work": {
+          "src": "images/nadia/work.webp",
+          "alt": "Nadia — Pottery studio assistant"
+        },
+        "finances": {
+          "src": "images/nadia/finances.webp",
+          "alt": "Nadia — Planning a household budget"
+        },
+        "self_care": {
+          "src": "images/nadia/self_care.webp",
+          "alt": "Nadia — Folding clean clothes"
+        },
+        "relationships": {
+          "src": "images/nadia/relationships.webp",
+          "alt": "Nadia — Sharing a meal with friends"
+        },
+        "life_skills": {
+          "src": "images/nadia/life_skills.webp",
+          "alt": "Nadia — Preparing a meal"
+        },
+        "safety": {
+          "src": "images/nadia/safety.webp",
+          "alt": "Nadia — Checking a smoke alarm"
+        },
+        "development": {
+          "src": "images/nadia/development.webp",
+          "alt": "Nadia — Painting for enjoyment"
+        },
+        "purpose": {
+          "src": "images/nadia/purpose.webp",
+          "alt": "Nadia — Giving back"
+        }
+      }
+    },
+    {
+      "id": "andre",
+      "name": "André",
+      "age": 45,
+      "role": "Bus driver trainee",
+      "scenes": {
+        "housing": {
+          "src": "images/andre/housing.webp",
+          "alt": "André — At home"
+        },
+        "physical_health": {
+          "src": "images/andre/physical_health.webp",
+          "alt": "André — Meeting with a clinician"
+        },
+        "mental_health": {
+          "src": "images/andre/mental_health.webp",
+          "alt": "André — Taking time to journal"
+        },
+        "identity_legal": {
+          "src": "images/andre/identity_legal.webp",
+          "alt": "André — Organizing personal paperwork"
+        },
+        "food": {
+          "src": "images/andre/food.webp",
+          "alt": "André — Choosing produce"
+        },
+        "transportation": {
+          "src": "images/andre/transportation.webp",
+          "alt": "André — Using public transit"
+        },
+        "technology": {
+          "src": "images/andre/technology.webp",
+          "alt": "André — Using a laptop at the library"
+        },
+        "work": {
+          "src": "images/andre/work.webp",
+          "alt": "André — Bus driver trainee"
+        },
+        "finances": {
+          "src": "images/andre/finances.webp",
+          "alt": "André — Planning a household budget"
+        },
+        "self_care": {
+          "src": "images/andre/self_care.webp",
+          "alt": "André — Folding clean clothes"
+        },
+        "relationships": {
+          "src": "images/andre/relationships.webp",
+          "alt": "André — Sharing a meal with friends"
+        },
+        "life_skills": {
+          "src": "images/andre/life_skills.webp",
+          "alt": "André — Preparing a meal"
+        },
+        "safety": {
+          "src": "images/andre/safety.webp",
+          "alt": "André — Checking a smoke alarm"
+        },
+        "development": {
+          "src": "images/andre/development.webp",
+          "alt": "André — Painting for enjoyment"
+        },
+        "purpose": {
+          "src": "images/andre/purpose.webp",
+          "alt": "André — Giving back"
+        }
+      }
+    },
+    {
+      "id": "saanvi",
+      "name": "Saanvi",
+      "age": 30,
+      "role": "Computer refurbishment technician",
+      "scenes": {
+        "housing": {
+          "src": "images/saanvi/housing.webp",
+          "alt": "Saanvi — At home"
+        },
+        "physical_health": {
+          "src": "images/saanvi/physical_health.webp",
+          "alt": "Saanvi — Meeting with a clinician"
+        },
+        "mental_health": {
+          "src": "images/saanvi/mental_health.webp",
+          "alt": "Saanvi — Taking time to journal"
+        },
+        "identity_legal": {
+          "src": "images/saanvi/identity_legal.webp",
+          "alt": "Saanvi — Organizing personal paperwork"
+        },
+        "food": {
+          "src": "images/saanvi/food.webp",
+          "alt": "Saanvi — Choosing produce"
+        },
+        "transportation": {
+          "src": "images/saanvi/transportation.webp",
+          "alt": "Saanvi — Using public transit"
+        },
+        "technology": {
+          "src": "images/saanvi/technology.webp",
+          "alt": "Saanvi — Using a laptop at the library"
+        },
+        "work": {
+          "src": "images/saanvi/work.webp",
+          "alt": "Saanvi — Computer refurbishment technician"
+        },
+        "finances": {
+          "src": "images/saanvi/finances.webp",
+          "alt": "Saanvi — Planning a household budget"
+        },
+        "self_care": {
+          "src": "images/saanvi/self_care.webp",
+          "alt": "Saanvi — Folding clean clothes"
+        },
+        "relationships": {
+          "src": "images/saanvi/relationships.webp",
+          "alt": "Saanvi — Sharing a meal with friends"
+        },
+        "life_skills": {
+          "src": "images/saanvi/life_skills.webp",
+          "alt": "Saanvi — Preparing a meal"
+        },
+        "safety": {
+          "src": "images/saanvi/safety.webp",
+          "alt": "Saanvi — Checking a smoke alarm"
+        },
+        "development": {
+          "src": "images/saanvi/development.webp",
+          "alt": "Saanvi — Painting for enjoyment"
+        },
+        "purpose": {
+          "src": "images/saanvi/purpose.webp",
+          "alt": "Saanvi — Giving back"
+        }
+      }
+    }
+  ]
+}
