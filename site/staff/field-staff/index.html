@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Staff and Units — 2nd Chance Housing Staff</title>
+<link rel="icon" href="/favicon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+<style>
+.person{border:1px solid var(--line);border-radius:8px;background:var(--panel);padding:14px 16px;margin-bottom:12px}
+.person h2{margin:0;font-size:1.1rem}
+.person .meta{color:var(--muted);font-size:.88rem}
+.bldg{margin-top:8px}
+.bldg b{display:block;font-size:.85rem;color:var(--muted);margin-bottom:4px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips label{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--line);border-radius:20px;padding:3px 10px;font-size:.9rem;cursor:pointer;background:var(--bg)}
+.chips label.on{background:var(--accent-soft);border-color:var(--accent);font-weight:700}
+.chips label.co::after{content:"2CH";font-size:.62rem;font-weight:700;color:#1f4d8a;margin-left:2px}
+.log td{font-size:.88rem}
+</style>
+</head>
+<body>
+<div class="appbar" data-nav="staff"><div class="appbar-in">
+  <a class="org" href="/staff/" style="color:inherit;text-decoration:none">2nd Chance Housing<span>Staff and units · Staff</span></a>
+  <div class="row" id="userBar" hidden><button class="linkbtn" type="button" id="signOutBtn">Sign out</button></div>
+</div></div>
+<main class="wrap">
+  <header><h1>Staff and their units</h1>
+    <p class="lead">Which staff login controls which units. A field staff member sees only the units ticked here. Tick or untick a unit to change it; it saves at once and is logged.
+    Units marked <b>2CH</b> are owned by 2nd Chance Housing Inc: office staff, and field staff assigned to one of them, can pay its association dues at
+    <a href="/staff/dues-pay/">Pay dues</a>. Office staff see every unit anyway.</p></header>
+  <div id="signin" class="narrow"></div>
+  <div id="app" hidden></div>
+</main>
+<script type="module">
+import { client, $, esc, fmtDate, signIn, signOut, errorText } from "/assets/portal/portal.js";
+const BLDGS = [["6626-n-bourbon", "6626 N Bourbon St", [1, 2, 3, 4, 5, 6, 7, 8]], ["6622-n-bourbon", "6622 N Bourbon St", [11, 12, 13, 14, 15, 16, 17, 18]]];
+const who = await signIn($("signin"), { audience: "staff" });
+$("userBar").hidden = false; $("signOutBtn").onclick = signOut;
+if (who.role !== "staff") { $("signin").hidden = false; $("signin").innerHTML = `<div class="panel"><p>This page is for the office. <a href="/staff/">Go to My units</a></p></div>`; }
+else await load();
+
+async function load() {
+  const { data, error } = await client.rpc("admin_staff_units_list");
+  $("signin").hidden = true; $("app").hidden = false;
+  if (error) { $("app").innerHTML = `<div class="panel"><p class="msg err">${esc(await errorText(error))}</p><p class="meta">Office staff can see and change unit assignments.</p></div>`; return; }
+  const co = new Set(data.company_units || []);
+  const people = data.people || [];
+  const kind = { staff_unit_add: "added", staff_unit_remove: "removed" };
+  $("app").innerHTML = people.map((p, i) => {
+    const has = new Set((p.units || []).map((x) => x.property_id + "|" + x.unit));
+    return `<section class="person"><h2>${esc(p.name || p.email)}</h2>
+      <div class="meta">${esc(p.email)} · ${p.role === "field" ? "Field staff" : "Office staff"}${p.active === false ? " · <b>inactive</b>" : ""} · ${has.size} unit${has.size === 1 ? "" : "s"}</div>
+      ${BLDGS.map(([pid, name, units]) => `<div class="bldg"><b>${esc(name)}</b><div class="chips">${units.map((u) => {
+        const on = has.has(pid + "|" + u);
+        return `<label class="${on ? "on" : ""}${co.has(String(u)) ? " co" : ""}"><input type="checkbox" data-i="${i}" data-p="${pid}" data-u="${u}"${on ? " checked" : ""}> ${u}</label>`;
+      }).join("")}</div></div>`).join("")}
+      <span class="msg" id="m${i}" role="status"></span></section>`;
+  }).join("") +
+    `<section class="panel"><h2 style="margin:0">Recent changes</h2>${(data.log || []).filter((l) => kind[l.kind]).length
+      ? `<div class="table-wrap"><table class="log"><thead><tr><th>When</th><th>By</th><th>Change</th></tr></thead><tbody>${(data.log || []).filter((l) => kind[l.kind]).map((l) =>
+          `<tr><td>${esc(fmtDate(l.at))}</td><td>${esc(l.by)}</td><td>Unit ${esc(l.detail.unit)} ${kind[l.kind]} for ${esc(l.target)}</td></tr>`).join("")}</tbody></table></div>`
+      : `<p class="meta">No changes yet.</p>`}</section>`;
+  $("app").onchange = async (e) => {
+    const cb = e.target; if (!cb.dataset || cb.dataset.i == null) return;
+    const p = people[Number(cb.dataset.i)], m = $("m" + cb.dataset.i);
+    cb.disabled = true; m.className = "msg"; m.textContent = "Saving…";
+    const { error: err } = await client.rpc("admin_staff_unit_set", { p_email: p.email, p_property: cb.dataset.p, p_unit: cb.dataset.u, p_on: cb.checked });
+    if (err) { cb.checked = !cb.checked; cb.disabled = false; m.className = "msg err"; m.textContent = await errorText(err); return; }
+    await load();
+    const m2 = $("m" + cb.dataset.i); if (m2) { m2.className = "msg ok"; m2.textContent = `Unit ${cb.dataset.u} ${cb.checked ? "added" : "removed"}.`; }
+  };
+}
+</script>
+</body>
+</html>

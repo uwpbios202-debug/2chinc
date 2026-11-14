@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>eFile check — 2nd Chance Housing Staff</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+<style>
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-bottom: 14px; }
+  .card h2 { margin: 0 0 8px; font-size: 1.15rem; }
+  .meta { color: var(--muted); font-size: 0.9rem; }
+  .big { border-radius: 10px; padding: 14px 16px; margin-bottom: 14px; font-size: 1.05rem; }
+  .big b { font-size: 1.2rem; }
+  .s-stop { background: #fde8e7; color: #8c1d18; border: 2px solid #b3261e; }
+  .s-wait { background: #fff4d6; color: #6b4a00; border: 2px solid #c98a00; }
+  .s-go { background: #e6f4ea; color: #145c2c; border: 2px solid #2e7d32; }
+  .s-done { background: #e7f0fb; color: #0b4a8a; border: 2px solid #0b5cad; }
+  ul.checks { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+  ul.checks li { border-radius: 8px; padding: 8px 10px 8px 12px; border-left: 6px solid; background: var(--off-soft, #f6f6f6); }
+  ul.checks li.stop { border-color: #b3261e; } ul.checks li.check { border-color: #c98a00; } ul.checks li.ok { border-color: #2e7d32; }
+  .tag { font-size: 0.74rem; font-weight: 700; padding: 1px 7px; border-radius: 4px; color: #fff; margin-right: 6px; }
+  .tag.stop { background: #b3261e; } .tag.check { background: #c98a00; } .tag.ok { background: #2e7d32; }
+  table.type { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+  table.type th { text-align: left; width: 30%; vertical-align: top; padding: 7px 8px; color: var(--muted); font-weight: 600; border-bottom: 1px solid var(--line); }
+  table.type td { padding: 7px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .val { font-family: Consolas, Menlo, monospace; background: #fff8e1; color: #222; padding: 1px 5px; border-radius: 4px; }
+  .copy { margin-left: 6px; font-size: 0.8rem; padding: 2px 8px; }
+  .dnf { position: relative; }
+  .dnf::after { content: "DO NOT FILE"; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 3rem; font-weight: 800;
+    color: rgba(179, 38, 30, 0.22); transform: rotate(-12deg); pointer-events: none; }
+  .cl label { display: flex; gap: 10px; align-items: flex-start; padding: 7px 0; border-bottom: 1px solid var(--line); cursor: pointer; }
+  .cl input { margin-top: 4px; width: 18px; height: 18px; flex: none; }
+  .row2 { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 10px; }
+  .row2 input[type=text], textarea { font: inherit; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); color: inherit; }
+  textarea { width: 100%; box-sizing: border-box; min-height: 60px; }
+  .list a.item { display: block; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; margin-bottom: 8px; text-decoration: none; color: inherit; background: var(--panel); }
+  ol.after li { margin: 6px 0; }
+  @media print { .appbar, .noprint, .copy { display: none !important; } body { background: #fff; } .card { break-inside: avoid; } }
+</style>
+</head>
+<body>
+<div class="appbar" data-nav="staff">
+  <div class="appbar-in">
+    <div class="org">2nd Chance Housing<span>eFile check · Staff</span></div>
+    <div class="row" id="userBar" hidden><button class="linkbtn" type="button" id="signOutBtn">Sign out</button></div>
+  </div>
+</div>
+<main class="wrap" style="max-width:980px">
+  <header><h1>eFile check</h1><p class="lead">Before an eviction goes to Milwaukee County: the site reads the notice exactly as served and the rent ledger, stops on anything that would get the case
+    rejected or dismissed, and tells you exactly what to type at <a href="https://efiling.wicourts.gov/" target="_blank" rel="noopener">https://efiling.wicourts.gov/</a>. Rent only: late fees are never part of a filing.</p>
+    <p class="noprint" style="margin-top:8px"><a class="btn" href="https://efiling.wicourts.gov/" target="_blank" rel="noopener">Open the court's eFiling sign-in</a> <span class="meta">Sign in to the shared 2nd Chance/ROCA1 eFiling account. Chrome's password manager fills the username and password; the court then emails a 6-digit code.</span></p></header>
+  <div id="signin" class="narrow"></div>
+  <div id="app" hidden></div>
+</main>
+<script type="module">
+import { client, $, esc, fmtDate, signIn, signOut, errorText } from "/assets/portal/portal.js";
+import { courtPacket } from "/assets/portal/court-packet.js";
+import { printEnvelopes } from "/assets/portal/envelope.js";
+import { pickProof } from "/assets/portal/proof-upload.js";
+import { fillSC500, fillSC5100V, checkForms, formsReport, serviceRequest } from "/assets/portal/court-forms.js";
+
+// "Fill the SC-500" / "Fill the SC-5100V" / "Check the court for a newer form": shared by the check page and the Process screen.
+function formButtons(v, which) {
+  const b = [];
+  if (which.includes("sc500")) b.push(`<button class="btn primary" type="button" data-fill="sc500" ${Number(v.stops) > 0 ? "disabled" : ""}>Fill the SC-500 (Summons and Complaint)</button>`);
+  if (which.includes("sc5100v")) b.push(`<button class="btn" type="button" data-fill="sc5100v" ${v.case_number ? "" : "disabled title='Record the case number first'"}>Fill the SC-5100V (Declaration of Service)</button>`);
+  b.push(`<button class="btn" type="button" data-fill="check">Check the court for a newer form</button>`);
+  return `<div class="row2 noprint">${b.join("")}</div><div class="msg" data-formmsg style="margin-top:6px"></div>`;
+}
+function wireFormButtons(v) {
+  $("app").querySelectorAll("[data-fill]").forEach((btn) => btn.onclick = async () => {
+    const out = btn.closest(".card, .pstep").querySelector("[data-formmsg]");
+    const msg = (s, ok) => { out.className = "msg " + (ok ? "ok" : "err"); out.textContent = s; };
+    if (btn.dataset.fill === "sc500") return fillSC500(client, v, btn, msg);
+    if (btn.dataset.fill === "sc5100v") return fillSC5100V(client, v, btn, msg);
+    const label = btn.textContent; btn.disabled = true; btn.textContent = "Checking wicourts.gov…";
+    try { const r = await checkForms(client); out.className = "msg"; out.innerHTML = formsReport(r); }
+    catch (e) { msg(e.message || String(e)); }
+    finally { btn.disabled = false; btn.textContent = label; }
+  });
+}
+
+const SC500_ES = "https://www.wicourts.gov/formdisplay/SC-500_es.pdf?formNumber=SC-500&formType=Form&formatId=2&language=es";
+const SC5100V = "https://www.wicourts.gov/forms1/circuit/ccform.jsp?Category=38";
+// The checklist (keys must match efile_checklist_keys() in the database). Each line is a mistake that has happened to us or is a known rejection reason.
+const CHECKLIST = [
+  ["account", "I am signed in to https://efiling.wicourts.gov/ with the <b>shared 2nd Chance/ROCA1 eFiling account</b> (the court emails a 6-digit code to sign in). Plaintiff is entered as <b>Business/organization</b>, and &quot;Are you a filing agent for this party?&quot; is <b>Yes</b>. Refunds and court mail go to whoever filed."],
+  ["no_duplicate", "Before starting I looked at <b>in progress</b>, <b>ready to file</b> and <b>payment needed</b> at the top of eFiling: there is no other filing for this tenant. (In January we paid the $133 fee four times for one case.)"],
+  ["county_class", "County <b>Milwaukee</b>. Class code: type &quot;evict&quot; and pick <b>31004 - Small Claims, Eviction</b>, <b>only this one code</b>. Not the first suggestion (31002 is Eviction Due to Foreclosure). (Rejected 1/2/2026: \"please choose only 1 class code\".)"],
+  ["bilingual", `The Summons and Complaint is the <b>English/Spanish SC-500, version 03/26</b> (check the date at the bottom left of the form) (<a href="${SC500_ES}" target="_blank" rel="noopener">get the current one from wicourts.gov</a>). Milwaukee rejects the English-only form (rejected 1/2/2026). The <b>Fill the SC-500</b> button uses this form and checks the court for a newer one first.`],
+  ["boxes_match", "Page 1 and page 2 have the <b>same single box checked: Eviction and related claims (31004)</b>. The rent claim is written in the facts box (the statement below), not as a second box. (Rejected 1/2/2026: \"the option checked on the front page must match the second page\".)"],
+  ["names", "Plaintiff and defendant names and addresses are typed <b>exactly as on this page</b>; the defendant address has the <b>unit number</b>; every adult on the lease is named with their full legal name."],
+  ["amounts", "Every amount matches this page: <b>rent only, no late fees</b>, and every total adds up. (Our January complaint said $850 rent + $0 damages = $1,050.)"],
+  ["flattened", "I opened <b>every PDF I am uploading after saving it</b> and every name, date and number shows. (In January the complaint form went to court <b>blank</b>: the filled copy was a fillable PDF that was not flattened. Use Print, then Save as PDF.)"],
+  ["attachments", "Each document is uploaded <b>as its own PDF</b> (the court: &quot;Documents must not be bundled&quot;): the Summons and Complaint, then the 3 files from this page (the notice exactly as mailed, the stamped certified mail receipt, the rent ledger), plus the USPS eReceipt if there is one. Nothing from an old case or another tenant."],
+  ["signer", "Signed by <b>Albert Harris</b> with today's date and the office phone <b>(262) 236-5443</b>."],
+];
+
+let cur = null;
+const money = (n) => "$" + Number(n || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const id = new URLSearchParams(location.search).get("n");
+
+async function loadList() {
+  const { data, error } = await client.rpc("efile_list");
+  if (error) { $("app").innerHTML = `<div class="banner bad">${esc(await errorText(error))}</div>`; return; }
+  const rows = data || [];
+  // One plain-language status per notice (worked out by efile_list), grouped so "paid" never looks like "problem".
+  const GROUPS = [
+    [["ready"], "ok", "READY", "Ready to file"],
+    [["not_served", "waiting"], "check", "PROCESS", "In process: mail it, then wait out the days"],
+    [["submitted"], "check", "SUBMITTED", "Sent to the court"],
+    [["filed"], "ok", "FILED", "Filed"],
+    [["paid", "stop"], "stop", "DO NOT FILE", "Do not file"],
+  ];
+  const short = (r) => r.status === "paid" ? "Rent is paid." : r.status === "not_served" ? "Not mailed yet."
+    : r.status === "waiting" ? "Mailed " + fmtDate(r.served_on) + ". First day to file: " + fmtDate(r.efile_on) + "." : r.reason;
+  // Every notice still on its way to (or in) court opens the checked-off steps; paid or do-not-file notices open the reason.
+  const proc = (r) => ["not_served", "waiting", "ready", "submitted", "filed"].includes(r.status);
+  const item = (r, g) => `<a class="item" href="?n=${r.id}${proc(r) ? "&process=1" : ""}"><b>${esc(r.label)}</b>
+      <div style="margin-top:4px"><span class="tag ${g[1]}">${g[2]}</span>${esc(short(r))}${proc(r) ? ` <span class="btn primary" style="margin-left:8px;padding:2px 12px">Process</span>` : ""}</div></a>`;
+  $("app").innerHTML = rows.length
+    ? GROUPS.map((g) => { const rs = rows.filter((r) => g[0].includes(r.status)); return rs.length ? `<div class="card list"><h2>${esc(g[3])} (${rs.length})</h2>${rs.map((r) => item(r, g)).join("")}</div>` : ""; }).join("")
+      + `<p class="meta">Notices are sent and their mailing recorded on <a href="/documents/notices/">the Notices page</a>.</p>`
+    : `<div class="card"><p class="meta">No eviction notices sent in the last 6 months.</p></div>`;
+  $("app").insertAdjacentHTML("beforeend", `<div class="card"><h2>Court forms</h2><p class="meta">The site fills the official SC-500 (English/Spanish) and SC-5100V itself. Check that the court has not published a newer version:</p>${formButtons({}, [])}</div>`);
+  wireFormButtons({});
+}
+
+function render(v) {
+  cur = v;
+  const t = v.type || {}, stops = v.stops || 0;
+  const paid = v.nonpay && Number(t.rent_due) <= 0;
+  const state = v.case_number ? ["s-done", `<b>Filed: case ${esc(v.case_number)}</b>. Do the steps under "After the court accepts it".`]
+    : paid ? ["s-done", `<b>Paid: nothing to file.</b> The unpaid rent is $0.00, so there is no eviction to file on this notice. The lines below are only for the record.`]
+    : !v.served_on ? ["s-wait", `<b>Not mailed (or the mailing was never recorded).</b> Nothing can be filed until the certified-mail stamp date is entered on <a href="/documents/notices/">the Notices page</a>. If this notice was never mailed, it cannot be used: send a new one. Unpaid rent now ${money(t.rent_due)}.`]
+    : v.submitted_at ? ["s-wait", `<b>Submitted ${esc(new Date(v.submitted_at).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }))}</b>${v.payment_conf ? " · payment " + esc(v.payment_conf) : ""}. Wait for the court's accepted or rejected email. Do not submit or pay again.`]
+    : stops ? ["s-stop", `<b>DO NOT FILE.</b> ${stops} problem${stops > 1 ? "s" : ""} below must be fixed first.`]
+    : !v.checklist_done ? ["s-wait", `<b>No problems found.</b> Tick every item of the checklist while you fill in the eFiling screens.`]
+    : ["s-go", `<b>Ready to submit.</b> After you pay, enter the payment confirmation number below.`];
+  // Not mailed yet, or mailed and the days are still running, with no real problem: the Process screen (steps to check off).
+  const PRE = ["Service is not recorded", "No eFile date worked out", "Too early to file", "No stamped certified-mail receipt on file"];
+  const realStops = (v.checks || []).filter((c) => c.level === "stop" && !PRE.includes(c.title));
+  // Once submitted or filed, the steps stay open when asked for (?process=1), even if the tenant pays afterwards.
+  const askProc = !!new URLSearchParams(location.search).get("process");
+  const inCase = !!(v.case_number || v.submitted_at);
+  if (inCase ? askProc : (!paid && !realStops.length && (stops || !v.served_on || askProc))) { loadProcess(v); return; }
+  // Do not file (paid, or a real STOP): show only the reason(s). Nothing to do here; the rest of the page is hidden.
+  if (!v.case_number && !v.submitted_at && (paid || !v.served_on || stops)) {
+    const why = paid ? ["The rent is paid."]
+      : !v.served_on ? ["The mailing was never recorded."]
+      : (v.checks || []).filter((c) => c.level === "stop").map((c) => c.title + ".");
+    $("app").innerHTML = `<p class="noprint"><a href="/staff/efile/">← Back</a></p>
+      <div class="big s-stop" style="font-size:1.3rem"><b style="font-size:1.6rem">Do not file.</b><ul style="margin:10px 0 0;padding-left:22px">${why.map((w) => `<li>${esc(w)}</li>`).join("")}</ul></div>`;
+    return;
+  }
+  const row = (label, val, copy = true) => `<tr><th>${label}</th><td>${val == null || val === "" ? "<span class='meta'>—</span>" : `<span class="val">${esc(val)}</span>${copy ? `<button class="btn copy noprint" type="button" data-copy="${esc(val)}">Copy</button>` : ""}`}</td></tr>`;
+  const defs = (t.defendants || []).map((d) => d.name);
+  $("app").innerHTML = `
+    <p class="noprint"><a href="?n=${v.id}&process=1">← Back to the steps</a> · <a href="/staff/efile/">All served notices</a> · <a href="/documents/notices/">Notices page</a></p>
+    <div class="big ${state[0]}">${state[1]}</div>
+    <div class="card"><h2>1. The check</h2><p class="meta">${esc(v.template_name)} · stamped ${fmtDate(v.served_on)} (day 1) · ${v.days || "?"} days · cure by ${fmtDate(v.cure_deadline)} · eFile from ${fmtDate(v.efile_on)}</p>
+      <ul class="checks">${(v.checks || []).sort((a, b) => ["stop", "check", "ok"].indexOf(a.level) - ["stop", "check", "ok"].indexOf(b.level))
+        .map((c) => `<li class="${c.level}"><span class="tag ${c.level}">${c.level === "stop" ? "STOP" : c.level === "check" ? "CHECK" : "OK"}</span><b>${esc(c.title)}</b><div class="meta" style="margin-top:3px">${esc(c.detail)}</div></li>`).join("")}</ul></div>
+    <div class="card ${stops ? "dnf" : ""}"><h2>2. Type exactly this</h2>
+      <p class="meta">On <a href="https://efiling.wicourts.gov/" target="_blank" rel="noopener">https://efiling.wicourts.gov/</a> choose <b>file new case</b>. Copy each value; do not retype from memory or from an old case.</p>
+      <table class="type">
+        ${row("County", t.county)}
+        ${row("Class code (only one)", t.class_label)}
+        ${row("Plaintiff (organization)", t.plaintiff)}
+        ${row("Plaintiff address", t.plaintiff_address)}
+        ${defs.map((d, i) => row(defs.length > 1 ? `Defendant ${i + 1}` : "Defendant", d)).join("") || row("Defendant", "")}
+        ${row("Defendant address", t.defendant_address)}
+        ${row("SC-500 page 1 box", "Eviction", false)}
+        ${row("SC-500 page 2, item 1 box", "Eviction (only this box)", false)}
+        ${v.nonpay ? row("Unpaid rent claimed (rent only)", money(t.rent_due)) : ""}
+        ${v.nonpay ? row("SC-500 page 2, item 2: brief statement of dates and facts", t.statement) : ""}
+        ${row("Signed by", t.signer)}
+        ${row("Telephone", t.phone)}
+      </table>
+      <p class="meta" style="margin-top:8px">Monthly rent ${money(t.monthly_rent)} · unpaid rent on the stamp date ${money(t.rent_due_at_notice)} · credited since the notice ${money(t.paid_since_notice)}.
+        If more rent comes due before court, tell the commissioner the new figure from the ledger on the day.</p>
+      <p class="meta" style="margin-top:10px"><b>The Summons and Complaint, filled by the site:</b> the official English/Spanish SC-500 with every value above, only the Eviction box ticked on pages 1 and 2, rent only, saved flat so nothing can reach the court blank. It first checks wicourts.gov and will not fill an outdated form. Albert signs and dates page 3 in ink.</p>
+      ${formButtons(v, ["sc500"])}
+      <div class="row2 noprint"><button class="btn" type="button" id="packet" ${stops ? "disabled" : ""}>Download the court attachments (separate PDFs)</button>
+        <a class="btn" href="https://efiling.wicourts.gov/" target="_blank" rel="noopener">Open the court's eFiling sign-in</a><a class="btn" href="${SC500_ES}" target="_blank" rel="noopener">English/Spanish SC-500 (wicourts.gov)</a><button class="btn" type="button" onclick="print()">Print this page</button></div></div>
+    <div class="card cl"><h2>3. Checklist while you file</h2>
+      ${CHECKLIST.map(([k, txt]) => `<label><input type="checkbox" data-k="${k}" ${v.checklist && v.checklist[k] ? "checked" : ""} ${v.submitted_at || v.case_number ? "disabled" : ""}><span>${txt}</span></label>`).join("")}
+      <div class="row2 noprint"><button class="btn" type="button" id="saveList" ${v.submitted_at || v.case_number ? "disabled" : ""}>Save the checklist</button><span class="msg" id="listMsg">${v.checked_by ? "Last saved by " + esc(v.checked_by) + " " + fmtDate(v.checked_at) : ""}</span></div></div>
+    <div class="card noprint"><h2>4. Submitted and paid</h2>
+      ${v.case_number ? `<p class="meta">Filed as case ${esc(v.case_number)}.</p>` : v.submitted_at
+        ? `<p>Submitted by ${esc(v.submitted_by || "")}${v.payment_conf ? ", payment confirmation <b>" + esc(v.payment_conf) + "</b>" : ""}. When the court accepts it, enter the case number and court date on <a href="/documents/notices/">the Notices page</a> (that also emails the tenant the date and free mediation help).</p>
+           <p class="meta">If the court rejected it, paste the reason from the court's email. The checklist then starts over, and the reason stays on this notice so it is never repeated.</p>
+           <textarea id="rejWhy" placeholder="Reason given for the rejection"></textarea><div class="row2"><button class="btn" type="button" id="rejBtn">It was rejected</button><span class="msg" id="rejMsg"></span></div>`
+        : `<p class="meta">Pay the filing fee <b>once</b>. Then copy the confirmation number from the court's payment email ("Payment Confirmation for Filing Court Fees").</p>
+           <div class="row2"><input type="text" id="conf" placeholder="Confirmation number, e.g. WCSMIL…" style="width:18em"><button class="btn primary" type="button" id="subBtn" ${v.ready ? "" : "disabled"}>Record: submitted and paid</button><span class="msg" id="subMsg">${v.ready ? "" : stops ? "Fix the STOP items first." : "Tick and save every checklist item first."}</span></div>`}</div>
+    <div class="card"><h2>After the court accepts it</h2><ol class="after">
+      <li>Record the case number, filing date, court date and room on <a href="/documents/notices/">the Notices page</a>.</li>
+      <li>Upload the court's accepted papers, then send the process server the <b>service request</b> from <a href="?n=${v.id}&process=1">the steps</a> (exact names and the address with the unit number). Serve every defendant at least 5 days before the court date. A party to the case cannot serve it personally.</li>
+      <li>Upload the server's <b>affidavit of service</b> on <a href="?n=${v.id}&process=1">the steps</a>; <b>Claude checks it</b> before it is filed. File it into the case <b>before</b> the court date (in January it was filed on the court date itself). If a non-professional served, they use the <a href="${SC5100V}" target="_blank" rel="noopener">SC-5100V</a>.</li>
+      <li>Go to court with the ledger printed that morning (rent only). If the tenant pays in full before court, decide with Albert whether to dismiss; do not accept money without deciding.</li>
+      <li>Do <b>not</b> file a motion to seal or redact until the court has entered the dismissal or judgment (denied 2/3/2026 because the case was still open).</li>
+      <li>Any refund or court letter must name <b>2nd Chance Housing Inc, 6626 N Bourbon St, Milwaukee WI 53224</b>. If a check goes to anyone else, call the clerk at (414) 278-4140.</li>
+    </ol></div>`;
+
+  $("app").querySelectorAll("[data-copy]").forEach((b) => b.onclick = async () => { try { await navigator.clipboard.writeText(b.dataset.copy); b.textContent = "Copied"; setTimeout(() => b.textContent = "Copy", 1500); } catch {} });
+  const pk = $("packet"); if (pk) pk.onclick = () => courtPacket(client, v.id, pk, errorText);
+  wireFormButtons(v);
+  const sl = $("saveList"); if (sl) sl.onclick = async () => {
+    const items = {}; $("app").querySelectorAll("[data-k]").forEach((c) => { if (c.checked) items[c.dataset.k] = true; });
+    const { data, error } = await client.rpc("efile_checklist_save", { p_id: v.id, p_items: items });
+    if (error) { $("listMsg").className = "msg err"; $("listMsg").textContent = await errorText(error); return; }
+    render(data); $("listMsg").className = "msg ok"; $("listMsg").textContent = "Saved.";
+  };
+  const sb = $("subBtn"); if (sb) sb.onclick = async () => {
+    const { data, error } = await client.rpc("efile_record_submitted", { p_id: v.id, p_conf: $("conf").value });
+    if (error) { $("subMsg").className = "msg err"; $("subMsg").textContent = await errorText(error); return; }
+    render(data);
+  };
+  const rb = $("rejBtn"); if (rb) rb.onclick = async () => {
+    const { data, error } = await client.rpc("efile_record_rejected", { p_id: v.id, p_reason: $("rejWhy").value });
+    if (error) { $("rejMsg").className = "msg err"; $("rejMsg").textContent = await errorText(error); return; }
+    render(data);
+  };
+}
+
+// ---------- Process screen: the steps from printing the notice to having the court documents in hand. ----------
+async function loadProcess(v = {}) {
+  const { data: p, error } = await client.rpc("notice_process_get", { p_id: id });
+  if (error) { $("app").innerHTML = `<div class="banner bad">${esc(await errorText(error))}</div>`; return; }
+  const st = p.steps || {}, mailed = !!p.served_on, uploaded = !!p.proof_path;
+  const today = new Date().toLocaleDateString("en-CA", { timeZone: "America/Chicago" });
+  const ready = mailed && uploaded && p.efile_on && today >= p.efile_on;
+  const filed = !!p.case_number, submitted = filed || !!v.submitted_at, typed = submitted || !!v.checklist_done;
+  const stops = (v.checks || []).filter((c) => c.level === "stop");
+  const courtWhen = p.court_at ? new Date(p.court_at).toLocaleString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" }) : "";
+  const when = (k) => st[k] ? ` <span class="meta">(${esc(st[k].by || "")} ${fmtDate(st[k].at)})</span>` : "";
+  const box = (k, done, auto, off) => `<input type="checkbox" ${auto || off ? "disabled" : `data-step="${k}"`} ${done ? "checked" : ""} style="width:22px;height:22px;flex:none;margin-top:2px">`;
+  const step = (n, k, done, auto, title, body, off = false) => `<div class="pstep" style="display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line)${done ? ";opacity:.75" : off ? ";opacity:.55" : ""}">
+      ${box(k, done, auto, off)}<div style="flex:1"><b>${n}. ${title}</b>${done && !auto ? when(k) : ""}<div style="margin-top:6px">${body}</div></div></div>`;
+  const hasPapers = !!p.court_papers_path, hasAff = !!p.affidavit_path;
+  const ymd = (d) => d.toLocaleDateString("en-CA", { timeZone: "America/Chicago" });
+  const courtDay = p.court_at ? ymd(new Date(p.court_at)) : null;
+  const addDays = (s, n) => { const d = new Date(s + "T12:00:00"); d.setDate(d.getDate() + n); return d.toISOString().slice(0, 10); };
+  const serveBy = courtDay ? addDays(courtDay, -5) : null;
+  const lateServe = filed && !st.summons && !st.outcome && serveBy && today > serveBy;
+  const lateFile = filed && !st.declaration && !st.outcome && courtDay && courtDay >= today && addDays(today, 2) >= courtDay;
+  const flags = [st.printed, st.envelope, st.label, mailed, uploaded, st.gathered, ready, typed, submitted, filed, hasPapers, st.summons, hasAff, st.affidavit_ok, st.declaration, st.court, st.outcome];
+  const doneCount = flags.filter(Boolean).length, total = flags.length;
+  const tone = st.outcome ? "s-done" : ready ? "s-go" : "s-wait";
+  $("app").innerHTML = `<p class="noprint"><a href="/staff/efile/">← Back</a></p>
+    <div class="big ${tone}"><b>Processing: ${esc(p.subject || p.template_name)}</b><br>${esc(p.label)}<br>
+      ${doneCount} of ${total} steps done · unpaid rent now ${money(p.rent_due)}${mailed ? ` · mailed ${fmtDate(p.served_on)} (day 1) · cure ends ${fmtDate(p.cure_deadline)} · <b>first day to file ${fmtDate(p.efile_on)}</b>` : ""}${filed ? ` · <b>case ${esc(p.case_number)}</b>${courtWhen ? " · court " + esc(courtWhen) : ""}` : ""}</div>
+    <div class="card">
+      ${step(1, "printed", !!st.printed, false, "Print the 5-day notice; Albert signs it in ink",
+        `<button class="btn" type="button" id="pdf">Open the notice to print</button> <span class="meta">Keep a copy of the signed page.</span>`)}
+      ${step(2, "envelope", !!st.envelope, false, "Print the envelope", `<button class="btn" type="button" id="env">Print envelope</button>`)}
+      ${step(3, "label", !!st.label, false, "Affix the Certified Mail label and postage", `<span class="meta">The green label across the top of the envelope, postage at the top right.</span>`)}
+      ${step(4, "mailed", mailed, true, "Mailed it at the post office (certified mail)",
+        mailed ? `Recorded: certified mail, stamp date <b>${fmtDate(p.served_on)}</b>${p.service_note ? " · " + esc(p.service_note) : ""}.`
+          : `<div class="row2" style="margin-top:0"><label class="meta">Stamp date on the green receipt <input type="date" id="mdate" max="${today}" required></label>
+             <input type="text" id="mtrack" placeholder="Tracking number (9589 …)" style="width:16em"><input type="text" id="mpo" placeholder="Post office" style="width:10em">
+             <button class="btn primary" type="button" id="msave">Save: mailed</button><span class="msg" id="mmsg"></span></div>`)}
+      ${step(5, "uploaded", uploaded, true, "Upload the stamped certified mail receipt",
+        `${uploaded ? `<img id="thumb" alt="Receipt" style="height:90px;border:1px solid #ccd;border-radius:4px;vertical-align:middle;margin-right:8px">` : ""}
+         <label class="btn" style="cursor:pointer">${uploaded ? "Replace the photo" : "Add a photo of the green receipt"}<input type="file" accept="image/*,application/pdf" id="pfile" hidden></label> <span class="msg" id="pmsg"></span>`)}
+      ${step(6, "gathered", !!st.gathered, false, "Gather the 3 court documents: the notice, the stamped mailing label, the ledger",
+        `<button class="btn" type="button" id="docs" ${uploaded ? "" : "disabled title='Upload the receipt first'"}>Download the 3 documents</button> <span class="meta">Each comes as its own PDF. Also keep the USPS eReceipt email.</span>`, !uploaded)}
+      ${step(7, "days", ready, true, "Wait out the days (the cure period)",
+        mailed ? (ready ? `The cure period ended ${fmtDate(p.cure_deadline)}. Filing allowed from <b>${fmtDate(p.efile_on)}</b>.`
+          : `Filing allowed from <b>${fmtDate(p.efile_on)}</b>. The office gets an email that morning. A case filed early is dismissed. If the rent is paid first, nothing is filed.`)
+          : `<span class="meta">Starts when the mailing is recorded in step 4.</span>`, !mailed)}
+      ${step(8, "typed", typed, true, "Fill in the court's eFiling screens and tick the checklist",
+        `On <a href="https://efiling.wicourts.gov/" target="_blank" rel="noopener">https://efiling.wicourts.gov/</a>: copy each value from the <b>Type exactly this</b> sheet and tick all ${CHECKLIST.length} checklist items (one class code 31004, English/Spanish SC-500 03/26, rent only, each document its own PDF, signed by Albert Harris).
+         ${stops.length && ready ? `<div class="big s-stop" style="margin:8px 0 0;font-size:1rem"><b>DO NOT FILE:</b> ${stops.map((c) => esc(c.title)).join("; ")}.</div>` : ""}
+         <div class="row2"><a class="btn ${ready && !typed ? "primary" : ""}" href="?n=${p.id}">${typed ? "Open the eFile check" : "Open the sheet and checklist"}</a><a class="btn" href="https://efiling.wicourts.gov/" target="_blank" rel="noopener">Open the court's eFiling sign-in</a></div>
+         ${ready && !submitted ? `<p class="meta" style="margin:10px 0 0">Upload as the Summons and Complaint, after Albert signs and dates page 3:</p>${formButtons(v, ["sc500"])}`
+           : `<p class="meta" style="margin:10px 0 0">The site fills the official SC-500 here once the days are over. Check now that the court has not published a newer form:</p>${formButtons(v, [])}`}`, !ready)}
+      ${step(9, "submitted", submitted, true, "Submit and pay the filing fee once",
+        submitted ? `Submitted${v.submitted_by ? " by " + esc(v.submitted_by) : ""}${v.payment_conf ? ", payment confirmation <b>" + esc(v.payment_conf) + "</b>" : ""}. Do not submit or pay again.`
+          : `<span class="meta">Pay <b>once</b>, then copy the confirmation number from the court's email ("Payment Confirmation for Filing Court Fees").</span>
+             <div class="row2"><input type="text" id="conf" placeholder="Confirmation number, e.g. WCSMIL…" style="width:18em" ${v.ready ? "" : "disabled"}><button class="btn primary" type="button" id="subBtn" ${v.ready ? "" : "disabled"}>Save: submitted and paid</button><span class="msg" id="subMsg">${v.ready ? "" : typed || !ready ? "" : "Tick and save every checklist item first (step 8)."}</span></div>`, !typed)}
+      ${step(10, "filed", filed, true, "The court accepted it: record the case number and court date",
+        filed ? `Case <b>${esc(p.case_number)}</b>${p.case_filed_on ? " · filed " + fmtDate(p.case_filed_on) : ""}${courtWhen ? " · court <b>" + esc(courtWhen) + "</b>" : ""}${p.court_place ? " · " + esc(p.court_place) : ""}.`
+          : `Wait for the court's accepted or rejected email. Accepted: enter the case number, filing date, court date and room on <a href="https://2ndchinc.org/documents/notices/">https://2ndchinc.org/documents/notices/</a> (that also emails the tenant the date and free mediation help). Rejected: record the reason on <a href="?n=${p.id}">the eFile check</a>; the checklist then starts over.`, !submitted)}
+      ${step(11, "papers", hasPapers, true, "Upload the court's accepted papers",
+        `The <b>Electronic Filing Notice</b> and the <b>authenticated Summons and Complaint</b> (with the court's seal and case number), as one PDF or a photo. These are what the process server serves.
+         <div class="row2">${hasPapers ? `<button class="btn" type="button" data-open="${esc(p.court_papers_path)}">Open (added ${fmtDate(p.court_papers_at)})</button>` : ""}
+           <label class="btn" style="cursor:pointer">${hasPapers ? "Replace" : "Add the court's papers"}<input type="file" accept="application/pdf,image/*" data-case="court_papers" hidden></label><span class="msg" data-cmsg="court_papers"></span></div>`, !filed)}
+      ${step(12, "summons", !!st.summons, false, "Send the papers to the process server, and have every defendant served",
+        `Give the server the court's papers from step 11 <b>and the service request</b>: one page with the case, each defendant's full name, the exact address with the unit number, how to get into the building and the serve-by date. Do not retype the address in an email; send this page.
+         ${serveBy ? `<div style="margin-top:6px"><b>Serve by ${fmtDate(serveBy)}</b> <span class="meta">(at least 5 days before the court date; sooner is better)</span>${lateServe ? ` <span class="tag stop">LATE</span>` : ""}</div>` : ""}
+         <div class="row2"><button class="btn primary" type="button" id="svcReq" ${filed && p.court_at ? "" : "disabled title='Record the case number and court date first'"}>Service request for the process server (PDF)</button><span class="msg" id="svcMsg"></span></div>
+         <span class="meta">Tick when the server confirms the papers were served. A party to the case (Albert) cannot serve them personally.</span>`, !filed || !hasPapers)}
+      ${step(13, "affidavit", hasAff, true, "Upload the process server's affidavit of service",
+        `The signed, notarized affidavit the server emails back (PDF or photo). A new upload must be checked again in step 14.
+         <div class="row2">${hasAff ? `<button class="btn" type="button" data-open="${esc(p.affidavit_path)}">Open (added ${fmtDate(p.affidavit_at)})</button>` : ""}
+           <label class="btn" style="cursor:pointer">${hasAff ? "Replace" : "Add the affidavit"}<input type="file" accept="application/pdf,image/*" data-case="affidavit" hidden></label><span class="msg" data-cmsg="affidavit"></span></div>`, !st.summons)}
+      ${step(14, "affidavit_ok", !!st.affidavit_ok, false, "Claude checked the affidavit: safe to file",
+        `Tell Claude: <b>"The affidavit for Unit ${esc(p.unit || "")} is uploaded."</b> Claude opens it and compares it with this case: case number, court date, each defendant's name, the address with <b>Unit ${esc(p.unit || "")}</b>, served at least 5 days before court, how it was served and what was served, signature and notary. Tick only after Claude says it is safe to file.`, !hasAff)}
+      ${step(15, "declaration", !!st.declaration, false, "File the affidavit with the court, before the court date",
+        `On <a href="https://efiling.wicourts.gov/" target="_blank" rel="noopener">https://efiling.wicourts.gov/</a>, file it into case <b>${esc(p.case_number || "")}</b> as soon as it is checked, <b>before</b> ${courtWhen ? esc(courtWhen) : "the court date"} (in January it was filed on the court date itself).
+         <span class="meta">If someone other than a professional server served the papers, they fill in and sign the SC-5100V instead; the site fills in the county, parties and case number.</span>
+         ${filed ? formButtons({ ...v, case_number: p.case_number }, ["sc5100v"]) : ""}`, !st.affidavit_ok)}
+      ${step(16, "court", !!st.court, false, "Go to court with the ledger printed that morning (rent only)",
+        `<button class="btn" type="button" id="docs2">Download the documents again</button> <span class="meta">If the tenant pays in full before court, decide with Albert whether to dismiss; do not accept money without deciding.</span>`, !filed)}
+      ${step(17, "outcome", !!st.outcome, false, "Judgment or dismissal entered",
+        `<span class="meta">Only now may a motion to seal or redact be filed (denied 2/3/2026 because the case was still open). Any refund or court letter must name <b>2nd Chance Housing Inc, 6626 N Bourbon St, Milwaukee WI 53224</b>; if a check goes to anyone else, call the clerk at (414) 278-4140.</span>`, !filed)}
+      <div class="row2"><span class="msg" id="smsg"></span></div>
+    </div>
+    <div class="card">${st.outcome ? `<b>Done.</b> The case is closed.`
+      : filed ? `<b>Next:</b> ${!p.court_at ? "enter the court date on the Notices page (step 10)" : !hasPapers ? "upload the court's accepted papers (step 11)" : !st.summons ? `send the service request and papers to the process server; serve by <b>${fmtDate(serveBy)}</b> (step 12)` : !hasAff ? "upload the server's affidavit when it comes (step 13)" : !st.affidavit_ok ? "have Claude check the affidavit (step 14)" : !st.declaration ? "file the affidavit with the court before the court date (step 15)" : !st.court ? "go to court" + (courtWhen ? " on " + esc(courtWhen) : "") + " (step 16)" : "record the judgment or dismissal (step 17)"}.`
+        + (lateServe ? `<div class="big s-stop" style="margin:8px 0 0;font-size:1rem"><b>Serve-by date passed without service.</b> Call the clerk (414) 278-4140 about a new court date before going to court.</div>` : "")
+        + (lateFile ? `<div class="big s-stop" style="margin:8px 0 0;font-size:1rem"><b>The court date is in 2 days or less and the affidavit is not filed.</b> Finish steps 13 to 15 today.</div>` : "")
+      : submitted ? `<b>Next:</b> wait for the court's email, then record the case number (step 10).`
+      : ready ? `<b>The days are over.</b> <a class="btn primary" href="?n=${p.id}">Open the eFile sheet and checklist</a>`
+      : mailed ? `<b>Next:</b> wait until <b>${fmtDate(p.efile_on)}</b>. The office gets an email that morning, and this notice moves to <b>Ready to file</b>. If the rent is paid first, it moves to <b>Paid</b> and nothing is filed.`
+      : `<b>Next:</b> mail it, then record the stamp date in step 4. The site works out the first day to file.`}</div>`;
+  const reload = () => loadOne();
+  $("docs2").onclick = () => courtPacket(client, p.id, $("docs2"), errorText);
+  // Case papers: the court's accepted papers and the server's affidavit, stored with the notice (office staff only).
+  $("app").querySelectorAll("[data-open]").forEach((b) => b.onclick = async () => {
+    const { data } = await client.storage.from("notices").createSignedUrl(b.dataset.open, 300); if (data) window.open(data.signedUrl, "_blank", "noopener");
+  });
+  $("app").querySelectorAll("input[data-case]").forEach((inp) => inp.onchange = async () => {
+    const kind = inp.dataset.case, f = inp.files && inp.files[0], m = $("app").querySelector(`[data-cmsg="${kind}"]`); inp.value = "";
+    if (!f) return;
+    const ext = f.type === "application/pdf" || /\.pdf$/i.test(f.name) ? "pdf" : f.type === "image/png" ? "png" : f.type === "image/webp" ? "webp" : /^image\/jpe?g$/.test(f.type) ? "jpg" : "";
+    if (!ext) { m.className = "msg err"; m.textContent = "Use a PDF or a photo (JPG, PNG)."; return; }
+    if (f.size > 20 * 1024 * 1024) { m.className = "msg err"; m.textContent = "That file is over 20 MB."; return; }
+    m.className = "msg"; m.textContent = "Uploading…";
+    const path = `case/${p.id}/${kind.replace("_", "-")}.${ext}`;
+    // One file per kind: remove a copy with another extension so the old one is not left behind.
+    const old = kind === "affidavit" ? p.affidavit_path : p.court_papers_path;
+    const { error: ue } = await client.storage.from("notices").upload(path, f, { contentType: ext === "pdf" ? "application/pdf" : "image/" + (ext === "jpg" ? "jpeg" : ext), upsert: true });
+    if (ue) { m.className = "msg err"; m.textContent = ue.message; return; }
+    const { error: re } = await client.rpc("notice_attach_case_doc", { p_id: p.id, p_kind: kind, p_path: path });
+    if (re) { m.className = "msg err"; m.textContent = await errorText(re); return; }
+    if (old && old !== path) client.storage.from("notices").remove([old]).catch(() => {});
+    reload();
+  });
+  const sr = $("svcReq"); if (sr) sr.onclick = () => serviceRequest({ ...v, case_number: p.case_number, court_at: p.court_at, court_place: p.court_place }, p.unit, sr,
+    (s, ok) => { $("svcMsg").className = "msg " + (ok ? "ok" : "err"); $("svcMsg").textContent = s; });
+  wireFormButtons({ ...v, case_number: p.case_number });
+  const sb = $("subBtn"); if (sb) sb.onclick = async () => {
+    const { error: e } = await client.rpc("efile_record_submitted", { p_id: p.id, p_conf: $("conf").value });
+    if (e) { $("subMsg").className = "msg err"; $("subMsg").textContent = await errorText(e); return; }
+    reload();
+  };
+  $("pdf").onclick = async () => { const { data } = await client.storage.from("notices").createSignedUrl(p.pdf_path, 300); if (data) window.open(data.signedUrl, "_blank", "noopener"); };
+  $("env").onclick = () => printEnvelopes(client, [p.id]);
+  if ($("thumb")) client.storage.from("notices").createSignedUrl(p.proof_path, 600).then(({ data }) => { if (data) $("thumb").src = data.signedUrl; });
+  $("pfile").onchange = (e) => pickProof(client, p.id, $("pmsg"), e.target, errorText, reload);
+  $("docs").onclick = () => courtPacket(client, p.id, $("docs"), errorText);
+  if ($("msave")) $("msave").onclick = async () => {
+    const note = ["Certified mail", $("mtrack").value.trim() && "USPS " + $("mtrack").value.trim(), $("mpo").value.trim() && $("mpo").value.trim()].filter(Boolean).join(", ");
+    const { error: e } = await client.rpc("notice_record_service", { p_id: p.id, p_method: "certified_mail", p_served_on: $("mdate").value || null, p_note: note });
+    if (e) { $("mmsg").className = "msg err"; $("mmsg").textContent = await errorText(e); return; }
+    client.functions.invoke("outbox-flush", { body: {} }).catch(() => {});
+    reload();
+  };
+  $("app").querySelectorAll("[data-step]").forEach((c) => c.onchange = async () => {
+    const items = {}; $("app").querySelectorAll("[data-step]").forEach((x) => { if (x.checked) items[x.dataset.step] = true; });
+    const { error: e } = await client.rpc("notice_process_save", { p_id: p.id, p_steps: items });
+    if (e) { $("smsg").className = "msg err"; $("smsg").textContent = await errorText(e); return; }
+    reload();
+  });
+}
+
+async function loadOne() {
+  const { data, error } = await client.rpc("efile_preflight", { p_id: id });
+  if (error) { $("app").innerHTML = `<div class="banner bad">${esc(await errorText(error))}</div>`; return; }
+  if (!data.ok) { $("app").innerHTML = `<div class="banner bad">${esc(data.error)}</div><p><a href="/staff/efile/">← All served notices</a></p>`; return; }
+  render(data);
+}
+
+$("signOutBtn").addEventListener("click", signOut);
+const who = await signIn($("signin"), { audience: "staff" });
+$("userBar").hidden = false;
+if (who.role !== "staff") { $("signin").hidden = false; $("signin").innerHTML = `<div class="panel"><p>This page is for office staff. <a href="/staff/">Go to My units</a></p></div>`; }
+else { $("app").hidden = false; id ? loadOne() : loadList(); }
+</script>
+</body>
+</html>

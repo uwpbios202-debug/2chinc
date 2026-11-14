@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Rentals — 2nd Chance Housing Staff</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+<style>
+  .units { display: grid; gap: 14px; }
+  .unit { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .unit-head { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: baseline; padding: 12px 16px; background: var(--head); border-bottom: 1px solid var(--line); }
+  .unit-head h2 { margin: 0; font-size: 1.15rem; }
+  .meta { color: var(--muted); font-size: 0.9rem; }
+  .tag { display: inline-block; padding: 1px 9px; border-radius: 999px; font-size: 0.78rem; font-weight: 700; }
+  .tag.active { background: var(--ok-soft); color: var(--ok); }
+  .tag.past { background: var(--off-soft); color: var(--off); }
+  .tag.future { background: var(--accent-soft); color: var(--accent); }
+  .tag.vacant { background: var(--warn-soft); color: var(--warn); }
+  .tag.flag { background: var(--bad-soft); color: var(--bad); }
+  table.leases { width: 100%; border-collapse: collapse; }
+  table.leases td, table.leases th { padding: 8px 16px; border-top: 1px solid var(--line); text-align: left; font-size: 0.94rem; vertical-align: top; }
+  table.leases th { font-size: 0.8rem; color: var(--muted); font-weight: 600; border-top: 0; }
+  table.leases tr[data-lease] { cursor: pointer; }
+  table.leases tr[data-lease]:hover { background: var(--accent-soft); }
+  .num { text-align: right !important; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .owes { color: var(--bad); font-weight: 700; }
+  .credit { color: var(--ok); font-weight: 700; }
+  .strip { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+  .stat { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; min-width: 150px; }
+  .stat b { display: block; font-size: 1.35rem; }
+  .stat span { color: var(--muted); font-size: 0.85rem; }
+  .ledger-wrap { padding: 0 16px 14px; }
+  .ledger { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+  .ledger th, .ledger td { padding: 6px 8px; border-top: 1px solid var(--line); text-align: left; }
+  .ledger th { color: var(--muted); font-weight: 600; font-size: 0.8rem; }
+  .ledger .gl { color: var(--muted); }
+  .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+  .filters button[aria-pressed="true"] { background: var(--accent); color: #fff; }
+  .people { margin: 0; padding: 0; list-style: none; }
+  .people li { white-space: nowrap; }
+  .people .c { color: var(--muted); font-size: 0.85rem; }
+  .note { background: var(--warn-soft); color: var(--warn); border-radius: 8px; padding: 8px 12px; margin: 8px 16px; font-size: 0.88rem; }
+  .ledger .why { color: var(--warn); font-size: 0.82rem; }
+  .tag.inkind { background: var(--accent-soft); color: var(--accent); }
+  .work { padding: 6px 0 12px; }
+  .work h3 { font-size: 0.95rem; margin: 8px 0 4px; }
+  .corr { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 16px; margin-bottom: 10px; }
+  .corr b { display: block; }
+</style>
+</head>
+<body>
+<div class="appbar" data-nav="staff">
+  <div class="appbar-in">
+    <div class="org">2nd Chance Housing<span>Rentals · Staff</span></div>
+    <div class="row" id="userBar" hidden>
+      
+      
+      
+      
+      
+      
+      <button class="linkbtn" type="button" id="signOutBtn">Sign out</button>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+  <header>
+    <h1>Rentals</h1>
+    <p class="lead">Every unit, its leases and tenants, and each lease's full ledger. Balances are recomputed from the ledger lines.</p>
+  </header>
+
+  <div id="signin" class="narrow"></div>
+
+  <div id="app" hidden>
+    <div id="moveins"></div>
+    <div class="strip" id="strip"></div>
+    <div class="filters" id="filters"></div>
+    <div class="units" id="units"></div>
+    <h2 style="margin-top:28px">Land contracts</h2>
+    <p class="sub">Buyers paying toward ownership. Not tenancies, so they're kept apart from leases.</p>
+    <div class="units" id="contracts"></div>
+    <h2 style="margin-top:28px">Ledger corrections</h2>
+    <div id="corrections"></div>
+  </div>
+</main>
+
+<script type="module">
+import { client, $, esc, fmtDate, money, signIn, signOut, errorText } from "/assets/portal/portal.js";
+import { balAmt } from "/assets/portal/balance.js";
+
+let units = [], filter = "all";
+const openLedgers = new Set();
+
+const bal = (n) => n == null ? "—" : balAmt(n);
+const activeLeases = (u) => u.leases.filter((l) => l.status === "active");
+const unitName = (u) => u.unit_number ? `Unit ${u.unit_number}` : u.property;
+
+function render() {
+  const active = units.flatMap(activeLeases);
+  const owed = active.reduce((s, l) => s + Math.max(0, Number(l.balance) || 0), 0);
+  const rentRoll = active.reduce((s, l) => s + (Number(l.rent) || 0), 0);
+  const doubled = units.filter((u) => activeLeases(u).length > 1);
+  $("strip").innerHTML = `
+    <div class="stat"><b>${units.filter((u) => activeLeases(u).length).length} / ${units.length}</b><span>units with an active lease</span></div>
+    <div class="stat"><b>${money(rentRoll)}</b><span>monthly rent, active leases</span></div>
+    <div class="stat"><b>${money(owed)}</b><span>owed on active leases</span></div>
+    ${doubled.length ? `<div class="stat"><b class="owes">${doubled.length}</b><span>unit(s) with 2 active leases: ${doubled.map(unitName).join(", ")}</span></div>` : ""}`;
+
+  const counts = { all: units.length, leased: units.filter((u) => activeLeases(u).length).length, vacant: units.filter((u) => !activeLeases(u).length && u.managed_by !== "owner").length,
+    owing: units.filter((u) => activeLeases(u).some((l) => l.balance > 0)).length };
+  $("filters").innerHTML = Object.entries({ all: "All units", leased: "Leased", vacant: "No active lease", owing: "Owing" })
+    .map(([k, v]) => `<button class="btn" type="button" data-f="${k}" aria-pressed="${k === filter}">${v} (${counts[k]})</button>`).join("");
+
+  const shown = units.filter((u) => filter === "all" ? true : filter === "leased" ? activeLeases(u).length : filter === "vacant" ? (!activeLeases(u).length && u.managed_by !== "owner") : activeLeases(u).some((l) => l.balance > 0));
+  $("units").innerHTML = shown.map((u) => {
+    const act = activeLeases(u);
+    const facts = [u.bedrooms, u.bathrooms, u.size_sqft ? u.size_sqft + " sq ft" : ""].filter(Boolean).join(" · ");
+    const headTag = u.managed_by === "owner" ? `<span class="tag past">owner-managed</span>`
+      : act.length > 1 ? `<span class="tag flag">2 active leases</span>` : act.length ? `<span class="tag active">leased</span>` : `<span class="tag vacant">no active lease</span>`;
+    const condoNote = u.managed_by === "owner" ? "" : u.condo_occupancy === "owner" ? " · owner-occupied (association record)" : u.condo_occupancy === "tenant" && !act.length ? " · association record says tenant-occupied" : "";
+    return `<section class="unit">
+      <div class="unit-head"><h2>${esc(unitName(u))} ${headTag}</h2>
+        <span class="meta">${esc(u.address || u.property)}${facts ? " · " + esc(facts) : ""}${esc(condoNote)}</span></div>
+      ${u.management_note ? `<div class="note">${esc(u.management_note)}</div>` : ""}
+      ${u.leases.length ? `<table class="leases"><thead><tr><th>Status</th><th>Tenants</th><th>Term</th><th class="num">Rent</th><th class="num">Deposit held</th><th class="num">Balance</th><th class="num">Lines</th></tr></thead><tbody>
+        ${u.leases.map((l) => `<tr data-lease="${l.id}" tabindex="0" aria-expanded="${openLedgers.has(l.id)}">
+          <td><span class="tag ${l.status}">${l.status}</span>${l.correction_note ? ` <span class="tag flag" title="${esc(l.correction_note)}">corrected</span>` : ""}${l.work_agreements ? ` <span class="tag inkind">work in lieu</span>` : ""}</td>
+          <td><ul class="people">${(l.tenants || []).map((t) => `<li>${esc(t.name)} <span class="c">${esc([t.phone, t.email].filter(Boolean).join(" · "))}</span></li>`).join("") || esc(l.tenants_label)}</ul></td>
+          <td>${fmtDate(l.start_date)} – ${l.end_date ? fmtDate(l.end_date) : (l.lease_type === "at_will" ? "month-to-month" : "—")}</td>
+          <td class="num">${money(l.rent)}</td>
+          <td class="num">${l.deposit_held == null ? "—" : money(l.deposit_held)}</td>
+          <td class="num">${bal(Number(l.balance))}</td>
+          <td class="num">${l.entries}</td></tr>
+          ${openLedgers.has(l.id) ? `<tr><td colspan="7" class="ledger-wrap" id="ledger-${l.id}"><span class="sub">Loading ledger…</span></td></tr>` : ""}`).join("")}
+      </tbody></table>` : u.managed_by === "owner" ? "" : `<p class="sub" style="padding:10px 16px">No leases on record.</p>`}
+    </section>`;
+  }).join("");
+  openLedgers.forEach(loadLedger);
+}
+
+async function loadLedger(id) {
+  const cell = $("ledger-" + id); if (!cell) return;
+  const lease = units.flatMap((u) => u.leases).find((l) => l.id === id);
+  const [{ data, error }, work, files] = await Promise.all([
+    client.rpc("rentals_staff_ledger", { p_lease_id: id }),
+    lease && lease.work_agreements ? client.rpc("rentals_staff_work", { p_lease_id: id }) : Promise.resolve({ data: null }),
+    client.rpc("rentals_staff_lease_files", { p_lease_id: id }),
+  ]);
+  const { data: rules } = await client.rpc("lease_staff_notice_rules", { p_lease: id });
+  const FILE_TAG = { on_file: ["active", "on file"], needs_update: ["flag", "needs update"], coming_soon: ["future", "coming soon"] };
+  const KIND = { signed_lease: "Signed lease", addendum: "Addendum", rent_increase: "Rent increase", other: "Document" };
+  const docs = (files.data || []).length ? `<div class="work"><h3>Lease documents</h3><ul class="people">${files.data.map((f) => `<li style="white-space:normal;margin-bottom:4px">
+      <span class="tag ${FILE_TAG[f.status][0]}">${FILE_TAG[f.status][1]}</span> ${esc(KIND[f.kind] || f.kind)}${f.dated ? ", " + fmtDate(f.dated) : ""}
+      ${f.file_path ? `<span class="c">${esc(f.file_path.split("/").pop())}</span>` : ""}${f.note ? `<div class="why">${esc(f.note)}</div>` : ""}</li>`).join("")}</ul></div>` : "";
+  if (error) { cell.innerHTML = `<span class="msg err">${esc(await errorText(error))}</span>`; return; }
+  let run = 0;
+  const w = work.data;
+  // Notice rules follow this lease (not the unit): a voucher tenancy gets 30-day nonpayment notices.
+  const notices = rules ? `<div class="work"><h3>Notices for this lease</h3>
+      <div class="formrow"><label>Federal program<select data-fed="${id}">
+        <option value="" ${!rules.federal_program ? "selected" : ""}>None</option>
+        <option value="section8" ${rules.federal_program === "section8" ? "selected" : ""}>Section 8 (Housing Choice Voucher)</option>
+        <option value="other_federal" ${rules.federal_program === "other_federal" ? "selected" : ""}>Other federally covered tenancy</option></select></label>
+        <label style="flex:1">Note<input data-fednote="${id}" value="${esc(rules.federal_program_note || "")}" maxlength="200" placeholder="e.g. HACM voucher, HAP contract date"></label>
+        <button class="btn small" type="button" data-fedsave="${id}">Save</button></div>
+      <div class="meta">Nonpayment notice: <b>${rules.nonpayment_days} days</b>: ${esc(rules.nonpayment_basis)}. Breach: ${rules.breach_cure_days} days to fix it.${rules.termination_28_day ? " Month-to-month: 28 days' notice to end the tenancy at the end of a month." : ""}</div>
+      <div class="meta" data-fedmsg="${id}"></div></div>` : "";
+  cell.innerHTML = `${lease && lease.correction_note ? `<div class="note" style="margin:8px 0">${esc(lease.correction_note)}</div>` : ""}${notices}${docs}
+    ${w ? `<div class="work">${w.agreements.map((g) => `<h3>${esc(g.title)} <span class="tag ${g.status === "active" ? "active" : "future"}">${esc(g.status)}</span></h3>
+        <div class="meta">${esc(g.scope)}</div><div class="meta">In-kind credit: ${money(g.monthly_credit)} / month. ${esc(g.equipment_terms || "")}</div>`).join("")}
+      <h3>Work log</h3>${w.logs.length ? `<table class="ledger"><thead><tr><th>Date</th><th>Work</th><th class="num">Credit</th></tr></thead><tbody>
+        ${w.logs.map((g) => `<tr><td>${fmtDate(g.work_date)}</td><td>${esc(g.description)}</td><td class="num">${money(g.value)}</td></tr>`).join("")}</tbody></table>` : `<p class="sub">No work logged yet.</p>`}</div>` : ""}
+    <table class="ledger"><thead><tr><th>Date</th><th>Account</th><th>Type</th><th>Description</th><th class="num">Amount</th><th class="num">Balance</th></tr></thead><tbody>
+    ${data.map((e) => { run += Number(e.amount); return `<tr><td>${fmtDate(e.date)}</td><td class="gl">${esc(e.gl)}</td>
+      <td>${e.kind === "in_kind" ? `<span class="tag inkind">work in lieu</span>` : esc(e.type)}</td>
+      <td>${esc(e.description)}${e.note ? `<div class="why">${esc(e.note)}</div>` : ""}</td>
+      <td class="num">${money(e.amount)}</td><td class="num">${bal(Math.round(run * 100) / 100)}</td></tr>`; }).join("")}
+  </tbody></table>`;
+}
+
+let contracts = [];
+const openContracts = new Set();
+const openSchedules = new Set();
+function renderContracts() {
+  $("contracts").innerHTML = contracts.length ? contracts.map((c) => `<section class="unit">
+    <div class="unit-head"><h2>${esc(c.property)} <span class="tag ${c.status === "active" ? "active" : "past"}">land contract · ${esc(c.status)}</span></h2>
+      <span class="meta">${esc(c.street || "")} · since ${fmtDate(c.contract_date)}</span></div>
+    ${c.terms_confirmed ? `<div class="work" style="padding:8px 16px">
+        <div class="strip" style="margin:4px 0 8px">
+          <div class="stat"><b>${money(c.principal_now)}</b><span>principal owed (after installment ${c.installments_due} of ${c.term_months})</span></div>
+          <div class="stat"><b>${money(c.purchase_price)}</b><span>price · ${money(c.down_payment)} down</span></div>
+          <div class="stat"><b>${(Number(c.interest_rate) * 100).toFixed(2)}%</b><span>interest · ${c.term_months} months</span></div>
+          <div class="stat"><b>${fmtDate(c.maturity_date)}</b><span>maturity (paid in full by)</span></div>
+        </div>
+        <div class="meta">Seller: ${esc(c.seller || "")} · payments to ${esc(c.vendor_payment_address || "")} · recorded ${fmtDate(c.recorded_on)}, ${esc(c.recorded_document || "")} · parcel ${esc(c.parcel_pin || "")}</div>
+        <div class="meta">Default: ${c.grace_days} days after the due date (or after written notice for other obligations); default interest ${(Number(c.default_interest_rate) * 100).toFixed(1)}%. ${esc(c.prepayment_terms || "")} ${esc(c.taxes_insurance || "")}</div>
+        ${c.interest_by_year ? `<div class="meta">Interest paid by year (schedule): ${Object.entries(c.interest_by_year).map(([y, i]) => `${y} ${money(i)}`).join(" · ")}</div>` : ""}
+        <button class="btn" type="button" data-schedule="${c.id}" style="margin-top:8px">${openSchedules.has(c.id) ? "Hide" : "Show"} amortization schedule</button>
+        ${openSchedules.has(c.id) ? `<div id="schedule-${c.id}" style="margin-top:8px"><span class="sub">Loading…</span></div>` : ""}
+      </div>` : `<div class="note">Contract terms (price, down payment, interest rate, term) aren't entered yet.</div>`}
+    <table class="leases"><thead><tr><th>Buyers</th><th class="num">Monthly payment</th><th class="num">Paid to date</th><th class="num">Amount due</th><th class="num">Lines</th></tr></thead><tbody>
+      <tr data-contract="${c.id}" tabindex="0"><td><ul class="people">${(c.buyers || []).map((t) => `<li>${esc(t.name)} <span class="c">${esc([t.phone, t.email].filter(Boolean).join(" · "))}</span></li>`).join("")}</ul></td>
+        <td class="num">${money(c.monthly_payment)}</td><td class="num">${money(c.paid_total)}</td><td class="num">${bal(Number(c.balance))}</td><td class="num">${c.entries}</td></tr>
+      ${openContracts.has(c.id) ? `<tr><td colspan="5" class="ledger-wrap" id="contract-${c.id}"><span class="sub">Loading…</span></td></tr>` : ""}
+    </tbody></table></section>`).join("") : `<p class="sub">None.</p>`;
+  openSchedules.forEach(async (id) => {
+    const box = $("schedule-" + id); if (!box) return;
+    const { data, error } = await client.rpc("land_contracts_staff_schedule", { p_contract_id: id });
+    if (error) { box.innerHTML = `<span class="msg err">${esc(await errorText(error))}</span>`; return; }
+    const today = new Date().toISOString().slice(0, 10);
+    box.innerHTML = `<table class="ledger"><thead><tr><th>#</th><th>Due</th><th class="num">Payment</th><th class="num">Extra</th><th class="num">Principal</th><th class="num">Interest</th><th class="num">Balance</th></tr></thead><tbody>
+      ${data.map((s) => `<tr${s.due_date <= today ? "" : ' style="color:var(--muted)"'}><td>${s.n}</td><td>${fmtDate(s.due_date)}</td><td class="num">${money(s.scheduled_payment)}</td>
+        <td class="num">${Number(s.extra_payment) ? money(s.extra_payment) : ""}</td><td class="num">${money(s.principal)}</td><td class="num">${money(s.interest)}</td><td class="num">${money(s.ending_balance)}</td></tr>`).join("")}
+    </tbody></table>`;
+  });
+  openContracts.forEach(async (id) => {
+    const cell = $("contract-" + id); if (!cell) return;
+    const { data, error } = await client.rpc("land_contracts_staff_ledger", { p_contract_id: id });
+    if (error) { cell.innerHTML = `<span class="msg err">${esc(await errorText(error))}</span>`; return; }
+    let run = 0;
+    cell.innerHTML = `<table class="ledger"><thead><tr><th>Date</th><th>Kind</th><th>Description</th><th class="num">Amount</th><th class="num">Due</th></tr></thead><tbody>
+      ${data.map((e) => { run += Number(e.amount); return `<tr><td>${fmtDate(e.date)}</td><td>${esc(e.kind.replace("_", " "))}</td><td>${esc(e.description || e.type)}</td><td class="num">${money(e.amount)}</td><td class="num">${bal(Math.round(run * 100) / 100)}</td></tr>`; }).join("")}
+    </tbody></table>`;
+  });
+}
+
+// New leases signed online: point to the Move-ins page when something needs staff.
+async function loadMoveIns() {
+  const { data } = await client.rpc("move_in_staff_list");
+  const n = (data || []).filter((m) => (m.keys_ready_at && !m.keys_released_at) || m.checklist_status === "submitted").length;
+  $("moveins").innerHTML = n ? `<div class="banner warn" style="margin-bottom:14px"><b>${n} move-in${n > 1 ? "s" : ""} need${n > 1 ? "" : "s"} you</b> (keys or checklist). <a href="/inspections/move-in/">Open Move-ins</a></div>` : "";
+}
+
+async function load() {
+  loadMoveIns();
+  const { data, error } = await client.rpc("rentals_staff_overview");
+  if (error) { $("signin").innerHTML = `<div class="banner bad">${esc(await errorText(error))}</div>`; return; }
+  units = data.units || [];
+  render();
+  const [lc, corr] = await Promise.all([client.rpc("land_contracts_staff_overview"), client.rpc("staff_corrections")]);
+  contracts = lc.data || [];
+  renderContracts();
+  $("corrections").innerHTML = (corr.data || []).map((c) => `<div class="corr"><b>${esc(c.subject)}</b>
+    <span class="meta">${fmtDate(c.decided_on)} · decided by ${esc(c.decided_by)}</span><p style="margin:6px 0 0">${esc(c.reason)}</p></div>`).join("") || `<p class="sub">None.</p>`;
+  $("app").hidden = false;
+}
+
+$("filters").addEventListener("click", (e) => { const b = e.target.closest("[data-f]"); if (b) { filter = b.dataset.f; render(); } });
+const toggle = (tr) => { const id = tr.dataset.lease; openLedgers.has(id) ? openLedgers.delete(id) : openLedgers.add(id); render(); };
+$("units").addEventListener("click", async (e) => {
+  const save = e.target.closest("[data-fedsave]");
+  if (save) {
+    const id = save.dataset.fedsave, msg = document.querySelector(`[data-fedmsg="${id}"]`);
+    const { error } = await client.rpc("lease_staff_set_federal_program", { p_lease: id, p_program: document.querySelector(`[data-fed="${id}"]`).value,
+      p_note: document.querySelector(`[data-fednote="${id}"]`).value });
+    if (error) { msg.className = "msg err"; msg.textContent = await errorText(error); } else loadLedger(id);
+    return;
+  }
+  const tr = e.target.closest("tr[data-lease]"); if (tr) toggle(tr);
+});
+$("units").addEventListener("keydown", (e) => { const tr = e.target.closest("tr[data-lease]"); if (tr && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); toggle(tr); } });
+$("contracts").addEventListener("click", (e) => { const sb = e.target.closest("[data-schedule]"); if (sb) { const id = sb.dataset.schedule; openSchedules.has(id) ? openSchedules.delete(id) : openSchedules.add(id); renderContracts(); return; } const tr = e.target.closest("tr[data-contract]"); if (!tr) return; const id = tr.dataset.contract; openContracts.has(id) ? openContracts.delete(id) : openContracts.add(id); renderContracts(); });
+$("signOutBtn").addEventListener("click", signOut);
+
+const who = await signIn($("signin"), { audience: "staff" });
+$("userBar").hidden = false;
+if (who.role !== "staff") location.replace("/association-owners/roca1/");
+else load();
+</script>
+</body>
+</html>

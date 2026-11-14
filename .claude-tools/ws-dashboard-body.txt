@@ -1,0 +1,72 @@
+<script type="module">
+// Phase 8 T8.1 (11/13/2026): the organization dashboard. Everything comes from mirror_workspace_dashboard, which shows only what each
+// person shares with this organization (private topics only where shared; every private look is logged for the person).
+import { requireArea, rpc, signOut } from "/mirror/assets/mirror-client.js?v=20261113p";
+import { esc, notice } from "/mirror/assets/mirror-ui.js?v=20261113h";
+const ROLE = { org_admin: "Organization admin", coordinator: "Coordinator", volunteer: "Volunteer" };
+const NEED = { identified: "Noted", planning: "Planning", in_progress: "Working on it" };
+const day = (d) => new Date(String(d).length === 10 ? d + "T12:00:00" : d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+const tag = (t, cls = "") => `<span class="mm-tag${cls ? " " + cls : ""}">${esc(t)}</span>`;
+const w = await requireArea("workspace");
+const box = document.getElementById("mmWs");
+const orgs = w.memberships.filter((m) => m.role === "org_admin" || m.role === "coordinator");
+let org = orgs[0] && orgs[0].organization_id;
+const me = w.memberships[0];
+const personLink = (x) => `<a href="/mirror/workspace/person/?id=${encodeURIComponent(x.person_id)}&org=${encodeURIComponent(org)}">${esc(x.person)}</a>`;
+
+async function draw() {
+  const mine = orgs.find((o) => o.organization_id === org);
+  const head = `<p class="mm-eyebrow">Workspace</p>
+    <h1>Welcome, ${esc(me.name)}</h1>
+    <p class="mm-lead">Your organizations: ${w.memberships.map((m) => `<strong>${esc(m.organization)}</strong> (${esc(ROLE[m.role] || m.role)})`).join(", ")}.</p>
+    ${orgs.length > 1 ? `<div class="mm-field" style="max-width:24rem"><label for="mmOrg">Organization</label>
+      <select class="mm-select" id="mmOrg">${orgs.map((o) => `<option value="${esc(o.organization_id)}"${o.organization_id === org ? " selected" : ""}>${esc(o.organization)}</option>`).join("")}</select></div>` : ""}`;
+  const links = `<p class="mm-row" style="margin-top:var(--mm-space-6)"><a class="mm-btn" href="/mirror/workspace/people/">People</a>
+    ${mine && mine.role === "org_admin" ? '<a class="mm-btn mm-btn-secondary" href="/mirror/workspace/audit/">Who looked and changed what</a>' : ""}
+    <a class="mm-btn mm-btn-secondary" href="/mirror/admin/">Organizations and members</a>
+    <a class="mm-btn mm-btn-secondary" href="/mirror/demo/conversation/">Try the conversation guide</a>
+    ${w.person ? '<a class="mm-btn mm-btn-secondary" href="/mirror/my-mirror/">My own Mirror</a>' : ""}
+    <button class="mm-btn mm-btn-quiet" type="button" id="mmOut">Sign out</button></p>`;
+  if (!orgs.length) {
+    box.innerHTML = head + notice("info", "<p>Volunteers don't see the dashboard. Your organization's coordinator will tell you what to help with.</p>") + links;
+    wire(); return;
+  }
+  let D;
+  try { D = await rpc("mirror_workspace_dashboard", { p_org: org }); }
+  catch (e) { box.innerHTML = head + notice("urgent", `<p>${esc(e.message)}</p>`) + links; wire(); return; }
+  const P = D.people;
+  const needs = D.urgent_needs.length ? `<ul class="mm-read" style="padding-left:1.2rem">${D.urgent_needs.map((n) => `<li style="margin-bottom:var(--mm-space-2)">
+      <strong>${personLink(n)}</strong>: ${esc(n.title)} <span class="mm-muted mm-small">(${esc(n.area)}; ${esc(NEED[n.status] || n.status)}; noted ${esc(day(n.since))})</span>
+      ${n.private ? tag("Private, shared with you", "mm-tag-info") : ""}</li>`).join("")}</ul>`
+    : '<p class="mm-muted">No urgent needs right now.</p>';
+  const steps = D.due_steps.length ? `<div class="mm-table-wrap mm-stack"><table class="mm-table"><caption class="mm-sr">Steps with a hope-by date this week or passed</caption>
+      <thead><tr><th scope="col">Hope by</th><th scope="col">Person</th><th scope="col">Step</th><th scope="col">Who does it</th></tr></thead>
+      <tbody>${D.due_steps.map((s) => `<tr><td data-label="Hope by">${esc(day(s.due_on))}${s.due_on < D.today ? ' <span class="mm-muted mm-small">(passed)</span>' : ""}</td>
+        <td data-label="Person">${personLink(s)}</td>
+        <td data-label="Step">${esc(s.title)}${s.for_goal ? `<br><span class="mm-muted mm-small">goal: ${esc(s.for_goal)}</span>` : s.for_need ? `<br><span class="mm-muted mm-small">need: ${esc(s.for_need)}</span>` : ""}${s.private ? " " + tag("Private", "mm-tag-info") : ""}</td>
+        <td data-label="Who does it">${s.who === "me" ? "The person" : esc(s.helper)}</td></tr>`).join("")}</tbody></table></div>`
+    : '<p class="mm-muted">No hope-by dates this week.</p>';
+  const help = D.help.length ? `<ul class="mm-read" style="padding-left:1.2rem">${D.help.map((h) => `<li style="margin-bottom:var(--mm-space-2)">
+      <strong>${personLink(h)}</strong>: ${esc(h.prompt)} <span class="mm-muted mm-small">(${esc(h.set_title)}, ${esc(day(h.at))})</span>
+      ${h.note ? `<br><span class="mm-small">Help they'd like: ${esc(h.note)}</span>` : ""}${h.private ? " " + tag("Private", "mm-tag-info") : ""}</li>`).join("")}</ul>`
+    : '<p class="mm-muted">Nobody has asked for help on a question yet.</p>';
+  box.innerHTML = head + `
+    <p><strong>${P.active}</strong> ${P.active === 1 ? "person" : "people"} working with you${P.invited ? `, <strong>${P.invited}</strong> waiting to accept your invitation` : ""}${P.started_this_month ? `, <strong>${P.started_this_month}</strong> started this month` : ""}.</p>
+    <p class="mm-small mm-muted mm-read">You see what each person shares with your organization. Private topics show only where they share them, and each time you see one,
+      they can see that you looked. Hope-by dates are the person's own hopes: nothing here is ever late.</p>
+    <h2>Urgent needs (${D.urgent_needs.length})</h2>${needs}
+    <h2>Hope-by dates this week or passed (${D.due_steps.length})</h2>${steps}
+    <h2>Asked for help (${D.help.length})</h2>${help}
+    <h2>Appointments today</h2><p class="mm-muted">Appointments come with the next part of the workspace.</p>` + links;
+  wire();
+}
+
+function wire() {
+  document.getElementById("mmOut")?.addEventListener("click", signOut);
+  box.querySelector("#mmOrg")?.addEventListener("change", (e) => { org = e.target.value; draw(); });
+}
+
+draw();
+</script>
+</body>
+</html>

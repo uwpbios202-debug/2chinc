@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Association Owners — 2nd Chance Housing</title>
+<link rel="icon" href="/favicon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+<style>
+.hub{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.hub a.card{display:block;border:1px solid var(--line);border-radius:8px;padding:16px;background:var(--panel);text-decoration:none;color:var(--fg)}
+.hub a.card:hover{border-color:var(--accent)}
+.hub .card h3{margin:0 0 4px;font-size:1.05rem;color:var(--accent)}
+.hub .card p{margin:0;color:var(--muted);font-size:.92rem}
+.crumbs{font-size:.9rem;color:var(--muted);margin-bottom:6px}
+.crumbs a{color:var(--accent)}
+ol.flow{padding-left:20px;display:grid;gap:6px}
+.chip{display:inline-block;padding:1px 8px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-size:.8rem;font-weight:600}
+.soon{color:var(--muted);font-style:italic}
+</style>
+</head>
+<body>
+<div class="appbar"><div class="appbar-in">
+  <a class="org" href="/" style="color:inherit;text-decoration:none">2nd Chance Housing<span>Staff &amp; portals</span></a>
+  <div class="row" style="flex-wrap:wrap"><a class="linkbtn" href="/properties/">Properties</a><a class="linkbtn" href="/association-owners/">Association Owners</a><a class="linkbtn" href="/property-owners/">Property Owners</a><a class="linkbtn" href="/leasing/">Leasing</a><a class="linkbtn" href="/accounting/">Accounting</a><a class="linkbtn" href="/maintenance/">Maintenance</a><a class="linkbtn" href="/inspections/">Inspections</a><a class="linkbtn" href="/documents/">Documents</a><a class="linkbtn" href="/sitemap/">Site map</a></div>
+</div></div>
+<main class="wrap">
+  <header><div class="crumbs"><a href="/">Home</a> › Association Owners</div><h1>Association Owners</h1><p class="lead">Each association has its own portal, and inside it the owners of that association's units. When a unit is bought or sold, the owner record changes; the unit and its history stay.</p></header>
+<div id="list" class="hub"></div>
+</main>
+<script>
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+fetch("/data/associations.json").then(r=>r.json()).then(({associations})=>{
+  document.getElementById("list").innerHTML=associations.map(a=>`<a class="card" href="/association-owners/${esc(a.slug)}/"><h3>${esc(a.name)}</h3><p>${esc(a.address)} · ${a.units} units</p><p style="margin-top:6px"><span class="chip">${esc(a.short)}</span> Owner sign-in</p></a>`).join("");
+});
+</script>
+</body>
+</html>

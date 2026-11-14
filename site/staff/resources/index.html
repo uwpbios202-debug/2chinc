@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Housing Resource Directory — 2nd Chance Housing Staff</title>
+<link rel="icon" href="/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+</head>
+<body>
+<div class="appbar" data-nav="staff">
+  <div class="appbar-in">
+    <div class="org">2nd Chance Housing<span>Housing resources · Staff</span></div>
+    <div class="row" id="userBar" hidden>
+      <button class="linkbtn" type="button" id="signOutBtn">Sign out</button>
+    </div>
+  </div>
+</div>
+<main class="wrap">
+  <header><h1>Housing resource directory</h1><p class="lead">Milwaukee organizations and programs that help people find, pay for and keep housing: who they serve, what they pay, how to apply, and when someone last confirmed it. Housing Navigators use the same directory in their portal.</p></header>
+  <div id="signin" class="narrow"></div>
+  <div class="msg" id="msg" role="status"></div>
+  <div id="app" hidden></div>
+</main>
+<script type="module">
+import { $, signIn, signOut } from "/assets/portal/portal.js";
+import { mountChpms } from "/assets/portal/chpms.js?v=20261113a";
+const say = (t, bad) => { $("msg").className = "msg " + (bad ? "err" : "ok"); $("msg").textContent = t || ""; };
+$("signOutBtn").addEventListener("click", signOut);
+const who = await signIn($("signin"), { audience: "staff" });
+$("userBar").hidden = false;
+const isStaff = ["staff", "field"].includes(who.role) || who.is_field;
+if (!isStaff && (who.role === "navigator" || who.is_navigator)) {
+  location.replace("/navigator/#resources");
+} else if (!isStaff) {
+  $("signin").hidden = false;
+  $("signin").innerHTML = `<div class="panel"><p>This page is for 2nd Chance Housing staff and Housing Navigators. <a href="/">Back to the home page</a></p></div>`;
+} else {
+  $("app").hidden = false;
+  const dir = mountChpms($("app"), { prefix: "", say });
+  const route = () => dir.route(location.hash.slice(1));
+  window.addEventListener("hashchange", route);
+  route();
+}
+</script>
+</body>
+</html>

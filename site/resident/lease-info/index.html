@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Lease information form — 2nd Chance Housing</title>
+  <link rel="icon" href="/favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/site.css" />
+  <link rel="stylesheet" href="/assets/portal/portal.css" />
+  <style>
+    .page { max-width: 760px; margin: 0 auto; padding: 24px 16px 60px; }
+    .box { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; margin-bottom: 16px; }
+    .box h2 { font-family: var(--serif); font-weight: 400; font-size: 1.3rem; margin: 0 0 6px; }
+    .sub2 { color: var(--gray); font-size: 0.9rem; margin: 0 0 10px; }
+    .f { display: grid; gap: 12px; grid-template-columns: 1fr 1fr; }
+    @media (max-width: 640px) { .f { grid-template-columns: 1fr; } }
+    .f label, .one label { display: grid; gap: 4px; font-size: 0.88rem; font-weight: 600; color: var(--gray); }
+    .f input, .f select, .one input, .one select, .one textarea { font: inherit; font-weight: 400; color: var(--text); padding: 9px 10px; border: 1px solid var(--border); border-radius: 8px; background: #fff; width: 100%; box-sizing: border-box; }
+    .full { grid-column: 1 / -1; }
+    .btn2 { display: inline-block; background: var(--green); color: #fff; border: 0; border-radius: 999px; padding: 11px 22px; font: 700 0.95rem var(--sans); cursor: pointer; }
+    .btn2.ghost { background: var(--white); color: var(--text); border: 1px solid var(--border); }
+    .btn2:disabled { opacity: 0.5; cursor: not-allowed; }
+    .slot { border: 1px dashed var(--border); border-radius: 10px; padding: 12px; display: grid; gap: 6px; }
+    .slot img { max-width: 100%; max-height: 180px; border-radius: 6px; justify-self: start; }
+    .ok { color: var(--green-dk); font-weight: 700; } .bad { color: #b3261e; font-weight: 600; }
+    .hh { display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 8px; align-items: end; margin-bottom: 8px; }
+    @media (max-width: 640px) { .hh { grid-template-columns: 1fr 1fr; } }
+    .chk { display: flex; gap: 10px; align-items: flex-start; font-weight: 400 !important; color: var(--text) !important; }
+    .chk input { width: auto !important; margin-top: 4px; }
+  </style>
+</head>
+<body>
+<div id="signinWrap" class="wrap" style="max-width:520px;margin:40px auto;padding:0 16px">
+  <h1 style="font-family:var(--serif);font-weight:400">Lease information form</h1>
+  <p class="sub2">Sign in with your email to continue. We email you a 6-digit code.</p>
+  <div id="signin" class="narrow"></div>
+</div>
+
+<main class="page" id="app" hidden>
+  <h1 style="font-family:var(--serif);font-weight:400;margin:0 0 4px">Lease information form</h1>
+  <p class="sub2" id="where"></p>
+  <div id="done" class="box" hidden><h2>Thank you</h2><p id="doneText"></p><p class="sub2">You can close this page. We will email you when your new lease is ready to review and sign.</p></div>
+
+  <form id="form" autocomplete="off">
+    <div class="box"><h2>Why we ask</h2>
+      <p class="sub2" style="margin:0">You already live here, so this is much shorter than a rental application. We use it to prepare your new lease. The photo of your ID is only so we can verify who you are. We keep only the last four digits of the ID number.</p></div>
+
+    <div class="box"><h2>Your name and ID</h2><p class="sub2">Enter your name and date of birth exactly as they appear on your photo ID.</p>
+      <div class="f">
+        <label>First name<input id="first" required></label>
+        <label>Middle initial<input id="middle" maxlength="1"></label>
+        <label>Last name<input id="last" required></label>
+        <label>Date of birth<input id="dob" type="date" required></label>
+        <label>ID issued by (state)<input id="idState" maxlength="2" placeholder="WI" required></label>
+        <label>ID number<input id="idNum" required></label>
+        <label>ID expires<input id="idExp" type="date"></label>
+        <label>Phone<input id="phone" type="tel" required></label>
+      </div>
+      <div class="f" style="margin-top:12px">
+        <div class="slot"><b>Front of your ID</b><input id="fileFront" type="file" accept="image/*" capture="environment"><div id="stFront" class="sub2">No photo yet.</div></div>
+        <div class="slot"><b>Back of your ID</b><input id="fileBack" type="file" accept="image/*" capture="environment"><div id="stBack" class="sub2">No photo yet.</div></div>
+      </div>
+    </div>
+
+    <div class="box"><h2>Who lives with you</h2><p class="sub2">List everyone who lives in the unit, other than you. Leave empty if it is only you.</p>
+      <div id="hhList"></div><button type="button" class="btn2 ghost" id="addHh">Add a person</button></div>
+
+    <div class="box"><h2>Emergency contact</h2>
+      <div class="f"><label>Name<input id="emName"></label><label>Relationship<input id="emRel"></label><label>Phone<input id="emPhone" type="tel"></label></div></div>
+
+    <div class="box"><h2>Agency or case worker (if any)</h2><p class="sub2">If an agency helps pay your rent or works with you, add it here.</p>
+      <div class="f"><label>Agency<input id="agency"></label><label>Case worker name<input id="cwName"></label><label>Case worker phone<input id="cwPhone" type="tel"></label></div></div>
+
+    <div class="box"><h2>Animals</h2>
+      <div class="one"><label>Do you have a service or assistance animal?<select id="animal"><option value="none">No</option><option value="assistance">Yes</option></select></label></div>
+      <div class="f" id="aaBox" hidden style="margin-top:10px"><label>Kind of animal (for example dog)<input id="aaSpecies"></label><label class="full">What does it do for you?<input id="aaTask"></label></div></div>
+
+    <div class="box"><div class="one"><label>Anything else we should know for your lease? (optional)<textarea id="note" rows="3" maxlength="1000"></textarea></label></div>
+      <p style="margin:14px 0 0"><label class="chk"><input type="checkbox" id="confirm"> <span>I confirm that this information is correct.</span></label></p></div>
+
+    <p><button type="submit" class="btn2" id="send">Send</button> <span id="msg" role="status"></span></p>
+  </form>
+</main>
+
+<script type="module">
+import { client, $, esc, signIn, errorText } from "/assets/portal/portal.js";
+const call = async (body) => { const { data, error } = await client.functions.invoke("resident-lease-info", { body }); if (error) throw new Error(await errorText(error)); if (data && data.error) throw new Error(data.error); return data; };
+const msg = (t, bad) => { $("msg").textContent = t; $("msg").className = bad ? "bad" : ""; };
+const photos = { id_front: null, id_back: null };
+
+function hhRow(p = {}) {
+  const d = document.createElement("div"); d.className = "hh";
+  d.innerHTML = `<label>Name<input data-k="name" value="${esc(p.name || "")}"></label><label>Relationship<input data-k="relation" value="${esc(p.relation || "")}"></label><label>Date of birth<input data-k="dob" type="date"></label><button type="button" class="btn2 ghost" aria-label="Remove">Remove</button>`;
+  d.querySelector("button").onclick = () => d.remove();
+  $("hhList").appendChild(d);
+}
+$("addHh").onclick = () => hhRow();
+$("animal").onchange = () => { $("aaBox").hidden = $("animal").value !== "assistance"; };
+
+function slot(scene, input, status) {
+  input.addEventListener("change", async () => {
+    const f = input.files[0]; if (!f) return;
+    photos[scene] = null; status.className = "sub2"; status.textContent = "Uploading…";
+    try {
+      const type = f.type || "image/jpeg";
+      const u = await call({ action: "upload", scene, mime: type, bytes: f.size });
+      const { error } = await client.storage.from("applications").uploadToSignedUrl(u.path, u.uploadToken, f, { contentType: type });
+      if (error) throw new Error("The photo did not upload. Try again.");
+      photos[scene] = { scene, path: u.path, mime: type, bytes: f.size };
+      status.className = "ok"; status.textContent = "✓ Photo added: " + f.name;
+    } catch (e) { status.className = "bad"; status.textContent = e.message; }
+  });
+}
+slot("id_front", $("fileFront"), $("stFront")); slot("id_back", $("fileBack"), $("stBack"));
+
+$("form").addEventListener("submit", async (e) => {
+  e.preventDefault(); msg("");
+  if (!photos.id_front || !photos.id_back) return msg("Please add a photo of the front and the back of your ID.", true);
+  if (!$("confirm").checked) return msg("Please tick the box to confirm the information is correct.", true);
+  const household = [...$("hhList").children].map((r) => Object.fromEntries([...r.querySelectorAll("[data-k]")].map((i) => [i.dataset.k, i.value]))).filter((p) => p.name.trim());
+  $("send").disabled = true; msg("Sending…");
+  try {
+    await call({ action: "submit", media: [photos.id_front, photos.id_back], household, confirm: true, phone: $("phone").value,
+      identity: { first: $("first").value, middle: $("middle").value, last: $("last").value, dob: $("dob").value, id_number: $("idNum").value, id_state: $("idState").value, id_expires: $("idExp").value },
+      emergency_name: $("emName").value, emergency_relation: $("emRel").value, emergency_phone: $("emPhone").value,
+      agency: $("agency").value, cw_name: $("cwName").value, cw_phone: $("cwPhone").value,
+      animal: $("animal").value, assistance_animal: { species: $("aaSpecies").value, task: $("aaTask").value }, accommodation: $("note").value });
+    $("form").hidden = true; $("done").hidden = false; $("doneText").textContent = "We received your lease information and ID. Staff will check it and prepare your new lease."; window.scrollTo(0, 0);
+  } catch (err) { msg(err.message, true); $("send").disabled = false; }
+});
+
+const who = await signIn($("signin"), { audience: "resident" });
+if (!who.is_resident) { $("signin").innerHTML = `<div class="banner bad">We don't have an active lease for this email. Please call (262) 236-5443.</div>`; }
+else {
+  try {
+    const s = await call({ action: "start" });
+    $("signinWrap").hidden = true; $("app").hidden = false;
+    $("where").textContent = `Unit ${s.lease.unit} · ${s.lease.address}`;
+    const n = (s.prefill.name || "").trim().split(/\s+/);
+    if (n.length > 1) { $("first").value = n[0]; $("last").value = n[n.length - 1]; } else $("first").value = n[0] || "";
+    $("phone").value = s.prefill.phone || ""; $("emName").value = s.prefill.emergency_name || ""; $("emPhone").value = s.prefill.emergency_phone || ""; $("emRel").value = s.prefill.emergency_relation || "";
+    if (s.already) { $("form").hidden = true; $("done").hidden = false; $("doneText").textContent = "We already received your form. Staff are reviewing it."; }
+  } catch (e) { $("signin").innerHTML = `<div class="banner bad">${esc(e.message)}</div>`; }
+}
+</script>
+</body>
+</html>

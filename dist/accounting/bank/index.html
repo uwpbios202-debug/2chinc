@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Bank Deposits — 2nd Chance Housing Staff</title>
+<link rel="icon" href="/favicon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+<style>
+.card2{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:14px}
+.card2 h2{margin:0 0 6px;font-size:1.15rem}
+.meta{color:var(--muted);font-size:.9rem}
+td.n,th.n{text-align:right;white-space:nowrap}
+.pill3{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;border-radius:20px;padding:.12rem .55rem;background:var(--accent-soft);color:var(--accent)}
+.pill3.owner{background:#e3eefb;color:#1f4d8a}.pill3.warn{background:#fff3cd;color:#7a5200}
+.q{border-top:1px solid var(--line);padding:10px 0}
+.q .who{font-weight:700}
+.cands{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.cands button{font:inherit;text-align:left}
+.bad{color:var(--bad);font-weight:700}
+.notice{background:#fff3cd;border:1px solid #e0a800;color:#5c4200;border-radius:8px;padding:10px 12px;margin-bottom:14px}
+</style>
+</head>
+<body>
+<div class="appbar" data-nav="staff"><div class="appbar-in">
+  <div class="org">2nd Chance Housing<span>Bank deposits · Staff</span></div>
+  <div class="row" id="userBar" hidden>
+    
+    <button class="linkbtn" type="button" id="signOutBtn">Sign out</button>
+  </div>
+</div></div>
+<main class="wrap">
+  <header><h1>Bank deposits</h1><p class="lead">The bank feed pulls each deposit and posts it to the right ledger by itself: rent for tenants, dues for owners, kept in their own bank accounts. You only see a deposit here when it can't tell who it belongs to. Tell it once and every later payment from that person posts on its own.</p></header>
+  <div id="signin" class="narrow"></div>
+  <div id="app" hidden>
+    <div id="setup" class="notice" hidden></div>
+    <div class="card2"><h2>Connected bank accounts</h2>
+      <div class="table-wrap"><table><thead><tr><th>Account</th><th>For</th><th>Last checked</th><th>Status</th></tr></thead><tbody id="acctRows"></tbody></table></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+        <button class="btn primary" type="button" id="connTenant">Connect 2nd Chance's Chase account (tenant rent)</button>
+        <button class="btn primary" type="button" id="connOwner">Connect ROCA1's First Citizens account (owner dues)</button>
+        <button class="btn primary" type="button" id="connYawd">Connect Yawdcour's Chase account (units 4, 5, 14)</button>
+        <button class="btn" type="button" id="syncNow">Check for new deposits now</button>
+        <span class="msg" id="bankMsg" role="status"></span></div>
+      <p class="meta">Connect each account once, through your bank's own sign-in window. We never see or store your bank password. Owner money and tenant money are never mixed:
+        tenants pay 2nd Chance (Chase), except units 4, 5 and 14 (Yawdcour's Chase) and unit 16 (ROCA1); owners pay ROCA1 (First Citizens). Plaid is the bank record; payment-alert emails and CSVs for a connected account only confirm.</p></div>
+    <div class="card2"><h2>Bank alerts and confirmations</h2><p class="meta">Alert emails (Zelle, Cash App, PayPal) and extra copies of a deposit. They never post money; they mark a reported payment as "bank alert seen" and are linked once the bank's own record posts.</p>
+      <div class="table-wrap"><table><thead><tr><th>Date</th><th>From</th><th class="n">Amount</th><th>Account</th><th>Source</th><th>Linked</th></tr></thead><tbody id="confRows"></tbody></table></div></div>
+    <div class="card2"><h2>Who is this? <span class="pill3 warn" id="qCount"></span></h2><div id="queue"></div></div>
+    <div class="card2"><h2>Posted automatically</h2><div class="table-wrap"><table><thead><tr><th>Posted</th><th>Deposit date</th><th>From</th><th class="n">Amount</th><th>Matched by</th><th>Account</th></tr></thead><tbody id="recent"></tbody></table></div></div>
+  </div>
+</main>
+<footer style="text-align:center;font-size:0.82rem;padding:18px 16px 28px;color:#5c6878"><a href="/privacy/" style="color:inherit">Privacy policy</a> · 2nd Chance Housing Inc.</footer>
+<script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
+<script type="module">
+import { client, $, esc, fmtDate, money, signIn, signOut, errorText } from "/assets/portal/portal.js";
+let D = null;
+const say = (t, bad) => { const m = $("bankMsg"); m.className = "msg " + (bad ? "err" : "ok"); m.textContent = t; };
+async function fn(body) {
+  const { data, error } = await client.functions.invoke("bank-feed", { body });
+  if (error) { let m = error.message; try { m = (await error.context.json()).error || m; } catch {} throw new Error(m); }
+  return data;
+}
+function render() {
+  $("acctRows").innerHTML = D.accounts.map((a) => `<tr><td><b>${esc(a.name)}</b>${a.mask ? ` <span class="meta">••${esc(a.mask)}</span>` : ""}<div class="meta">${a.truth_source === "plaid" ? "Bank record: Plaid" : "Bank record: CSV upload (until Plaid is connected)"}</div></td><td><span class="pill3 ${a.kind === "owner" ? "owner" : ""}">${a.kind === "owner" ? "Owner dues + unit 16 rent (ROCA1)" : a.bank_key === "chase_yawdcour" ? "Tenant rent: units 4, 5, 14 (Yawdcour)" : "Tenant rent (2nd Chance)"}</span></td>
+    <td>${a.last_synced_at ? new Date(a.last_synced_at).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "not yet"}</td><td class="${a.last_error ? "bad" : ""}">${a.last_error ? esc(a.last_error) : a.connected ? "Connected" : "Not connected"}</td></tr>`).join("")
+    || `<tr><td colspan="4" class="meta">No bank account is connected yet.</td></tr>`;
+  $("qCount").textContent = D.queue.length ? D.queue.length + " waiting" : "";
+  $("queue").innerHTML = D.queue.map((r) => `<div class="q" data-id="${esc(r.id)}"><div><span class="who">${money(r.amount)}</span> · ${fmtDate(r.posted_on)} · ${esc(r.payer || "unknown payer")} <span class="pill3 ${r.kind === "owner" ? "owner" : ""}">${r.kind === "owner" ? "owner account" : "tenant account"}</span></div>
+    <div class="meta">${esc(r.description || "")}</div><div class="meta"><b>${esc(r.reason || "")}</b></div>
+    <div class="cands">${(r.candidates || []).map((c) => `<button class="btn small" type="button" data-assign data-kind="${esc(c.kind)}" data-target="${esc(c.id)}">${esc(c.label)}<br><span class="meta">${esc(c.why)}</span></button>`).join("") || `<span class="meta">No suggestions. Check the memo or the payer's name, then add them to a lease or unit.</span>`}
+      ${r.kind !== "owner" && (D.agencies || []).length ? `<button class="btn small" type="button" data-agency>Housing agency payment…</button>` : ""}
+      ${r.kind === "owner" && (D.caseworker_leases || []).length ? `<button class="btn small" type="button" data-caseworker>Caseworker payment for a tenant…</button>` : ""}
+      <button class="btn small" type="button" data-ignore>Not rent or dues</button></div>
+    <label class="meta"><input type="checkbox" data-remember checked> Remember this payer for next time</label></div>`).join("") || `<p class="meta">Nothing waiting. Every deposit has found its home.</p>`;
+  $("recent").innerHTML = D.recent.map((r) => `<tr><td>${r.posted_at ? new Date(r.posted_at).toLocaleDateString("en-US") : ""}</td><td>${fmtDate(r.posted_on)}</td><td>${esc(r.payer || "")}</td><td class="n">${money(r.amount)}</td><td>${r.status === "stripe_payout" ? "Stripe payout (not a tenant payment)" : esc(r.how || "")}</td><td>${r.kind === "owner" ? "ROCA1" : "2nd Chance"}</td></tr>`).join("") || `<tr><td colspan="6" class="meta">None yet.</td></tr>`;
+  $("confRows").innerHTML = (D.confirmations || []).map((c) => `<tr><td>${fmtDate(c.posted_on)}</td><td>${esc(c.payer || "")}</td><td class="n">${money(c.amount)}</td><td>${c.kind === "owner" ? "ROCA1" : "2nd Chance"}</td><td>${esc(String(c.source).replace("_", " "))}</td><td>${c.linked ? "✓ bank record posted" : c.report ? "paired with a report" : "waiting"}</td></tr>`).join("") || `<tr><td colspan="6" class="meta">None.</td></tr>`;
+}
+async function load() {
+  const { data, error } = await client.rpc("bank_staff_overview");
+  if (error) { $("signin").hidden = false; $("signin").innerHTML = `<div class="panel">${esc(await errorText(error))}</div>`; return; }
+  D = data; $("signin").hidden = true; $("app").hidden = false; render();
+}
+function openLink(link_token, kind, receivedRedirectUri) {
+  const cfg = { token: link_token, onSuccess: async (public_token, meta) => {
+      say("Connecting…");
+      try { const r = await fn({ action: "exchange", public_token, kind, account_id: (meta.accounts && meta.accounts[0] || {}).id, name: kind === "owner" ? "ROCA1 owner dues account" : kind === "yawdcour" ? "Yawdcour tenant rent account" : "2nd Chance tenant rent account" }); say(`Connected. ${(r.sync && r.sync.autopilot && r.sync.autopilot.posted) || 0} deposit(s) posted automatically.`); await load(); }
+      catch (e) { say(e.message, true); } }, onExit: () => say("") };
+  if (receivedRedirectUri) cfg.receivedRedirectUri = receivedRedirectUri;   // returning from the bank's own sign-in page (OAuth)
+  window.Plaid.create(cfg).open();
+}
+async function connect(kind) {
+  say("Opening your bank's sign-in…");
+  try {
+    const { link_token } = await fn({ action: "link_token", kind });
+    try { sessionStorage.setItem("plaid_link", JSON.stringify({ token: link_token, kind })); } catch {}   // an OAuth bank (Chase) sends you away and back
+    openLink(link_token, kind);
+  } catch (e) { say(e.message, true); if (/not set up/i.test(e.message)) { $("setup").hidden = false; $("setup").textContent = "The bank connection is waiting for the Plaid keys. Once they are added, the Connect buttons work."; } }
+}
+$("connTenant").onclick = () => connect("tenant");
+$("connOwner").onclick = () => connect("owner");
+$("connYawd").onclick = () => connect("yawdcour");
+$("syncNow").onclick = async () => { say("Checking…"); try { const r = await fn({ action: "sync" }); say(`Done. ${(r.autopilot || {}).posted || 0} posted, ${(r.autopilot || {}).needs_review || 0} need a look.`); await load(); } catch (e) { say(e.message, true); } };
+$("queue").addEventListener("click", async (e) => {
+  const q = e.target.closest(".q"); if (!q) return; const id = q.dataset.id;
+  if (e.target.closest("[data-assign]")) {
+    const b = e.target.closest("[data-assign]"), remember = q.querySelector("[data-remember]").checked;
+    if (!confirm("Post this deposit to " + b.textContent.split("\n")[0].trim() + "?")) return;
+    const { error } = await client.rpc("bank_staff_assign", { p_receipt: id, p_kind: b.dataset.kind, p_target: b.dataset.target, p_remember: remember });
+    if (error) return alert(await errorText(error));
+    client.functions.invoke("outbox-flush", { body: {} }).catch(() => {}); await load();
+  } else if (e.target.closest("[data-agency]")) {
+    const amt = Number(q.querySelector(".who").textContent.replace(/[$,]/g, ""));
+    const list = D.agencies.map((a, i) => `${i + 1}. ${a.agency} — Unit ${a.unit || "?"} ${a.tenants} (owes ${money(a.owes)})`).join("\n");
+    const pick = prompt(`Housing agency deposit of ${money(amt)}. Enter the numbers it covers, with amounts if it covers more than one tenant, e.g. "1" or "1=600, 3=450":\n\n${list}`, "1"); if (!pick) return;
+    const parts = pick.split(",").map((x) => x.trim()).filter(Boolean);
+    const items = parts.map((x) => { const [n, a] = x.split("="); const ag = D.agencies[Number(n) - 1]; if (!ag) throw new Error("No agency line " + n); return { assistance_id: ag.id, amount: a ? Number(a) : (parts.length === 1 ? amt : 0) }; });
+    const { error } = await client.rpc("bank_staff_assign_agency", { p_receipt: id, p_items: items, p_note: null });
+    if (error) return alert(await errorText(error)); await load();
+  } else if (e.target.closest("[data-caseworker]")) {
+    const amt = Number(q.querySelector(".who").textContent.replace(/[$,]/g, ""));
+    const list = D.caseworker_leases.map((c, i) => `${i + 1}. Unit ${c.unit || "?"} ${c.tenants} (${c.agency || "agency"}, caseworker ${c.caseworker}; balance ${money(c.owes)})`).join("\n");
+    const pick = prompt(`Caseworker payment of ${money(amt)} into ROCA1. Enter the number of the tenant it is for:\n\n${list}`, "1"); if (!pick) return;
+    const c = D.caseworker_leases[Number(pick) - 1]; if (!c) return alert("No line " + pick);
+    if (!confirm(`Post ${money(amt)} to Unit ${c.unit} ${c.tenants} as paid by ${c.agency || "the agency"}? The security deposit part goes first; the rent part goes through the ROCA1 split.`)) return;
+    const { error } = await client.rpc("bank_staff_assign_caseworker", { p_receipt: id, p_lease: c.lease_id, p_note: null });
+    if (error) return alert(await errorText(error));
+    client.functions.invoke("outbox-flush", { body: {} }).catch(() => {}); await load();
+  } else if (e.target.closest("[data-ignore]")) {
+    const why = prompt("Why is this not rent or dues? (e.g. transfer between our own accounts, refund)"); if (why === null) return;
+    const { error } = await client.rpc("bank_staff_ignore", { p_receipt: id, p_reason: why });
+    if (error) return alert(await errorText(error)); await load();
+  }
+});
+$("signOutBtn").onclick = signOut;
+const who = await signIn($("signin"), { audience: "staff" });
+$("userBar").hidden = false;
+// Back from a bank's own sign-in page (Chase and other OAuth banks): reopen Link where it left off.
+if (who.role === "staff" && /oauth_state_id=/.test(location.search)) {
+  try {
+    const saved = JSON.parse(sessionStorage.getItem("plaid_link") || "null");
+    if (saved && saved.token) { say("Finishing your bank connection…"); openLink(saved.token, saved.kind, location.href); }
+  } catch { /* storage blocked: connect again */ }
+}
+if (who.role !== "staff") { $("signin").hidden = false; $("signin").innerHTML = `<div class="panel"><p>This page is for office staff. <a href="/staff/">Go to My units</a></p></div>`; }
+else await load();
+</script>
+</body>
+</html>

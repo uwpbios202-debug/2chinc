@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Applications — 2nd Chance Housing Staff</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+<style>
+  .apps { display: grid; gap: 16px; }
+  .app { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; }
+  .app-head { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: baseline; }
+  .app-head h2 { margin: 0; font-size: 1.25rem; }
+  .meta { color: var(--muted); font-size: 0.92rem; }
+  .pillx { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 0.8rem; font-weight: 700; background: var(--accent-soft); color: var(--accent); }
+  .pillx.approved { background: var(--ok-soft); color: var(--ok); }
+  .pillx.on_hold { background: #fff3cd; color: #7a5200; }
+  .pillx.superseded { background: #e5e7eb; color: #4b5563; }
+  .reapply { border: 1px solid #e0a800; background: #fff8e1; border-radius: 8px; padding: 8px 10px; margin: 8px 0; font-size: .92rem; }
+  .reapply.info { border-color: #cbd5e1; background: #f1f5f9; }
+  .pillx.declined, .pillx.withdrawn { background: var(--off-soft); color: var(--off); }
+  .clips { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; margin-top: 12px; }
+  .clip { background: var(--head); border: 1px solid var(--line); border-radius: 8px; padding: 10px; }
+  .clip b { display: block; margin-bottom: 6px; }
+  .clip video, .clip img { width: 100%; border-radius: 6px; background: #000; max-height: 340px; }
+  .clip .note { font-size: 0.88rem; color: var(--muted); margin-top: 6px; white-space: pre-wrap; }
+  .row2 { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
+  .row2 textarea { flex: 1; min-width: 240px; min-height: 60px; }
+  .filters { display: flex; gap: 8px; flex-wrap: wrap; margin: 6px 0 14px; }
+  .filters button[aria-pressed="true"] { background: var(--accent); color: #fff; }
+  .hh { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size: 0.92rem; }
+</style>
+</head>
+<body>
+<div class="appbar" data-nav="staff">
+  <div class="appbar-in">
+    <div class="org">2nd Chance Housing<span>Rental Applications · Staff</span></div>
+    <div class="row" id="userBar" hidden>
+      
+      
+      
+      
+      
+      <button class="linkbtn" type="button" id="signOutBtn">Sign out</button>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+  <header>
+    <h1>Rental applications</h1>
+    <p class="lead">Video applications from 2ndchinc.org/apply. Videos load only when you open them, through links that expire in 10 minutes, and every view is logged.</p>
+  </header>
+  <details class="panel" style="margin:10px 0"><summary><b>What to listen for</b> (same for every applicant)</summary>
+    <ol style="margin:8px 0 4px 1.2rem">
+      <li><b>A plan.</b> Can they describe, in their own words, how rent gets paid each month? Timing and a general plan are enough. Do not ask about, or decide on, the source or amount of income. Milwaukee protects source of income.</li>
+      <li><b>A backup.</b> Do they have an idea of what they would do if something changed?</li>
+      <li><b>A promise to tell us early.</b> Do they say they would contact us before the 1st?</li>
+    </ol>
+    <p class="meta">A written answer counts the same as a recording. Do not use anything about disability, family, race, religion, national origin, sex, age or other protected traits, or their past (we do not run background checks), to decide. If you are unsure, ask for more information, not less.</p></details>
+
+  <div id="signin" class="narrow"></div>
+
+  <div id="app" hidden>
+    <div class="filters" id="filters"></div>
+    <div class="apps" id="apps"></div>
+    <h2 style="margin-top:28px">Leases sent for signature</h2>
+    <p class="sub">Each tenant opens a private link, confirms a code emailed to them, reads the lease and signs. When everyone has signed, the executed PDF is emailed to them and to staff.</p>
+    <div class="apps" id="leases"></div>
+  </div>
+</main>
+
+<script type="module">
+import { client, $, esc, fmtDate, signIn, signOut, errorText } from "/assets/portal/portal.js";
+
+const LABEL = { pledge: "Your plan (the main answer)", rent: "Scene: paying rent", guests: "Scene: guests (13 nights / 12 months)",
+  pets: "Scene: pets", sublet: "Scene: subletting", noise: "Scene: noise & neighbors", conduct: "Scene: conduct at the property",
+  kitchen: "Photo: kitchen sink", bathroom: "Photo: bathroom sink", id_front: "ID (front)", id_back: "ID (back)", ssn_card: "Social Security card" };
+const ORDER = ["pledge", "rent", "guests", "pets", "sublet", "noise", "conduct", "kitchen", "bathroom", "id_front", "id_back", "ssn_card"];
+const IDDOCS = ["id_front", "id_back", "ssn_card"];
+function identityBox(a) {
+  const f = a.id_fields || {}, c = a.id_checks || {}, docs = (a.media || []).filter((m) => IDDOCS.includes(m.scene));
+  const aa = a.assistance_animal;
+  const chk = (k, l) => `<label style="margin-right:12px"><input type="checkbox" data-chk="${k}" ${c[k] ? "checked" : ""}> ${l}</label>`;
+  return `<div class="clip" style="margin-top:12px;background:var(--panel)"><b>Identity (spelling check)</b>
+    <div class="meta">${f.from_barcode ? "Read from the ID barcode, confirmed by the applicant" : "Typed by the applicant"}</div>
+    <div>Name: <b>${esc([f.first, f.middle ? f.middle.charAt(0) + "." : "", f.last].filter(Boolean).join(" "))}</b> · DOB: <b>${esc(f.dob || "")}</b>${f.id_number_last4 ? ` · ID ending ${esc(f.id_number_last4)}` : ""}${f.id_expires ? ` · expires ${esc(f.id_expires)}` : ""}</div>
+    <div>Required to register as a sex offender: <b>${a.applicant?.registered_sex_offender === "yes" ? "YES" : a.applicant?.registered_sex_offender === "no" ? "no" : "not asked"}</b> · <a href="https://wistaysafe.gov/" target="_blank" rel="noopener">Open the Wisconsin registry</a> (staff search it by hand; searching by name alone can match the wrong person)</div>
+    <div>Animals: <b>${a.animal === "assistance" ? `assistance animal (${esc(aa?.kind === "service_dog" ? "service dog" : "support animal")}, ${esc(aa?.species || "")}${aa?.service_dog_task ? "; task: " + esc(aa.service_dog_task) : ""}${aa?.support_letter ? "; has a provider letter" : ""})` : "none"}</b> · pet caution acknowledged ${a.pet_caution_ack ? "✓" : "—"}</div>
+    <div class="row2">${chk("name", "Name spelling")}${chk("dob", "Date of birth")}
+      <button class="btn" type="button" data-verify>${a.id_verified_at ? "✓ Verified " + fmtDate(a.id_verified_at) : "Mark verified"}</button></div>
+    <div class="row2">${a.docs_offline_at ? `<span class="meta">✓ ID images moved offline ${fmtDate(a.docs_offline_at)} by ${esc(a.docs_offline_by || "")} (deleted from the site)</span>`
+      : docs.length ? `<button class="btn" type="button" data-offline ${a.id_verified_at ? "" : "disabled"}>Download ${docs.length} image(s) and move offline</button> <span class="meta">${a.id_verified_at ? "Saves them to this computer for the secure drive, then deletes them from the site." : "Verify first."}</span>` : ""}</div>
+  </div>`;
+}
+// Audio and video answers: save to this computer for the secure drive, then delete from the site.
+const isRec = (m) => m.kind === "audio" || m.kind === "video";
+function recordingsBox(a) {
+  const recs = (a.media || []).filter(isRec);
+  if (a.recordings_offline_at) return `<div class="row2"><span class="meta">✓ Recordings moved offline ${fmtDate(a.recordings_offline_at)} by ${esc(a.recordings_offline_by || "")} (deleted from the site)</span></div>`;
+  if (!recs.length) return "";
+  return `<div class="row2"><button class="btn" type="button" data-recs-offline>Download ${recs.length} recording(s) and move offline</button>
+    <span class="meta">Saves the audio and video answers to this computer for the secure drive, then deletes them from the site. Written answers stay. Do this after you've decided.</span></div>`;
+}
+// "Download ... and move offline": the browser asks which folder to save into (Chrome and Edge), the files are written there and each
+// one is checked, and nothing is deleted from the site unless every file was saved. Other browsers fall back to ordinary downloads.
+const canPickFolder = typeof window.showDirectoryPicker === "function";
+async function pickFolder() {
+  if (!canPickFolder) return { dir: null };
+  try { return { dir: await window.showDirectoryPicker({ id: "application-offline", mode: "readwrite", startIn: "documents" }) }; }
+  catch (err) { if (err && err.name === "AbortError") return { cancelled: true }; throw err; }
+}
+const fileNameFor = (a, m) => `${(a.applicant?.name || "applicant").replace(/[^A-Za-z0-9 ]/g, "")} - ${(LABEL[m.scene] || m.scene).replace(/[^A-Za-z0-9 ()&,-]/g, "")}.${m.path.split(".").pop()}`;
+async function freeName(dir, name) {   // never overwrite a file already in the folder
+  const dot = name.lastIndexOf("."), base = dot > 0 ? name.slice(0, dot) : name, ext = dot > 0 ? name.slice(dot) : "";
+  for (let i = 0; i < 100; i++) {
+    const n = i ? `${base} (${i + 1})${ext}` : name;
+    try { await dir.getFileHandle(n); } catch (e) { if (e && e.name === "NotFoundError") return n; throw e; }
+  }
+  throw new Error("Too many files with the same name in that folder.");
+}
+async function downloadTo(a, files, dir) {
+  for (const m of files) {
+    await client.rpc("apply_staff_log_media", { p_id: a.id, p_path: m.path });
+    const name = fileNameFor(a, m);
+    const { data, error } = await client.storage.from("applications").createSignedUrl(m.path, 600, dir ? undefined : { download: name });
+    if (error || !data) throw new Error(`Couldn't get ${name}: ${error ? error.message : "no link"}`);
+    if (!dir) { const l = document.createElement("a"); l.href = data.signedUrl; l.download = ""; document.body.appendChild(l); l.click(); l.remove(); await new Promise((r) => setTimeout(r, 700)); continue; }
+    const resp = await fetch(data.signedUrl);
+    if (!resp.ok || !resp.body) throw new Error(`Couldn't download ${name} (${resp.status}).`);
+    const fh = await dir.getFileHandle(await freeName(dir, name), { create: true });
+    const w = await fh.createWritable();
+    await resp.body.pipeTo(w);
+    const want = Number(resp.headers.get("content-length")) || 0, got = (await fh.getFile()).size;
+    if (!got || (want && got !== want)) throw new Error(`${name} did not save completely (${got} of ${want} bytes). Nothing was deleted from the site.`);
+  }
+}
+let unitList = [];
+const unitOptions = (p) => { const cur = (p.units || []).find((u) => /^d+$/.test(u)) || "";
+  return (cur && !unitList.some((u) => u.unit === cur) ? `<option selected>${esc(cur)}</option>` : "") + unitList.map((u) => `<option value="${esc(u.unit)}" ${u.unit === cur ? "selected" : ""}>Unit ${esc(u.unit)}${u.taken ? " (leased)" : ""}</option>`).join(""); };
+const STATUSES = ["new", "reviewing", "on_hold", "waitlisted", "approved", "declined", "withdrawn"];
+const FILTERS = [...STATUSES, "superseded"]; // "superseded" is set only by Replace, never from the status menu
+// Reapply helpers. A newer application may be the same person as an older one: same email, or same name and date of birth.
+const normName = (s) => String(s || "").trim().toLowerCase().replace(/s+/g, " ");
+const sameWho = (a, b) => (a.applicant?.email && String(a.applicant.email).toLowerCase() === String(b.applicant?.email || "").toLowerCase()) ||
+  (a.date_of_birth && a.date_of_birth === b.date_of_birth && normName(a.applicant?.name) && normName(a.applicant?.name) === normName(b.applicant?.name));
+const priorOf = (a) => apps.filter((b) => b.id !== a.id && b.status !== "superseded" && !b.superseded_by && new Date(b.created_at) < new Date(a.created_at) && sameWho(a, b));
+const refOf = (x) => String(x.id).slice(0, 8).toUpperCase();
+function reapplyBox(a) {
+  if (a.status === "superseded") {
+    const by = apps.find((x) => x.id === a.superseded_by);
+    return `<div class="reapply info">Replaced by a newer application${by ? ` (${esc(by.applicant?.name)}, Ref ${esc(refOf(by))}, ${fmtDate(by.created_at)})` : ""} on ${fmtDate(a.superseded_at)} by ${esc(a.superseded_by_email || "staff")}${a.superseded_reason ? ": " + esc(a.superseded_reason) : ""}. It was <b>${esc(SLABEL(a.superseded_prev_status || "reviewing"))}</b> before. Kept on record, read-only.
+      <button class="btn" type="button" data-restore>Restore</button> <span class="msg" data-rmsg></span></div>`;
+  }
+  const out = [];
+  const prev = apps.find((x) => x.id === a.supersedes_id);
+  if (prev) out.push(`<div class="reapply info">This replaces an earlier application (Ref ${esc(refOf(prev))}, ${fmtDate(prev.created_at)}). Choose the "Superseded" filter to read it.</div>`);
+  for (const b of priorOf(a)) {
+    const hold = b.status === "declined";
+    out.push(`<div class="reapply">Looks like a <b>reapply</b>: an earlier application from ${esc(b.applicant?.name)} (Ref ${esc(refOf(b))}, ${fmtDate(b.created_at)}, <b>${esc(SLABEL(b.status))}</b>).
+      ${hold ? "A declined application stays on record as declined and cannot be replaced." : `<input data-rreason placeholder="Why (optional)" size="22"> <button class="btn" type="button" data-replace="${b.id}">Replace the old one</button> Not the same person? Ignore this.`} <span class="msg" data-rmsg></span></div>`);
+  }
+  return out.join("");
+}
+const SLABEL = (s) => s === "on_hold" ? "On hold" : s[0].toUpperCase() + s.slice(1);
+let apps = [], filter = "open";
+
+function render() {
+  const counts = { open: apps.filter((a) => a.status === "new" || a.status === "reviewing" || a.status === "waitlisted").length, all: apps.length };
+  FILTERS.forEach((s) => counts[s] = apps.filter((a) => a.status === s).length);
+  $("filters").innerHTML = ["open", ...FILTERS, "all"].map((f) =>
+    `<button class="btn" type="button" data-f="${f}" aria-pressed="${f === filter}">${SLABEL(f)} (${counts[f]})</button>`).join("");
+  const shown = apps.filter((a) => filter === "all" ? true : filter === "open" ? (a.status === "new" || a.status === "reviewing") : a.status === filter);
+  $("apps").innerHTML = shown.length ? shown.map((a) => {
+    const p = a.applicant || {};
+    const media = [...(a.media || [])].sort((x, y) => ORDER.indexOf(x.scene) - ORDER.indexOf(y.scene));
+    return `<article class="app" data-id="${a.id}">
+      <div class="app-head">
+        <h2>${esc(p.name)} <span class="pillx ${a.status}">${SLABEL(a.status)}</span></h2>
+        <span class="meta">${fmtDate(a.created_at)} · Ref ${esc(String(a.id).slice(0, 8).toUpperCase())}</span>
+      </div>
+      ${reapplyBox(a)}
+      <div class="meta">${esc(p.email)} (verified)${p.phone ? " · " + esc(p.phone) : ""} · Unit ${esc((p.units || []).join(", ") || "any")} · Move-in ${esc(p.move_in || "—")} · Lease: <b>${({ mtm: "month-to-month", annual: "annual", cvi: "CVI program" })[p.lease_term] || "month-to-month"}</b>${p.agency ? " (" + esc(p.agency) + ")" : ""}${p.heard ? " · Heard via " + esc(p.heard) : ""}</div>
+      ${p.agency || p.cw_name || p.cw_email ? `<div class="meta">Agency: ${esc(p.agency || "—")} · Caseworker: ${esc(p.cw_name || "—")}${p.cw_email ? " · " + esc(p.cw_email) : ""}${p.cw_phone ? " · " + esc(p.cw_phone) : ""}${p.cw_email ? ' · <a href="/staff/caseworkers/">Add to Caseworkers</a>' : ""}</div>` : ""}
+      ${(a.household || []).length ? `<ul class="hh">${a.household.map((h) => `<li>${esc(h.name)} — ${esc(h.relation)}${h.dob ? ", born " + esc(h.dob) : ""}${h.minor ? " (minor)" : ""}</li>`).join("")}</ul>` : `<div class="meta" style="margin-top:6px">Lives alone</div>`}
+      <div class="clips" id="clips-${a.id}">
+        ${media.map((m) => `<div class="clip"><b>${esc(LABEL[m.scene] || m.scene)}</b>
+          <div data-path="${esc(m.path)}" data-kind="${esc(m.kind)}"><button class="btn" type="button" data-load>${m.kind === "photo" ? "Show photo" : `Play (${m.seconds || "?"}s)`}</button></div>
+          ${a.answers && a.answers[m.scene] ? `<div class="note">${esc(a.answers[m.scene])}</div>` : ""}</div>`).join("")}
+      </div>
+      ${recordingsBox(a)}
+      ${identityBox(a)}
+      ${a.status === "superseded" ? "" : `<div class="row2">
+        <select data-status>${STATUSES.map((s) => `<option value="${s}" ${s === a.status ? "selected" : ""}>${SLABEL(s)}</option>`).join("")}</select>
+        <textarea data-notes placeholder="Staff notes">${esc(a.staff_notes || "")}</textarea>
+        <button class="btn primary" type="button" data-save>Save</button>
+        <label class="meta" title="The unit the lease is prepared for. Choose another and press Change; it also changes what the tenant is sent to sign.">Lease for <select data-unit>${unitOptions(p)}</select></label>
+        <button class="btn" type="button" data-setunit>Change unit</button>
+        <a class="btn" href="/leasing/prepare/?application=${a.id}" target="_blank" rel="noopener" title="Opens the lease builder filled in from this application">Prepare lease</a>
+        <button class="btn" type="button" data-email title="Write the applicant an email about vacancies, the wait list or upcoming openings">Email applicant</button>
+        <span class="msg" data-msg></span>
+      </div>`}
+      <div class="composer" data-composer hidden style="margin-top:10px;border:1px solid var(--line);border-radius:8px;padding:12px;display:grid;gap:8px">
+        <div class="row2"><label>Message <select data-etype>
+          <option value="status">Where things stand</option><option value="vacancy">A unit is available for you</option>
+          <option value="hold">On hold: we need another application</option><option value="waitlist">You're on the wait list</option><option value="none">No vacancy right now</option></select></label>
+          <span class="meta" data-eto></span></div>
+        <input data-esub style="width:100%" aria-label="Subject">
+        <textarea data-ebody rows="14" style="width:100%" aria-label="Message"></textarea>
+        <div class="row2"><button class="btn primary" type="button" data-esend>Send email</button><button class="btn" type="button" data-ecancel>Cancel</button>
+          <span class="meta">Read it and edit it first. Nothing is sent until you click Send.</span><span class="msg" data-emsg></span></div>
+      </div>
+      ${a.decided_at ? `<div class="meta" style="margin-top:6px">Decided ${fmtDate(a.decided_at)} by ${esc(a.decided_by || "")}</div>` : ""}
+    </article>`;
+  }).join("") : `<p class="sub">No applications here.</p>`;
+}
+
+async function loadMedia(holder, appId) {
+  const path = holder.dataset.path;
+  holder.innerHTML = `<span class="sub">Loading…</span>`;
+  const { error: logErr } = await client.rpc("apply_staff_log_media", { p_id: appId, p_path: path });
+  if (logErr) { holder.innerHTML = `<span class="msg err">${esc(await errorText(logErr))}</span>`; return; }
+  const { data, error } = await client.storage.from("applications").createSignedUrl(path, 600);
+  if (error) { holder.innerHTML = `<span class="msg err">Couldn't load: ${esc(error.message)}</span>`; return; }
+  holder.innerHTML = holder.dataset.kind === "photo"
+    ? `<img src="${data.signedUrl}" alt="">`
+    : holder.dataset.kind === "audio"
+      ? `<audio src="${data.signedUrl}" controls autoplay controlslist="nodownload" style="width:100%"></audio>`
+      : `<video src="${data.signedUrl}" controls autoplay playsinline controlslist="nodownload" disablepictureinpicture></video>`;
+}
+
+const STEP = (s) => s.signed_at ? `✓ signed ${fmtDate(s.signed_at)}` : s.verified_at ? "reviewing (code confirmed)" : s.viewed_at ? "opened the link" : "link sent";
+async function loadLeases() {
+  const { data, error } = await client.rpc("lease_signing_staff_list");
+  if (error) { $("leases").innerHTML = `<p class="msg err">${esc(await errorText(error))}</p>`; return; }
+  // Void: any lease not fully signed. Re-send: a new link to one tenant who hasn't signed (the old link stops working).
+  $("leases").innerHTML = (data || []).map((d) => {
+    const v = d.status === "void", open = d.status === "sent" || d.status === "awaiting_agent";
+    return `<article class="app" ${v ? 'style="opacity:.6"' : ""}>
+      <div class="app-head"><h2>${esc(d.unit_label)} <span class="pillx ${d.status === "signed" ? "approved" : v ? "declined" : ""}">${d.status === "signed" ? "fully signed" : d.status === "awaiting_agent" ? "waiting for agent" : v ? "voided" : "with tenants"}</span></h2>
+        <span class="meta">sent ${fmtDate(d.created_at)} by ${esc(d.created_by)} · ${esc(String(d.id).slice(0, 8))}</span></div>
+      ${v && d.void_reason ? `<div class="meta">Voided: ${esc(d.void_reason)}</div>` : ""}
+      <ul class="hh">${(d.signers || []).map((s) => `<li>${esc(s.name)} (${esc(s.email)}) — ${STEP(s)}${d.status === "sent" && !s.signed_at ? ` <button class="linkbtn" type="button" data-resend="${s.id}" data-name="${esc(s.name)}">Re-send link</button>` : ""}</li>`).join("")}
+        ${d.agent_name ? `<li>${esc(d.agent_name)} (agent) — ${d.agent_signed_at ? "✓ countersigned " + fmtDate(d.agent_signed_at) : "countersigns after the tenants"}</li>` : ""}</ul>
+      <div class="row2">${d.executed_pdf_path ? `<button class="btn" type="button" data-pdf="${esc(d.executed_pdf_path)}">Open signed PDF</button>` : ""}
+        ${open ? `<button class="btn" type="button" data-void="${d.id}">Void this lease</button>` : ""}<span class="msg" data-lmsg></span></div>
+    </article>`;
+  }).join("") || `<p class="sub">None yet.</p>`;
+}
+async function signingFn(body) {
+  const { error } = await client.functions.invoke("lease-signing", { body });
+  if (error) { let m = error.message; try { m = (await error.context.json()).error || m; } catch {} throw new Error(m); }
+}
+$("leases").addEventListener("click", async (e) => {
+  const rs = e.target.closest("[data-resend]"), vd = e.target.closest("[data-void]");
+  if (rs || vd) {
+    const m = e.target.closest("article").querySelector("[data-lmsg]");
+    try {
+      if (rs) {
+        if (!confirm(`Email ${rs.dataset.name} a new signing link? Their old link will stop working.`)) return;
+        await signingFn({ action: "resend", signer_id: rs.dataset.resend });
+        m.className = "msg ok"; m.textContent = `New link emailed to ${rs.dataset.name}.`;
+      } else {
+        const reason = prompt("Why is this lease being voided? (for example: wrong rent; a corrected lease will follow)");
+        if (reason === null) return;
+        await signingFn({ action: "void", doc_id: vd.dataset.void, reason });
+        await loadLeases();
+      }
+    } catch (err) { m.className = "msg err"; m.textContent = err.message; }
+    return;
+  }
+  const b = e.target.closest("[data-pdf]"); if (!b) return;
+  const { data, error } = await client.storage.from("lease-signing").createSignedUrl(b.dataset.pdf, 300);
+  if (error) { alert(error.message); return; }
+  window.open(data.signedUrl, "_blank", "noopener");
+});
+
+async function load() {
+  const { data, error } = await client.rpc("apply_staff_list");
+  if (error) { $("signin").innerHTML = `<div class="banner bad">${esc(await errorText(error))}</div>`; return; }
+  apps = data || [];
+  const U = await client.rpc("apply_staff_units"); unitList = U.data || [];
+  render();
+  await loadLeases();
+  $("app").hidden = false;
+}
+
+$("apps").addEventListener("change", async (e) => {
+  const sel = e.target.closest("[data-etype]"); if (!sel) return;
+  const card = sel.closest(".app"), a = apps.find((x) => x.id === card.dataset.id);
+  try { await emailDraft(card, a); } catch (err) { const m = card.querySelector("[data-emsg]"); m.className = "msg err"; m.textContent = err.message; }
+});
+$("filters").addEventListener("click", (e) => { const b = e.target.closest("[data-f]"); if (b) { filter = b.dataset.f; render(); } });
+async function staffFn(body) {
+  const { data, error } = await client.functions.invoke("apply-staff", { body });
+  if (error) { let m = error.message; try { m = (await error.context.json()).error || m; } catch {} throw new Error(m); }
+  return data;
+}
+// ---- Email applicant: a draft from the real data (public listings + leases ending + wait list); staff edit, then send.
+let listingsCache = null;
+const monthDay = (iso) => new Date(iso + "T12:00:00").toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+async function emailDraft(card, a) {
+  const [{ data, error }, L] = await Promise.all([client.rpc("apply_staff_status_email_data", { p_id: a.id }),
+    listingsCache || fetch("/data/listings.json").then((r) => r.json()).then((j) => (listingsCache = j))]);
+  if (error) throw new Error(await errorText(error));
+  const type = card.querySelector("[data-etype]").value, first = String(data.name || "").trim().split(/\s+/)[0] || "there";
+  const units = (L.units || []).filter((u) => u.listed);
+  const unitLine = (u) => `Unit ${u.unit}, ${u.street}: ${u.beds} bed, ${u.baths} bath, ${u.sqft} sq ft, $${Number(u.rent).toLocaleString()}/month, $${Number(u.deposit).toLocaleString()} security deposit`;
+  const ready = units.filter((u) => u.status === "ready"), soon = units.filter((u) => u.status !== "ready");
+  const intro = { status: "Thank you for applying with 2nd Chance Housing. Here is where things stand.",
+    vacancy: "Good news: we have a unit that may work for you. Thank you for applying with 2nd Chance Housing.",
+    waitlist: "Thank you for applying with 2nd Chance Housing. We don't have a unit ready for you yet, so we have put you on our wait list.",
+    none: "Thank you for applying with 2nd Chance Housing. We don't have a vacancy right now.",
+    hold: "Thank you for applying with 2nd Chance Housing. Your application is on hold." }[type];
+  if (type === "hold") {
+    const adults = (a.household || []).filter((h) => !h.minor).map((h) => h.name).filter(Boolean), who = adults.length ? adults.join(" and ") : "the other adult(s) who will live in the home";
+    const one = adults.length === 1;
+    card.querySelector("[data-esub]").value = "Your 2nd Chance Housing application is on hold";
+    card.querySelector("[data-ebody]").value = [`Hi ${first},`, "", intro, "",
+      `Your application lists ${who} as ${one ? "another adult who" : "adults who"} will live in the home. Every adult must submit their own application, and we cannot process yours until we receive ${one ? "theirs" : "those"}.`, "",
+      `Please ask ${one ? "them" : "each of them"} to apply at https://2ndchinc.org/apply. Once we have both applications we will continue with yours right away.`, "",
+      "If something has changed, or you have questions, just reply to this email or call or text (262) 236-5443.", "", "Thank you,", "2nd Chance Housing"].join("\n");
+    card.querySelector("[data-eto]").textContent = "To: " + (data.email || "(no email)");
+    return;
+  }
+  const out = [`Hi ${first},`, "", intro, ""];
+  if (data.status === "waitlisted" || type === "waitlist") out.push(data.waitlist_position ? `Your place on the wait list: #${data.waitlist_position} of ${data.waitlist_count}. We will contact you when a unit that fits becomes available.` : "We will contact you when a unit that fits becomes available.", "");
+  out.push(ready.length ? "Available now or soon:" : "Units ready now: none right now.");
+  ready.forEach((u) => out.push("  - " + unitLine(u) + (u.ready_label ? ", ready " + u.ready_label : "")));
+  if (soon.length) { out.push("", "Coming later:"); soon.forEach((u) => out.push(`  - Unit ${u.unit}, ${u.street}: expected ${u.ready_label || "later"}`)); }
+  const up = (data.upcoming || []).filter((x) => !soon.some((u) => u.unit === x.unit) && !ready.some((u) => u.unit === x.unit));
+  if (up.length) { out.push("", "Homes that may open up (not confirmed yet):"); up.forEach((x) => out.push(`  - Unit ${x.unit}: ${x.why === "lease ends" ? "current lease ends " + monthDay(x.date) : "a move-out is in progress"}`)); }
+  out.push("", "If you want us to keep your application active, or your plans change, just reply to this email or call or text (262) 236-5443.", "", "Thank you,", "2nd Chance Housing");
+  card.querySelector("[data-esub]").value = { status: "Your 2nd Chance Housing application: where things stand", vacancy: "A unit may be available for you",
+    waitlist: "You're on the 2nd Chance Housing wait list", none: "Your 2nd Chance Housing application" }[type];
+  card.querySelector("[data-ebody]").value = out.join("\n");
+  card.querySelector("[data-eto]").textContent = "To: " + (data.email || "(no email)");
+}
+$("apps").addEventListener("click", async (e) => {
+  const card = e.target.closest(".app"); if (!card) return;
+  const a = apps.find((x) => x.id === card.dataset.id);
+  if (e.target.closest("[data-email]")) {
+    const box = card.querySelector("[data-composer]"); box.hidden = !box.hidden;
+    if (!box.hidden) { if (a.status === "on_hold") card.querySelector("[data-etype]").value = "hold"; const m = card.querySelector("[data-emsg]"); m.className = "msg"; m.textContent = ""; try { await emailDraft(card, a); } catch (err) { m.className = "msg err"; m.textContent = err.message; } }
+    return;
+  }
+  if (e.target.closest("[data-ecancel]")) { card.querySelector("[data-composer]").hidden = true; return; }
+  if (e.target.closest("[data-esend]")) {
+    const m = card.querySelector("[data-emsg]"); m.className = "msg"; m.textContent = "Sending…";
+    const { error } = await client.rpc("apply_staff_email_applicant", { p_id: a.id, p_subject: card.querySelector("[data-esub]").value, p_body: card.querySelector("[data-ebody]").value });
+    if (error) { m.className = "msg err"; m.textContent = await errorText(error); return; }
+    client.functions.invoke("outbox-flush", { body: {} }).catch(() => {});
+    m.className = "msg ok"; m.textContent = "Sent."; setTimeout(() => { card.querySelector("[data-composer]").hidden = true; }, 1500);
+    return;
+  }
+  if (e.target.closest("[data-verify]")) {
+    const checks = Object.fromEntries([...card.querySelectorAll("[data-chk]")].map((x) => [x.dataset.chk, x.checked]));
+    const { error } = await client.rpc("apply_staff_verify_identity", { p_id: a.id, p_checks: checks });
+    if (error) return alert(await errorText(error));
+    return load();
+  }
+  if (e.target.closest("[data-offline]")) {
+    const docs = (a.media || []).filter((m) => IDDOCS.includes(m.scene));
+    const pick = await pickFolder().catch((err) => { alert("Couldn't open the folder: " + err.message); return { cancelled: true }; });   // asked first: the browser needs this click
+    if (pick.cancelled) return;
+    try { await downloadTo(a, docs, pick.dir); } catch (err) { alert(err.message); return; }
+    if (!confirm(`Saved ${docs.length} file(s) ${pick.dir ? 'to the folder "' + pick.dir.name + '"' : "to this computer"}? Move them to the secure offline drive, then click OK to delete them from the site.`)) return;
+    try { await staffFn({ action: "docs_offline", id: a.id }); await load(); } catch (err) { alert(err.message); }
+    return;
+  }
+  if (e.target.closest("[data-recs-offline]")) {
+    const recs = (a.media || []).filter(isRec);
+    const pick = await pickFolder().catch((err) => { alert("Couldn't open the folder: " + err.message); return { cancelled: true }; });   // asked first: the browser needs this click
+    if (pick.cancelled) return;
+    try { await downloadTo(a, recs, pick.dir); } catch (err) { alert(err.message); return; }
+    if (!confirm(`Saved ${recs.length} recording(s) ${pick.dir ? 'to the folder "' + pick.dir.name + '"' : "to this computer"}? Move them to the secure offline drive, then click OK to delete them from the site. They can't be played here afterwards.`)) return;
+    try { await staffFn({ action: "recordings_offline", id: a.id }); await load(); } catch (err) { alert(err.message); }
+    return;
+  }
+  if (e.target.closest("[data-replace]")) {
+    const btn = e.target.closest("[data-replace]"), m = btn.closest(".reapply").querySelector("[data-rmsg]");
+    if (!confirm("Replace the older application with this one? The old one stays on record as Superseded and no longer holds a unit. You can restore it later.")) return;
+    m.className = "msg"; m.textContent = "Replacing…";
+    const { error } = await client.rpc("apply_staff_supersede", { p_old: btn.dataset.replace, p_new: card.dataset.id, p_reason: btn.closest(".reapply").querySelector("[data-rreason]").value });
+    if (error) { m.className = "msg err"; m.textContent = await errorText(error); return; }
+    await load(); return;
+  }
+  if (e.target.closest("[data-restore]")) {
+    const m = card.querySelector("[data-rmsg]");
+    if (!confirm("Restore this application to the status it had before it was replaced?")) return;
+    const { error } = await client.rpc("apply_staff_unsupersede", { p_old: card.dataset.id });
+    if (error) { m.className = "msg err"; m.textContent = await errorText(error); return; }
+    await load(); return;
+  }
+  if (e.target.closest("[data-setunit]")) {
+    const m = card.querySelector("[data-msg]"); m.className = "msg"; m.textContent = "Changing…";
+    const { error } = await client.rpc("apply_staff_set_unit", { p_id: card.dataset.id, p_unit: card.querySelector("[data-unit]").value });
+    if (error) { m.className = "msg err"; m.textContent = await errorText(error); return; }
+    await load(); return;
+  }
+  if (e.target.closest("[data-load]")) return loadMedia(e.target.closest("[data-path]"), card.dataset.id);
+  if (e.target.closest("[data-save]")) {
+    const m = card.querySelector("[data-msg]"); m.className = "msg"; m.textContent = "Saving…";
+    const { error } = await client.rpc("apply_staff_set_status", {
+      p_id: card.dataset.id, p_status: card.querySelector("[data-status]").value, p_notes: card.querySelector("[data-notes]").value,
+    });
+    if (error) { m.className = "msg err"; m.textContent = await errorText(error); return; }
+    client.functions.invoke("outbox-flush", { body: {} }).catch(() => {});
+    await load();
+  }
+});
+$("signOutBtn").addEventListener("click", signOut);
+
+const who = await signIn($("signin"), { audience: "staff" });
+$("userBar").hidden = false;
+if (who.role !== "staff") location.replace("/association-owners/roca1/");
+else load();
+</script>
+</body>
+</html>

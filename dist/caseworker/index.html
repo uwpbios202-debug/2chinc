@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Caseworker Portal — 2nd Chance Housing</title>
+<link rel="icon" href="/favicon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+<style>
+  .kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:8px 0 4px}
+  .kv div{border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--panel)}
+  .kv b{display:block;font-size:1.25rem;margin-top:2px}
+  .kv span{font-size:.85rem;color:var(--muted)}
+  table.t{width:100%;border-collapse:collapse;font-size:.95rem}
+  table.t th,table.t td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
+  table.t td.n,table.t th.n{text-align:right;white-space:nowrap}
+  .opt{border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:10px 0;background:var(--panel)}
+  .opt h3{margin:0 0 4px;font-size:1.05rem}
+  .opt .tag{font-size:.75rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+  .pay{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px}
+  .pay input{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:6px;width:9rem}
+  .mono{font-family:ui-monospace,Menlo,Consolas,monospace;user-select:all}
+  .good{color:#1a7f37;font-weight:700} .bad{color:#b42318;font-weight:700}
+</style>
+</head>
+<body>
+<div class="appbar"><div class="appbar-in">
+  <a class="org" href="/" style="color:inherit;text-decoration:none">2nd Chance Housing<span>Caseworker portal</span></a>
+  <div class="row" id="userBar" hidden><span class="sub" id="who"></span><button class="linkbtn" type="button" id="signOutBtn">Sign out</button></div>
+</div></div>
+<main class="wrap">
+  <header><h1>Your clients' leases and payments</h1><p class="lead">Open the signed lease and the landlord's W-9, see the balance, and pay. You can pay any amount, any month, only to the account named on the lease.</p></header>
+  <div id="signin" class="narrow"></div>
+  <div id="app" hidden></div>
+</main>
+<script type="module">
+import { $, client, signIn, signOut, esc, money, fmtDate, errorText } from "/assets/portal/portal.js";
+import { balText } from "/assets/portal/balance.js";
+const who = await signIn($("signin"), { audience: "caseworker" });
+$("userBar").hidden = false; $("signOutBtn").onclick = signOut;
+if (!who.is_caseworker) {
+  $("signin").hidden = false;
+  $("signin").innerHTML = `<div class="panel"><p>This area is for caseworkers of 2nd Chance Housing residents. <a href="/">Back to the home page</a></p></div>`;
+} else {
+  $("who").textContent = who.first_name ? "Hi " + who.first_name : "";
+  $("signin").hidden = true; $("app").hidden = false;
+  try { render(await load()); } catch (e) { $("app").innerHTML = `<div class="panel"><p class="msg err">${esc(await errorText(e))}</p></div>`; }
+}
+async function load() {
+  const [c, p] = await Promise.all([client.rpc("caseworker_my_clients"), client.rpc("caseworker_pay_info")]);
+  if (c.error) throw c.error; if (p.error) throw p.error;
+  return { clients: c.data || [], pay: p.data || {} };
+}
+async function call(body) {
+  const { data, error } = await client.functions.invoke("caseworker-portal", { body });
+  if (error) { let m = "Something went wrong. Please call or text (262) 236-5443."; try { m = (await error.context.json()).error || m; } catch {} throw new Error(m); }
+  return data;
+}
+function render({ clients, pay }) {
+  if (new URLSearchParams(location.search).get("paid")) history.replaceState(null, "", location.pathname);
+  if (!clients.length) { $("app").innerHTML = `<div class="panel"><p>No active lease is linked to this sign-in yet. Please call or text (262) 236-5443.</p></div>`; return; }
+  $("app").innerHTML = `<div id="msg" class="msg" role="status"></div>` + clients.map((c, i) => {
+    const owed = Number(c.balance);
+    const status = balText(owed);
+    const ref = `${c.unit} - ${c.tenants}`;
+    return `<section class="panel"><h2>${esc(c.tenants)}</h2>
+      <p class="sub">${esc(c.unit)} · lease starts ${fmtDate(c.start_date)} · rent ${money(c.rent)} a month</p>
+      <div class="kv"><div><span>Balance on the account</span><b>${status}</b></div><div><span>Monthly rent</span><b>${money(c.rent)}</b></div></div>
+      <h3>Documents</h3>
+      <p>${c.has_lease_pdf ? `<button class="btn" type="button" data-lease="${esc(c.lease_id)}">Open the signed lease (PDF)</button>` : `<span class="sub">The signed lease is not on file yet.</span>`}
+         <button class="btn" type="button" data-w9="1">Open the landlord's W-9 (PDF)</button></p>
+      <h3>Ways to pay — all go to ${esc(pay.payee || "the landlord's agent")}</h3>
+      <p class="sub">Any amount, any month. Every payment is posted to ${esc(c.tenants)}'s rent account and they can see it.</p>
+      ${pay.stripe ? `<div class="opt"><span class="tag">Easiest</span><h3>Pay from your agency's bank account</h3>
+        <p class="sub">A secure Stripe page connects the bank account. No fee. The payment can take a few business days to clear.</p>
+        <div class="pay"><label>Amount <input type="number" min="1" max="20000" step="0.01" value="${owed > 0.004 ? owed.toFixed(2) : ""}" data-amt="${i}" placeholder="${money(c.rent)}"></label>
+        <button class="btn primary" type="button" data-stripe="${esc(c.lease_id)}" data-i="${i}">Pay securely with Stripe</button></div></div>` : ""}
+      ${pay.routing && pay.account ? `<div class="opt"><span class="tag">Bank transfer (ACH / EFT)</span><h3>Send an electronic payment</h3>
+        <table class="t"><tbody>
+          <tr><td>Pay to</td><td class="mono">${esc(pay.payee)}</td></tr>
+          <tr><td>Routing number</td><td class="mono">${esc(pay.routing)}</td></tr>
+          <tr><td>Account number</td><td class="mono">${esc(pay.account)}</td></tr>
+          <tr><td>Reference / memo</td><td class="mono">${esc(ref)}</td></tr></tbody></table>
+        <p class="sub">Please put the reference on the payment so it is posted to the right account.</p></div>` : ""}
+      <div class="opt"><span class="tag">By check</span><h3>Check made out to ROCA1</h3>
+        <p>Write <span class="mono">${esc(ref)}</span> on the memo line. You can:</p>
+        <ol><li>Mail it to: <b>ROCA1<br>${esc(pay.mail)}</b></li>
+        <li>Hand it to the tenant to deliver</li>
+        <li>Hand it to an authorized ROCA1 staff member</li></ol></div>
+      <h3>Recent payments</h3>
+      ${(c.payments || []).length ? `<table class="t"><thead><tr><th>Date</th><th>Received</th><th class="n">Amount</th></tr></thead><tbody>${c.payments.map((p) =>
+        `<tr><td>${fmtDate(p.date)}</td><td>${esc(String(p.note || "").replace(/^payment by\s+/i, "") || "—")}</td><td class="n">${money(p.amount)}</td></tr>`).join("")}</tbody></table>` : `<p class="sub">No payments yet.</p>`}
+    </section>`;
+  }).join("") + `<p class="sub">Questions? Email <a href="mailto:info@2ndchinc.org">info@2ndchinc.org</a> or call or text <a href="tel:2622365443">(262) 236-5443</a>.</p>`;
+  const say = (t, bad) => { const m = $("msg"); m.textContent = t; m.className = "msg " + (bad ? "err" : "ok"); if (t) m.scrollIntoView({ behavior: "smooth", block: "nearest" }); };
+  const open = async (b, body, label) => {
+    b.disabled = true; say("");
+    try {
+      const r = await call(body);
+      if (r.url) { location.href = r.url; return; }
+      if (r.pdf) { const bytes = Uint8Array.from(atob(r.pdf), (ch) => ch.charCodeAt(0)); window.open(URL.createObjectURL(new Blob([bytes], { type: "application/pdf" })), "_blank", "noopener"); }
+    } catch (e) { say(e.message || `Could not ${label}.`, true); }
+    b.disabled = false;
+  };
+  document.querySelectorAll("[data-lease]").forEach((b) => b.onclick = () => {
+    // Open the tab first (on click) so the pop-up blocker allows it, then point it at the one-time link.
+    const w = window.open("", "_blank"); b.disabled = true; say("");
+    call({ action: "lease_pdf", lease_id: b.dataset.lease }).then((r) => { w ? (w.location.href = r.url) : (location.href = r.url); })
+      .catch((e) => { if (w) w.close(); say(e.message, true); }).finally(() => { b.disabled = false; });
+  });
+  document.querySelectorAll("[data-w9]").forEach((b) => b.onclick = () => open(b, { action: "w9" }, "open the W-9"));
+  document.querySelectorAll("[data-stripe]").forEach((b) => b.onclick = () => {
+    const amt = Number(document.querySelector(`[data-amt="${b.dataset.i}"]`).value);
+    open(b, { action: "checkout", lease_id: b.dataset.stripe, amount: amt > 0 ? amt : undefined }, "start the payment");
+  });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,3 @@
+Human Mirror DEPLOYMENT.md: two working rules from lease-30 (commit through a private index because the git index is shared; deploying is fine when the commits above yours touch nothing the build uses)
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>

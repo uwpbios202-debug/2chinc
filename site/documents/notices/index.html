@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Notices &amp; Letters — 2nd Chance Housing Staff</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+<style>
+  .compose { display: grid; grid-template-columns: 320px 1fr; gap: 16px; align-items: start; }
+  .panelx { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+  .panelx h2 { margin: 0 0 8px; font-size: 1.1rem; }
+  .panelx label { display: block; font-weight: 600; font-size: 0.9rem; margin: 10px 0 4px; }
+  .panelx select, .panelx input[type=text] { width: 100%; }
+  .tpl-desc { color: var(--muted); font-size: 0.88rem; margin-top: 6px; }
+  .paper { background: #fff; color: #111; border: 1px solid var(--line); border-radius: 6px; padding: 36px 44px; min-height: 400px; font-family: Arial, Helvetica, sans-serif; font-size: 14px; line-height: 1.5; }
+  .paper input.fill { border: 0; border-bottom: 2px solid #c98a00; background: #fff6dd; font: inherit; padding: 0 4px; min-width: 120px; }
+  .paper .sigmark { display: inline-block; border-bottom: 1px solid #333; min-width: 220px; height: 34px; color: #777; font-size: 11px; vertical-align: bottom; }
+  .paper .sigmark.agent { color: #237347; }
+  .paper .adobe { display: inline-block; border-bottom: 1px solid #333; min-width: 160px; height: 24px; }
+  .legal { background: var(--warn-soft); color: var(--warn); border-radius: 8px; padding: 10px 12px; font-size: 0.88rem; margin-top: 10px; }
+  .sent { display: grid; gap: 10px; margin-top: 18px; }
+  .sentrow { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; }
+  .meta { color: var(--muted); font-size: 0.88rem; }
+  .row2 { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 8px; }
+  @media (max-width: 900px) { .compose { grid-template-columns: 1fr; } .paper { padding: 20px; } }
+</style>
+</head>
+<body>
+<div class="appbar" data-nav="staff">
+  <div class="appbar-in">
+    <div class="org">2nd Chance Housing<span>Notices &amp; Letters · Staff</span></div>
+    <div class="row" id="userBar" hidden>
+      
+      
+      <button class="linkbtn" type="button" id="signOutBtn">Sign out</button>
+    </div>
+  </div>
+</div>
+<main class="wrap" style="max-width:1200px">
+  <header><h1>Notices &amp; letters</h1><p class="lead">Our notices and letters, filled from the lease. Notices marked "built" (pay or vacate, breach, 14-day, 28-day) are made from the lease's own rules; for the rest, highlighted fields need you. Sending makes the PDF, emails each tenant on the lease, and files it in their resident portal.</p></header>
+  <div id="signin" class="narrow"></div>
+  <div id="app" hidden>
+    <div class="panelx" id="drafts" hidden style="margin-bottom:16px;border-color:#c98a00"></div>
+    <div class="compose">
+      <div class="panelx">
+        <h2>1. Choose</h2>
+        <label for="recipient">For</label>
+        <select id="recipient"><option value="Tenant">Tenants</option></select>
+        <label for="tpl">Template</label><select id="tpl"></select>
+        <div class="tpl-desc" id="tplDesc"></div>
+        <label for="lease">Lease</label><select id="lease"><option value="">— choose a lease —</option></select>
+        <div id="built" hidden>
+          <label for="bMail">Date on the notice (the tenant's days count from the certified-mail stamp date)</label><input type="date" id="bMail">
+          <div data-for="2c-breach-cure"><label for="bCatalog">Lease provision that was broken</label><select id="bCatalog"><option value="">— choose from the lease, or type your own below —</option></select>
+            <div class="tpl-desc" id="bQuote" hidden></div></div>
+          <div data-for="2c-breach-cure 2c-14-day-breach"><label for="bProvision">Which rule or lease section</label><input type="text" id="bProvision" placeholder="e.g. Rules and Regulations, rule 7 (noise)" maxlength="200"></div>
+          <div data-for="2c-14-day"><label for="bReason">Reason</label><select id="bReason"><option value="rent">Unpaid rent</option><option value="breach">Breach of the rental agreement</option></select></div>
+          <div data-for="2c-breach-cure 2c-14-day-breach"><label for="bBreach">What happened (what, where, when)</label><textarea id="bBreach" rows="3" maxlength="1500"></textarea></div>
+          <div data-for="2c-breach-cure"><label for="bCure">What the tenant must do to remedy it</label><textarea id="bCure" rows="2" maxlength="800"></textarea></div>
+          <div data-for="2c-14-day"><label for="bPrior">Earlier notice date, if it isn't in the system (lease of a year or less)</label><input type="date" id="bPrior"></div>
+          <div data-for="2c-28-day"><label for="bEnd">End on a later month-end (optional)</label><input type="date" id="bEnd"></div>
+          <div data-for="2c-28-day"><label for="bWhy">Reason (required for Section 8)</label><textarea id="bWhy" rows="2" maxlength="800"></textarea></div>
+          <div class="row2"><button class="btn" type="button" id="bBuild">Build the notice</button></div>
+          <div class="banner warn" id="bWarn" hidden style="margin-top:8px"></div>
+        </div>
+        <label for="subject">Subject</label><input type="text" id="subject">
+        <h2 style="margin-top:16px">2. Send</h2>
+        <label><input type="checkbox" id="emailTenants" checked> Email a copy to each tenant</label>
+        <div class="legal">An emailed copy is not legal service. Serve termination notices by certified mail or personal delivery (Wis. Stat. § 704.21), then record the service below.</div>
+        <div class="row2"><button class="btn primary" type="button" id="send" disabled>Send notice</button></div>
+        <div class="msg" id="msg"></div>
+        <div class="meta" id="sigNote" style="margin-top:8px"></div>
+      </div>
+      <div><div class="paper" id="paper"><p style="color:#888">Choose a template and a lease to see the notice.</p></div></div>
+    </div>
+    <h2 style="margin-top:26px">Sent notices</h2>
+    <div class="sent" id="sent"></div>
+  </div>
+</main>
+<script type="module">
+import { client, $, esc, fmtDate, signIn, signOut, errorText } from "/assets/portal/portal.js";
+import { printEnvelopes } from "/assets/portal/envelope.js";
+import { courtPacket } from "/assets/portal/court-packet.js";
+import { pickProof } from "/assets/portal/proof-upload.js";
+let templates = [], ctx = null, built = null;   // built: { key, lease, data } from notice_staff_build
+const tpl = () => templates.find((t) => t.id === $("tpl").value);
+
+function sanitize(html) {
+  const d = new DOMParser().parseFromString(`<div>${html}</div>`, "text/html").body.firstChild;
+  d.querySelectorAll("script, style, iframe, object, embed, form, link, meta").forEach((n) => n.remove());
+  d.querySelectorAll("*").forEach((n) => [...n.attributes].forEach((a) => { if (/^on/i.test(a.name) || (a.name === "href" && /^javascript:/i.test(a.value))) n.removeAttribute(a.name); }));
+  return d.innerHTML;
+}
+function merge(text, forSubject = false) {
+  return text.replace(/\[\[([A-Za-z0-9_]+)\]\]/g, (m, f) => {
+    const v = ctx ? ctx[f] : undefined;
+    if (f === "Sender_Signature") return forSubject ? "" : `<span class="sigmark ${ctx && ctx._sender_is_agent ? "agent" : ""}" data-sig>${ctx && ctx._sender_is_agent ? "Your signature on file will be applied" : "Signature line (typed name; signature applied only when the agent sends)"}</span>`;
+    if (/^Adobe_/.test(f)) return forSubject ? "" : `<span class="adobe" data-line></span>`;
+    if (v !== undefined && v !== null && String(v) !== "") return esc(String(v));
+    return forSubject ? m : `<input class="fill" data-field="${f}" placeholder="${f.replace(/_/g, " ")}" aria-label="${f.replace(/_/g, " ")}">`;
+  });
+}
+const SIGMARK = () => `<span class="sigmark ${ctx && ctx._sender_is_agent ? "agent" : ""}" data-sig>${ctx && ctx._sender_is_agent ? "Your signature on file will be applied" : "Signature line (typed name; signature applied only when the agent sends)"}</span>`;
+function showBuiltFields(t) {
+  $("built").hidden = !(t && t.built);
+  if (!t || !t.built) return;
+  const k = t.key === "2c-14-day" && $("bReason").value === "breach" ? ["2c-14-day", "2c-14-day-breach"] : [t.key];
+  $("built").querySelectorAll("[data-for]").forEach((el) => { el.hidden = !el.dataset.for.split(" ").some((x) => k.includes(x)); });
+  if (!$("bMail").value) $("bMail").value = new Date().toLocaleDateString("en-CA", { timeZone: "America/Chicago" });
+}
+function render() {
+  const t = tpl();
+  $("tplDesc").textContent = t ? (t.description || "") + (t.built ? " (built from the lease)" : "") : "";
+  if (!t) return;
+  showBuiltFields(t);
+  if (t.built) {
+    const b = built && built.key === t.key && built.lease === $("lease").value ? built.data : null;
+    $("paper").innerHTML = b ? sanitize(b.html.replace("[[SIGNATURE]]", SIGMARK())) : `<p style="color:#888">${ctx ? "Fill in the details on the left and choose “Build the notice”." : "Choose a lease."}</p>`;
+    $("subject").value = b ? b.subject : t.subject || t.name;
+    $("bWarn").hidden = !(b && b.warning); $("bWarn").textContent = b ? b.warning : "";
+    $("send").disabled = !(ctx && b);
+    $("sigNote").textContent = ctx ? (ctx._sender_is_agent ? "You're signed in as the agent: your signature on file is applied when you send." : "You're not the agent: the signature line shows your typed name, without the agent's signature.") : "";
+    return;
+  }
+  $("paper").innerHTML = sanitize(merge(t.html));
+  $("subject").value = merge(t.subject || t.name, true).replace(/\[\[[^\]]+\]\]/g, "").trim() || t.name;
+  $("send").disabled = !ctx;
+  $("sigNote").textContent = ctx ? (ctx._sender_is_agent ? "You're signed in as the agent: your signature on file is applied when you send." : "You're not the agent: the signature line shows your typed name, without the agent's signature.") : "";
+}
+
+function finalHtmlAndBlocks() {
+  const clone = $("paper").cloneNode(true);
+  const missing = [...$("paper").querySelectorAll("input.fill")].filter((i) => !i.value.trim()).map((i) => i.dataset.field);
+  if (missing.length) throw new Error("Fill in: " + [...new Set(missing)].map((f) => f.replace(/_/g, " ")).join(", "));
+  const live = [...$("paper").querySelectorAll("input.fill")];
+  [...clone.querySelectorAll("input.fill")].forEach((inp, i) => inp.replaceWith(document.createTextNode(live[i].value.trim())));
+  clone.querySelectorAll("[data-sig]").forEach((s) => s.replaceWith(document.createTextNode("[[SIGNATURE]]")));
+  clone.querySelectorAll("[data-line]").forEach((s) => s.replaceWith(document.createTextNode("[[LINE]]")));
+  // Text blocks for the PDF, top-level paragraph by paragraph.
+  const blocks = [];
+  const host = document.createElement("div"); host.style.cssText = "position:absolute;left:-9999px;width:700px"; host.innerHTML = clone.innerHTML; document.body.appendChild(host);
+  const push = (el) => {
+    const raw = el.innerText.replace(/ /g, " ").trim(); if (!raw) return;
+    const align = getComputedStyle(el).textAlign;
+    for (const part of raw.split(/(\[\[SIGNATURE\]\]|\[\[LINE\]\])/)) {
+      const p = part.trim(); if (!p) continue;
+      if (p === "[[SIGNATURE]]") blocks.push({ t: "sig" }); else if (p === "[[LINE]]") blocks.push({ t: "line" });
+      else blocks.push({ t: el.querySelector("strong, b") && el.innerText.trim() === (el.querySelector("strong, b").innerText || "").trim() ? "h" : "p", text: p, align: align === "center" ? "center" : align === "right" ? "right" : "left" });
+    }
+  };
+  for (const el of host.children) {
+    if (el.tagName === "HR") continue;
+    if (/^(UL|OL)$/.test(el.tagName)) { el.querySelectorAll("li").forEach((li) => blocks.push({ t: "li", text: li.innerText.trim() })); continue; }
+    if (el.tagName === "TABLE") { el.querySelectorAll("tr").forEach((tr) => { const c = [...tr.children].map((x) => x.innerText.trim()).filter(Boolean); if (c.length) blocks.push({ t: "p", text: c.join("   ") }); }); continue; }
+    push(el);
+  }
+  host.remove();
+  const html = clone.innerHTML.replace(/\[\[SIGNATURE\]\]/g, "<span class=\"sig\">______________________</span>").replace(/\[\[LINE\]\]/g, "______________________");
+  return { html, blocks };
+}
+
+// Sent and did-not-send notices, filed by month: this month as a list, the 3 months before as tabs, older in the Archive.
+// Green = sent, amber = did not send.
+async function loadSent() {
+  const { data, error } = await client.rpc("notices_staff_list");
+  if (error) return;
+  const all = data || [];
+  const now = new Date(), key = (o) => { const t = new Date(now.getFullYear(), now.getMonth() - o, 1); return t.getFullYear() + "-" + String(t.getMonth() + 1).padStart(2, "0"); };
+  const cur = key(0), tabs = [1, 2, 3].map(key), oldest = tabs[2];
+  const ym = (n) => (String(n.batch || "").match(/^(\d{4}-\d{2})/) || [])[1] || String(n.not_sent_at || n.sent_at || "").slice(0, 7) || cur;
+  const name = (k) => new Date(Number(k.slice(0, 4)), Number(k.slice(5)) - 1, 1).toLocaleString("en-US", { month: "long", year: "numeric" });
+  const row = (n) => n.status === "not_sent"
+    ? `<div class="sentrow" data-id="${n.id}" style="border-left:6px solid #c98a00;background:#fff6e0;padding-left:10px">
+      <span style="background:#c98a00;color:#fff;border-radius:4px;padding:1px 7px;font-size:.78rem;font-weight:700">DID NOT SEND</span>
+      <b>${esc(n.subject)}</b> <span class="meta">· ${esc(n.lease_label || "")}</span>
+      <div class="meta">Marked ${fmtDate(n.not_sent_at)}${n.not_sent_reason ? " — " + esc(n.not_sent_reason) : ""}</div>
+      <div class="row2"><button class="btn" type="button" data-restore="${n.id}">Put back on the Ready to sign list</button><span class="msg" data-msg></span></div></div>`
+    : `<div class="sentrow" data-id="${n.id}" style="border-left:6px solid #2e7d32;padding-left:10px">
+      <span style="background:#2e7d32;color:#fff;border-radius:4px;padding:1px 7px;font-size:.78rem;font-weight:700">SENT</span>
+      <b>${esc(n.subject)}</b> <span class="meta">· ${esc(n.template_name)} · ${esc(n.lease_label || "")}</span>
+      <div class="meta">Sent ${fmtDate(n.sent_at)} by ${esc(n.sent_by)}${n.signed_by_agent ? " · signed by the agent" : ""} · emailed to ${n.emailed_to.length ? esc(n.emailed_to.join(", ")) : "nobody"}${n.service_method ? "" : " · <b>mailing not recorded yet</b>"}</div>
+      ${n.efile_on ? `<div class="meta" style="margin-top:2px">Day 1 (stamp date) <b>${fmtDate(n.served_on)}</b> · Cure by <b>${fmtDate(n.cure_deadline)}</b> · <b style="color:#b3261e">eFile on ${fmtDate(n.efile_on)}</b>${n.rent_due != null && /pay rent or vacate/i.test(n.template_name) ? ` · unpaid rent now <b>$${Number(n.rent_due).toFixed(2)}</b>` : ""} · mediation email ${n.mediation_emailed_at ? "sent " + fmtDate(n.mediation_emailed_at) : "not sent (no tenant email)"}${n.efile_reminded_at ? " · office reminded " + fmtDate(n.efile_reminded_at) : ""}</div>` : ""}
+      <div class="row2"><button class="btn" type="button" data-pdf="${esc(n.pdf_path)}">Open PDF</button><button class="btn" type="button" data-envelope="${n.id}">Print envelope</button>${n.efile_on && /pay rent or vacate/i.test(n.template_name) ? `<button class="btn" type="button" data-packet title="The notice as mailed, the stamped certified mail receipt and the rent ledger, each as its own PDF (the court does not take bundled files)">Court attachments (PDFs)</button><a class="btn primary" href="/staff/efile/?n=${n.id}" title="Check everything and see exactly what to type before you eFile">eFile check</a>` : ""}
+        <span class="meta">Legal service:</span>
+        <select data-method>${[["", "— not recorded —"], ["personal", "Personal delivery"], ["mail", "Mail"], ["certified_mail", "Certified mail"], ["posted", "Posted on the premises"], ["email_only", "Email copy only"]]
+          .map(([v, l]) => `<option value="${v}" ${v === (n.service_method || "") ? "selected" : ""}>${l}</option>`).join("")}</select>
+        <input type="date" data-date value="${n.served_on || ""}"><input type="text" data-note placeholder="Who served, where" value="${esc(n.service_note || "")}">
+        <button class="btn" type="button" data-serve>Save service</button><span class="msg" data-msg></span></div>
+      <div class="row2" style="margin-top:4px"><span class="meta">Proof of mailing:</span>
+        ${n.proof_path ? `<img data-proofthumb="${esc(n.proof_path)}" alt="Certified mail receipt" title="Click to open full size" style="height:90px;border:1px solid #ccd;border-radius:4px;cursor:zoom-in;vertical-align:middle;background:#f4f4f4"><span class="meta">✅ receipt on file${n.proof_added_at ? " (" + fmtDate(n.proof_added_at) + ")" : ""}; the tenant sees it on their home page</span><button class="btn" type="button" data-proofopen="${esc(n.proof_path)}">Open receipt</button>` : `<span class="meta">none yet</span>`}
+        <label class="btn" style="cursor:pointer">${n.proof_path ? "Replace" : "Add the green certified mail receipt (photo or PDF)"}<input type="file" accept="image/*,application/pdf" data-prooffile hidden></label><span class="msg" data-pmsg></span></div>${n.efile_on ? courtForm(n) : ""}</div>`;
+  // After the eFile: the court case. Saving it emails the tenant once (court date + free mediation); the office is reminded the day before.
+  function courtForm(n) {
+    const local = n.court_at ? (() => { const d = new Date(n.court_at); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 16); })() : "";
+    const when = n.court_at ? new Date(n.court_at).toLocaleString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" }) : "";
+    return `<div class="row2" data-court style="margin-top:4px;flex-wrap:wrap;gap:6px">
+      <span class="meta"><b>Court case:</b>${n.case_number ? ` ${esc(n.case_number)} · filed ${fmtDate(n.case_filed_on)} · court ${esc(when)}${n.court_place ? " · " + esc(n.court_place) : ""} · tenant ${n.case_emailed_at ? "emailed " + fmtDate(n.case_emailed_at) : "not emailed"}${n.court_reminded_at ? " · office reminded" : ""}` : " not filed yet"}</span>
+      <input type="text" data-case placeholder="Case number" value="${esc(n.case_number || "")}" aria-label="Case number" style="width:11em">
+      <label class="meta">Filed <input type="date" data-filed value="${n.case_filed_on || ""}" aria-label="Filed on"></label>
+      <label class="meta">Court date <input type="datetime-local" data-courtat value="${local}" aria-label="Court date and time"></label>
+      <input type="text" data-place placeholder="Where (room, courthouse)" value="${esc(n.court_place || "")}" aria-label="Where" style="width:16em">
+      <button class="btn" type="button" data-savecase>Save court case</button><span class="msg" data-cmsg></span></div>`;
+  }
+  const list = (rows) => rows.length ? rows.map(row).join("") : `<p class="sub">Nothing here.</p>`;
+  const count = (rows) => `${rows.filter((n) => n.status === "sent").length} sent · ${rows.filter((n) => n.status === "not_sent").length} did not send`;
+  const thisMonth = all.filter((n) => ym(n) >= cur), old = all.filter((n) => ym(n) < oldest), by = (k) => all.filter((n) => ym(n) === k);
+  $("sent").innerHTML = all.length
+    ? `<p class="meta"><span style="color:#2e7d32;font-weight:700">■ Green = sent</span> &nbsp; <span style="color:#c98a00;font-weight:700">■ Amber = did not send</span></p>
+      <h3 style="margin:10px 0 4px">${esc(name(cur))} <span class="meta">(${count(thisMonth)})</span></h3>${list(thisMonth)}
+      <div class="row2" style="gap:6px;margin-top:12px;flex-wrap:wrap">${tabs.map((k) => `<button class="btn" type="button" data-stab="${k}" aria-pressed="false">${esc(name(k))} (${by(k).length})</button>`).join("")}</div>
+      ${tabs.map((k) => `<div data-spane="${k}" hidden>${list(by(k))}</div>`).join("")}
+      <details style="margin-top:10px"><summary>Archive (${old.length}), before ${esc(name(oldest))}</summary>${list(old)}</details>`
+    : `<p class="sub">No notices sent yet.</p>`;
+  $("sent").querySelectorAll("[data-proofthumb]").forEach(async (img) => {
+    const { data } = await client.storage.from("notices").createSignedUrl(img.dataset.proofthumb, 600);
+    if (data) img.src = data.signedUrl;
+  });
+  $("sent").querySelectorAll("[data-stab]").forEach((b) => b.onclick = () => {
+    const open = b.getAttribute("aria-pressed") !== "true";
+    $("sent").querySelectorAll("[data-stab]").forEach((x) => x.setAttribute("aria-pressed", "false"));
+    $("sent").querySelectorAll("[data-spane]").forEach((x) => x.hidden = true);
+    if (open) { b.setAttribute("aria-pressed", "true"); $("sent").querySelector('[data-spane="' + b.dataset.stab + '"]').hidden = false; }
+  });
+}
+
+// Drafts grouped by the month of their batch: this month as a list, the 3 months before it as tabs, anything older in the Archive.
+function draftGroups(d) {
+  const now = new Date(), key = (o) => { const t = new Date(now.getFullYear(), now.getMonth() - o, 1); return t.getFullYear() + "-" + String(t.getMonth() + 1).padStart(2, "0"); };
+  const cur = key(0), tabs = [1, 2, 3].map(key), oldest = tabs[2];
+  const ym = (x) => (String(x.batch || "").match(/^(\d{4}-\d{2})/) || [])[1] || cur;
+  const name = (k) => new Date(Number(k.slice(0, 4)), Number(k.slice(5)) - 1, 1).toLocaleString("en-US", { month: "long", year: "numeric" });
+  const row = (x, on) => `<li><label><input type="checkbox" data-pick value="${esc(x.id)}" ${on ? "checked" : ""}> ${esc(x.lease_label)} — ${esc(x.subject)} <span class="meta">(${esc(x.batch || "")})</span></label></li>`;
+  const list = (rows, on) => rows.length ? `<ul style="list-style:none;padding-left:0">${rows.map((x) => row(x, on)).join("")}</ul>` : `<p class="meta">Nothing waiting.</p>`;
+  const thisMonth = d.filter((x) => ym(x) >= cur), old = d.filter((x) => ym(x) < oldest);
+  const by = (k) => d.filter((x) => ym(x) === k);
+  return `<h3 style="margin:10px 0 4px">${esc(name(cur))} <span class="meta">(${thisMonth.length})</span></h3>${list(thisMonth, true)}
+    <div class="row2" style="gap:6px;margin-top:12px;flex-wrap:wrap">${tabs.map((k) => `<button class="btn" type="button" data-tab="${k}" aria-pressed="false">${esc(name(k))} (${by(k).length})</button>`).join("")}</div>
+    ${tabs.map((k) => `<div data-pane="${k}" hidden>${list(by(k), false)}</div>`).join("")}
+    <details style="margin-top:10px"><summary>Archive (${old.length}), before ${esc(name(oldest))}</summary>${list(old, false)}</details>`;
+}
+async function loadDrafts() {
+  const { data } = await client.rpc("rent_cycle_staff_status");
+  const d = (data && data.drafts) || [];
+  $("drafts").hidden = !d.length;
+  if (!d.length) return;
+  $("drafts").innerHTML = `<h2>Ready to sign and print (${d.length})</h2>
+    <p class="meta">Prepared by the rent cycle for leases with unpaid rent. ${ctxAgent ? "Tick the ones to send, sign them, print the one file, and mail them today." : "Only the agent (Albert Harris) can sign these. Ask him to sign in here."}</p>
+    ${draftGroups(d)}
+    <p class="meta">Untick any notice you do not want to send; it stays here as a draft. Older months are unticked so a stale notice is never signed by accident.</p>
+    <div class="row2"><button class="btn primary" type="button" id="signAll" ${ctxAgent ? "" : "disabled"}>Sign selected and make print file</button><button class="btn" type="button" id="envTicked">Print envelopes for ticked</button><span class="msg" id="draftMsg"></span></div>
+    <div class="row2" style="margin-top:8px"><input type="text" id="notSentWhy" placeholder="Why not sent (optional), e.g. tenant paid" style="min-width:260px"><button class="btn" type="button" id="notSent" style="border-color:#c98a00;color:#8a5d00">Did not send: move ticked to the month folder</button></div>`;
+  $("drafts").querySelectorAll("[data-tab]").forEach((b) => b.onclick = () => {
+    const open = b.getAttribute("aria-pressed") !== "true";
+    $("drafts").querySelectorAll("[data-tab]").forEach((x) => x.setAttribute("aria-pressed", "false"));
+    $("drafts").querySelectorAll("[data-pane]").forEach((x) => x.hidden = true);
+    if (open) { b.setAttribute("aria-pressed", "true"); $("drafts").querySelector('[data-pane="' + b.dataset.tab + '"]').hidden = false; }
+  });
+  $("envTicked").onclick = () => {
+    const picked = [...document.querySelectorAll("#drafts [data-pick]:checked")].map((x) => x.value);
+    if (!picked.length) { $("draftMsg").className = "msg err"; $("draftMsg").textContent = "Tick at least one notice."; return; }
+    printEnvelopes(client, picked);
+  };
+  $("notSent").onclick = async () => {
+    const m = $("draftMsg"), picked = [...document.querySelectorAll("#drafts [data-pick]:checked")].map((x) => x.value);
+    if (!picked.length) { m.className = "msg err"; m.textContent = "Tick the notices you will not send."; return; }
+    const { error } = await client.rpc("notice_mark_not_sent", { p_ids: picked, p_reason: $("notSentWhy").value });
+    if (error) { m.className = "msg err"; m.textContent = await errorText(error); return; }
+    await loadDrafts(); await loadSent();
+  };
+  $("signAll") && ($("signAll").onclick = async () => {
+    const m = $("draftMsg"); const picked = [...document.querySelectorAll("#drafts [data-pick]:checked")].map((x) => x.value);
+    if (!picked.length) { m.className = "msg err"; m.textContent = "Tick at least one notice."; return; }
+    $("signAll").disabled = true; m.className = "msg"; m.textContent = "Signing…";
+    const { data: r, error } = await client.functions.invoke("notices", { body: { action: "sign_drafts", ids: picked } });
+    if (error) { let e = error.message; try { e = (await error.context.json()).error || e; } catch {} m.className = "msg err"; m.textContent = e; $("signAll").disabled = false; return; }
+    const { data: u } = await client.storage.from("notices").createSignedUrl(r.print_path, 600);
+    if (u) window.open(u.signedUrl, "_blank", "noopener");
+    $("drafts").innerHTML = `<h2>Signed ${r.signed} notice(s)</h2><p>The print file opened in a new tab. After mailing them:</p>
+      <div class="row2"><button class="btn" type="button" id="envSigned">Print ${r.ids.length} envelope${r.ids.length > 1 ? "s" : ""}</button>
+      <button class="btn primary" type="button" id="mailedAll">Record: sent by certified mail today</button><span class="msg" id="draftMsg"></span></div>`;
+    $("envSigned").onclick = () => printEnvelopes(client, r.ids);
+    $("mailedAll").onclick = async () => {
+      // Milwaukee's date, not UTC: after 6 pm Central the UTC date is already tomorrow, and this date is the legal service date.
+      const today = new Date().toLocaleDateString("en-CA", { timeZone: "America/Chicago" });
+      const fails = [];
+      for (const id of r.ids) {
+        const { error: e } = await client.rpc("notice_record_service", { p_id: id, p_method: "certified_mail", p_served_on: today, p_note: "Certified mail from the post office (rent cycle batch)" });
+        if (e) fails.push(await errorText(e));
+      }
+      $("draftMsg").className = fails.length ? "msg err" : "msg ok";
+      $("draftMsg").textContent = fails.length ? `${r.ids.length - fails.length} of ${r.ids.length} recorded. Not recorded: ${fails.join(" ")}` : "Recorded.";
+      client.functions.invoke("outbox-flush", { body: {} }).catch(() => {});
+      await loadSent();
+    };
+    await loadSent();
+  });
+}
+let ctxAgent = false;
+
+async function init() {
+  const [t, l] = await Promise.all([client.rpc("letter_templates_list"), client.rpc("notice_leases")]);
+  if (t.error) { $("signin").innerHTML = `<div class="banner bad">${esc(await errorText(t.error))}</div>`; return; }
+  templates = t.data || [];
+  const recips = [...new Set(templates.map((x) => x.recipient))];
+  $("recipient").innerHTML = recips.map((r) => `<option ${r === "Tenant" ? "selected" : ""}>${esc(r)}</option>`).join("");
+  const fillTpl = () => { $("tpl").innerHTML = templates.filter((x) => x.recipient === $("recipient").value).map((x) => `<option value="${x.id}">${esc(x.name)}</option>`).join(""); render(); };
+  $("recipient").onchange = fillTpl; fillTpl();
+  $("lease").innerHTML += (l.data || []).map((x) => `<option value="${x.id}">${esc(x.label)}</option>`).join("");
+  $("tpl").onchange = () => { built = null; render(); };
+  $("bReason").onchange = () => showBuiltFields(tpl());
+  let catalog = [], pick = null;
+  { const { data: cat } = await client.rpc("breach_catalog"); catalog = cat || [];
+    const groups = [...new Set(catalog.map((c) => c.category))];
+    $("bCatalog").innerHTML += groups.map((g) => `<optgroup label="${esc(g)}">${catalog.filter((c) => c.category === g).map((c) => `<option value="${esc(c.code)}">${esc(c.title)}</option>`).join("")}</optgroup>`).join(""); }
+  $("bCatalog").onchange = () => {
+    pick = catalog.find((c) => c.code === $("bCatalog").value) || null;
+    $("bQuote").hidden = !pick;
+    if (!pick) return;
+    $("bProvision").value = pick.provision; $("bCure").value = pick.remedy;
+    $("bBreach").placeholder = pick.prompt || "";
+    $("bQuote").innerHTML = `<b>The lease says:</b> &ldquo;${esc(pick.lease_quote)}&rdquo;<br><b>Consequence stated:</b> ${esc(pick.consequence)}`;
+    built = null; render();
+  };
+  $("bBuild").onclick = async () => {
+    const t = tpl(), m = $("msg"); m.textContent = "";
+    if (!t || !$("lease").value) { m.className = "msg err"; m.textContent = "Choose a lease first."; return; }
+    const details = { provision: $("bProvision").value, reason: t.key === "2c-28-day" ? $("bWhy").value : $("bReason").value, breach: $("bBreach").value,
+      cure: $("bCure").value, lease_quote: t.key === "2c-breach-cure" && pick ? pick.lease_quote : "", consequence: t.key === "2c-breach-cure" && pick ? pick.consequence : "", prior_notice_on: $("bPrior").value || null, end_on: $("bEnd").value || null };
+    const { data, error } = await client.rpc("notice_staff_build", { p_template: t.key, p_lease: $("lease").value, p_mail_on: $("bMail").value || null, p_details: details });
+    if (error) { built = null; render(); m.className = "msg err"; m.textContent = await errorText(error); return; }
+    built = { key: t.key, lease: $("lease").value, data }; render();
+  };
+  $("lease").onchange = async () => {
+    ctx = null; built = null;
+    if ($("lease").value) { const { data, error } = await client.rpc("notice_context", { p_lease_id: $("lease").value }); if (error) { $("msg").className = "msg err"; $("msg").textContent = await errorText(error); return; } ctx = data; }
+    render();
+  };
+  await loadSent();
+  const { data: me } = await client.rpc("condo_whoami"); ctxAgent = !!(me && me.is_agent);
+  await loadDrafts();
+  $("app").hidden = false;
+}
+
+$("send").onclick = async () => {
+  const m = $("msg");
+  try {
+    const { html, blocks } = finalHtmlAndBlocks();
+    if (!confirm(`Send "${$("subject").value}" for ${ctx._lease_label}?`)) return;
+    $("send").disabled = true; m.className = "msg"; m.textContent = "Making the PDF and sending…";
+    const b = tpl() && tpl().built && built ? built.data : null;
+    const { data, error } = await client.functions.invoke("notices", { body: { action: "send", lease_id: $("lease").value, template_id: $("tpl").value,
+      subject: $("subject").value, html, blocks, email_tenants: $("emailTenants").checked,
+      ...(b ? { email_subject: b.email_subject, email_html: b.email_html } : {}) } });
+    if (error) { let e = error.message; try { e = (await error.context.json()).error || e; } catch {} throw new Error(e); }
+    m.className = "msg ok"; m.textContent = `Sent${data.emailed.length ? " and emailed to " + data.emailed.join(", ") : ""}. Record the legal service below.`;
+    await loadSent();
+  } catch (e) { m.className = "msg err"; m.textContent = e.message; }
+  finally { $("send").disabled = !ctx; }
+};
+$("sent").addEventListener("click", async (e) => {
+  if (e.target.closest("[data-restore]")) {
+    const { error } = await client.rpc("notice_restore_draft", { p_id: e.target.closest("[data-restore]").dataset.restore });
+    if (!error) { await loadDrafts(); await loadSent(); }
+    return;
+  }
+  const row = e.target.closest(".sentrow"); if (!row) return;
+  if (e.target.closest("[data-envelope]")) { printEnvelopes(client, [e.target.closest("[data-envelope]").dataset.envelope]); return; }
+  if (e.target.closest("[data-pdf]")) {
+    const { data, error } = await client.storage.from("notices").createSignedUrl(e.target.closest("[data-pdf]").dataset.pdf, 300);
+    if (!error) window.open(data.signedUrl, "_blank", "noopener"); return;
+  }
+  if (e.target.closest("[data-proofthumb]")) { const s = e.target.closest("[data-proofthumb]").src; if (s) window.open(s, "_blank", "noopener"); return; }
+  if (e.target.closest("[data-packet]")) { courtPacket(client, row.dataset.id, e.target.closest("[data-packet]"), errorText); return; }
+  if (e.target.closest("[data-proofopen]")) {
+    const { data, error } = await client.storage.from("notices").createSignedUrl(e.target.closest("[data-proofopen]").dataset.proofopen, 300);
+    if (!error) window.open(data.signedUrl, "_blank", "noopener"); return;
+  }
+  if (e.target.closest("[data-prooffile]")) return;
+  if (e.target.closest("[data-savecase]")) {
+    const c = e.target.closest("[data-court]"), cm = c.querySelector("[data-cmsg]"), at = c.querySelector("[data-courtat]").value;
+    const { data: cv, error } = await client.rpc("notice_record_case", { p_id: row.dataset.id, p_case: c.querySelector("[data-case]").value,
+      p_filed_on: c.querySelector("[data-filed]").value || null, p_court_at: at ? new Date(at).toISOString() : null, p_place: c.querySelector("[data-place]").value });
+    cm.className = error ? "msg err" : "msg ok";
+    cm.textContent = error ? await errorText(error) : `Saved. Court ${cv.court}${cv.tenant_emailed ? "; the tenant was emailed the court date and mediation help" : ""}.`;
+    if (!error) client.functions.invoke("outbox-flush", { body: {} }).catch(() => {});
+    return;
+  }
+  if (e.target.closest("[data-serve]")) {
+    const mm = row.querySelector("[data-msg]");
+    const { data: sv, error } = await client.rpc("notice_record_service", { p_id: row.dataset.id, p_method: row.querySelector("[data-method]").value || null,
+      p_served_on: row.querySelector("[data-date]").value || null, p_note: row.querySelector("[data-note]").value });
+    mm.className = error ? "msg err" : "msg ok";
+    mm.textContent = error ? await errorText(error) : sv && sv.efile_on
+      ? `Saved. Cure by ${fmtDate(sv.cure_by)}, eFile on ${fmtDate(sv.efile_on)}${sv.mediation_emailed ? "; mediation email sent to the tenant" : ""}.` : "Saved.";
+    if (!error) client.functions.invoke("outbox-flush", { body: {} }).catch(() => {});
+  }
+});
+// Proof of mailing: see /assets/portal/proof-upload.js (shared with /staff/efile/).
+// Court packet: see /assets/portal/court-packet.js (shared with /staff/efile/).
+$("sent").addEventListener("change", (e) => {
+  const inp = e.target.closest("[data-prooffile]"); if (!inp) return;
+  const row = inp.closest(".sentrow"); pickProof(client, row.dataset.id, row.querySelector("[data-pmsg]"), inp, errorText, loadSent);
+});
+$("signOutBtn").addEventListener("click", signOut);
+const who = await signIn($("signin"), { audience: "staff" });
+$("userBar").hidden = false;
+if (who.role !== "staff") location.replace("/association-owners/roca1/"); else init();
+</script>
+</body>
+</html>

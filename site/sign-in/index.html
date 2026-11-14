@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<title>Sign in — 2nd Chance Housing</title>
+<link rel="icon" href="/favicon.png">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+</head>
+<body>
+<main class="wrap"><div class="panel narrow" id="box">
+  <h1>Sign in to 2nd Chance Housing</h1>
+  <p class="sub" id="lead">Tap the button to finish signing in on this device.</p>
+  <div class="row"><button class="btn primary" type="button" id="go" hidden>Sign in</button></div>
+  <p class="msg err" id="msg" role="alert"></p>
+  <p class="sub">Trouble signing in? Email <a href="mailto:info@2ndchinc.org">info@2ndchinc.org</a> or call or text <a href="tel:2622365443">(262) 236-5443</a>.</p>
+</div></main>
+<script type="module">
+// Lands here from the "Sign in" button in the sign-in code email (auth-send-email). The one-time token is in the address
+// fragment (#t=...), which browsers never send to a server. Nothing is used until the person taps Sign in, so an email
+// security scanner that opens the link can't use up the sign-in.
+const h = new URLSearchParams(location.hash.slice(1));
+const t = h.get("t"), y = ["magiclink", "signup", "email"].includes(h.get("y")) ? h.get("y") : "email";
+history.replaceState(null, "", location.pathname);
+const $ = (id) => document.getElementById(id);
+const fail = (m) => { $("msg").textContent = m; };
+
+// Where each kind of account lands when the person opened the email somewhere other than where they asked for the code.
+const HOME = { staff: "/staff/", field: "/staff/", owner: "/association-owners/roca1/", agent: "/leasing/countersign/",
+  resident: "/resident/", contractor: "/contractor/", seller: "/seller/", caseworker: "/caseworker/",
+  navigator: "/navigator/", occupant: "/unit-access/", investor: "/investor/" };
+
+function savedReturn() {
+  try {
+    const r = JSON.parse(localStorage.getItem("sch-signin-return") || "null");
+    localStorage.removeItem("sch-signin-return");
+    if (r && typeof r.p === "string" && r.p.startsWith("/") && !r.p.startsWith("//") && Date.now() - r.at < 30 * 60000) return r.p;
+  } catch (e) { /* storage blocked: fall back to the account's home page */ }
+  return "";
+}
+
+if (!t) {
+  $("lead").textContent = "This sign-in link is incomplete.";
+  fail("Go back to the sign-in page and ask for a new code.");
+} else {
+  $("go").hidden = false;
+  $("go").focus();
+  $("go").addEventListener("click", async () => {
+    $("go").disabled = true; fail("");
+    const { client } = await import("/assets/portal/portal.js");
+    const { error } = await client.auth.verifyOtp({ token_hash: t, type: y });
+    if (error) {
+      $("go").hidden = true;
+      $("lead").textContent = "That sign-in link expired or was already used.";
+      return fail("Links and codes work once, for 10 minutes. Go back to the sign-in page and ask for a new code.");
+    }
+    let path = savedReturn();
+    if (!path) {
+      const { data: who } = await client.rpc("condo_whoami");
+      path = (who && HOME[who.role]) || "/";
+    }
+    location.replace(path);   // that page finishes any authenticator step, as after a typed code
+  });
+}
+</script>
+</body>
+</html>

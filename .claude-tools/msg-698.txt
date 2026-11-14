@@ -1,0 +1,3 @@
+Human Mirror: legal's final privacy page published, with its promises built first (D-47): hide a Mirror from everyone at once (the person in Settings, a coordinator on the People list when the person asks, 2nd Chance by email; links ended, off every list, unnamed in audit logs, no restart or re-add; a coordinator's hide never asks for deletion); adults only (a birth year under 18 is refused); a change notice shown at the top of every Mirror page until read (set by the main admin on the platform page, start after today); every sign-in email's subject is now "123456 is your sign-in code"; backups sentence "removed automatically within 7 days" (migration 20261119698000, check p10pp 6/6); docs
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>

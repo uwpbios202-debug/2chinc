@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Keys — 2nd Chance Housing Staff</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+<style>
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-bottom: 12px; }
+  .meta { color: var(--muted); font-size: 0.9rem; }
+  .tag { display: inline-block; padding: 1px 9px; border-radius: 999px; font-size: 0.78rem; font-weight: 700; background: var(--off-soft); color: var(--off); }
+  .tag.staff { background: var(--warn-soft); color: var(--warn); }
+  table.t { width: 100%; border-collapse: collapse; font-size: 0.93rem; margin-top: 8px; }
+  table.t th { text-align: left; font-size: 0.75rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); padding: 6px 8px; border-bottom: 1px solid var(--line); }
+  table.t td { padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+  table.t input { font: 600 1rem ui-monospace, Consolas, monospace; padding: 5px 8px; border: 1px solid var(--line); border-radius: 6px; width: 9em; background: var(--panel); }
+  .formrow { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; margin-top: 8px; }
+  .formrow label { display: grid; gap: 3px; font-size: 0.85rem; color: var(--muted); }
+  .formrow input, .formrow select { font: inherit; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); }
+</style>
+</head>
+<body>
+<div class="appbar" data-nav="staff">
+  <div class="appbar-in">
+    <div class="org">2nd Chance Housing<span>Keys · Staff</span></div>
+    <div class="row" id="userBar" hidden>
+      <button class="linkbtn" type="button" id="signOutBtn">Sign out</button>
+    </div>
+  </div>
+</div>
+<main class="wrap">
+  <header><h1>Keys</h1><p class="lead">Door codes for 6622 and 6626 N Bourbon St. Residents and owners see only their building's shared codes and their own unit's codes in their portal. "Staff only" codes are never shown to them. Change a code, press Save, and the portal shows the new one right away.</p></header>
+  <div id="signin" class="narrow"></div>
+  <div id="app" hidden>
+    <div id="points"></div>
+    <details class="card"><summary><b>Add a door or lock</b></summary>
+      <div class="formrow">
+        <label>Name<input id="newName" maxlength="80" placeholder="e.g. Garage side door"></label>
+        <label>Building<select id="newBuilding"><option value="6626">6626</option><option value="6622">6622</option><option value="both">Both</option></select></label>
+        <label>Who sees it<select id="newAudience"><option value="building">Everyone in that building</option><option value="unit">Each unit its own code</option><option value="staff">Staff only</option></select></label>
+        <label>Note (shown with the code)<input id="newNote" maxlength="200"></label>
+        <button class="btn primary" type="button" id="addPoint">Add</button>
+      </div></details>
+    <h2 style="margin-top:24px">Recent changes</h2>
+    <p class="meta">Who changed what and when. The codes themselves are not kept here.</p>
+    <table class="t" id="log"></table>
+    <div class="meta" id="msg" role="status"></div>
+  </div>
+</main>
+<script type="module">
+import { client, $, esc, signIn, signOut, errorText } from "/assets/portal/portal.js";
+let D = null;
+const say = (t, bad) => { $("msg").textContent = t; $("msg").style.color = bad ? "var(--bad)" : ""; };
+const AUD = { building: "Everyone in the building", unit: "Each unit its own code", staff: "Staff only" };
+const unitNum = (u) => Number(String(u).replace(/\D/g, "")) || 0;
+
+function unitsFor(p) { return D.units.filter((u) => p.building === "both" || u.building === p.building); }
+function pointCard(p) {
+  const by = new Map(p.codes.map((c) => [c.unit || "", c]));
+  const rows = p.audience === "unit"
+    ? unitsFor(p).map((u) => ({ unit: u.unit, c: by.get(u.unit), label: "Unit " + u.unit + (u.occupancy === "vacant" ? " (vacant)" : "") }))
+    : [{ unit: "", c: by.get(""), label: p.audience === "staff" ? "Staff code" : "Building code" }];
+  return `<div class="card" data-point="${p.id}"><b>${esc(p.name)}</b> <span class="meta">· ${p.building === "both" ? "Both buildings" : esc(p.building)}</span>
+    <span class="tag ${p.audience === "staff" ? "staff" : ""}">${esc(AUD[p.audience])}</span>${p.note ? `<div class="meta">${esc(p.note)}</div>` : ""}
+    <table class="t"><tr><th></th><th>Code</th><th></th><th>Last changed</th></tr>${rows.map((r) => `<tr data-unit="${esc(r.unit)}"><td>${esc(r.label)}</td>
+      <td><input data-code value="${esc(r.c ? r.c.code : "")}" maxlength="40" autocomplete="off"></td>
+      <td><button class="btn small primary" type="button" data-save>Save</button> ${r.c ? `<button class="btn small" type="button" data-clear>Remove</button>` : ""}</td>
+      <td class="meta">${r.c ? new Date(r.c.updated_at).toLocaleDateString("en-US") + (r.c.updated_by ? " · " + esc(r.c.updated_by) : "") : "not set"}</td></tr>`).join("")}</table></div>`;
+}
+function render() {
+  $("points").innerHTML = D.points.filter((p) => p.active).map(pointCard).join("");
+  $("log").innerHTML = `<tr><th>When</th><th>Who</th><th>What</th></tr>` + D.log.map((l) =>
+    `<tr><td>${new Date(l.at).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}</td><td>${esc(l.by_email || "")}</td><td>${esc(l.action)} · ${esc(l.name || "")}${l.unit_number ? " · Unit " + esc(l.unit_number) : ""}</td></tr>`).join("");
+}
+async function load() {
+  const { data, error } = await client.rpc("keys_staff_list");
+  if (error) { say(await errorText(error), true); return; }
+  D = data; render();
+}
+document.addEventListener("click", async (e) => {
+  const card = e.target.closest("[data-point]"), row = e.target.closest("tr[data-unit]");
+  try {
+    if (card && row && e.target.closest("[data-save]")) {
+      const { error } = await client.rpc("keys_staff_set_code", { p_point: card.dataset.point, p_unit: row.dataset.unit || null, p_code: row.querySelector("[data-code]").value });
+      if (error) throw new Error(await errorText(error));
+      say("Saved."); await load();
+    } else if (card && row && e.target.closest("[data-clear]")) {
+      if (!confirm("Remove this code? Residents will no longer see it.")) return;
+      const { error } = await client.rpc("keys_staff_clear_code", { p_point: card.dataset.point, p_unit: row.dataset.unit || null });
+      if (error) throw new Error(await errorText(error));
+      say("Removed."); await load();
+    } else if (e.target.closest("#addPoint")) {
+      const { error } = await client.rpc("keys_staff_add_point", { p_name: $("newName").value, p_building: $("newBuilding").value, p_audience: $("newAudience").value, p_note: $("newNote").value });
+      if (error) throw new Error(await errorText(error));
+      $("newName").value = ""; $("newNote").value = ""; say("Added. Now enter its code(s) above."); await load();
+    }
+  } catch (err) { say(err.message, true); }
+});
+$("signOutBtn").addEventListener("click", signOut);
+const who = await signIn($("signin"), { audience: "staff" });
+$("userBar").hidden = false;
+if (who.role !== "staff") location.replace("/association-owners/roca1/"); else { $("app").hidden = false; load(); }
+</script>
+</body>
+</html>

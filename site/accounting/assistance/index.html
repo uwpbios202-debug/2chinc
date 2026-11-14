@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Housing Assistance — 2nd Chance Housing Staff</title>
+<link rel="icon" href="/favicon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+<style>
+.card2{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:14px}
+.card2 h2{margin:0 0 6px;font-size:1.15rem}
+.meta{color:var(--muted);font-size:.9rem}
+td.n,th.n{text-align:right;white-space:nowrap}
+.pill3{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;border-radius:20px;padding:.12rem .55rem;background:var(--accent-soft);color:var(--accent)}
+.pill3.warn{background:#fff3cd;color:#7a5200}.pill3.off{background:#e8e8e8;color:#444}
+.formrow{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-top:8px}
+.formrow label{display:grid;gap:3px;font-size:.85rem;color:var(--muted)}
+.formrow input,.formrow select,.formrow textarea{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:6px;color:var(--fg);background:var(--panel)}
+.rec{border-top:1px solid var(--line);padding:12px 0}
+.split{display:flex;gap:18px;flex-wrap:wrap;margin:6px 0}.split div{min-width:120px}.split b{display:block;font-size:1.1rem}
+.notice{background:#fff3cd;border:1px solid #e0a800;color:#5c4200;border-radius:8px;padding:10px 12px;margin-bottom:14px}
+.bad{color:var(--bad);font-weight:700}
+@media print{.appbar,.formrow,button,details>summary{display:none!important}.card2{border:0}}
+</style>
+</head>
+<body>
+<div class="appbar" data-nav="staff"><div class="appbar-in">
+  <div class="org">2nd Chance Housing<span>Housing assistance · Staff</span></div>
+  <div class="row" id="userBar" hidden>
+    
+    <button class="linkbtn" type="button" id="signOutBtn">Sign out</button>
+  </div>
+</div></div>
+<main class="wrap">
+  <header><h1>Housing assistance</h1><p class="lead">When a voucher or another program pays part of the rent. Each rent charge on an assisted lease gets the agency's share taken off the tenant's ledger by itself, and that share is owed by the agency here. Late fees, notices and autopay then use only the tenant's portion. If the agency doesn't pay, the tenant is not charged unless you move the amount to them.</p></header>
+  <div id="signin" class="narrow"></div>
+  <div id="app" hidden>
+    <div id="hints"></div>
+    <div class="card2"><h2>By agency</h2>
+      <div class="table-wrap"><table><thead><tr><th>Agency</th><th class="n">Active leases</th><th class="n">Monthly share</th><th class="n">Owed to us now</th><th></th></tr></thead><tbody id="agencies"></tbody></table></div>
+      <div id="payBox"></div>
+    </div>
+    <div class="card2"><h2>Assisted leases</h2>
+      <div class="formrow"><label>Show<select id="fShow"><option value="open">Active and draft</option><option value="all">Including ended</option></select></label>
+        <label>Unit or name<input id="fText" style="min-width:140px"></label><button class="btn" type="button" id="printBtn">Print</button></div>
+      <div id="records"></div>
+    </div>
+    <div class="card2" id="editCard"><h2 id="editTitle">Add housing assistance</h2>
+      <p class="meta">Use the HAP contract or the agency's rent notice. For a recertification (new agency portion), end the old record the day before and add a new one, so history keeps both amounts.</p>
+      <div class="formrow">
+        <label>Lease<select id="eLease" style="min-width:260px"></select></label>
+        <label>Program<select id="eProgram"><option value="hcv">Section 8 Housing Choice Voucher</option><option value="public_housing">Public housing / project-based</option><option value="state_local">State or local rent assistance</option><option value="nonprofit">Nonprofit / charity</option><option value="other">Other</option></select></label>
+        <label>Agency<input id="eAgency" placeholder="e.g. HACM" list="agencyList"></label><datalist id="agencyList"></datalist>
+        <label>Voucher / case #<input id="eCase" style="width:130px"></label>
+        <label>Agency pays each month<input id="ePortion" type="number" min="0" step="0.01" style="width:120px"></label>
+        <label>Starts<input id="eStart" type="date"></label><label>Ends (optional)<input id="eEnd" type="date"></label>
+        <label>Status<select id="eStatus"><option value="active">Active</option><option value="draft">Draft (not posting yet)</option></select></label>
+      </div>
+      <div class="formrow">
+        <label>Agency contact<input id="eCName"></label><label>Contact email<input id="eCEmail" type="email"></label><label>Contact phone<input id="eCPhone"></label>
+        <label style="flex:1">Notes<input id="eNotes" style="min-width:220px"></label>
+      </div>
+      <div class="formrow"><span class="meta" id="eSplit"></span></div>
+      <div class="formrow"><button class="btn primary" type="button" id="eSave">Save</button><button class="btn" type="button" id="eCancel" hidden>Cancel edit</button><span class="msg" id="eMsg" role="status"></span></div>
+    </div>
+  </div>
+</main>
+<script type="module">
+import { client, $, esc, fmtDate, money, signIn, signOut, errorText } from "/assets/portal/portal.js";
+import { balAmt } from "/assets/portal/balance.js";
+let D = null, editing = null;
+const leaseLabel = (l) => `Unit ${l.unit || "?"} · ${l.tenants || ""}${l.rent ? " · rent " + money(l.rent) : ""}`;
+const today = () => new Date().toISOString().slice(0, 10);
+const KIND = { due: "Agency share due", payment: "Agency payment", adjustment: "Adjustment", writeoff: "Written off" };
+
+function render() {
+  const show = $("fShow").value, q = $("fText").value.trim().toLowerCase();
+  // Hints: leases marked Section 8 / federal with no assistance record; draft records.
+  const fedNoRec = D.leases.filter((l) => l.federal_program && !l.has_record && l.status === "active");
+  $("hints").innerHTML = fedNoRec.length ? `<div class="notice">Marked as a federally covered tenancy but no housing assistance on file: ${fedNoRec.map((l) => `<b>Unit ${esc(l.unit)}</b> (${esc(l.tenants)}${l.federal_program_note ? ", " + esc(l.federal_program_note) : ""})`).join("; ")}. Add the agency's share below so the tenant isn't billed for it.</div>` : "";
+  $("agencies").innerHTML = D.agencies.map((g) => `<tr><td><b>${esc(g.agency)}</b></td><td class="n">${g.leases}</td><td class="n">${money(g.monthly)}</td><td class="n ${Number(g.owed) > 0 ? "bad" : ""}">${money(g.owed)}</td>
+    <td><button class="btn small" type="button" data-pay="${esc(g.agency)}">Record a payment</button></td></tr>`).join("") || `<tr><td colspan="5" class="meta">No housing assistance on file yet.</td></tr>`;
+  $("agencyList").innerHTML = [...new Set(D.agencies.map((g) => g.agency))].map((a) => `<option value="${esc(a)}">`).join("");
+  const recs = D.records.filter((r) => (show === "all" || r.status !== "ended") && (!q || `${r.unit} ${r.tenants} ${r.agency_name} ${r.case_number || ""}`.toLowerCase().includes(q)));
+  $("records").innerHTML = recs.map((r) => {
+    const owed = Number(r.agency_balance);
+    return `<div class="rec"><div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap">
+        <b>Unit ${esc(r.unit || "?")} · ${esc(r.tenants || "")}</b>
+        <span class="pill3 ${r.status === "draft" ? "warn" : r.status === "ended" ? "off" : ""}">${esc(r.status)}</span></div>
+      <div class="meta">${esc(r.agency_name)} · ${esc(r.program_label)}${r.case_number ? " · #" + esc(r.case_number) : ""} · ${fmtDate(r.start_date)}${r.end_date ? " to " + fmtDate(r.end_date) : " onward"}${r.lease_status !== "active" ? " · lease " + esc(r.lease_status) : ""}</div>
+      ${r.agency_contact_name || r.agency_contact_email || r.agency_contact_phone ? `<div class="meta">Contact: ${esc([r.agency_contact_name, r.agency_contact_email, r.agency_contact_phone].filter(Boolean).join(" · "))}</div>` : ""}
+      <div class="split"><div><span class="meta">Lease rent</span><b>${money(r.rent)}</b></div><div><span class="meta">Agency pays</span><b>${money(r.agency_portion)}</b></div>
+        <div><span class="meta">Tenant pays</span><b>${money(r.tenant_portion)}</b></div><div><span class="meta">Agency owes now</span><b>${balAmt(owed)}</b></div>
+        <div><span class="meta">Tenant balance</span><b>${balAmt(r.tenant_balance)}</b></div>
+        <div><span class="meta">Last agency payment</span><b>${r.last_payment ? money(r.last_payment.amount) + " · " + fmtDate(r.last_payment.date) : "—"}</b></div></div>
+      ${r.notes ? `<div class="meta" style="white-space:pre-line">${esc(r.notes)}</div>` : ""}
+      ${r.unposted_months.length && r.status !== "draft" ? `<div class="notice" style="margin:6px 0">Rent was charged without the agency share taken off for: ${r.unposted_months.map((m) => `<button class="btn small" type="button" data-post="${esc(r.id)}" data-month="${esc(m)}">${esc(new Date(m + "T12:00:00").toLocaleDateString("en-US", { month: "long", year: "numeric" }))}</button>`).join(" ")} Tap a month to take the agency's share off the tenant's ledger for it.</div>` : ""}
+      ${r.ledger.some((x) => x.auto_posted && !x.verified_at) ? `<div class="notice" style="margin:6px 0">An agency payment was posted automatically and still needs your check. Open the agency ledger below and press Verified once it matches the agency's notice.</div>` : ""}
+      <details${r.ledger.some((x) => x.auto_posted && !x.verified_at) ? " open" : ""}><summary>Agency ledger (${r.ledger.length} lines)</summary>
+        <div class="table-wrap"><table><thead><tr><th>Date</th><th>What</th><th>Description</th><th>Ref</th><th class="n">Amount</th><th class="n">Owed</th></tr></thead><tbody>
+        ${(() => { let run = 0; return r.ledger.map((x) => { run += Number(x.amount); return `<tr><td>${fmtDate(x.entry_date)}</td><td>${KIND[x.kind] || esc(x.kind)}</td><td>${esc(x.description || "")}</td><td>${x.auto_posted && !x.verified_at ? `<span class="notice" style="padding:2px 6px">Auto-posted: check it against the agency's notice</span> <button class="btn small primary" type="button" data-verify="${esc(x.id)}">Verified</button>` : esc(x.reference || "")}</td><td class="n">${money(x.amount)}</td><td class="n">${money(run)}</td></tr>`; }).join("") || `<tr><td colspan="6" class="meta">Nothing yet.</td></tr>`; })()}
+        </tbody></table></div></details>
+      <div class="formrow">
+        <button class="btn small" type="button" data-edit="${esc(r.id)}">Edit</button>
+        ${r.status !== "ended" ? `<button class="btn small" type="button" data-end="${esc(r.id)}">End</button>` : ""}
+        ${r.status === "active" ? `<button class="btn small" type="button" data-auto="${esc(r.id)}" data-on="${r.auto_payment ? "0" : "1"}">Post payment automatically on the 1st: ${r.auto_payment ? "ON (turn off)" : "OFF (turn on)"}</button>` : ""}
+        <button class="btn small" type="button" data-adjust="${esc(r.id)}">Adjust / write off</button>
+        ${owed > 0 ? `<button class="btn small" type="button" data-move="${esc(r.id)}">Move an amount to the tenant</button>` : ""}
+      </div></div>`;
+  }).join("") || `<p class="meta">None.</p>`;
+}
+
+function fillLeases(sel) {
+  $("eLease").innerHTML = `<option value="">Choose…</option>` + D.leases.map((l) => `<option value="${esc(l.id)}" ${sel === l.id ? "selected" : ""}>${esc(leaseLabel(l))}${l.has_record ? " (has assistance)" : ""}</option>`).join("");
+}
+function splitText() {
+  const l = D && D.leases.find((x) => x.id === $("eLease").value), p = Number($("ePortion").value);
+  $("eSplit").textContent = l && l.rent && p > 0 ? `Rent ${money(l.rent)} − agency ${money(p)} = tenant pays ${money(Math.max(Number(l.rent) - p, 0))} a month.` : "";
+}
+["eLease", "ePortion"].forEach((id) => $(id).addEventListener("input", splitText));
+
+function startEdit(r) {
+  editing = r ? r.id : null;
+  $("editTitle").textContent = r ? `Edit housing assistance — Unit ${r.unit}` : "Add housing assistance";
+  if (r && !D.leases.some((l) => l.id === r.lease_id)) D.leases.push({ id: r.lease_id, unit: r.unit, tenants: r.tenants, rent: r.rent, status: r.lease_status });
+  fillLeases(r ? r.lease_id : ""); $("eLease").disabled = !!r;
+  $("eProgram").value = r ? r.program : "hcv"; $("eAgency").value = r ? r.agency_name : ""; $("eCase").value = r ? r.case_number || "" : "";
+  $("ePortion").value = r ? r.agency_portion : ""; $("eStart").value = r ? r.start_date : ""; $("eEnd").value = r ? r.end_date || "" : "";
+  $("eStatus").innerHTML = `<option value="active">Active</option><option value="draft">Draft (not posting yet)</option>${r && r.status === "ended" ? `<option value="ended">Ended</option>` : ""}`;
+  $("eStatus").value = r ? r.status : "active";
+  $("eCName").value = r ? r.agency_contact_name || "" : ""; $("eCEmail").value = r ? r.agency_contact_email || "" : ""; $("eCPhone").value = r ? r.agency_contact_phone || "" : ""; $("eNotes").value = r ? r.notes || "" : "";
+  $("eCancel").hidden = !r; $("eMsg").textContent = ""; splitText();
+  if (r) $("editCard").scrollIntoView({ behavior: "smooth" });
+}
+$("eCancel").onclick = () => startEdit(null);
+$("eSave").onclick = async () => {
+  const p = { lease_id: $("eLease").value, program: $("eProgram").value, agency_name: $("eAgency").value, case_number: $("eCase").value, agency_portion: $("ePortion").value,
+    start_date: $("eStart").value, end_date: $("eEnd").value, status: $("eStatus").value, agency_contact_name: $("eCName").value, agency_contact_email: $("eCEmail").value,
+    agency_contact_phone: $("eCPhone").value, notes: $("eNotes").value };
+  const { data, error } = await client.rpc("assistance_staff_save", { p_id: editing, p });
+  $("eMsg").className = error ? "msg err" : "msg ok";
+  $("eMsg").textContent = error ? await errorText(error) : "Saved." + (data.federal_program_set ? " The lease is now marked as a federally covered tenancy (30-day notices)." : "") + (data.unposted_months && data.unposted_months.length ? " Some months already charged need the agency share posted; see the record above." : "");
+  if (!error) { const m = $("eMsg").textContent; await load(); startEdit(null); $("eMsg").className = "msg ok"; $("eMsg").textContent = m; }
+};
+
+function payForm(agency) {
+  const recs = D.records.filter((r) => r.agency_name === agency && (r.status !== "ended" || Number(r.agency_balance) !== 0));
+  $("payBox").innerHTML = `<div class="rec"><h3 style="margin:0 0 4px">Payment from ${esc(agency)}</h3><p class="meta">One HAP check or deposit can cover several tenants. Enter what it paid for each.</p>
+    <div class="table-wrap"><table><thead><tr><th>Unit</th><th>Tenant</th><th class="n">Monthly share</th><th class="n">Owed now</th><th class="n">Paid</th></tr></thead><tbody>
+    ${recs.map((r) => `<tr><td>${esc(r.unit)}</td><td>${esc(r.tenants)}</td><td class="n">${money(r.agency_portion)}</td><td class="n">${balAmt(r.agency_balance)}</td>
+      <td class="n"><input type="number" step="0.01" min="0" data-amt="${esc(r.id)}" value="${Number(r.agency_balance) > 0 ? Math.min(Number(r.agency_balance), Number(r.agency_portion)).toFixed(2) : ""}" style="width:110px"></td></tr>`).join("")}
+    </tbody></table></div>
+    <div class="formrow"><label>Received<input id="pDate" type="date" value="${today()}"></label><label>How<select id="pMethod"><option value="eft">EFT / direct deposit</option><option value="ach">ACH</option><option value="check">Check</option><option value="other">Other</option></select></label>
+      <label>Check / payment #<input id="pRef" style="width:140px"></label><label style="flex:1">Note<input id="pNote"></label>
+      <button class="btn primary" type="button" id="pSave">Record payment</button><button class="btn" type="button" id="pCancel">Cancel</button><span class="msg" id="pMsg"></span></div></div>`;
+  $("pCancel").onclick = () => { $("payBox").innerHTML = ""; };
+  $("pSave").onclick = async () => {
+    const items = [...$("payBox").querySelectorAll("[data-amt]")].map((i) => ({ assistance_id: i.dataset.amt, amount: i.value })).filter((x) => Number(x.amount) > 0);
+    const { data, error } = await client.rpc("assistance_staff_payment", { p_items: items, p_date: $("pDate").value || null, p_method: $("pMethod").value, p_ref: $("pRef").value, p_note: $("pNote").value });
+    if (error) { $("pMsg").className = "msg err"; $("pMsg").textContent = await errorText(error); return; }
+    $("payBox").innerHTML = `<p class="msg ok">Recorded ${money(data.total)} on ${data.lines} lease${data.lines === 1 ? "" : "s"}.</p>`; await load(true);
+  };
+}
+
+$("app").addEventListener("click", async (e) => {
+  const b = e.target.closest("button"); if (!b) return;
+  const rec = (id) => D.records.find((r) => r.id === id);
+  let error;
+  if (b.dataset.pay) return payForm(b.dataset.pay);
+  if (b.dataset.edit) return startEdit(rec(b.dataset.edit));
+  if (b.dataset.end) {
+    const d = prompt("Last day the agency pays (YYYY-MM-DD):", today()); if (!d) return;
+    const note = prompt("Why did it end? (optional, e.g. voucher terminated, tenant moved)", ""); if (note === null) return;
+    ({ error } = await client.rpc("assistance_staff_end", { p_id: b.dataset.end, p_end: d, p_note: note }));
+  } else if (b.dataset.post) {
+    if (!confirm("Take the agency's share off the tenant's ledger for this month?")) return;
+    ({ error } = await client.rpc("assistance_staff_post_month", { p_id: b.dataset.post, p_month: b.dataset.month }));
+  } else if (b.dataset.adjust) {
+    const kind = prompt("Type W to write off what the agency won't pay (we absorb it), or A for an adjustment (a correction, + or −):", "W"); if (!kind) return;
+    const k = kind.trim().toUpperCase().startsWith("W") ? "writeoff" : "adjustment";
+    const amt = prompt(k === "writeoff" ? "Amount to write off:" : "Adjustment amount (positive = the agency owes more, negative = less):", ""); if (!amt) return;
+    const why = prompt("Why? (stays on the record)", ""); if (why === null) return;
+    ({ error } = await client.rpc("assistance_staff_adjust", { p_id: b.dataset.adjust, p_kind: k, p_amount: Number(amt), p_reason: why }));
+  } else if (b.dataset.verify) {
+    ({ error } = await client.rpc("assistance_staff_verify", { p_line: Number(b.dataset.verify) }));
+  } else if (b.dataset.auto) {
+    if (b.dataset.on === "1" && !confirm("Each month on the 1st the system will post this agency's expected payment and email the office to verify it. Turn it on?")) return;
+    ({ error } = await client.rpc("assistance_staff_set_auto", { p_id: b.dataset.auto, p_on: b.dataset.on === "1" }));
+  } else if (b.dataset.move) {
+    const r = rec(b.dataset.move);
+    const amt = prompt(`The agency owes ${money(r.agency_balance)}. How much does the TENANT owe instead? This posts a charge on the tenant's ledger.`, ""); if (!amt) return;
+    const why = prompt("Why does the tenant owe it? The tenant sees this on their ledger.", ""); if (why === null) return;
+    ({ error } = await client.rpc("assistance_staff_move_to_tenant", { p_id: r.id, p_amount: Number(amt), p_reason: why }));
+  } else return;
+  if (error) return alert(await errorText(error));
+  await load(true);
+});
+["fShow", "fText"].forEach((id) => $(id).addEventListener("input", () => D && render()));
+$("printBtn").onclick = () => { document.querySelectorAll("#records details").forEach((d) => (d.open = true)); window.print(); };
+
+async function load(keepEdit) {
+  const { data, error } = await client.rpc("assistance_staff_list");
+  if (error) { $("signin").hidden = false; $("signin").innerHTML = `<div class="panel">${esc(await errorText(error))}</div>`; return; }
+  D = data; $("signin").hidden = true; $("app").hidden = false;
+  if (!keepEdit) editing = null;
+  if (!editing) fillLeases($("eLease").value);
+  render();
+}
+$("signOutBtn").onclick = signOut;
+const who = await signIn($("signin"), { audience: "staff" });
+$("userBar").hidden = false;
+if (who.role !== "staff") { $("signin").hidden = false; $("signin").innerHTML = `<div class="panel"><p>This page is for office staff. <a href="/staff/">Go to My units</a></p></div>`; }
+else await load();
+</script>
+</body>
+</html>

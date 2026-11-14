@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Conversation Guide | The Human Mirror</title>
+<link rel="icon" href="/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Source+Serif+4:opsz,wght@8..60,600&display=swap">
+<link rel="stylesheet" href="/mirror/assets/mirror.css?v=20261113l">
+<style>
+  .cg-quote { margin: var(--mm-space-2) 0 0; padding-left: var(--mm-space-3); border-left: 3px solid var(--mm-line); color: var(--mm-ink-2); font-style: italic; }
+  .cg-find { display: flex; gap: var(--mm-space-3); align-items: flex-start; justify-content: space-between; flex-wrap: wrap; }
+  .cg-find + .cg-find { border-top: 1px solid var(--mm-line); padding-top: var(--mm-space-4); margin-top: var(--mm-space-4); }
+  .cg-find h4 { margin: 0; font-size: 1.05rem; }
+  .cg-share { display: inline-flex; gap: var(--mm-space-2); align-items: center; min-height: var(--mm-tap); font-weight: 700; cursor: pointer; }
+  .cg-share input { width: 1.3rem; height: 1.3rem; accent-color: var(--mm-accent); }
+  .cg-prog { border-top: 1px solid var(--mm-line); padding-top: var(--mm-space-3); margin-top: var(--mm-space-3); }
+  .cg-prog p { margin: var(--mm-space-1) 0 0; }
+  .cg-meta { font-size: var(--mm-small); color: var(--mm-ink-2); }
+  .cg-step { counter-increment: step; }
+  .cg-step > h3::before { content: counter(step) ". "; color: var(--mm-warm); }
+  #cgPlan { counter-reset: step; }
+  .cg-q { font-family: var(--mm-serif); font-size: var(--mm-h3); font-weight: 600; line-height: 1.3; }
+</style>
+</head>
+<body data-area="workspace">
+<main id="main" class="mm-main">
+  <p class="mm-eyebrow">Preview</p>
+  <h1>Conversation guide</h1>
+  <p class="mm-lead">A few open questions, answered by speaking or typing. The page finds the needs in the person's own words.
+    The person checks what was heard, and the Navigator gets a first draft of a plan with help connections from the resource directory.</p>
+  <div class="mm-read" id="cgApp"></div>
+</main>
+<script type="module" src="/mirror/assets/mirror-ui.js?v=20261113h"></script>
+<script type="module">
+import { QUESTIONS, analyse, urgentIn, draftPlan, URGENT } from "/mirror/assets/mirror-listen.js?v=20261113c";
+import { voiceInput, readAll } from "/mirror/assets/mirror-voice.js?v=20261113c";
+import { esc, notice, countBar } from "/mirror/assets/mirror-ui.js?v=20261113h";
+
+const app = document.getElementById("cgApp");
+/** @type {Record<string,string>} */ let answers = {};
+let at = 0;
+/** @type {any[]} */ let findings = [];
+/** @type {Set<string>} */ let shared = new Set();
+
+// A made-up person, for trying the page. Not a real client.
+const EXAMPLE = {
+  home: "Right now me and my two kids are staying at my sister's place on the north side. She's been good to us but she said we got to be out by the end of the month because her landlord is complaining.",
+  hardest: "Honestly I don't know where to start. My hours got cut at the warehouse in September and I fell behind on rent at my old place, so I got a 5 day notice and we left before it went to court.",
+  money: "I work part time, about 25 hours, so maybe $1,300 a month. I get food share for the kids. I still owe WE Energies about $600 and they sent a disconnection notice to my old address.",
+  people: "My son is 7 and my daughter is 3. My sister helps when she can. My mom passed last year.",
+  day: "I'm tired all the time and stressed. My daughter has asthma and I need to keep up with her medication. My car broke down so I take the bus to work.",
+  safety: "",
+  past: "The eviction filing might show up even though we left. My credit is bad from the utility bills. I lost my wallet so I don't have a state ID right now.",
+  future: "A place of our own, even a small two bedroom, where the kids can stay at the same school. And I want to get back to full time.",
+};
+
+function intro() {
+  app.innerHTML = `
+    ${notice("caution", "<p><strong>Preview with made-up people.</strong> Nothing typed or spoken here is saved or sent anywhere. Reloading the page clears it.</p>")}
+    <div class="mm-card">
+      <h2>How it works</h2>
+      <ol><li>${QUESTIONS.length} open questions, one at a time. Speak or type; any question can be skipped.</li>
+        <li><strong>What I heard:</strong> the person sees what the page found in their words, corrects it, and chooses what to share. Private topics stay unshared unless they tick them.</li>
+        <li><strong>Draft plan:</strong> the Navigator sees the shared needs in order, each with up to 3 suggested programs from the resource directory, and confirms each one.</li></ol>
+      <div class="mm-row"><button class="mm-btn" type="button" id="cgStart">Start</button>
+        <button class="mm-btn mm-btn-secondary" type="button" id="cgEx">Fill in an example person</button></div>
+    </div>`;
+  app.querySelector("#cgStart").onclick = () => { answers = {}; at = 0; ask(); };
+  app.querySelector("#cgEx").onclick = () => { answers = { ...EXAMPLE }; at = 0; ask(); };
+}
+
+function urgentBox(keys) {
+  if (!keys.length) return "";
+  return notice("urgent", `<p><strong>Help is available right now.</strong></p><ul>${[...new Set(keys)].map((k) => `<li>${esc(URGENT[k].help)}</li>`).join("")}</ul><p>You can keep going here too.</p>`);
+}
+
+function ask() {
+  const q = QUESTIONS[at];
+  app.innerHTML = `
+    ${countBar(at, QUESTIONS.length, "questions")}
+    <form class="mm-card" id="cgForm" ${q.private ? "data-mm-sensitive" : ""}>
+      <div class="mm-field">
+        <label class="cg-q" for="cgA" data-mm-read>${esc(q.text)}</label>
+        ${q.private ? '<span class="mm-tag mm-tag-info">Private</span> ' : ""}<span class="mm-hint">${esc(q.hint || "Say it in your own words. There are no wrong answers.")}</span>
+        <textarea class="mm-textarea" id="cgA" rows="5">${esc(answers[q.id] || "")}</textarea>
+      </div>
+      <div id="cgUrgent" aria-live="assertive"></div>
+      <div class="mm-row">
+        <button class="mm-btn" type="submit">${at === QUESTIONS.length - 1 ? "Finish" : "Next"}</button>
+        ${at > 0 ? '<button class="mm-btn mm-btn-secondary" type="button" id="cgBack">Back</button>' : ""}
+        <button class="mm-btn mm-btn-quiet" type="button" id="cgSkip">Skip this question</button>
+      </div>
+    </form>`;
+  const ta = /** @type {HTMLTextAreaElement} */ (app.querySelector("#cgA"));
+  voiceInput(ta); readAll(app);
+  const urg = app.querySelector("#cgUrgent");
+  const check = () => { urg.innerHTML = urgentBox(urgentIn(ta.value)); };
+  ta.addEventListener("input", check); check();
+  const save = () => { answers[q.id] = ta.value; };
+  app.querySelector("#cgForm").onsubmit = (e) => { e.preventDefault(); save(); next(); };
+  app.querySelector("#cgSkip").onclick = () => { answers[q.id] = ""; next(); };
+  const back = app.querySelector("#cgBack");
+  if (back) back.onclick = () => { save(); at--; ask(); };
+  ta.focus();
+}
+
+function next() { if (at < QUESTIONS.length - 1) { at++; ask(); } else heard(); }
+
+const GROUPS = [
+  ["urgent", "Needs help right away"],
+  ["help", "Help with housing"],
+  ["other", "Other things you mentioned"],
+  ["pop", "About you (helps find programs meant for you)"],
+];
+const fid = (f) => f.kind + ":" + f.key;
+
+function heard() {
+  findings = analyse(answers);
+  shared = new Set(findings.filter((f) => !f.private).map(fid));
+  drawHeard();
+}
+
+function drawHeard() {
+  const urgentKeys = findings.filter((f) => f.kind === "urgent").map((f) => f.urgent);
+  app.innerHTML = `
+    <h2>Here's what I heard</h2>
+    <p>Check each one. Remove anything that isn't right. Tick what your Navigator may see; private topics are not shared unless you tick them.</p>
+    ${urgentBox(urgentKeys)}
+    ${findings.length ? GROUPS.map(([k, title]) => {
+      const list = findings.filter((f) => f.kind === k);
+      if (!list.length) return "";
+      return `<section class="mm-card" style="margin-bottom:var(--mm-space-4)"><h3>${esc(title)}</h3>${list.map((f) => `
+        <div class="cg-find">
+          <div style="flex:1 1 16rem">
+            <h4>${esc(f.label)} ${f.private ? '<span class="mm-tag mm-tag-info">Private</span>' : ""}</h4>
+            ${f.quotes.map((x) => `<p class="cg-quote">"${esc(x.words)}"</p>`).join("")}
+          </div>
+          <div class="mm-row">
+            <label class="cg-share"><input type="checkbox" data-share="${esc(fid(f))}" ${shared.has(fid(f)) ? "checked" : ""}> Share with my Navigator</label>
+            <button type="button" class="mm-btn mm-btn-quiet" data-drop="${esc(fid(f))}">Not right</button>
+          </div>
+        </div>`).join("")}</section>`;
+    }).join("") : notice("info", "<p>Nothing was found in these answers yet. Your Navigator can go through them with you.</p>")}
+    <div class="mm-row">
+      <button class="mm-btn" type="button" id="cgSend">Share with my Navigator</button>
+      <button class="mm-btn mm-btn-secondary" type="button" id="cgEdit">Change my answers</button>
+    </div>`;
+  app.querySelectorAll("[data-share]").forEach((c) => c.addEventListener("change", () => {
+    const k = c.getAttribute("data-share"); if (c.checked) shared.add(k); else shared.delete(k);
+  }));
+  app.querySelectorAll("[data-drop]").forEach((b) => b.addEventListener("click", () => {
+    const k = b.getAttribute("data-drop"); findings = findings.filter((f) => fid(f) !== k); shared.delete(k); drawHeard();
+  }));
+  app.querySelector("#cgEdit").onclick = () => { at = 0; ask(); };
+  app.querySelector("#cgSend").onclick = () => plan();
+  app.querySelector("h2").scrollIntoView();
+}
+
+async function loadDirectory() {
+  try {
+    const { client } = await import("/assets/portal/portal.js");
+    const { data: s } = await client.auth.getSession();
+    if (!s.session) return { dir: null, why: "signin" };
+    const { data, error } = await client.rpc("chpms_directory");
+    if (error) return { dir: null, why: "role" };
+    return { dir: data, why: "" };
+  } catch { return { dir: null, why: "error" }; }
+}
+
+function progLine(s) {
+  const p = s.p, o = p.org;
+  const bits = [p.current_status, p.waiting_list && /yes|open/i.test(p.waiting_list) ? "Waiting list: " + p.waiting_list : "", p.intake_phone || o.main_phone].filter(Boolean);
+  return `<div class="cg-prog">
+    <strong>${esc(p.program_name)}</strong> <span class="mm-tag mm-tag-suggested">Suggested</span>${o.our_relationship === "partner" ? ' <span class="mm-tag mm-tag-ok">Partner</span>' : ""}
+    <p class="cg-meta">${esc(o.dba || o.legal_name)}${bits.length ? " · " + bits.map(esc).join(" · ") : ""}</p>
+    ${s.popHits.length ? `<p class="cg-meta">Meant for: ${s.popHits.map(esc).join(", ")}</p>` : ""}
+    ${p.how_to_apply ? `<p class="cg-meta">How to apply: ${esc(String(p.how_to_apply).slice(0, 220))}</p>` : ""}
+    <p class="cg-meta">Directory: <a href="/staff/resources/#org/${encodeURIComponent(o.org_id)}/${encodeURIComponent(p.program_id)}">open program</a></p>
+  </div>`;
+}
+
+async function plan() {
+  app.innerHTML = `<p role="status">Building the draft plan…</p>`;
+  const picked = findings.filter((f) => shared.has(fid(f)));
+  const hidden = findings.length - picked.length;
+  const { dir, why } = await loadDirectory();
+  const P = draftPlan(picked, dir);
+  const dirNote = dir ? "" : notice("info", why === "signin"
+    ? `<p>To see matching programs from the directory, sign in in this browser as office staff (<a href="/staff/">staff page</a>) or as a Navigator (<a href="/navigator/">Navigator portal</a>), then come back here.</p>`
+    : "<p>The resource directory could not be read with this sign-in. Office staff, field staff and Navigators can see the programs.</p>");
+  app.innerHTML = `
+    <p class="mm-eyebrow">For the Navigator</p>
+    <h2>Draft plan</h2>
+    <p>Built from what the person shared. Every program is a suggestion: confirm it with the person and the program before referring.</p>
+    ${hidden ? `<p class="mm-muted">${hidden} topic${hidden === 1 ? " was" : "s were"} not shared and are not shown.</p>` : ""}
+    ${dirNote}
+    ${P.urgent.length ? `<section class="mm-card" style="margin-bottom:var(--mm-space-4);border-color:var(--mm-urgent)"><h3>First: right away</h3>
+      ${P.urgent.map((f) => `<p><span class="mm-tag mm-tag-urgent">Urgent</span> <strong>${esc(f.label)}</strong></p>${f.quotes.map((x) => `<p class="cg-quote">"${esc(x.words)}"</p>`).join("")}<p>${esc(URGENT[f.urgent].help)}</p>`).join("")}
+    </section>` : ""}
+    ${P.pops.length ? `<p><strong>About the person:</strong> ${P.pops.map((x) => `<span class="mm-tag">${esc(x)}</span>`).join(" ")}</p>` : ""}
+    <div id="cgPlan">
+    ${P.steps.map((s) => `<section class="mm-card cg-step" style="margin-bottom:var(--mm-space-4)">
+      <h3>${esc(s.need.key)}</h3>
+      ${s.need.quotes.map((x) => `<p class="cg-quote">"${esc(x.words)}"</p>`).join("")}
+      ${dir ? (s.suggestions.length ? s.suggestions.map(progLine).join("") + (s.more ? `<p class="cg-meta">${s.more} more in the directory.</p>` : "")
+        : '<p class="cg-meta">No open program in the directory for this yet.</p>') : ""}
+    </section>`).join("")}
+    </div>
+    ${P.other.length ? `<section class="mm-card" style="margin-bottom:var(--mm-space-4)"><h3>Also mentioned (not in the housing directory yet)</h3>
+      ${P.other.map((f) => `<p><strong>${esc(f.label)}</strong></p>${f.quotes.map((x) => `<p class="cg-quote">"${esc(x.words)}"</p>`).join("")}`).join("")}
+    </section>` : ""}
+    ${!P.urgent.length && !P.steps.length && !P.other.length ? notice("info", "<p>Nothing was shared. Talk it through with the person.</p>") : ""}
+    <div class="mm-row">
+      <button class="mm-btn mm-btn-secondary" type="button" id="cgBackHeard">Back to what I heard</button>
+      <button class="mm-btn mm-btn-quiet" type="button" id="cgPrint">Print</button>
+      <button class="mm-btn mm-btn-quiet" type="button" id="cgRestart">Start over</button>
+    </div>`;
+  app.querySelector("#cgBackHeard").onclick = drawHeard;
+  app.querySelector("#cgPrint").onclick = () => print();
+  app.querySelector("#cgRestart").onclick = intro;
+  app.querySelector("h2").scrollIntoView();
+}
+
+intro();
+</script>
+</body>
+</html>

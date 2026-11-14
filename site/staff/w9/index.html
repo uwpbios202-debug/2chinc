@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Email a W-9 — 2nd Chance Housing Staff</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+<style>
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-bottom: 12px; max-width: 760px; }
+  .meta { color: var(--muted); font-size: 0.9rem; }
+  .form { display: grid; gap: 12px; }
+  .form label { display: grid; gap: 4px; font-size: 0.9rem; color: var(--muted); }
+  .form input, .form textarea { font: inherit; padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); color: inherit; width: 100%; box-sizing: border-box; }
+  .pad-wrap { position: relative; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+  canvas#pad { width: 100%; height: 150px; display: block; cursor: crosshair; touch-action: none; }
+  .pad-wrap .x { position: absolute; left: 10px; bottom: 28px; color: #888; }
+  .pad-wrap .line { position: absolute; left: 30px; right: 10px; bottom: 26px; border-bottom: 1px solid #888; pointer-events: none; }
+</style>
+</head>
+<body>
+<div class="appbar" data-nav="staff">
+  <div class="appbar-in">
+    <div class="org">2nd Chance Housing<span>Email a W-9 · Staff</span></div>
+    <div class="row" id="userBar" hidden>
+      <button class="linkbtn" type="button" id="signOutBtn">Sign out</button>
+    </div>
+  </div>
+</div>
+<main class="wrap">
+  <header><h1>Email a W-9</h1><p class="lead">Sends the signed W-9 of <b>2nd Chance Housing Inc</b> (EIN on file) to the social worker or agency paying a tenant's rent or deposit. Sign with your finger or the mouse; today's date is added. Replies come to the office, which gets a copy.</p></header>
+  <div id="signin" class="narrow"></div>
+  <div id="app" hidden>
+    <div class="card"><div class="form">
+      <label>Send to (one to five email addresses, separated by commas)<input id="to" type="text" autocomplete="off" placeholder="socialworker@agency.org"></label>
+      <label>Applicant or tenant this is for (optional)<input id="forname" maxlength="120"></label>
+      <label>Extra message (optional)<textarea id="message" rows="4" maxlength="3000" placeholder="For example: the rent is $900 a month and the deposit is $900."></textarea></label>
+      <div>
+        <div class="meta" style="margin-bottom:4px">Draw your signature</div>
+        <div class="pad-wrap"><canvas id="pad"></canvas><span class="x">✕</span><span class="line"></span></div>
+        <button class="linkbtn" type="button" id="clear">Clear signature</button>
+      </div>
+      <div><button class="btn primary" type="button" id="send">Sign and send W-9</button></div>
+      <div class="meta" id="msg" role="status"></div>
+    </div></div>
+  </div>
+</main>
+<script type="module">
+import { client, $, signIn, signOut, errorText } from "/assets/portal/portal.js";
+const say = (t, bad) => { $("msg").textContent = t; $("msg").style.color = bad ? "var(--bad)" : ""; };
+
+// Signature pad: strokes are kept so the drawing survives a resize (phones fire height-only resizes while scrolling).
+const pad = $("pad"), ctx = pad.getContext("2d");
+let strokes = [], padW = 0, drawing = false, last = null, inked = 0;
+const redraw = () => { ctx.clearRect(0, 0, pad.width, pad.height);
+  for (const s of strokes) { ctx.beginPath(); s.forEach((p, i) => (i ? ctx.lineTo(...p) : ctx.moveTo(...p))); if (s.length === 1) ctx.lineTo(s[0][0] + 0.1, s[0][1]); ctx.stroke(); } };
+const size = () => { const r = pad.getBoundingClientRect(); if (!r.width || r.width === padW) return;
+  const k = padW ? r.width / padW : 1; strokes = strokes.map((s) => s.map(([x, y]) => [x * k, y * k])); inked *= k; padW = r.width;
+  const dpr = window.devicePixelRatio || 1; pad.width = r.width * dpr; pad.height = r.height * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.lineWidth = 2.4; ctx.lineCap = "round"; ctx.lineJoin = "round"; ctx.strokeStyle = "#111"; redraw(); };
+const pt = (e) => { const r = pad.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+pad.addEventListener("pointerdown", (e) => { drawing = true; last = pt(e); strokes.push([last]); pad.setPointerCapture(e.pointerId); });
+pad.addEventListener("pointermove", (e) => { if (!drawing) return; const p = pt(e); ctx.beginPath(); ctx.moveTo(...last); ctx.lineTo(...p); ctx.stroke();
+  strokes[strokes.length - 1].push(p); inked += Math.hypot(p[0] - last[0], p[1] - last[1]); last = p; });
+["pointerup", "pointercancel", "pointerleave"].forEach((t) => pad.addEventListener(t, () => { drawing = false; }));
+$("clear").onclick = () => { strokes = []; ctx.clearRect(0, 0, pad.width, pad.height); inked = 0; };
+window.addEventListener("resize", size);
+
+$("send").addEventListener("click", async () => {
+  const to = $("to").value.split(/[,;\s]+/).filter(Boolean);
+  if (!to.length) { say("Enter the email address to send it to.", true); return; }
+  if (inked < 80) { say("Please draw your signature in the box.", true); return; }
+  $("send").disabled = true; say("Signing and sending…");
+  try {
+    const { data, error } = await client.functions.invoke("w9-send", { body: { to, for_name: $("forname").value, message: $("message").value, signature: pad.toDataURL("image/png") } });
+    if (error) throw new Error(await errorText(error));
+    say(`Sent to ${data.sent} address${data.sent === 1 ? "" : "es"}. The office has a copy.`);
+    $("to").value = ""; $("forname").value = ""; $("message").value = "";
+  } catch (err) { say(err.message, true); }
+  $("send").disabled = false;
+});
+$("signOutBtn").addEventListener("click", signOut);
+const who = await signIn($("signin"), { audience: "staff" });
+$("userBar").hidden = false;
+if (who.role !== "staff") location.replace("/association-owners/roca1/"); else { $("app").hidden = false; size(); }
+</script>
+</body>
+</html>

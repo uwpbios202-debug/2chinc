@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Snow Removal — 2nd Chance Housing Staff</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+<style>
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-bottom: 12px; max-width: 860px; }
+  .meta { color: var(--muted); font-size: 0.9rem; }
+  .row2 { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 8px; }
+  .form { display: grid; gap: 10px; max-width: 460px; }
+  .form label { display: grid; gap: 4px; font-size: 0.9rem; color: var(--muted); }
+  input[type=text], input[type=email], input[type=number], input[type=date] { font: inherit; padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); color: inherit; box-sizing: border-box; }
+  .pill2 { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; border-radius: 20px; padding: .15rem .6rem; background: var(--accent-soft); color: var(--accent); }
+  .pill2.warn { background: #fff3cd; color: #7a5200; }
+  .photos { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .photos img { width: 120px; height: 90px; object-fit: cover; border-radius: 6px; border: 1px solid var(--line); }
+  .tot { font-size: 1.05rem; }
+  @media print { .appbar, .noprint { display: none !important; } }
+</style>
+</head>
+<body>
+<div class="appbar" data-nav="staff">
+  <div class="appbar-in">
+    <div class="org">2nd Chance Housing<span>Snow removal · Staff</span></div>
+    <div class="row" id="userBar" hidden><button class="linkbtn" type="button" id="signOutBtn">Sign out</button></div>
+  </div>
+</div>
+<main class="wrap">
+  <header><h1>Snow removal</h1><p class="lead">The vendor's agreement, each push they log (with the move-your-vehicle email count and before/after photos), and what ROCA1 owes. ROCA1 pays by Zelle: record it here once it is sent.</p></header>
+  <div id="signin" class="narrow"></div>
+  <div id="app" hidden>
+    <div id="totals" class="card tot"></div>
+    <h2>Agreement</h2>
+    <div id="agreements"></div>
+    <div class="card noprint" id="newAgr"><b>Set up a vendor and agreement</b>
+      <div class="form" style="margin-top:8px">
+        <label>Company<input id="vName" type="text" maxlength="120" value="Safe Investment Property Management LLC"></label>
+        <label>Contact<input id="vContact" type="text" maxlength="120" value="Steven Hudson"></label>
+        <label>Vendor's own email (he signs with this)<input id="vEmail" type="email" maxlength="200" autocomplete="off"></label>
+        <label>Other emails that may use the vendor page (optional, commas; they cannot sign)<input id="vExtra" type="text" maxlength="400" autocomplete="off"></label>
+        <div class="meta">The agreement can only be signed by the vendor himself, from this email. All staff and the admin can sign in to https://2ndchinc.org/contractor/ with their own code to press the button and add photos, but cannot sign.</div>
+        <label>Phone<input id="vPhone" type="text" maxlength="40" value="262-281-5071"></label>
+        <label>Rate per push ($)<input id="vRate" type="number" min="1" step="0.01" value="140"></label>
+        <div class="row2"><button class="btn primary" type="button" id="createAgr">Create agreement and email the vendor</button></div>
+        <div class="meta" id="newMsg" role="status"></div>
+      </div>
+    </div>
+    <h2>Visits</h2>
+    <div id="visits"></div>
+  </div>
+</main>
+<script type="module">
+import { client, $, esc, money, signIn, signOut, errorText } from "/assets/portal/portal.js";
+const rpc = async (fn, args) => { const { data, error } = await client.rpc(fn, args); if (error) throw new Error(await errorText(error)); return data; };
+const stamp = (t) => t ? new Date(t).toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" }) : "";
+const STATUS = { notified: "In progress", proposed: "Junk: needs your approval", junk_approved: "Junk approved", declined: "Declined", done: "Needs review", returned: "Sent back", approved: "Approved, unpaid", paid: "Paid" };
+const flush = () => client.functions.invoke("outbox-flush", { body: {} }).catch(() => {});
+const bad = (m, err, b) => { m.textContent = err.message; m.style.color = "var(--bad)"; if (b) b.disabled = false; };
+let data;
+
+async function load() {
+  data = await rpc("snow_staff_overview");
+  $("totals").innerHTML = `Owed to the vendor (approved, unpaid): <b>${money(data.owed)}</b> · Paid so far: ${money(data.paid_total)}`;
+  $("agreements").innerHTML = data.agreements.map((a) => `<div class="card"><b>${esc(a.vendor)}</b> · Winter ${esc(a.season)} · ${money(a.rate)} per push
+      <span class="pill2 ${a.status === "active" ? "" : "warn"}">${a.status === "active" ? "Active" : a.status === "awaiting_client" ? "Needs ROCA1 signature" : "Waiting for vendor"}</span>
+      <details style="margin-top:6px"><summary>Agreement text</summary>${a.terms.map((t) => `<p><b>${esc(t.h)}</b><br>${esc(t.p)}</p>`).join("")}</details>
+      <div class="meta">Vendor: ${a.vendor_signed_at ? `signed by ${esc(a.vendor_signed_name)}, ${esc(stamp(a.vendor_signed_at))}` : "not signed yet"} · ROCA1: ${a.client_signed_at ? `signed by ${esc(a.client_signed_name)}, ${esc(a.client_signer_title)}, ${esc(stamp(a.client_signed_at))}` : `waiting for ${esc(a.client_signer_name)}, ${esc(a.client_signer_title)}`}</div>
+      ${a.can_sign ? `<div class="row2 noprint"><input type="text" data-cname placeholder="Type: ${esc(a.client_signer_name)}" autocomplete="off"><button class="btn primary" data-csign="${esc(a.id)}">Sign for ROCA1</button><span class="meta" data-cmsg></span></div>` : ""}
+      <div class="row2 noprint"><button class="linkbtn" onclick="window.print()">Print / save as PDF</button></div></div>`).join("") || '<p class="meta">No agreement yet.</p>';
+  $("newAgr").hidden = data.agreements.some((a) => a.season === "2026-2027");
+  $("visits").innerHTML = data.visits.map((v) => `<div class="card" data-id="${esc(v.id)}"><b>${esc(v.vendor)}</b> · ${v.kind === "junk" ? "Junk removal" : "Snow push"} · ${esc(stamp(v.created_at))}
+      <span class="pill2 ${["done", "proposed", "returned"].includes(v.status) ? "warn" : ""}">${esc(STATUS[v.status] || v.status)}</span>
+      <div class="meta">${v.notice_count != null ? `${v.notice_count} households emailed ${esc(stamp(v.notice_sent_at))}` : v.kind === "snow" ? "No vehicle email sent" : ""}${v.amount != null ? ` · ${money(v.amount)}` : ""}${v.paid_on ? ` · paid ${esc(v.paid_on)}${v.paid_ref ? " (" + esc(v.paid_ref) + ")" : ""} by Zelle` : ""}</div>
+      ${v.description ? `<p>${esc(v.description)}</p>` : ""}${v.vendor_note ? `<p class="meta">Vendor note: ${esc(v.vendor_note)}</p>` : ""}${v.office_note ? `<p class="meta">Office note: ${esc(v.office_note)}</p>` : ""}
+      <div class="photos" data-ph="${esc(JSON.stringify([...v.before_photos.map((p) => [p, "Before"]), ...v.after_photos.map((p) => [p, "After"])]))}"></div>
+      ${v.status === "done" ? `<div class="row2 noprint"><input type="number" data-amt min="1" step="0.01" value="${v.amount != null ? v.amount : v.kind === "snow" ? v.rate : ""}" aria-label="Amount"><input type="text" data-note placeholder="Note (required to send back)" maxlength="300"><button class="btn primary" data-act="approve">Approve</button><button class="btn" data-act="return">Send back</button></div>` : ""}
+      ${v.status === "proposed" ? `<div class="row2 noprint"><input type="number" data-amt min="1" step="0.01" placeholder="Price $" aria-label="Approved price"><input type="text" data-note placeholder="Note" maxlength="300"><button class="btn primary" data-act="junk_ok">Approve junk removal</button><button class="btn" data-act="junk_no">Decline</button></div>` : ""}
+      ${v.status === "approved" ? `<label class="row2 noprint"><input type="checkbox" data-pay="${esc(v.id)}"> Include in the Zelle payment (${money(v.amount)})</label>` : ""}
+      <span class="meta" data-msg></span></div>`).join("") || '<p class="meta">No visits yet.</p>';
+  if (data.visits.some((v) => v.status === "approved")) {
+    $("visits").insertAdjacentHTML("afterbegin", `<div class="card noprint"><b>Record a Zelle payment</b> for the visits ticked below (one vendor at a time)
+      <div class="row2"><input type="date" id="payDate" aria-label="Date sent"><input type="text" id="payRef" placeholder="Zelle confirmation (optional)" maxlength="80"><button class="btn primary" id="payBtn">Mark as paid</button><span class="meta" id="payMsg"></span></div></div>`);
+    $("payDate").value = new Date().toLocaleDateString("en-CA", { timeZone: "America/Chicago" });
+  }
+  for (const box of document.querySelectorAll("[data-ph]")) {
+    for (const [p, label] of JSON.parse(box.dataset.ph)) {
+      const { data: s } = await client.storage.from("snow-photos").createSignedUrl(p, 600);
+      if (s?.signedUrl) box.insertAdjacentHTML("beforeend", `<a href="${esc(s.signedUrl)}" target="_blank" rel="noopener" title="${label}"><img src="${esc(s.signedUrl)}" alt="${label} photo"></a>`);
+    }
+  }
+}
+document.addEventListener("click", async (e) => {
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.id === "createAgr") {
+    const m = $("newMsg"); b.disabled = true; m.textContent = "Saving…";
+    try {
+      const vid = await rpc("snow_staff_add_vendor", { p_name: $("vName").value, p_contact: $("vContact").value, p_email: $("vEmail").value, p_phone: $("vPhone").value, p_extra: $("vExtra").value.split(/[,;s]+/).filter(Boolean) });
+      await rpc("snow_staff_create_agreement", { p_vendor: vid, p_rate: Number($("vRate").value) || 140 }); flush(); await load();
+    } catch (err) { bad(m, err, b); }
+  } else if (b.dataset.csign) {
+    const m = b.parentElement.querySelector("[data-cmsg]"); b.disabled = true;
+    try { await rpc("snow_staff_client_sign", { p_id: b.dataset.csign, p_name: b.parentElement.querySelector("[data-cname]").value }); flush(); await load(); } catch (err) { bad(m, err, b); }
+  } else if (b.dataset.act) {
+    const c = b.closest("[data-id]"), m = c.querySelector("[data-msg]"); b.disabled = true;
+    try { await rpc("snow_staff_review", { p_id: c.dataset.id, p_action: b.dataset.act, p_amount: Number(c.querySelector("[data-amt]")?.value) || null, p_note: c.querySelector("[data-note]")?.value || "" }); flush(); await load(); }
+    catch (err) { bad(m, err, b); }
+  } else if (b.id === "payBtn") {
+    const ids = [...document.querySelectorAll("[data-pay]:checked")].map((x) => x.dataset.pay), m = $("payMsg"); b.disabled = true;
+    try { if (!ids.length) throw new Error("Tick the visits first."); const t = await rpc("snow_staff_mark_paid", { p_ids: ids, p_paid_on: $("payDate").value, p_ref: $("payRef").value }); flush(); await load(); $("totals").insertAdjacentHTML("beforeend", ` · Just recorded ${money(t)}`); }
+    catch (err) { bad(m, err, b); }
+  }
+});
+$("signOutBtn").addEventListener("click", signOut);
+const who = await signIn($("signin"), { audience: "staff" });
+$("userBar").hidden = false;
+if (who.role !== "staff") location.replace("/association-owners/roca1/"); else { $("app").hidden = false; await load(); }
+</script>
+</body>
+</html>

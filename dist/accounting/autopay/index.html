@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Autopay — 2nd Chance Housing Staff</title>
+<link rel="icon" href="/favicon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+<style>
+.card2{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:14px}
+.card2 h2{margin:0 0 6px;font-size:1.15rem}
+.meta{color:var(--muted);font-size:.9rem}
+.pill3{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;border-radius:20px;padding:.12rem .55rem;background:var(--accent-soft);color:var(--accent)}
+.pill3.off{background:#e8e8e8;color:#444}.pill3.warn{background:#fff3cd;color:#7a5200}.pill3.bad{background:#fde7e7;color:#b3261e}
+.ap{border-top:1px solid var(--line);padding:10px 0}
+.notice{background:#fff3cd;border:1px solid #e0a800;color:#5c4200;border-radius:8px;padding:10px 12px;margin-bottom:14px}
+.ev{font-size:.85rem;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="appbar" data-nav="staff"><div class="appbar-in">
+  <div class="org">2nd Chance Housing<span>Autopay · Staff</span></div>
+  <div class="row" id="userBar" hidden>
+    <button class="linkbtn" type="button" id="signOutBtn">Sign out</button>
+  </div>
+</div></div>
+<main class="wrap">
+  <header><h1>Autopay</h1><p class="lead">Tenants set up, change and cancel autopay themselves. Staff cannot start or change it. You can only <b>pause</b> one for safety, and the tenant is emailed at once. Every step is kept in a permanent log that can be checked for tampering.</p></header>
+  <div id="signin" class="narrow"></div>
+  <div id="app" hidden>
+    <div id="off" class="notice" hidden>Autopay is <b>off</b> for everyone. Nobody can set it up until the setting <code>autopay_enabled</code> is switched to <code>on</code>.</div>
+    <div class="card2"><h2>Check the log</h2>
+      <p class="meta">Recomputes every link in the chain. If any record was changed or removed, it says where.</p>
+      <button class="btn" type="button" id="verify">Check the log now</button> <span class="msg" id="verifyMsg" role="status"></span></div>
+    <div class="card2"><h2>Authorizations</h2><div id="list"></div><div class="msg" id="msg" role="status"></div></div>
+  </div>
+</main>
+<script type="module">
+import { client, $, esc, fmtDate, money, signIn, signOut, errorText } from "/assets/portal/portal.js";
+const ST = { pending: ["setting up", "warn"], active: ["active", ""], paused: ["paused", "bad"], canceled: ["canceled", "off"], expired: ["expired", "off"] };
+const KIND = { created: "authorized", activated: "bank connected", reminder_7: "7-day reminder", reminder_3: "3-day reminder", reminder_1: "1-day reminder", reminder_0: "day-of reminder", held: "HELD (reminder not confirmed)",
+  debit_started: "withdrawal started", debit_succeeded: "withdrawal succeeded", debit_failed: "withdrawal failed", debit_returned: "withdrawal returned", paused: "paused", canceled: "canceled", expired: "expired" };
+const when = (d) => new Date(d).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+let D = null;
+function render() {
+  $("off").hidden = !!D.enabled;
+  $("list").innerHTML = D.rows.length ? D.rows.map((a) => {
+    const [lbl, cls] = ST[a.status] || [a.status, ""];
+    return `<div class="ap"><div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><b>${esc(a.tenant)}</b> <span class="meta">${esc(a.label || "")}</span><span class="pill3 ${cls}">${esc(lbl)}</span></div>
+      <div class="meta">${money(a.amount)} on the ${esc(a.draw_day)}${a.bank ? " from " + esc(a.bank) : ""} · authorized ${when(a.created_at)} by "${esc(a.typed_name)}"${a.ip ? " from " + esc(a.ip) : ""}${a.activated_at ? " · bank connected " + when(a.activated_at) : ""}</div>
+      ${a.ended_reason ? `<div class="meta">Ended (${esc(String(a.ended_by || "").replace(/_/g, " "))}): ${esc(a.ended_reason)}</div>` : ""}
+      <div class="ev">${(a.events || []).map((e) => `${when(e.at)} ${esc(KIND[e.kind] || e.kind)}`).join(" · ")}</div>
+      ${a.status === "active" ? `<button class="btn small" type="button" data-pause="${esc(a.id)}">Pause (safety only)</button>` : ""}</div>`;
+  }).join("") : `<p class="meta">Nobody has set up autopay yet.</p>`;
+}
+async function load() {
+  const { data, error } = await client.rpc("autopay_staff_list");
+  if (error) { $("msg").className = "msg err"; $("msg").textContent = await errorText(error); return; }
+  D = data; $("signin").hidden = true; $("app").hidden = false; render();
+}
+$("list").addEventListener("click", async (e) => {
+  const b = e.target.closest("[data-pause]"); if (!b) return;
+  const reason = prompt("Why is this being paused? The tenant is told this reason, and no money will be withdrawn until they set it up again themselves.");
+  if (!reason || reason.trim().length < 5) return;
+  b.disabled = true;
+  const { error } = await client.rpc("autopay_staff_pause", { p_auth: b.dataset.pause, p_reason: reason });
+  client.functions.invoke("outbox-flush", { body: {} }).catch(() => {});
+  if (error) { $("msg").className = "msg err"; $("msg").textContent = await errorText(error); b.disabled = false; return; }
+  $("msg").className = "msg ok"; $("msg").textContent = "Paused. The tenant has been emailed."; await load();
+});
+$("verify").addEventListener("click", async () => {
+  const m = $("verifyMsg"); m.className = "msg"; m.textContent = "Checking…";
+  const { data, error } = await client.rpc("autopay_verify_log");
+  if (error) { m.className = "msg err"; m.textContent = await errorText(error); return; }
+  m.className = data.ok ? "msg ok" : "msg err";
+  m.textContent = data.ok ? `Log is intact: ${data.events_checked} events, ${data.authorizations_checked} authorizations and ${data.anchors_checked || 0} emailed fingerprints checked.` : `PROBLEM: a record was changed or removed (event ${data.first_bad_event || "none"}, authorization ${data.first_bad_authorization || "none"}, fingerprint ${data.first_bad_anchor || "none"}).`;
+});
+$("signOutBtn").onclick = signOut;
+const who = await signIn($("signin"), { audience: "staff" });
+$("userBar").hidden = false;
+if (who.role !== "staff") { $("signin").hidden = false; $("signin").innerHTML = `<div class="panel"><p>This page is for office staff. <a href="/staff/">Go to My units</a></p></div>`; }
+else await load();
+</script>
+</body>
+</html>

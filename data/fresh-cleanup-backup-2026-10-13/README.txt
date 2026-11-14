@@ -1,0 +1,1 @@
+Also changed after the migration: rental_applications decided_by / id_verified_by ("... (Buildium import)" -> name only) and the applicant key buildium_application removed. Restore from the ids in rental_applications.json if ever needed.

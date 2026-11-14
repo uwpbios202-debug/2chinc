@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>My needs list | The Human Mirror</title>
+<link rel="icon" href="/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Source+Serif+4:opsz,wght@8..60,600&display=swap">
+<link rel="stylesheet" href="/mirror/assets/mirror.css?v=20261113l">
+</head>
+<body data-area="my">
+<!-- Phase 6 (T6.1): needs inventory with a life cycle. Each need is its own record; every status change is kept. -->
+<main id="main" class="mm-main">
+  <div class="mm-read">
+    <p class="mm-eyebrow"><a href="/mirror/my-mirror/">My Mirror</a></p>
+    <h1>My needs list</h1>
+    <p class="mm-lead">Write down each thing you need, one at a time, and follow it until it's met. You decide what goes here.</p>
+    <p class="mm-small">This is your list. The questions to think it through are in <a href="/mirror/my-mirror/needs/">What must change, and what do I need?</a></p>
+  </div>
+  <div id="mmBox"><p role="status">Loading…</p></div>
+</main>
+<script type="module" src="/mirror/assets/mirror-ui.js?v=20261113h"></script>
+<script type="module">
+import { requireArea, rpc } from "/mirror/assets/mirror-client.js?v=20261113p";
+import { esc, notice, toast } from "/mirror/assets/mirror-ui.js?v=20261113h";
+import { voiceAll } from "/mirror/assets/mirror-voice.js?v=20261113c";
+import { DIMENSIONS } from "/mirror/assets/dimensions.js?v=20261113a";
+
+/** The person's words for each status. "verified" is set only by an organization they work with. */
+const STATUS = {
+  identified: "Noted", planning: "Planning", in_progress: "Working on it",
+  obtained: "Got it", verified: "Confirmed", no_longer_needed: "No longer needed",
+};
+const MINE = ["identified", "planning", "in_progress", "obtained", "no_longer_needed"];
+const URGENCY = { urgent: "Urgent", soon: "Soon", later: "Later" };
+const PRIVATE_AREAS = { physical_health: 1, mental_health: 1, identity_legal: 1, finances: 1, safety: 1 };
+const day = (d) => new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+
+await requireArea("my");
+const box = /** @type {HTMLElement} */ (document.getElementById("mmBox"));
+/** @type {any[]} */ let needs = [];
+/** @type {any[]} */ let sugs = [];
+
+async function load(note = "") {
+  try { needs = (await rpc("mirror_needs_list")).needs; }
+  catch (e) { box.innerHTML = notice("urgent", `<p>${esc(e instanceof Error ? e.message : String(e))}</p>`); return; }
+  try { sugs = await rpc("mirror_need_suggestions"); } catch { sugs = []; }   // suggestions are optional; the list still works
+  draw(note);
+}
+
+/** "Got it" means met, for the person, whether or not an organization has confirmed it (D-27). */
+function statusLine(n) {
+  if (n.status === "obtained") return "<strong>Got it.</strong> This need is met.";
+  if (n.status === "verified") return `<strong>Got it.</strong> This need is met, and an organization you work with confirmed it on ${esc(day(n.verified_at))}.`;
+  return `<strong>${esc(STATUS[n.status])}.</strong>`;
+}
+
+/** One suggestion from the person's answers: "Add as a need" or "Not now". */
+function suggestion(s, i) {
+  return `<div class="mm-card" style="margin-bottom:var(--mm-space-3)" data-sug="${i}">
+    <p class="mm-muted mm-small" style="margin:0">${s.dimension_title ? esc(s.dimension_title) : "Area of life: you choose"} · <span class="mm-tag">${esc(URGENCY[s.urgency])}</span>${s.private ? ' · <span class="mm-tag mm-tag-info">Private</span>' : ""}</p>
+    <h3 style="margin:var(--mm-space-2) 0">${esc(s.title)}</h3>
+    <p class="mm-muted mm-small">From your answer to: ${esc(s.source)}</p>
+    <div class="mm-row" style="align-items:flex-end;gap:var(--mm-space-3)">
+      ${s.dimension ? "" : `<div class="mm-field" style="margin:0"><label for="sd-${i}">Which part of life?</label>
+        <select class="mm-select" id="sd-${i}"><option value="">Choose one</option>
+          ${DIMENSIONS.map((d) => `<option value="${d.key}">${esc(d.title)}${PRIVATE_AREAS[d.key] ? " (private)" : ""}</option>`).join("")}</select></div>`}
+      <button class="mm-btn mm-btn-secondary" type="button" data-take>Add as a need</button>
+      <button class="mm-btn mm-btn-quiet" type="button" data-skip>Not now</button>
+    </div>
+  </div>`;
+}
+
+function card(n) {
+  const opts = MINE.concat(n.status === "verified" ? ["verified"] : [])
+    .map((s) => `<option value="${s}"${s === n.status ? " selected" : ""}>${esc(STATUS[s])}</option>`).join("");
+  return `<div class="mm-card" style="margin-bottom:var(--mm-space-4)" data-need="${esc(n.id)}">
+    <p class="mm-muted mm-small" style="margin:0">${esc(n.dimension_title)} · <span class="mm-tag">${esc(URGENCY[n.urgency])}</span>${n.private ? ' · <span class="mm-tag mm-tag-info">Private</span>' : ""}</p>
+    <h3 style="margin:var(--mm-space-2) 0">${esc(n.title)}</h3>
+    ${n.detail ? `<p>${esc(n.detail)}</p>` : ""}
+    <p class="mm-small">${statusLine(n)}
+      ${n.last_change && n.last_change.note ? "Last note: " + esc(n.last_change.note) : ""}</p>
+    <div class="mm-row" style="align-items:flex-end;gap:var(--mm-space-3)">
+      <div class="mm-field" style="margin:0"><label for="st-${esc(n.id)}">Where it stands</label>
+        <select class="mm-select" id="st-${esc(n.id)}">${opts}</select></div>
+      <div class="mm-field" style="margin:0;flex:1 1 14rem"><label for="nt-${esc(n.id)}">Note <span class="mm-muted">(optional)</span></label>
+        <input class="mm-input" id="nt-${esc(n.id)}" maxlength="1000"></div>
+      <button class="mm-btn mm-btn-secondary" type="button" data-save>Save</button>
+    </div>
+    <p class="mm-small" style="margin-top:var(--mm-space-3)"><button class="mm-btn mm-btn-quiet mm-small" type="button" data-hist style="min-height:auto;padding:0">History</button>
+      · <button class="mm-btn mm-btn-quiet mm-small" type="button" data-edit style="min-height:auto;padding:0">Change the words</button>
+      · <button class="mm-btn mm-btn-quiet mm-small" type="button" data-del style="min-height:auto;padding:0">Remove</button></p>
+    <div data-more></div>
+  </div>`;
+}
+
+function form(n) {
+  const v = n || { dimension: "", title: "", detail: "", urgency: "soon" };
+  const id = n ? n.id : "new";
+  return `<form class="mm-card" data-form="${esc(id)}" novalidate style="margin-bottom:var(--mm-space-4)">
+    <div class="mm-field"><label for="ti-${id}">What do you need?</label>
+      <span class="mm-hint" id="tih-${id}">A few words, for example "a state ID" or "a bus pass".</span>
+      <input class="mm-input" id="ti-${id}" maxlength="200" value="${esc(v.title)}" aria-describedby="tih-${id}"></div>
+    <div class="mm-field"><label for="di-${id}">Which part of life is it about?</label>
+      <select class="mm-select" id="di-${id}"><option value="">Choose one</option>
+        ${DIMENSIONS.map((d) => `<option value="${d.key}"${d.key === v.dimension ? " selected" : ""}>${esc(d.title)}${PRIVATE_AREAS[d.key] ? " (private)" : ""}</option>`).join("")}</select></div>
+    <fieldset class="mm-choices"><legend class="mm-legend">How soon?</legend>
+      ${Object.entries(URGENCY).map(([k, l]) => `<label class="mm-choice"><input type="radio" name="ur-${id}" value="${k}"${k === v.urgency ? " checked" : ""}> ${l}</label>`).join("")}</fieldset>
+    <div class="mm-field"><label for="de-${id}">Anything else to note? <span class="mm-muted">(optional)</span></label>
+      <textarea class="mm-textarea" id="de-${id}" rows="3" maxlength="2000">${esc(v.detail || "")}</textarea></div>
+    <div data-err aria-live="assertive"></div>
+    <div class="mm-row"><button class="mm-btn" type="submit">${n ? "Save changes" : "Add this need"}</button>
+      ${n ? '<button class="mm-btn mm-btn-quiet" type="button" data-cancel>Cancel</button>' : ""}</div>
+  </form>`;
+}
+
+function draw(note) {
+  const open = needs.filter((n) => ["identified", "planning", "in_progress"].includes(n.status));
+  const met = needs.filter((n) => ["obtained", "verified"].includes(n.status));
+  const dropped = needs.filter((n) => n.status === "no_longer_needed");
+  box.innerHTML = `${note}
+    <div class="mm-read">
+      ${notice("info", `<p>Nobody is told when you add or change a need. Organizations you work with can see needs in everyday parts of life;
+        needs in private parts of life (health, how you feel, ID and legal, money, safety) only if you share that topic in
+        <a href="/mirror/my-mirror/settings/">Settings</a>. Nothing here is a score.</p>`)}
+      ${sugs.length ? `<h2>Suggested from your answers (${sugs.length})</h2>
+        <p class="mm-muted mm-small">You said you'd like help with these. Nothing is added until you press "Add as a need".</p>
+        ${sugs.map(suggestion).join("")}` : ""}
+      <h2>Add a need</h2>
+      ${form(null)}
+      <h2>Working on (${open.length})</h2>
+      ${open.length ? open.map(card).join("") : '<p class="mm-muted">Nothing here yet.</p>'}
+      ${met.length ? `<h2>Met (${met.length})</h2>${met.map(card).join("")}` : ""}
+      ${dropped.length ? `<h2>No longer needed (${dropped.length})</h2>${dropped.map(card).join("")}` : ""}
+    </div>`;
+  voiceAll(box);
+  wire();
+}
+
+/** @param {HTMLFormElement} f @param {any} n */
+async function submitForm(f, n) {
+  const id = n ? n.id : "new";
+  const err = /** @type {HTMLElement} */ (f.querySelector("[data-err]"));
+  const val = (/** @type {string} */ s) => /** @type {HTMLInputElement} */ (f.querySelector("#" + s + "-" + id)).value;
+  const ur = /** @type {HTMLInputElement|null} */ (f.querySelector(`input[name="ur-${id}"]:checked`));
+  if (!val("ti").trim()) { err.innerHTML = notice("caution", "<p>Say in a few words what you need.</p>"); return; }
+  if (!val("di")) { err.innerHTML = notice("caution", "<p>Choose which part of life it is about.</p>"); return; }
+  try {
+    await rpc("mirror_need_save", { p_id: n ? n.id : null, p_dimension: val("di"), p_title: val("ti"), p_detail: val("de"), p_urgency: ur ? ur.value : "soon" });
+    toast(n ? "Saved." : "Added.");
+    load();
+  } catch (e) { err.innerHTML = notice("urgent", `<p>${esc(e instanceof Error ? e.message : String(e))}</p>`); }
+}
+
+function wire() {
+  box.querySelectorAll("[data-sug]").forEach((el) => {
+    const i = Number(/** @type {HTMLElement} */ (el).dataset.sug), s = sugs[i];
+    el.querySelector("[data-take]")?.addEventListener("click", async (e) => {
+      const b = /** @type {HTMLButtonElement} */ (e.currentTarget);
+      const pick = /** @type {HTMLSelectElement|null} */ (el.querySelector("#sd-" + i));
+      if (pick && !pick.value) { toast("Choose which part of life it is about."); pick.focus(); return; }
+      b.disabled = true;
+      try { await rpc("mirror_need_add_suggested", { p_key: s.key, p_dimension: pick ? pick.value : null }); toast("Added."); load(); }
+      catch (err) { b.disabled = false; toast(err instanceof Error ? err.message : String(err)); }
+    });
+    el.querySelector("[data-skip]")?.addEventListener("click", async (e) => {
+      /** @type {HTMLButtonElement} */ (e.currentTarget).disabled = true;
+      try { await rpc("mirror_need_suggestion_dismiss", { p_key: s.key }); load(); }
+      catch (err) { toast(err instanceof Error ? err.message : String(err)); }
+    });
+  });
+  const add = /** @type {HTMLFormElement} */ (box.querySelector('[data-form="new"]'));
+  add.addEventListener("submit", (e) => { e.preventDefault(); submitForm(add, null); });
+  box.querySelectorAll("[data-need]").forEach((el) => {
+    const n = needs.find((x) => x.id === /** @type {HTMLElement} */ (el).dataset.need);
+    const more = /** @type {HTMLElement} */ (el.querySelector("[data-more]"));
+    el.querySelector("[data-save]")?.addEventListener("click", async (e) => {
+      const b = /** @type {HTMLButtonElement} */ (e.currentTarget);
+      const st = /** @type {HTMLSelectElement} */ (el.querySelector("#st-" + n.id)).value;
+      const nt = /** @type {HTMLInputElement} */ (el.querySelector("#nt-" + n.id)).value;
+      if (st === n.status && !nt.trim()) { toast("Nothing changed."); return; }
+      b.disabled = true;
+      try { await rpc("mirror_need_status", { p_id: n.id, p_status: st, p_note: nt }); toast("Saved."); load(); }
+      catch (err) { b.disabled = false; toast(err instanceof Error ? err.message : String(err)); }
+    });
+    el.querySelector("[data-hist]")?.addEventListener("click", async () => {
+      try {
+        const h = await rpc("mirror_need_history", { p_id: n.id });
+        const who = (r) => r === "self" ? "you" : "your coordinator";
+        more.innerHTML = `<ul class="mm-small">${h.map((x) => `<li>${esc(day(x.at))}: ${x.from && x.from === x.to ? "changed" : (x.from ? esc(STATUS[x.from]) + " → " : "") + esc(STATUS[x.to])}, by ${esc(who(x.by_role))}${x.note ? ": " + esc(x.note) : ""}</li>`).join("")}</ul>`;
+      } catch (err) { more.innerHTML = notice("caution", `<p>${esc(err instanceof Error ? err.message : String(err))}</p>`); }
+    });
+    el.querySelector("[data-edit]")?.addEventListener("click", () => {
+      more.innerHTML = form(n);
+      const f = /** @type {HTMLFormElement} */ (more.querySelector("form"));
+      voiceAll(f);
+      f.addEventListener("submit", (e) => { e.preventDefault(); submitForm(f, n); });
+      f.querySelector("[data-cancel]")?.addEventListener("click", () => { more.innerHTML = ""; });
+    });
+    // Stephen 11/13/2026: people can remove their own needs (migration 20261119333000). Only the person; gone for good, with its history and steps.
+    el.querySelector("[data-del]")?.addEventListener("click", () => {
+      more.innerHTML = `<p class="mm-small" style="margin-top:var(--mm-space-2)">Remove "${esc(n.title)}" for good? Its history and any steps for it go too.
+        If it simply isn't needed any more, you can choose "No longer needed" instead.
+        <button class="mm-btn mm-btn-secondary" type="button" data-yes>Yes, remove it</button>
+        <button class="mm-btn mm-btn-quiet" type="button" data-no>Keep it</button></p>`;
+      more.querySelector("[data-no]")?.addEventListener("click", () => { more.innerHTML = ""; });
+      more.querySelector("[data-yes]")?.addEventListener("click", async () => {
+        try { await rpc("mirror_need_delete", { p_id: n.id }); toast("Removed."); load(); }
+        catch (err) { toast(err instanceof Error ? err.message : String(err)); }
+      });
+    });
+  });
+}
+
+load();
+</script>
+</body>
+</html>

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Charge Disputes — 2nd Chance Housing Staff</title>
+<link rel="icon" href="/favicon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+<style>
+.card2{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:14px}
+.card2 h2{margin:0 0 6px;font-size:1.15rem}
+.meta{color:var(--muted);font-size:.9rem}
+.pill3{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;border-radius:20px;padding:.12rem .55rem;background:var(--accent-soft);color:var(--accent)}
+.pill3.owner{background:#e3eefb;color:#1f4d8a}.pill3.warn{background:#fff3cd;color:#7a5200}.pill3.off{background:#e8e8e8;color:#444}
+.q{border-top:1px solid var(--line);padding:12px 0}
+.thread{list-style:none;margin:6px 0;padding:0;display:grid;gap:6px}
+.thread li{background:#f6f8f5;border-radius:8px;padding:6px 10px;font-size:.92rem}.thread li.staff{background:#eef4fb}
+.formrow{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-top:8px}
+.formrow label{display:grid;gap:3px;font-size:.85rem;color:var(--muted)}
+.formrow input,.formrow select,.formrow textarea{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:6px;color:var(--fg);background:var(--panel)}
+.formrow textarea{min-width:min(520px,100%)}
+</style>
+</head>
+<body>
+<div class="appbar" data-nav="staff"><div class="appbar-in">
+  <div class="org">2nd Chance Housing<span>Charge disputes · Staff</span></div>
+  <div class="row" id="userBar" hidden>
+    
+    <button class="linkbtn" type="button" id="signOutBtn">Sign out</button>
+  </div>
+</div></div>
+<main class="wrap">
+  <header><h1>Charge disputes</h1><p class="lead">Tenants question charges on their rent ledger, owners on their association account. Answer to explain (they can reply), deny with the reason the charge stands, or credit some or all of it. A credit is a new line on the same ledger, with a note citing the dispute; the original charge is never changed. A dispute doesn't pause late fees or notices; waive or credit those here if they should go.</p></header>
+  <div id="signin" class="narrow"></div>
+  <div id="app" hidden>
+    <div class="card2"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center"><h2>Disputes <span class="pill3 warn" id="openCount"></span></h2>
+      <label class="meta">Show <select id="show"><option value="open">Open, and closed in the last 30 days</option><option value="all">All</option></select></label></div>
+      <div id="list"></div></div>
+  </div>
+</main>
+<script type="module">
+import { client, $, esc, fmtDate, money, signIn, signOut, errorText } from "/assets/portal/portal.js";
+const LABEL = { open: "waiting for you", answered: "answered, waiting on them", adjusted: "credited", denied: "denied", withdrawn: "withdrawn" };
+const flush = () => client.functions.invoke("outbox-flush", { body: {} }).catch(() => {});
+async function load() {
+  const { data, error } = await client.rpc("disputes_staff_list", { p_all: $("show").value === "all" });
+  if (error) { $("signin").hidden = false; $("signin").innerHTML = `<div class="panel">${esc(await errorText(error))}</div>`; return; }
+  $("signin").hidden = true; $("app").hidden = false;
+  const open = data.filter((d) => d.status === "open").length;
+  $("openCount").textContent = open ? open + " waiting" : "";
+  $("list").innerHTML = data.map((d) => `<div class="q">
+    <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><b>Unit ${esc(d.unit_number || "?")} · ${esc(d.side === "owner" ? d.owner || d.raised_by_name : d.tenants || d.raised_by_name)}</b>
+      <span><span class="pill3 ${d.side === "owner" ? "owner" : ""}">${d.side === "owner" ? "owner · dues" : "tenant · rent"}</span> <span class="pill3 ${d.status === "open" ? "warn" : d.status === "answered" || d.status === "adjusted" ? "" : "off"}">${esc(LABEL[d.status] || d.status)}</span></span></div>
+    <div>Charge of <b>${money(Number(d.entry_amount))}</b> on ${fmtDate(d.entry_date)}: ${esc(d.entry_description || "")} · questioned <b>${money(Number(d.amount_disputed))}</b></div>
+    <div class="meta">Raised by ${esc(d.raised_by_name || "")} (${esc(d.raised_by_email || "")}) ${fmtDate(d.created_at)}${d.closed_at ? ` · closed by ${esc(d.closed_by || "")} ${fmtDate(d.closed_at)}` : ""}${d.adjustment_amount ? ` · credited ${money(Number(d.adjustment_amount))} (ledger line #${esc(d.adjustment_entry_id)})` : ""}</div>
+    <ul class="thread">${(d.thread || []).map((t) => `<li class="${t.by === "staff" ? "staff" : ""}"><b>${t.by === "staff" ? "Office" : esc(t.name || t.by)}</b> <span class="meta">${fmtDate(t.at)}</span><br>${esc(t.text)}</li>`).join("")}</ul>
+    ${d.status === "open" || d.status === "answered" ? `<div class="formrow">
+      <label>Your message (they see it)<textarea rows="2" data-txt="${esc(d.id)}"></textarea></label>
+      <label>Credit amount<input type="number" step="0.01" min="0.01" max="${esc(d.entry_amount)}" value="${esc(d.amount_disputed)}" style="width:110px" data-amt="${esc(d.id)}"></label>
+      <label>Credit date<input type="date" data-date="${esc(d.id)}" value="${new Date().toISOString().slice(0, 10)}"></label>
+      <button class="btn small" type="button" data-act="answer" data-id="${esc(d.id)}">Answer</button>
+      <button class="btn small" type="button" data-act="deny" data-id="${esc(d.id)}">Deny: charge stands</button>
+      <button class="btn primary small" type="button" data-act="adjust" data-id="${esc(d.id)}">Credit it</button></div>` : ""}
+  </div>`).join("") || `<p class="meta">No disputes.</p>`;
+}
+$("show").onchange = load;
+$("list").addEventListener("click", async (e) => {
+  const b = e.target.closest("[data-act]"); if (!b) return;
+  const id = b.dataset.id, txt = document.querySelector(`[data-txt="${id}"]`).value.trim();
+  let r;
+  if (b.dataset.act === "answer") r = await client.rpc("dispute_staff_answer", { p_id: id, p_text: txt });
+  else if (b.dataset.act === "deny") { if (!confirm("Deny: the charge stands and the dispute closes. Send?")) return; r = await client.rpc("dispute_staff_deny", { p_id: id, p_text: txt }); }
+  else {
+    const amt = Number(document.querySelector(`[data-amt="${id}"]`).value), dt = document.querySelector(`[data-date="${id}"]`).value || null;
+    if (!confirm(`Post a credit of ${money(amt)} on their ledger and close the dispute?`)) return;
+    r = await client.rpc("dispute_staff_adjust", { p_id: id, p_amount: amt, p_text: txt, p_date: dt });
+  }
+  if (r.error) return alert(await errorText(r.error));
+  flush(); load();
+});
+$("signOutBtn").onclick = signOut;
+const who = await signIn($("signin"), { audience: "staff" });
+$("userBar").hidden = false;
+if (who.role !== "staff") { $("signin").hidden = false; $("signin").innerHTML = `<div class="panel"><p>This page is for office staff. <a href="/staff/">Go to My units</a></p></div>`; }
+else await load();
+</script>
+</body>
+</html>

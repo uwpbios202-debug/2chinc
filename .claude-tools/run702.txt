@@ -1,0 +1,81 @@
+RESULTS lrd-landlord-db-check-part1.sql  results=0 passed=0 failed=0 info=0
+ERROR   lrd-landlord-db-check.sql  {"message":"Failed to run sql query: ERROR:  42P01: relation \"lrd_chk\" does not exist\nQUERY:  select array_agg(line order by n)        from lrd_chk\nCONTEXT:  PL/pgSQL function inline_code_block line 4 at SQL statement\n"}
+RESULTS p2-c-session-limits-check.sql  results=8 passed=8 failed=0 info=0
+RESULTS p2-e-platform-admins-list-check.sql  results=7 passed=7 failed=0 info=0
+RESULTS p2-fix01-invitation-check.sql  results=4 passed=4 failed=0 info=0
+RESULTS p2-fix02-recorded-consent-check.sql  results=5 passed=5 failed=0 info=0
+RESULTS p2-fix03-link-needs-yes-check.sql  results=6 passed=6 failed=0 info=0
+RESULTS p2-fix04-platform-admin-visible-check.sql  results=5 passed=5 failed=0 info=0
+RESULTS p2-fix05-session-fresh-check.sql  results=5 passed=5 failed=0 info=0
+RESULTS p2-fix14-audit-no-truncate-check.sql  results=4 passed=4 failed=0 info=0
+RESULTS p208-platform-admin-pages-check.sql  results=4 passed=4 failed=0 info=0
+RESULTS p211-authenticator-reset-check.sql  results=6 passed=6 failed=0 info=0
+RESULTS p213-one-place-rules-check.sql  results=4 passed=4 failed=0 info=0
+RESULTS p215-rate-limits-check.sql  results=5 passed=5 failed=0 info=0
+RESULTS p3-fix05-notification-choices-check.sql  results=6 passed=6 failed=0 info=0
+RESULTS p3-fix06-question-versions-check.sql  results=6 passed=6 failed=0 info=0
+RESULTS p3-fix06b-reworded-check.sql  results=4 passed=4 failed=0 info=0
+RESULTS p3-fix07-save-counts-check.sql  results=5 passed=5 failed=0 info=0
+RESULTS p3-fix08-answers-no-truncate-check.sql  results=4 passed=4 failed=0 info=0
+RESULTS p3-fix11-refusals-kept-check.sql  results=5 passed=5 failed=0 info=0
+RESULTS p3-fix11b-refusals-pooler-check.sql  results=4 passed=2 failed=0 info=2
+  info 1 dblink private (mirror_link), no USAGE for anon/authenticated/service_role; channel: ok; t
+  info 3 writer reading the log and the people: refused, refused
+RESULTS t16-conversations-check.sql  results=9 passed=9 failed=0 info=0
+RESULTS t2-identity-check.sql  results=9 passed=8 failed=0 info=1
+  info 9 seed: owner org 2nd Chance Housing Inc, matrix rows 63 
+RESULTS t24-signin-check.sql  results=6 passed=5 failed=0 info=1
+  info 4 switch on: existing emails answering differently (must be 0): 0
+RESULTS t25-admin-people-check.sql  results=6 passed=6 failed=0 info=0
+RESULTS t31-assessment-engine-check.sql  results=9 passed=9 failed=0 info=0
+RESULTS t33-reflection-questions-check.sql  results=5 passed=3 failed=0 info=2
+  info 2 per reflection: identity 14, history 13, vision 13, assets 12, needs 11, function 12, preferences 10, contribution 9
+  info 3 private questions: afraid=mental_health, money_now=financial, feeling_now=mental_health, health_now=health, health=health, income=financial, cl_laundry_cost=financial, ji_clear=legal, cost=fi
+RESULTS t35-dimension-questions-check.sql  results=6 passed=5 failed=0 info=1
+  info 3 private areas: finances=financial, identity_legal=financial, identity_legal=legal, mental_health=mental_health, physical_health=health, relationships=legal, safety=safety, self_care=financial
+RESULTS t36-privacy-settings-check.sql  results=5 passed=5 failed=0 info=0
+RESULTS t42-daily-number-check.sql  results=13 passed=11 failed=0 info=2
+  info 1 SQL calculation vs hand-worked fixtures: 105 of 105 figures match
+  info 8c a manual save now records method 4 (was always 1)
+RESULTS t43-daily-number-usable-check.sql  results=3 passed=2 failed=0 info=1
+  info 1 Daily Number reflections: 6 sets (6), 24 questions (24)
+RESULTS t44-daily-number-plan-check.sql  results=6 passed=6 failed=0 info=0
+RESULTS t45-dn-change-log-check.sql  results=6 passed=5 failed=0 info=1
+  info 1 the person's own 3 edits: 0 lines logged (0)
+RESULTS t5-functional-housing-check.sql  results=8 passed=8 failed=0 info=0
+RESULTS t61-needs-check.sql  results=9 passed=9 failed=0 info=0
+RESULTS t61b-need-suggestions-check.sql  results=5 passed=5 failed=0 info=0
+RESULTS t61c-need-remove-check.sql  results=3 passed=3 failed=0 info=0
+RESULTS t62-strengths-check.sql  results=6 passed=6 failed=0 info=0
+RESULTS t63-goals-plan-check.sql  results=6 passed=6 failed=0 info=0
+RESULTS t63b-goal-suggestions-check.sql  results=4 passed=4 failed=0 info=0
+RESULTS t64-progress-check.sql  results=5 passed=5 failed=0 info=0
+RESULTS t71-resource-categories-check.sql  results=6 passed=5 failed=0 info=1
+  info 3 CHPMS allows 20 help types, map covers 20; allowed types without a map row: none
+RESULTS t72-resource-suggestions-check.sql  results=6 passed=6 failed=0 info=0
+RESULTS t72b-resource-rank-share-check.sql  results=4 passed=4 failed=0 info=0
+RESULTS t73-referrals-check.sql  results=6 passed=4 failed=0 info=2
+  info 2 person asks an organization they work with; none chosen / twice / do-not-refer refused; unknown help types dropped: 
+  info 3 only the person agrees; wrong typed name, no contact, bad phone refused; person cannot send; words kept: 
+RESULTS t74-documents-check.sql  results=6 passed=6 failed=0 info=0
+RESULTS t74b-document-removals-check.sql  results=4 passed=4 failed=0 info=0
+RESULTS t81-workspace-dashboard-check.sql  results=6 passed=6 failed=0 info=0
+RESULTS t82-person-overview-check.sql  results=5 passed=5 failed=0 info=0
+RESULTS t83-assessments-review-check.sql  results=6 passed=6 failed=0 info=0
+RESULTS t84-services-check.sql  results=6 passed=6 failed=0 info=0
+RESULTS t85-appointments-notes-check.sql  results=7 passed=7 failed=0 info=0
+RESULTS t86-benefits-check.sql  results=6 passed=6 failed=0 info=0
+RESULTS t87-inventory-check.sql  results=5 passed=5 failed=0 info=0
+RESULTS t88-reports-check.sql  results=5 passed=5 failed=0 info=0
+RESULTS t91-email-templates-check.sql  results=5 passed=5 failed=0 info=0
+RESULTS tn1-nav-whole-consent-check.sql  results=6 passed=6 failed=0 info=0
+RESULTS tn2-nav-person-mirror-check.sql  results=6 passed=6 failed=0 info=0
+RESULTS tn3-directory-life-areas-check.sql  results=5 passed=5 failed=0 info=0
+RESULTS tn4-nav-own-room-check.sql  results=6 passed=6 failed=0 info=0
+RESULTS tn5-nav-checkins-check.sql  results=6 passed=6 failed=0 info=0
+RESULTS p210-change-email-check.sql  results=6 passed=6 failed=0 info=0
+RESULTS p209-deletion-run-check.sql  results=6 passed=6 failed=0 info=0
+RESULTS p10pp-privacy-promises-check.sql  results=6 passed=6 failed=0 info=0
+RESULTS p11a-whole-person-questions-check.sql  results=4 passed=4 failed=0 info=0
+RESULTS p11b-clothing-check.sql  results=5 passed=5 failed=0 info=0
+RESULTS p11c-whole-person-programs-check.sql  results=3 passed=3 failed=0 info=0

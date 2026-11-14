@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Waitlist — 2nd Chance Housing Staff</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+<style>
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-bottom: 12px; max-width: 760px; }
+  .meta { color: var(--muted); font-size: 0.9rem; }
+  .form { display: grid; gap: 12px; }
+  .form label { display: grid; gap: 4px; font-size: 0.9rem; color: var(--muted); }
+  .form input, .form select, .form textarea { font: inherit; padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); color: inherit; width: 100%; box-sizing: border-box; }
+  .row2 { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+</style>
+</head>
+<body>
+<div class="appbar" data-nav="staff">
+  <div class="appbar-in">
+    <div class="org">2nd Chance Housing<span>Waitlist · Staff</span></div>
+    <div class="row" id="userBar" hidden>
+      <button class="linkbtn" type="button" id="signOutBtn">Sign out</button>
+    </div>
+  </div>
+</div>
+<main class="wrap">
+  <header><h1>Waitlist</h1><p class="lead">People sign up at <a href="https://2ndchinc.org/waitlist/">https://2ndchinc.org/waitlist/</a> and get an email when a unit opens. Announce a unit below and everyone who fits gets one email. Email only; each email has a link to leave the list.</p></header>
+  <div id="signin" class="narrow"></div>
+  <div id="app" hidden>
+    <div class="card"><h2 style="margin-top:0">Announce a unit</h2><div class="form">
+      <label>Unit<select id="unit"></select></label>
+      <label>Size (who gets the email)<select id="beds"><option value="any">Everyone on the list</option><option value="1">1 bedroom (and "any size")</option><option value="2">2 bedrooms (and "any size")</option><option value="3">3 bedrooms (and "any size")</option></select></label>
+      <label>Extra note (optional, goes in the email)<textarea id="note" rows="3" maxlength="1000"></textarea></label>
+      <div class="row2"><button class="btn primary" type="button" id="send">Email the waitlist</button></div>
+      <div class="meta" id="msg" role="status"></div>
+    </div></div>
+    <div class="card"><h2 style="margin-top:0">Shared connections</h2>
+      <p class="meta">Each connection (network address) may make 10 new sign-ups a day. Shelters, libraries and caseworker offices share one address, so once you have verified one, trust it: it then gets 200 a day. Addresses with 3 or more different emails in a week, or any blocked, are listed under "To review". Attempts are kept 30 days.</p>
+      <h3>To review</h3><div id="busy"></div>
+      <h3>Trusted</h3><div id="trusted"></div>
+      <div class="form" style="margin-top:8px"><b>Add one by hand</b>
+        <label>Network address<input id="tip" type="text" maxlength="64" placeholder="for example 203.0.113.7"></label>
+        <label>Name<input id="tlabel" type="text" maxlength="120" placeholder="Public library, Milwaukee"></label>
+        <label>Kind<select id="tkind"><option value="shelter">Shelter</option><option value="library">Library</option><option value="caseworker">Caseworker office</option><option value="agency">Agency</option><option value="other">Other</option></select></label>
+        <div class="row2"><button class="btn primary" type="button" id="tadd">Trust this address</button></div></div>
+    </div>
+    <div id="list"></div>
+  </div>
+</main>
+<script type="module">
+import { client, $, esc, signIn, signOut, errorText } from "/assets/portal/portal.js";
+const say = (t, bad) => { $("msg").textContent = t; $("msg").style.color = bad ? "var(--bad)" : ""; };
+const rpc = async (fn, args) => { const { data, error } = await client.rpc(fn, args); if (error) throw new Error(await errorText(error)); return data; };
+const fmt = (d) => d ? new Date(d).toLocaleDateString("en-US") : "never";
+const loadNets = async () => {
+  const n = await rpc("waitlist_staff_networks");
+  $("busy").innerHTML = n.busy.map((b) => `<div class="row2" style="margin-bottom:6px"><span><b>${esc(b.ip)}</b> · ${b.tries} tries, ${b.emails} emails, ${b.blocked} blocked · last ${fmt(b.last_seen)}</span><button class="linkbtn" data-trust="${esc(b.ip)}">Trust…</button></div>`).join("") || '<p class="meta">Nothing to review.</p>';
+  $("trusted").innerHTML = n.trusted.map((t) => `<div class="row2" style="margin-bottom:6px"><span><b>${esc(t.label)}</b> (${esc(t.kind)}) · ${esc(t.ip)}</span><button class="linkbtn" data-untrust="${esc(t.id)}">Stop trusting</button></div>`).join("") || '<p class="meta">None yet.</p>';
+};
+const load = async () => {
+  await loadNets();
+  const d = await rpc("waitlist_staff_list");
+  $("unit").innerHTML = d.units.map((u) => `<option value="${esc(u.unit)}">Unit ${esc(u.unit)} · ${esc(u.address || "")} (vacant)</option>`).join("") || '<option value="">No unit is marked vacant</option>';
+  $("list").innerHTML = `<p class="meta">${d.entries.filter((e) => e.status === "active").length} confirmed, ${d.entries.filter((e) => e.status === "pending").length} waiting to confirm. Of all: ${d.entries.filter((e) => e.state === "WI").length} Wisconsin, ${d.entries.filter((e) => e.state === "IL").length} Illinois.</p>` +
+    d.entries.map((e) => `<div class="card"><b>${esc(e.email)}</b>${e.name ? " · " + esc(e.name) : ""}
+      <div class="meta">${e.status === "pending" ? "<b>not confirmed</b> · " : ""}${esc(e.state)} · size: ${esc(e.bedrooms)} · joined ${fmt(e.created_at)} · emailed ${e.notify_count} time(s), last ${fmt(e.last_notified_at)}</div>
+      ${e.note ? `<div class="meta">${esc(e.note)}</div>` : ""}
+      <div class="row2" style="margin-top:6px"><button class="linkbtn" data-del="${esc(e.id)}">Remove</button></div></div>`).join("");
+};
+$("send").addEventListener("click", async () => {
+  if (!$("unit").value) return say("Mark a unit vacant first, or ask the office.", true);
+  if (!confirm("Email everyone on the waitlist who fits?")) return;
+  $("send").disabled = true; say("Queuing…");
+  try {
+    const n = await rpc("waitlist_staff_announce", { p_unit: $("unit").value, p_bedrooms: $("beds").value, p_message: $("note").value });
+    await client.functions.invoke("outbox-flush", { body: {} }).catch(() => {});
+    say(n + " email(s) queued and sent. Any not yet sent go out with the daily run."); await load();
+  } catch (err) { say(err.message, true); }
+  $("send").disabled = false;
+});
+$("tadd").addEventListener("click", async () => {
+  try { await rpc("waitlist_staff_trust", { p_ip: $("tip").value, p_label: $("tlabel").value, p_kind: $("tkind").value }); $("tip").value = $("tlabel").value = ""; await loadNets(); say("Trusted."); } catch (err) { say(err.message, true); }
+});
+$("busy").addEventListener("click", async (e) => {
+  const ip = e.target.dataset?.trust; if (!ip) return;
+  const label = prompt("Who is at " + ip + "? (for example: Public library, Milwaukee). Only trust an address you have verified.");
+  if (!label) return;
+  try { await rpc("waitlist_staff_trust", { p_ip: ip, p_label: label, p_kind: "other" }); await loadNets(); say("Trusted."); } catch (err) { say(err.message, true); }
+});
+$("trusted").addEventListener("click", async (e) => {
+  const id = e.target.dataset?.untrust; if (!id || !confirm("Stop trusting this address?")) return;
+  try { await rpc("waitlist_staff_untrust", { p_id: id }); await loadNets(); } catch (err) { say(err.message, true); }
+});
+$("list").addEventListener("click", async (e) => {
+  const id = e.target.dataset?.del; if (!id || !confirm("Remove this person from the waitlist?")) return;
+  try { await rpc("waitlist_staff_remove", { p_id: id }); await load(); } catch (err) { say(err.message, true); }
+});
+$("signOutBtn").addEventListener("click", signOut);
+const who = await signIn($("signin"), { audience: "staff" });
+$("userBar").hidden = false;
+if (who.role !== "staff") location.replace("/association-owners/roca1/"); else { $("app").hidden = false; await load(); }
+</script>
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Work in Lieu of Rent — 2nd Chance Housing Staff</title>
+<link rel="icon" href="/favicon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+<style>
+.card2{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.meta{color:var(--muted);font-size:.9rem}
+.pill3{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;border-radius:20px;padding:.12rem .55rem;background:var(--accent-soft);color:var(--accent)}
+.pill3.warn{background:#fff3cd;color:#7a5200}.pill3.off{background:#e8e8e8;color:#444}
+.task{display:flex;gap:10px;justify-content:space-between;align-items:center;flex-wrap:wrap;padding:6px 0;border-top:1px solid var(--line)}
+.note{border-top:1px solid var(--line);padding:6px 0;font-size:.93rem}
+.note img{max-width:200px;border-radius:8px;display:block;margin-top:4px}
+.row2{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-top:8px}
+.row2 label{display:grid;gap:3px;font-size:.85rem;color:var(--muted);flex:1;min-width:220px}
+.row2 input{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:6px;color:var(--fg);background:var(--panel)}
+</style>
+</head>
+<body>
+<div class="appbar" data-nav="staff"><div class="appbar-in">
+  <div class="org">2nd Chance Housing<span>Work in lieu of rent · Staff</span></div>
+  <div class="row" id="userBar" hidden>
+    
+    <button class="linkbtn" type="button" id="signOutBtn">Sign out</button>
+  </div>
+</div></div>
+<main class="wrap">
+  <header><h1>Work in lieu of rent</h1><p class="lead">Standing monthly jobs and one-time jobs that offset rent. A one-time job is credited only when every task is done and you accept it after inspecting. Accepting posts the credit to the ledger once.</p></header>
+  <div id="signin" class="narrow"></div>
+  <div id="app" hidden style="display:grid;gap:14px"></div>
+</main>
+<script type="module">
+import { client, $, esc, fmtDate, money, signIn, signOut, errorText } from "/assets/portal/portal.js";
+let D = [];
+const WSTAT = { todo: "Not started", working: "Started", done: "Done", accepted: "Accepted" };
+const wkMonth = (d) => d ? new Date(d + "T12:00:00").toLocaleDateString("en-US", { month: "long", year: "numeric" }) : "";
+function card(w) {
+  const job = w.kind === "job", ended = w.status === "ended";
+  const allDone = job && w.tasks.length && w.tasks.every((t) => ["done", "accepted"].includes(t.status));
+  return `<div class="card2" data-id="${esc(w.id)}"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><div><b>${esc(w.title)}</b><div class="meta">${esc(w.who)}</div></div>
+      <span class="pill3 ${ended ? "off" : !w.worker_ack_at ? "warn" : ""}">${ended ? "Accepted and credited" : !w.worker_ack_at ? "Waiting for tenant to agree" : job ? "In progress" : "Active"}</span></div>
+    <p class="meta">${job ? `Worth <b>${money(w.job_value)}</b> toward ${esc(wkMonth(w.credit_month))} rent.` : `<b>${money(w.monthly_credit)}</b> credited every month${w.start_date ? " from " + fmtDate(w.start_date) : ""}.`}
+      ${w.worker_ack_at ? ` Agreed ${fmtDate(w.worker_ack_at)} (${esc(w.worker_ack_by || "")}).` : ""}${w.accepted_at ? ` Accepted ${fmtDate(w.accepted_at)} by ${esc(w.accepted_by || "")}.` : ""}</p>
+    ${job ? w.tasks.map((t) => `<div class="task"><span><b>${esc(t.name)}</b> <span class="meta">${esc(WSTAT[t.status] || t.status)}</span></span>
+      ${ended ? "" : `<span><button class="btn small" type="button" data-task="${esc(t.key)}" data-to="working">Started</button> <button class="btn small" type="button" data-task="${esc(t.key)}" data-to="done">Done</button> <button class="btn small" type="button" data-task="${esc(t.key)}" data-to="todo">Reset</button></span>`}</div>`).join("") : ""}
+    ${job && !ended ? `<div class="row2"><label>Inspection note (optional)<input data-acceptnote maxlength="300" placeholder="Walked through on 10/20, all good"></label>
+      <button class="btn primary" type="button" data-accept ${allDone && w.worker_ack_at ? "" : "disabled"}>Accept and post ${money(w.job_value)} credit</button></div>${allDone ? "" : `<p class="meta">Accept unlocks when the tenant has agreed and every task is done.</p>`}` : ""}
+    <div class="row2"><label>Add a staff note<input data-note maxlength="400"></label><button class="btn" type="button" data-addnote>Add</button></div><span class="msg" data-msg></span>
+    ${(w.notes || []).map((n) => `<div class="note"><span class="meta">${fmtDate(n.at)} · ${n.role === "staff" ? "Staff" : "Tenant"} · ${esc(n.by || "")}${n.task_key ? " · " + esc((w.tasks.find((t) => t.key === n.task_key) || {}).name || "") : ""}${n.voice ? " · dictated" : ""}</span>
+      <div>${esc(n.note || "")}</div>${n.photo ? `<img data-ph="${esc(n.photo)}" alt="Photo">` : ""}</div>`).join("")}
+  </div>`;
+}
+async function load() {
+  const { data, error } = await client.rpc("work_staff_overview");
+  if (error) { $("signin").hidden = false; $("signin").innerHTML = `<div class="panel">${esc(await errorText(error))}</div>`; return; }
+  D = data; $("signin").hidden = true; $("app").hidden = false;
+  $("app").innerHTML = D.map(card).join("") || `<div class="panel"><p>No work agreements yet.</p></div>`;
+  const imgs = [...document.querySelectorAll("img[data-ph]")];
+  if (imgs.length) { const { data: u } = await client.storage.from("work-photos").createSignedUrls(imgs.map((i) => i.dataset.ph), 3600); const by = Object.fromEntries((u || []).map((x) => [x.path, x.signedUrl])); imgs.forEach((i) => { if (by[i.dataset.ph]) i.src = by[i.dataset.ph]; }); }
+}
+$("app").addEventListener("click", async (e) => {
+  const c = e.target.closest(".card2"); if (!c) return; const id = c.dataset.id, m = c.querySelector("[data-msg]");
+  const say = (t, bad) => { m.className = "msg " + (bad ? "err" : "ok"); m.textContent = t; };
+  const t = e.target.closest("[data-task]"), a = e.target.closest("[data-accept]"), n = e.target.closest("[data-addnote]");
+  let r;
+  if (t) r = await client.rpc("work_staff_task", { p_agreement: id, p_task: t.dataset.task, p_status: t.dataset.to });
+  else if (a) { if (!confirm("Accept this job and post the rent credit to the ledger? This can't be undone here.")) return; r = await client.rpc("work_staff_accept", { p_agreement: id, p_note: c.querySelector("[data-acceptnote]").value });
+    if (!r.error) client.functions.invoke("outbox-flush", { body: {} }).catch(() => {}); }
+  else if (n) r = await client.rpc("work_staff_note", { p_agreement: id, p_task: "", p_note: c.querySelector("[data-note]").value });
+  else return;
+  if (r.error) return say(await errorText(r.error), true);
+  await load();
+});
+$("signOutBtn").onclick = signOut;
+const who = await signIn($("signin"), { audience: "staff" });
+$("userBar").hidden = false;
+if (who.role !== "staff") { $("signin").hidden = false; $("signin").innerHTML = `<div class="panel"><p>This page is for office staff. <a href="/staff/">Go to My units</a></p></div>`; }
+else await load();
+</script>
+</body>
+</html>

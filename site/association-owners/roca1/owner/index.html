@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Owner Profile — 2nd Chance Housing Staff</title>
+<link rel="icon" href="/favicon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+<style>
+.tabs2{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1px solid var(--line);margin:12px 0}
+.tabs2 button{background:none;border:0;border-bottom:3px solid transparent;padding:10px 14px;font:inherit;font-weight:600;color:var(--muted);cursor:pointer;margin-bottom:-1px}
+.tabs2 button[aria-selected=true]{color:var(--accent);border-bottom-color:var(--accent)}
+.card2{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:12px}
+.card2 h2{margin:0 0 6px;font-size:1.1rem}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+.kv{display:grid;grid-template-columns:150px 1fr;gap:4px 12px;margin:6px 0}.kv dt{color:var(--muted)}.kv dd{margin:0}
+.meta{color:var(--muted);font-size:.9rem}.bad{color:var(--bad);font-weight:700}
+td.n,th.n{text-align:right;white-space:nowrap}
+.pill3{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;border-radius:20px;padding:.12rem .55rem;background:var(--accent-soft);color:var(--accent)}
+.pill3.off{background:#e8e8e8;color:#444}.pill3.warn{background:#fff3cd;color:#7a5200}
+.ev{border-top:1px solid var(--line);padding:8px 0;display:grid;grid-template-columns:128px 1fr;gap:4px 14px}.ev .when{color:var(--muted);font-size:.85rem}.ev .b{white-space:pre-wrap;font-size:.93rem}
+.formgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.formgrid label{display:grid;gap:3px;font-size:.85rem;color:var(--muted)}
+.formgrid input,.formgrid select,.formgrid textarea{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:6px;color:var(--fg);background:var(--panel)}
+@media (max-width:640px){.ev{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="appbar" data-nav="staff"><div class="appbar-in">
+  <div class="org">2nd Chance Housing<span>Owner profile · Staff</span></div>
+  <div class="row" id="userBar" hidden>
+    
+    <button class="linkbtn" type="button" id="signOutBtn">Sign out</button>
+  </div>
+</div></div>
+<main class="wrap">
+  <div id="signin" class="narrow"></div>
+  <div id="app" hidden>
+    <header><h1 id="title">Owner</h1><p class="lead" id="sub"></p></header>
+    <div class="tabs2" id="tabs" role="tablist"></div>
+    <div id="panel"></div>
+  </div>
+</main>
+<script type="module">
+import { client, $, esc, fmtDate, money, signIn, signOut, errorText } from "/assets/portal/portal.js";
+import { balAmt } from "/assets/portal/balance.js";
+const ID = new URLSearchParams(location.search).get("id") || "";
+let P = null, tab = "profile";
+const TABS = [["profile", "Profile"], ["units", "Units and money"], ["comms", "Communications"], ["records", "Violations and notes"], ["tenants", "Tenants and vehicles"], ["history", "Profile history"]];
+const FIELDS = [
+  ["Owner", [["name", "Name"], ["email", "Sign-in email (changing it moves their sign-in)"]]],
+  ["Phone and email", [["phone_mobile", "Mobile"], ["phone_home", "Home phone"], ["phone_work", "Work phone"], ["alt_email", "Alternate email"]]],
+  ["Mailing address", [["mailing_line1", "Street"], ["mailing_line2", "Line 2"], ["mailing_city", "City"], ["mailing_state", "State"], ["mailing_zip", "ZIP"]]],
+  ["Second address", [["alt_line1", "Street"], ["alt_line2", "Line 2"], ["alt_city", "City"], ["alt_state", "State"], ["alt_zip", "ZIP"]]],
+  ["Emergency contact", [["emergency_name", "Name"], ["emergency_phone", "Phone"]]],
+];
+const kv = (rows) => `<dl class="kv">${rows.filter((r) => r[1] !== null && r[1] !== undefined && r[1] !== "").map(([k, v]) => `<dt>${esc(k)}</dt><dd>${v}</dd>`).join("")}</dl>`;
+const addr = (o, p) => [o[p + "_line1"], o[p + "_line2"], [o[p + "_city"], o[p + "_state"]].filter(Boolean).join(", ") + (o[p + "_zip"] ? " " + o[p + "_zip"] : "")].filter((x) => x && x.trim()).map(esc).join("<br>");
+const table = (head, rows) => rows.length ? `<div class="table-wrap" style="max-height:420px;overflow:auto"><table><thead><tr>${head.map((h) => `<th class="${h[1] || ""}">${esc(h[0])}</th>`).join("")}</tr></thead><tbody>${rows.join("")}</tbody></table></div>` : `<p class="meta">None.</p>`;
+const when = (d) => new Date(d).toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" });
+let editing = false;
+
+function profile() {
+  const o = P.owner;
+  if (editing) return `<form class="card2" id="editForm">${FIELDS.map(([lg, fs]) => `<fieldset style="border:0;padding:0;margin:0 0 12px"><legend><b>${esc(lg)}</b></legend><div class="formgrid">${fs.map(([k, l]) => `<label>${esc(l)}<input data-k="${k}" value="${esc(o[k] || "")}"></label>`).join("")}</div></fieldset>`).join("")}
+      <div class="formgrid"><label>Notices by<select data-k="communications_preference">${["Mailing", "Email"].map((x) => `<option ${x === o.communications_preference ? "selected" : ""}>${x}</option>`).join("")}</select></label></div>
+      <label style="display:grid;gap:3px;font-size:.85rem;color:var(--muted);margin-top:10px">Staff notes (never shown to the owner)<textarea data-k="staff_notes" rows="4" style="font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:6px">${esc(o.staff_notes || "")}</textarea></label>
+      <div style="display:flex;gap:8px;margin-top:10px"><button class="btn primary" type="submit">Save</button><button class="btn" type="button" id="cancelEdit">Cancel</button><span class="msg" id="editMsg"></span></div></form>`;
+  const conf = o.last_confirmed_at ? `${fmtDate(o.last_confirmed_at)} (${o.last_confirmed_how === "updated" ? "updated" : "nothing changed"})` : "Never";
+  return `<div class="grid3"><div class="card2"><h2>Contact</h2>${kv([["Email", esc(o.email || "")], ["Alternate email", esc(o.alt_email || "")], ["Mobile", esc(o.phone_mobile || "")], ["Home", esc(o.phone_home || "")], ["Work", esc(o.phone_work || "")], ["Notices by", esc(o.communications_preference || "")]])}
+      <button class="btn" type="button" id="editBtn">Edit contact details</button></div>
+    <div class="card2"><h2>Addresses</h2>${kv([["Mailing", addr(o, "mailing")], ["Second address", addr(o, "alt")], ["Emergency contact", esc([o.emergency_name, o.emergency_phone].filter(Boolean).join(" · "))]])}</div>
+    <div class="card2"><h2>Status</h2>${kv([["Units", esc(o.units || "none")], ["Information confirmed", esc(conf)], ["Reminders this cycle", esc(o.reminders_sent_in_cycle || 0)], ["1099", o.eligible_1099 ? "Eligible" : ""], ["Alerts", P.alert_prefs ? esc(Object.entries(P.alert_prefs).filter(([, v]) => v).map(([k]) => k.replace(/_/g, " ")).join(", ") || "none on") : ""]])}</div></div>
+    <div class="card2"><h2>Staff notes</h2><p style="white-space:pre-wrap">${esc(o.staff_notes || "No notes.")}</p></div>`;
+}
+function units() {
+  return `<div class="card2"><h2>Units</h2>${table([["Unit"], ["Owned"], ["Dues", "n"], ["Balance", "n"], ["Last payment"], ["Board"]], P.ownerships.map((s) => `<tr><td><b>${esc(s.unit)}</b>${s.current ? "" : ` <span class="pill3 off">former</span>`}<div class="meta">${esc(s.address || "")}${s.pin ? " · tax key " + esc(s.pin) : ""}</div></td><td>${fmtDate(s.start)}${s.end ? " to " + fmtDate(s.end) : " to now"}</td><td class="n">${s.dues ? money(s.dues) : ""}</td>
+      <td class="n">${balAmt(s.balance)}</td><td>${s.last_payment ? fmtDate(s.last_payment.date) + " · " + money(s.last_payment.amount) : "—"}</td><td>${esc(s.board_position || "")}</td></tr>`))}
+    <p class="meta">To record a payment or change a charge, use the <a href="/association-owners/roca1/dues/">Dues page</a>.</p></div>
+    <div class="card2"><h2>Recent account history (current units)</h2>${table([["Date"], ["Unit"], ["Type"], ["Description"], ["Amount", "n"]], P.ledger.map((e) => `<tr><td>${fmtDate(e.date)}</td><td>${esc(e.unit)}</td><td>${esc(e.kind)}</td><td>${esc(e.description || "")}</td><td class="n">${money(e.amount)}</td></tr>`))}</div>
+    <div class="card2"><h2>Collections</h2>${table([["Date"], ["Unit"], ["Step"], ["Amount", "n"], ["Note"]], P.collections.map((c) => `<tr><td>${fmtDate(c.date)}</td><td>${esc(c.unit)}</td><td>${esc(String(c.step).replace(/_/g, " "))}</td><td class="n">${c.amount != null ? money(c.amount) : ""}</td><td>${esc(c.note || "")}</td></tr>`))}</div>`;
+}
+function comms() {
+  const ev = [
+    ...P.emails.map((e) => ({ at: e.at, ch: "Email we sent", t: e.subject, b: `To ${e.to}${e.sent ? "" : " (not sent yet)"} · ${e.kind}` })),
+    ...(P.portal_mail || []).map((m) => ({ at: m.at, ch: m.kind === "tenant" ? "Owner emailed a tenant" : "Owner emailed the office", t: m.subject, b: `To ${m.to}${m.unit ? " · Unit " + m.unit : ""}\n${m.body || ""}` })),
+    ...P.messages.map((m) => ({ at: m.at, ch: "Website message", t: "Message from the Contact page", b: m.message })),
+    ...P.payment_reports.map((r) => ({ at: r.at, ch: "Payment report", t: `Reported a ${String(r.method).replace(/_/g, " ")} payment of ${money(r.amount)}`, b: `Status: ${r.status}${r.note ? ". " + r.note : ""}` })),
+    ...P.updates.map((u) => ({ at: u.at, ch: "Profile update", t: u.kind === "updated" ? "Updated their information" : u.kind === "nothing_changed" ? "Confirmed nothing changed" : "Staff edit", b: (u.changes || []).map((c) => `${c.label}: ${c.old ?? "—"} → ${c.new ?? "—"}`).join("\n") })),
+    ...P.notes.map((n) => ({ at: n.at, ch: "Staff note", t: "Note by " + (n.by || "staff"), b: n.note })),
+  ].sort((a, b) => new Date(b.at) - new Date(a.at));
+  return `<div class="card2"><h2>Communications</h2><p class="meta">Emails we sent, messages, payment reports, profile changes and staff notes, newest first.</p>${ev.map((e) => `<div class="ev"><div class="when">${when(e.at)}</div><div><span class="meta">${esc(e.ch)}</span><div><b>${esc(e.t)}</b></div>${e.b ? `<div class="b">${esc(e.b)}</div>` : ""}</div></div>`).join("") || `<p class="meta">Nothing yet.</p>`}</div>`;
+}
+function records() {
+  return `<div class="card2"><h2>Violations</h2>${table([["Seen"], ["Unit"], ["Category"], ["What happened"], ["Status"], ["Fine", "n"]], P.violations.map((v) => `<tr><td>${fmtDate(v.observed)}</td><td>${esc(v.unit)}</td><td>${esc(v.category)}</td><td>${esc(v.description)}${v.resolution ? `<div class="meta">${esc(v.resolution)}</div>` : ""}</td><td>${esc(String(v.status).replace(/_/g, " "))}</td><td class="n">${v.fine != null ? money(v.fine) : ""}</td></tr>`))}
+    <p class="meta">Log or update violations on the <a href="/association-owners/roca1/records/">Violations and board</a> page.</p></div>
+    <div class="card2"><h2>Board history</h2>${table([["Position"], ["From"], ["To"], ["Note"]], P.board.map((b) => `<tr><td><b>${esc(b.position)}</b></td><td>${b.start ? fmtDate(b.start) : "unknown"}</td><td>${b.end ? fmtDate(b.end) : "current"}</td><td>${esc(b.note || "")}</td></tr>`))}</div>`;
+}
+function tenants() {
+  return `<div class="card2"><h2>Tenants at their units</h2>${P.tenants.length ? P.tenants.map((t) => `<div style="padding:8px 0;border-top:1px solid var(--line)"><b>Unit ${esc(t.unit)}</b> · ${esc(t.tenants)} · rent ${money(t.rent)} · balance <span class="${t.balance > 0 ? "bad" : ""}">${money(t.balance)}</span>
+      <div class="meta">${t.contacts.map((c) => esc([c.name, c.email, c.phone].filter(Boolean).join(" · "))).join("<br>")}</div></div>`).join("") : `<p class="meta">None of their units is rented right now.</p>`}</div>
+    <div class="card2"><h2>Vehicles at their units</h2>${P.vehicles.length ? P.vehicles.map((v) => `<div>Unit ${esc(v.unit)}: ${esc(v.summary)}</div>`).join("") : `<p class="meta">None registered.</p>`}<p class="meta"><a href="/parking/">All vehicles and photos</a></p></div>`;
+}
+function history() {
+  return `<div class="card2"><h2>Every change to their information</h2>${P.updates.length ? P.updates.map((u) => `<div class="ev"><div class="when">${when(u.at)}</div><div><b>${esc(u.kind === "updated" ? "Owner updated" : u.kind === "nothing_changed" ? "Nothing changed" : "Staff edit")}</b> <span class="meta">${u.via === "email_link" ? "Email button" : u.via === "staff" ? "Staff view" : "Portal"}</span>
+      ${(u.changes || []).map((c) => `<div class="b"><b>${esc(c.label)}:</b> ${esc(c.old ?? "—")} → ${esc(c.new ?? "—")}</div>`).join("")}</div></div>`).join("") : `<p class="meta">No changes recorded.</p>`}</div>`;
+}
+function render() {
+  $("tabs").innerHTML = TABS.map(([k, t]) => `<button type="button" role="tab" data-t="${k}" aria-selected="${k === tab}">${t}</button>`).join("");
+  $("panel").innerHTML = { profile, units, comms, records, tenants, history }[tab]();
+  const f = $("editForm");
+  if (f) f.addEventListener("submit", async (e) => {
+    e.preventDefault(); const o = P.owner, changes = {};
+    f.querySelectorAll("[data-k]").forEach((el) => { if (el.value.trim() !== (o[el.dataset.k] || "").trim()) changes[el.dataset.k] = el.value.trim(); });
+    const m = $("editMsg"); if (!Object.keys(changes).length) { editing = false; render(); return; }
+    m.className = "msg"; m.textContent = "Saving…";
+    const { error } = await client.rpc("condo_staff_update_owner", { p_owner_id: ID, p_changes: changes });
+    if (error) { m.className = "msg err"; m.textContent = await errorText(error); return; }
+    editing = false; await load();
+  });
+  if ($("editBtn")) $("editBtn").onclick = () => { editing = true; render(); };
+  if ($("cancelEdit")) $("cancelEdit").onclick = () => { editing = false; render(); };
+}
+async function load() {
+  const { data, error } = await client.rpc("owner_staff_profile", { p_owner: ID });
+  if (error) { $("signin").hidden = false; $("signin").innerHTML = `<div class="panel">${esc(await errorText(error))} <a href="/association-owners/roca1/staff/">Back to Owners</a></div>`; return; }
+  P = data; $("signin").hidden = true; $("app").hidden = false;
+  $("title").textContent = P.owner.name; document.title = P.owner.name + " — Owner profile";
+  $("sub").innerHTML = `${esc(P.owner.units || "No current units")} · ${P.owner.is_current ? `<span class="pill3">Current owner</span>` : `<span class="pill3 off">Former owner</span>`}`;
+  render();
+}
+$("tabs").addEventListener("click", (e) => { const b = e.target.closest("[data-t]"); if (b) { tab = b.dataset.t; editing = false; render(); } });
+$("signOutBtn").onclick = signOut;
+const who = await signIn($("signin"), { audience: "staff" });
+$("userBar").hidden = false;
+if (who.role !== "staff") { $("signin").hidden = false; $("signin").innerHTML = `<div class="panel"><p>This page is for office staff. <a href="/staff/">Go to My units</a></p></div>`; }
+else if (!ID) { $("signin").hidden = false; $("signin").innerHTML = `<div class="panel"><p>Open an owner from the <a href="/association-owners/roca1/staff/">Owners list</a>.</p></div>`; }
+else await load();
+</script>
+</body>
+</html>

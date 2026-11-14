@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Parking and Keys — 2nd Chance Housing</title>
+<link rel="icon" href="/favicon.png">
+<link rel="manifest" href="/unit-access/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/logo-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Parking & Keys">
+<meta name="theme-color" content="#2e7d1f">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+<style>
+  .tabs{display:flex;gap:8px;margin:0 0 14px}
+  .tabs a{padding:9px 18px;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:inherit;text-decoration:none;font-weight:700}
+  .tabs a[aria-current="page"]{background:#2e7d1f;color:#fff;border-color:#2e7d1f}
+</style>
+</head>
+<body>
+<!-- Parking-and-keys-only access for the occupant of an owner-managed unit (Unit 6). The owner adds the person in the owner portal.
+     Database: supabase/migrations/20261118180000_unit_occupant_parking_keys.sql. Nothing else of the resident portal is here. -->
+<div class="appbar"><div class="appbar-in">
+  <a class="org" href="/" style="color:inherit;text-decoration:none">2nd Chance Housing<span>Parking and keys</span></a>
+  <div class="row" id="userBar" hidden><span class="sub" id="who"></span><button class="linkbtn" type="button" id="signOutBtn">Sign out</button></div>
+</div></div>
+<main class="wrap">
+  <div id="signin" class="narrow"></div>
+  <div id="app" hidden>
+    <nav class="tabs"><a href="#parking" id="tParking">🚗 Parking</a><a href="#keys" id="tKeys">🔑 Keys</a></nav>
+    <section id="vParking" hidden>
+      <div id="pstMount"></div><div id="stallsMount" style="margin-bottom:14px"></div>
+      <div id="parkSlot"><div id="parkAlertMount"></div><div id="pushMount"></div></div>
+      <div class="panel" style="margin-top:14px"><div id="vehRegMount"></div></div>
+    </section>
+    <section id="vKeys" hidden><h1 style="margin-top:0">Keys</h1><div id="keysMount"></div></section>
+  </div>
+</main>
+<script type="module">
+import { $, client, signIn, signOut } from "/assets/portal/portal.js";
+import { mountStalls } from "/assets/portal/stalls.js?v=20261103b";
+import { mountParkAlert } from "/assets/portal/parking-alert.js?v=20261108c";
+import { mountPushCard } from "/assets/portal/push.js";
+import { mountKeys } from "/assets/portal/keys.js";
+import { mountVehicleReg } from "/assets/portal/vehicle-reg.js?v=20261108c";
+import { mountParkingStatus } from "/assets/portal/parking-status.js?v=20261109a";
+
+const who = await signIn($("signin"), { audience: "resident" });
+$("userBar").hidden = false; $("signOutBtn").onclick = signOut;
+if (who.role !== "occupant") {
+  $("signin").hidden = false;
+  $("signin").innerHTML = `<div class="panel"><p>This page is for parking and keys access given by a unit's owner. Tenants: <a href="/resident/">resident portal</a>. Owners: <a href="/association-owners/roca1/">owner portal</a>.</p></div>`;
+} else {
+  $("who").textContent = who.first_name ? "Hi " + who.first_name : "";
+  $("signin").hidden = true; $("app").hidden = false;
+  let shown = "";
+  const route = () => {
+    const v = location.hash === "#keys" ? "keys" : "parking";
+    $("tParking").setAttribute("aria-current", v === "parking" ? "page" : "false"); $("tKeys").setAttribute("aria-current", v === "keys" ? "page" : "false");
+    $("vParking").hidden = v !== "parking"; $("vKeys").hidden = v !== "keys";
+    if (v === shown) return; shown = v;
+    if (v === "parking") { mountStalls($("stallsMount"), { alert: mountParkAlert($("parkAlertMount")), slot: $("parkSlot") }); mountPushCard($("pushMount")); mountVehicleReg($("vehRegMount")); mountParkingStatus($("pstMount")); }
+    else mountKeys($("keysMount"));
+  };
+  window.addEventListener("hashchange", route); route();
+}
+</script>
+</body>
+</html>

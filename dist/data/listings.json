@@ -1,0 +1,137 @@
+{
+  "_note": "THE listing. The landing page cards and Q&A, the apply page's unit choices, and the lease builder's rent and deposit all read this file. To list a unit, add it to units; to take it down, set listed to false. status: 'ready' (shows the ready date) or 'coming' (shows 'Coming <ready_label>'). Q&A answers can use {rent}, {deposit} and {move_in_total}; they're filled in per unit. Answers confirmed by Stephen 10/7/2026. Fair housing: never say a voucher or source of income is not accepted (Milwaukee protects source of income). Nearby places checked 10/7/2026 (MCTS Route 73 began 8/24/2025; the Walmart on W Silver Spring Dr closed in 2023): recheck yearly. Occupancy 5 (Stephen 10/7/2026): BR1 12x13 = 156 sq ft (3 people at 50 sq ft each), BR2 12x10 = 120 sq ft (2 people), Milwaukee Code ch. 275.",
+  "contact": {
+    "email": "info@2ndchinc.org",
+    "phone": "(262) 236-5443"
+  },
+  "features": [
+    "Links to social services (optional)",
+    "We pay hot water; you pay We Energies and internet",
+    "Gas furnace heat",
+    "1 free parking spot (permit required)",
+    "No appliances provided",
+    "No laundry in the building"
+  ],
+  "qa": [
+    {
+      "q": "How much do I need to move in?",
+      "a": "{move_in_total}: the {deposit} security deposit plus the first month's rent of {rent}. That first payment covers one full month from your move-in date. If you move in after the 1st, the next month's rent is prorated, so you only pay for the days left in that month."
+    },
+    {
+      "q": "When is rent due?",
+      "a": "Rent is due on the 1st of each month. If it isn't paid in full, a $75 late fee is charged at 12:01 AM on the 2nd. If something comes up, tell us before the 1st: we can work with a lot when we hear about it early."
+    },
+    {
+      "q": "Is the lease month-to-month or annual?",
+      "a": "Month-to-month for most residents. If your housing agency requires an annual (12-month) lease, or you're in the CVI program, choose that on the application and we'll write your lease that way."
+    },
+    {
+      "q": "Is there an application fee?",
+      "a": "No. Applying is free. There's no background check and no credit check."
+    },
+    {
+      "q": "Do you accept housing vouchers and rental assistance?",
+      "a": "Yes. Most of our residents use a housing voucher or rental assistance, including Section 8 / HACM, Milwaukee County Housing Authority, HUD-VASH, CVI and other agency programs."
+    },
+    {
+      "q": "How many people can live in a 2-bedroom?",
+      "a": "Up to 5 people, following the City of Milwaukee's rules on bedroom size."
+    },
+    {
+      "q": "Which utilities do I pay?",
+      "a": "We pay hot water. You set up and pay We Energies and your internet."
+    },
+    {
+      "q": "How is the unit heated and cooled?",
+      "a": "Heat is a gas furnace, on your We Energies bill. For cooling, you're welcome to bring your own window air conditioner."
+    },
+    {
+      "q": "Are appliances included?",
+      "a": "No appliances are provided. If an appliance is already in the unit, you're welcome to use it, but it stays with the unit when you move out and you take care of its repairs."
+    },
+    {
+      "q": "Is there laundry?",
+      "a": "No. There's no laundry in the building."
+    },
+    {
+      "q": "Is there storage?",
+      "a": "No. There's no storage space outside your unit."
+    },
+    {
+      "q": "Is there parking?",
+      "a": "Yes. Each unit gets one free parking spot, with a permit sticker placed in your vehicle. The spot is lost starting the next day if your balance (rent or violations) goes above $0.00. Guests: residents request guest parking and overnight guests in the resident portal; the office approves each request and hands you a guest parking decal."
+    },
+    {
+      "q": "Can I have a pet?",
+      "a": "No pets. Service animals and assistance animals for a disability are not pets and are always welcome, with no fees or deposits."
+    },
+    {
+      "q": "Is smoking allowed?",
+      "a": "Yes, inside your own unit. There's no smoking in the building's common areas."
+    },
+    {
+      "q": "Are there stairs? Is there an elevator?",
+      "a": "The building has two floors with stairs and no elevator. If you need a change because of a disability, ask us."
+    },
+    {
+      "q": "How do I get into the building?",
+      "a": "With a key: one for the building's entry door and one for your unit."
+    },
+    {
+      "q": "Can I see the unit?",
+      "a": "Yes, once it's ready. We hold tours on set dates; email or call us for the next one. Units marked \"Coming\" aren't shown until they're ready."
+    },
+    {
+      "q": "What's nearby?",
+      "a": "Bus: MCTS Route 73 (Mill Road) runs on N 107th Street, a short walk from the building, and connects to the BlueLine on Mill Road. Groceries: Pick 'n Save at 7401 W Good Hope Rd, about 2 miles away. Schools: Maple Tree Elementary (6644 N 107th St) is about a quarter mile away, and Vincent High School (7501 N Granville Rd) about 1.5 miles. For enrollment, check with Milwaukee Public Schools."
+    },
+    {
+      "q": "What is the mentoring and reentry support?",
+      "a": "We share links to local social services. It's free and optional."
+    }
+  ],
+  "units": [
+    {
+      "unit": "15",
+      "property": "6622-n-bourbon",
+      "street": "6622 N Bourbon St",
+      "city": "Milwaukee, WI 53224",
+      "listed": true,
+      "status": "coming",
+      "ready_label": "2027",
+      "rent": 925,
+      "deposit": 1800,
+      "beds": 2,
+      "baths": 1,
+      "sqft": 960
+    },
+    {
+      "unit": "17",
+      "property": "6622-n-bourbon",
+      "street": "6622 N Bourbon St",
+      "city": "Milwaukee, WI 53224",
+      "listed": true,
+      "status": "coming",
+      "ready_label": "2027",
+      "rent": 925,
+      "deposit": 1800,
+      "beds": 2,
+      "baths": 1,
+      "sqft": 960
+    },
+    {
+      "unit": "18",
+      "property": "6622-n-bourbon",
+      "street": "6622 N Bourbon St",
+      "city": "Milwaukee, WI 53224",
+      "listed": true,
+      "status": "ready",
+      "ready_label": "Nov 1, 2026",
+      "rent": 925,
+      "deposit": 1800,
+      "beds": 2,
+      "baths": 1,
+      "sqft": 960
+    }
+  ]
+}

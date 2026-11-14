@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Reports — 2nd Chance Housing Staff</title>
+<link rel="icon" href="/favicon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+<style>
+.card2{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:14px}
+.card2 h2{margin:0 0 6px;font-size:1.15rem}
+.meta{color:var(--muted);font-size:.9rem}
+.formrow{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-top:8px}
+.formrow label{display:grid;gap:3px;font-size:.85rem;color:var(--muted)}
+.formrow input,.formrow select{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:6px;color:var(--fg);background:var(--panel)}
+#view{overflow-x:auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:16px}
+</style>
+</head>
+<body>
+<div class="appbar" data-nav="staff"><div class="appbar-in">
+  <div class="org">2nd Chance Housing<span>Reports · Staff</span></div>
+  <div class="row" id="userBar" hidden>
+    
+    <button class="linkbtn" type="button" id="signOutBtn">Sign out</button>
+  </div>
+</div></div>
+<main class="wrap">
+  <header><h1>Reports</h1><p class="lead">Printable reports for the accountant, straight from the ledgers. Rent (2nd Chance Housing Inc.) and association dues (ROCA1) are separate entities with separate bank accounts, so each report covers one side or keeps them apart. Print, save as PDF from the print window, or download a CSV for a spreadsheet.</p></header>
+  <div id="signin" class="narrow"></div>
+  <div id="app" hidden>
+    <div class="card2"><h2>Choose a report</h2>
+      <div class="formrow">
+        <label>Report<select id="kind">
+          <optgroup label="2nd Chance Housing Inc. (rent)">
+            <option value="income_rent">Rental income by GL account and month</option>
+            <option value="rent_roll">Rent roll</option>
+            <option value="aging">Tenant receivables aging</option>
+            <option value="deposits">Security deposits held</option>
+            <option value="assistance">Housing assistance receivable (agencies)</option>
+            <option value="work">Work in lieu of rent</option>
+            <option value="income_lc">Land contract activity by GL account</option>
+            <option value="land_contract">Land contract principal and interest by year</option>
+          </optgroup>
+          <optgroup label="ROCA1 (association dues)">
+            <option value="income_assoc">Association income by GL account and month</option>
+            <option value="dues">Association dues by unit, with aging</option>
+          </optgroup>
+          <optgroup label="Both, kept apart">
+            <option value="receipts">Receipts register</option>
+          </optgroup>
+        </select></label>
+        <label id="lFrom">From<input type="date" id="from"></label>
+        <label id="lTo">To<input type="date" id="to"></label>
+        <label id="lAsOf">As of<input type="date" id="asof"></label>
+        <button class="btn primary" type="button" id="run">Show</button>
+        <button class="btn" type="button" id="print">Print</button>
+        <button class="btn" type="button" id="csv">Download CSV</button>
+        <span class="msg" id="msg" role="status"></span>
+      </div>
+      <p class="meta" id="hint"></p>
+    </div>
+    <div id="view"><p class="meta">Choose a report and press Show.</p></div>
+  </div>
+</main>
+<script type="module">
+import { client, $, esc, signIn, signOut, errorText } from "/assets/portal/portal.js";
+import { reportHtml, printReport, reportCsv, ensureReportCss } from "/assets/portal/reports.js";
+ensureReportCss();
+// mode: range = from/to, asof = one date, none = today only
+const R = {
+  income_rent:   { mode: "range", rpc: "report_income_by_gl", args: (f, t) => ({ p_side: "rent", p_from: f, p_to: t }), hint: "Billed (accrual) and collected (cash) per GL account per month." },
+  income_assoc:  { mode: "range", rpc: "report_income_by_gl", args: (f, t) => ({ p_side: "association", p_from: f, p_to: t }), hint: "ROCA1 only. Excluded accounts are left out." },
+  income_lc:     { mode: "range", rpc: "report_income_by_gl", args: (f, t) => ({ p_side: "land_contract", p_from: f, p_to: t }), hint: "3446 N. 12th St. land contract ledger." },
+  receipts:      { mode: "range", rpc: "report_receipts", args: (f, t) => ({ p_from: f, p_to: t }), hint: "Every payment posted in the period, one line per receipt, subtotaled per ledger (and so per bank account)." },
+  rent_roll:     { mode: "asof", rpc: "report_rent_roll", args: (a) => ({ p_as_of: a }), hint: "Leases in effect on the date, with rent, deposit and balance." },
+  aging:         { mode: "asof", rpc: "report_tenant_aging", args: (a) => ({ p_as_of: a }), hint: "Current and former tenants with a balance, aged 0–30, 31–60, 61–90 and over 90 days." },
+  deposits:      { mode: "none", rpc: "report_deposits_held", args: () => ({}), hint: "Deposits on file today, plus moved-out tenants whose deposit statement hasn't gone out." },
+  assistance:    { mode: "asof", rpc: "report_assistance", args: (a) => ({ p_as_of: a }), hint: "The agencies' share of rent: billed, received, and still owed." },
+  work:          { mode: "range", rpc: "report_work_in_lieu", args: (f, t) => ({ p_from: f, p_to: t }), hint: "Rent credited for work instead of cash." },
+  land_contract: { mode: "asof", rpc: "report_land_contract", args: (a) => ({ p_as_of: a }), hint: "Interest is computed from the contract terms on each payment date, the same way as the buyer's portal." },
+  dues:          { mode: "range", rpc: "report_association_dues", args: (f, t) => ({ p_from: f, p_to: t }), hint: "One row per association account: opening, dues, late fees, other charges, paid, credits, closing, and aging of the closing balance." },
+};
+const today = new Date().toISOString().slice(0, 10), y = today.slice(0, 4);
+$("from").value = `${y}-01-01`; $("to").value = today; $("asof").value = today;
+let rep = null;
+function modeUi() {
+  const r = R[$("kind").value];
+  $("lFrom").hidden = $("lTo").hidden = r.mode !== "range"; $("lAsOf").hidden = r.mode !== "asof";
+  $("hint").textContent = r.hint; rep = null;
+}
+async function run() {
+  const r = R[$("kind").value];
+  if (r.mode === "range" && (!$("from").value || !$("to").value)) { $("msg").className = "msg err"; $("msg").textContent = "Choose a from and to date."; return null; }
+  $("msg").className = "msg"; $("msg").textContent = "Loading…";
+  const { data, error } = await client.rpc(r.rpc, r.mode === "range" ? r.args($("from").value, $("to").value) : r.args($("asof").value || today));
+  if (error) { $("msg").className = "msg err"; $("msg").textContent = await errorText(error); return null; }
+  $("msg").textContent = ""; rep = data; $("view").innerHTML = reportHtml(rep); return rep;
+}
+$("kind").onchange = modeUi;
+["from", "to", "asof"].forEach((id) => $(id).addEventListener("change", () => { rep = null; }));
+$("run").onclick = run;
+$("print").onclick = async () => { if (rep || await run()) printReport(rep); };
+$("csv").onclick = async () => { if (rep || await run()) reportCsv(rep); };
+modeUi();
+$("signOutBtn").onclick = signOut;
+const who = await signIn($("signin"), { audience: "staff" });
+$("userBar").hidden = false;
+if (who.role !== "staff") { $("signin").hidden = false; $("signin").innerHTML = `<div class="panel"><p>This page is for office staff. <a href="/staff/">Go to My units</a></p></div>`; }
+else { $("signin").hidden = true; $("app").hidden = false; }
+</script>
+</body>
+</html>

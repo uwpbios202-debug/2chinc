@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Violations and Fines — ROCA1 Staff</title>
+<link rel="icon" href="/favicon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+<style>
+.card2{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:14px}
+.card2 h2{margin:0 0 6px;font-size:1.15rem}
+.meta{color:var(--muted);font-size:.9rem}
+td.n,th.n{text-align:right;white-space:nowrap}
+.pill3{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;border-radius:20px;padding:.12rem .55rem;background:var(--accent-soft);color:var(--accent)}
+.pill3.warn{background:#fff3cd;color:#7a5200}.pill3.off{background:#e8e8e8;color:#444}.pill3.bad{background:#fde2e1;color:#8a1c1c}
+.formrow{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-top:8px}
+.formrow label{display:grid;gap:3px;font-size:.85rem;color:var(--muted)}
+.formrow input,.formrow select,.formrow textarea{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:6px;color:var(--fg);background:var(--panel)}
+.v{border-top:1px solid var(--line);padding:12px 0}
+.v .acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.steps{font-size:.85rem;color:var(--muted);margin:4px 0 0;padding-left:18px}
+</style>
+</head>
+<body>
+<div class="appbar" data-nav="staff"><div class="appbar-in">
+  <div class="org">ROCA1<span>Violations and fines · Staff</span></div>
+  <div class="row" id="userBar" hidden>
+    
+    <button class="linkbtn" type="button" id="signOutBtn">Sign out</button>
+  </div>
+</div></div>
+<main class="wrap">
+  <header><h1>Violations and fines</h1><p class="lead">Rules &amp; Regulations 2024 §10: a complaint, a written notice, then either a fine the owner may appeal within 14 days, or a board hearing. Fines go on the unit owner's association account and can be taken out of the rent 2nd Chance collects. Waiving a fine needs a board decision.</p>
+    <ol class="steps"><li>Record the complaint (choose the rule; the fine comes from the schedule).</li><li>Send the notice: a <b>fine notice</b> (14 days to ask for a hearing) or a <b>hearing notice</b>.</li><li>No hearing asked in 14 days: the automation makes the fine final and charges it. Hearing: the board votes on the decision under Board business.</li><li>Continuing violations keep accruing under the schedule until you mark them cured.</li></ol></header>
+  <div id="signin" class="narrow"></div>
+  <div id="app" hidden>
+    <div class="card2"><h2>Record a complaint</h2>
+      <div class="formrow">
+        <label>Unit<input id="nU" style="width:70px"></label>
+        <label>Rule<select id="nCode" style="max-width:340px"></select></label>
+        <label>Fine amount <span id="nAmtHint"></span><input id="nAmt" type="number" step="0.01" min="0" style="width:110px" placeholder="schedule"></label>
+        <label>Observed<input id="nDate" type="date"></label>
+        <label>Complainant<input id="nWho" placeholder="Board member, owner, occupant…"></label>
+        <label>Source<select id="nSrc"><option value="staff">Staff</option><option value="board">Board member</option><option value="owner">Owner</option><option value="occupant">Occupant</option><option value="inspection">Inspection</option><option value="maintenance">Maintenance</option></select></label>
+      </div>
+      <div class="formrow"><label style="flex:1;min-width:260px">What happened (who, when, where)<textarea id="nDesc" rows="2"></textarea></label></div>
+      <div class="formrow">
+        <label><span><input type="checkbox" id="nCont"> Continuing (accrues until cured)</span></label>
+        <input type="checkbox" id="nTen" hidden><!-- Fines stay on the owner's account, never billed to tenants (Stephen, 10/7/2026) -->
+        <button class="btn primary" type="button" id="nAdd">Record complaint</button><span class="msg" id="nMsg"></span>
+      </div>
+    </div>
+    <div class="card2"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center"><h2>Violations</h2>
+      <label class="meta">Show <select id="fShow"><option value="open">Active and recent</option><option value="all">All</option></select></label></div>
+      <div id="list"></div></div>
+    <div class="card2"><details><summary><b>Fine schedule</b> (Rules &amp; Regulations 2024)</summary>
+      <div class="table-wrap"><table><thead><tr><th>Section</th><th>Rule</th><th class="n">Amount</th><th>Per</th><th>Notes</th></tr></thead><tbody id="sched"></tbody></table></div></details></div>
+  </div>
+</main>
+<script type="module">
+import { client, $, esc, fmtDate, money, signIn, signOut, errorText } from "/assets/portal/portal.js";
+let SCHED = [];
+const flush = () => client.functions.invoke("outbox-flush", { body: {} }).catch(() => {});
+const STATUS = { open: ["complaint", "warn"], notice_sent: ["notice sent", "warn"], hearing_requested: ["hearing requested", "bad"], hearing_scheduled: ["hearing scheduled", "warn"],
+  final: ["fine final", ""], fined: ["fined", ""], cured: ["cured", "off"], dismissed: ["dismissed", "off"], waived: ["waived", "off"] };
+const per = (f) => f.basis === "other" ? "" : f.basis + (f.cap_amount ? ` (max ${money(f.cap_amount)}/${f.cap_basis})` : "");
+
+function card(v) {
+  const [lbl, cls] = STATUS[v.status] || [v.status, ""];
+  const f = v.schedule || {};
+  const acts = [];
+  if (["open", "notice_sent"].includes(v.status) && !v.notice_sent_at) acts.push(`<button class="btn small primary" data-act="notice" data-id="${v.id}">Send fine notice</button><button class="btn small" data-act="hearingNotice" data-id="${v.id}">Send hearing notice</button>`);
+  if (["hearing_requested", "notice_sent", "open"].includes(v.status) && (v.status === "hearing_requested" || v.notice_sent_at)) acts.push(`<button class="btn small" data-act="hearing" data-id="${v.id}">Schedule hearing</button>`);
+  if (v.status === "notice_sent") acts.push(`<button class="btn small" data-act="final" data-id="${v.id}">Make final now</button>`);
+  if (["final", "fined"].includes(v.status) || (v.continuing && !["cured", "dismissed", "waived"].includes(v.status))) acts.push(`<button class="btn small" data-act="cure" data-id="${v.id}">Mark cured</button>`);
+  if (Number(v.charged) > 0) acts.push(`<button class="btn small" data-act="waive" data-id="${v.id}">Propose waiver</button>`);
+  if (!["final", "fined", "cured", "dismissed", "waived"].includes(v.status) && !(Number(v.charged) > 0)) acts.push(`<button class="btn small" data-act="dismiss" data-id="${v.id}">Dismiss</button>`);
+  return `<div class="v"><div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><b>#${v.id} · Unit ${esc(v.unit)} · ${esc(f.title || v.category)}</b><span class="pill3 ${cls}">${esc(lbl)}</span></div>
+    <div>${esc(v.description)}</div>
+    <div class="meta">${esc(f.section || "")} · observed ${fmtDate(v.observed_date)} · owner ${esc(v.owner || "")}${v.reported_by ? " · reported by " + esc(v.reported_by) : ""}${v.continuing ? " · continuing" : ""}${v.bill_tenant ? " · tenant billed too" : ""}</div>
+    <div class="meta">Fine ${money(v.fine_amount != null ? v.fine_amount : f.amount)}${f.amount_note ? " — " + esc(f.amount_note) : ""} · charged so far ${money(v.charged)}${Number(v.tenant_charged) ? " · tenant " + money(v.tenant_charged) : ""}</div>
+    ${v.appeal_deadline && v.status === "notice_sent" ? `<div class="meta">Hearing can be requested until <b>${fmtDate(v.appeal_deadline)}</b>; after that the automation makes it final.</div>` : ""}
+    ${v.hearing_requested_at ? `<div class="meta">Owner asked for a hearing ${fmtDate(v.hearing_requested_at)}: “${esc(v.hearing_request_note || "")}”</div>${(v.hearing_evidence || []).length ? `<div class="meta">Evidence from the owner: ${v.hearing_evidence.map((p, i) => `<a href="#" data-evp="${esc(p)}">file ${i + 1}</a>`).join(" · ")}</div>` : ""}` : ""}
+    ${v.hearing_at ? `<div class="meta">Hearing ${new Date(v.hearing_at).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })} · ${esc(v.hearing_place || "")} · written decision due <b>${fmtDate(v.decision_due)}</b></div>` : ""}
+    ${v.resolution ? `<div class="meta">Board decision: <a href="/association-owners/roca1/board/">resolution ${esc(v.resolution.number || "(draft)")}</a> — ${esc(v.resolution.status)}</div>` : ""}
+    ${(v.waivers || []).map((w) => `<div class="meta">Waiver ${money(w.amount)}: resolution ${esc(w.number || "(draft)")} — ${esc(w.status)}</div>`).join("")}
+    ${v.decision_note ? `<div class="meta">${esc(v.decision_note)}</div>` : ""}${v.resolution_note ? `<div class="meta">${esc(v.resolution_note)}</div>` : ""}
+    <div class="acts">${acts.join("")}</div></div>`;
+}
+document.addEventListener("click", async (e) => {
+  const a = e.target.closest("[data-evp]"); if (!a) return;
+  e.preventDefault();
+  const w = window.open("", "_blank");
+  const { data, error } = await client.storage.from("violation-evidence").createSignedUrl(a.dataset.evp, 300);
+  if (error || !data) { if (w) w.close(); return; }
+  if (w) w.location = data.signedUrl;
+});
+async function load() {
+  const { data, error } = await client.rpc("roca_violations_staff_list", { p_all: $("fShow").value === "all" });
+  if (error) { $("list").innerHTML = `<p class="msg err">${esc(await errorText(error))}</p>`; return; }
+  $("list").innerHTML = (data || []).map(card).join("") || `<p class="meta">No violations.</p>`;
+}
+async function loadSched() {
+  const { data } = await client.rpc("roca_fine_schedule_list");
+  SCHED = data || [];
+  $("nCode").innerHTML = `<option value="">Choose…</option>` + SCHED.map((f) => `<option value="${esc(f.code)}">${esc(f.section)} — ${esc(f.title)}${f.amount != null ? " (" + money(f.amount) + "/" + f.basis + ")" : ""}</option>`).join("");
+  $("sched").innerHTML = SCHED.map((f) => `<tr><td>${esc(f.section)}</td><td>${esc(f.title)}${f.immediate ? ' <span class="pill3 warn">no warning</span>' : ""}</td><td class="n">${f.amount != null ? money(f.amount) : ""}</td><td>${esc(per(f))}</td><td class="meta">${esc(f.amount_note || "")}${f.charged_to === "occupant" ? " · charged to the occupant" : ""}</td></tr>`).join("");
+}
+$("nCode").onchange = () => { const f = SCHED.find((x) => x.code === $("nCode").value); $("nCont").checked = !!(f && f.accrues); $("nAmtHint").textContent = f && f.amount == null ? "(required)" : ""; };
+$("nAdd").onclick = async () => {
+  const { error } = await client.rpc("roca_violation_create", { p_unit: $("nU").value.trim(), p_code: $("nCode").value, p_description: $("nDesc").value, p_observed: $("nDate").value || null,
+    p_complainant: $("nWho").value, p_source: $("nSrc").value, p_amount: $("nAmt").value ? Number($("nAmt").value) : null, p_continuing: $("nCont").checked, p_bill_tenant: $("nTen").checked });
+  $("nMsg").className = error ? "msg err" : "msg ok"; $("nMsg").textContent = error ? await errorText(error) : "Recorded. Send the notice below.";
+  if (!error) { $("nDesc").value = ""; load(); }
+};
+const askHearing = () => {
+  const when = prompt("Hearing date and time (YYYY-MM-DD HH:MM, Milwaukee time)", ""); if (!when) return null;
+  const at = new Date(when.replace(" ", "T")); if (isNaN(at)) { alert("Use the form 2026-10-20 18:30"); return null; }
+  const place = prompt("Where (leave blank for the usual place)", ""); if (place === null) return null;
+  return { at: at.toISOString(), place };
+};
+$("list").addEventListener("click", async (e) => {
+  const b = e.target.closest("[data-act]"); if (!b) return;
+  const id = Number(b.dataset.id), act = b.dataset.act; let r;
+  if (act === "notice") { if (!confirm("Email the owner the fine notice with 14 days to request a hearing?")) return; r = await client.rpc("roca_violation_notice", { p_id: id, p_process: "fine_notice", p_hearing_at: null, p_place: null }); }
+  else if (act === "hearingNotice" || act === "hearing") { const h = askHearing(); if (!h) return;
+    r = act === "hearing" ? await client.rpc("roca_violation_schedule_hearing", { p_id: id, p_at: h.at, p_place: h.place }) : await client.rpc("roca_violation_notice", { p_id: id, p_process: "hearing", p_hearing_at: h.at, p_place: h.place }); }
+  else if (act === "final") { const n = prompt("Make the fine final now. Why (e.g. the owner waived a hearing in writing)?", ""); if (n === null) return; r = await client.rpc("roca_violation_finalize_staff", { p_id: id, p_note: n }); }
+  else if (act === "cure") { const n = prompt("How was it cured?", ""); if (n === null) return; r = await client.rpc("roca_violation_cure", { p_id: id, p_cured_on: null, p_note: n }); }
+  else if (act === "dismiss") { const n = prompt("Why is the complaint dismissed? (the owner is told if a notice went out)", ""); if (n === null) return; r = await client.rpc("roca_violation_dismiss", { p_id: id, p_note: n }); }
+  else if (act === "waive") { const a = prompt("Amount to waive", ""); if (!a) return; const n = prompt("Reason (goes in the board resolution)", ""); if (n === null) return;
+    r = await client.rpc("roca_violation_propose_waiver", { p_id: id, p_amount: Number(a), p_reason: n }); if (!r.error) alert("Drafted as a board resolution. Open it for a vote under Board business."); }
+  if (r && r.error) return alert(await errorText(r.error));
+  flush(); load();
+});
+$("fShow").onchange = load;
+$("signOutBtn").onclick = signOut;
+const who = await signIn($("signin"), { audience: "staff" });
+$("userBar").hidden = false;
+if (who.role !== "staff") { $("signin").hidden = false; $("signin").innerHTML = `<div class="panel"><p>This page is for office staff. <a href="/staff/">Go to My units</a></p></div>`; }
+else { $("signin").hidden = true; $("app").hidden = false; $("nDate").value = new Date().toISOString().slice(0, 10); await loadSched(); load(); }
+</script>
+</body>
+</html>

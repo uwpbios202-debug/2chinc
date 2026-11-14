@@ -1,0 +1,3 @@
+Human Mirror: D-33 (landlords), D-33 (referrals), D-44 and D-45 DECIDED as built (Stephen: "close those decisions using best logic"; the two D-33 rows labelled apart); D-46 launch order: Guided Tour first (sign-in on only for it, trial Mirror only), then Supabase Pro (K-03), then legal's privacy text (K-04), then launch; docs
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>

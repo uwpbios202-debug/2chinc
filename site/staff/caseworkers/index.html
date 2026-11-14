@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Caseworkers — 2nd Chance Housing Staff</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+<style>
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-bottom: 12px; max-width: 760px; }
+  .meta { color: var(--muted); font-size: 0.9rem; }
+  .form { display: grid; gap: 12px; }
+  .form label { display: grid; gap: 4px; font-size: 0.9rem; color: var(--muted); }
+  .form input[type=text], .form input[type=email] { font: inherit; padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); color: inherit; width: 100%; box-sizing: border-box; }
+  .picks { max-height: 220px; overflow: auto; border: 1px solid var(--line); border-radius: 6px; padding: 6px 10px; display: grid; gap: 4px; }
+  .picks label { display: flex; gap: 8px; align-items: center; color: inherit; }
+  .row2 { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+</style>
+</head>
+<body>
+<div class="appbar" data-nav="staff">
+  <div class="appbar-in">
+    <div class="org">2nd Chance Housing<span>Caseworkers · Staff</span></div>
+    <div class="row" id="userBar" hidden>
+      <button class="linkbtn" type="button" id="signOutBtn">Sign out</button>
+    </div>
+  </div>
+</div>
+<main class="wrap">
+  <header><h1>Caseworkers</h1><p class="lead">A caseworker listed here gets an email, with no login, whenever a <b>notice of lease violation</b> is sent to one of their clients. The email carries a copy of the notice. Replies go to the office.</p></header>
+  <div id="signin" class="narrow"></div>
+  <div id="app" hidden>
+    <div class="card"><h2 id="formTitle" style="margin-top:0">Add a caseworker</h2><div class="form">
+      <label id="fromAppWrap" hidden>Pre-fill from an application<select id="fromApp" style="font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:inherit"></select></label>
+      <label>Name<input id="name" type="text" maxlength="120" autocomplete="off"></label>
+      <label>Agency (optional)<input id="agency" type="text" maxlength="160" autocomplete="off"></label>
+      <label>Email<input id="email" type="email" maxlength="200" autocomplete="off"></label>
+      <label>Phone (optional)<input id="phone" type="text" maxlength="40" autocomplete="off"></label>
+      <div><div class="meta" style="margin-bottom:4px">Clients this caseworker oversees</div><div class="picks" id="picks"></div></div>
+      <label class="row2" style="display:flex"><input type="checkbox" id="active" checked> Send emails</label>
+      <div class="row2"><button class="btn primary" type="button" id="save">Save caseworker</button><button class="linkbtn" type="button" id="cancel" hidden>Cancel edit</button></div>
+      <div class="meta" id="msg" role="status"></div>
+    </div></div>
+    <div id="list"></div>
+  </div>
+</main>
+<script type="module">
+import { client, $, esc, signIn, signOut, errorText } from "/assets/portal/portal.js";
+const say = (t, bad) => { $("msg").textContent = t; $("msg").style.color = bad ? "var(--bad)" : ""; };
+let people = [], choices = [], apps = [], editing = null;
+
+const rpc = async (fn, args) => { const { data, error } = await client.rpc(fn, args); if (error) throw new Error(await errorText(error)); return data; };
+const renderPicks = (sel) => { $("picks").innerHTML = choices.map((c) => `<label><input type="checkbox" value="${esc(c.tenant_id)}"${sel.includes(c.tenant_id) ? " checked" : ""}> ${esc(c.label)}</label>`).join("") || '<span class="meta">No tenants on file.</span>'; };
+const reset = () => { editing = null; $("formTitle").textContent = "Add a caseworker"; $("name").value = $("agency").value = $("email").value = $("phone").value = ""; $("fromApp").value = ""; $("active").checked = true; $("cancel").hidden = true; renderPicks([]); };
+const renderList = () => {
+  $("list").innerHTML = people.map((p) => `<div class="card"><b>${esc(p.name)}</b>${p.agency ? ` · ${esc(p.agency)}` : ""}${p.active ? "" : ' <span class="meta">(paused)</span>'}
+    <div class="meta">${esc(p.email)}${p.phone ? " · " + esc(p.phone) : ""}</div>
+    <div class="meta">Clients: ${p.clients.length ? p.clients.map((c) => esc(c.name)).join(", ") : "none yet"}</div>
+    <div class="row2" style="margin-top:6px">${p.active && p.clients.length ? `<button class="linkbtn" data-docs="${esc(p.id)}">Email documents</button>` : ""}<button class="linkbtn" data-edit="${esc(p.id)}">Edit</button><button class="linkbtn" data-del="${esc(p.id)}">Remove</button></div></div>`).join("") || '<p class="meta">No caseworkers yet.</p>';
+};
+const load = async () => { [people, choices, apps] = await Promise.all([rpc("caseworker_list"), rpc("caseworker_tenant_choices"), rpc("caseworker_from_applications")]); renderList();
+  $("fromAppWrap").hidden = !apps.length;
+  $("fromApp").innerHTML = '<option value="">Choose an application…</option>' + apps.map((a) => `<option value="${esc(a.id)}">${esc(a.applicant)} → ${esc(a.cw_name || a.cw_email)}${a.listed ? " (already listed)" : ""}</option>`).join(""); renderPicks(editing ? (people.find((p) => p.id === editing)?.clients || []).map((c) => c.tenant_id) : []); };
+
+$("save").addEventListener("click", async () => {
+  $("save").disabled = true; say("Saving…");
+  try {
+    await rpc("caseworker_save", { p_id: editing, p_name: $("name").value, p_agency: $("agency").value, p_email: $("email").value, p_phone: $("phone").value, p_active: $("active").checked,
+      p_tenants: [...$("picks").querySelectorAll("input:checked")].map((i) => i.value) });
+    reset(); await load(); say("Saved.");
+  } catch (err) { say(err.message, true); }
+  $("save").disabled = false;
+});
+$("fromApp").addEventListener("change", () => {
+  const a = apps.find((x) => x.id === $("fromApp").value); if (!a) return;
+  editing = null; $("formTitle").textContent = "Add a caseworker"; $("cancel").hidden = false;
+  $("name").value = a.cw_name || ""; $("agency").value = a.agency || ""; $("email").value = a.cw_email || ""; $("phone").value = a.cw_phone || ""; $("active").checked = true;
+  renderPicks(a.tenant_id ? [a.tenant_id] : []);
+  say(a.tenant_id ? `Pre-filled from ${a.applicant}'s application; ${a.applicant} is ticked as the client. Check it and save.` : `Pre-filled from ${a.applicant}'s application. They are not a tenant yet, so tick a client after the lease starts.`);
+});
+$("cancel").addEventListener("click", () => { reset(); say(""); });
+$("list").addEventListener("click", async (e) => {
+  const ed = e.target.dataset.edit, del = e.target.dataset.del, docs = e.target.dataset.docs;
+  if (docs) {
+    const p = people.find((x) => x.id === docs);
+    if (!confirm(`Email ${p.name} the signed lease and ROCA1 W-9 as attachments (no sign-in needed)?`)) return;
+    e.target.disabled = true; say("Sending…");
+    try { const { data, error } = await client.functions.invoke("caseworker-packet", { body: { caseworker_id: docs } }); if (error) throw new Error(await errorText(error)); say(`Sent ${data.sent} email${data.sent === 1 ? "" : "s"} with the signed lease and W-9.`); }
+    catch (err) { say(err.message, true); }
+    e.target.disabled = false;
+  }
+  if (ed) { const p = people.find((x) => x.id === ed); editing = ed; $("formTitle").textContent = "Edit caseworker"; $("name").value = p.name; $("agency").value = p.agency || ""; $("email").value = p.email; $("phone").value = p.phone || "";
+    $("active").checked = p.active; $("cancel").hidden = false; renderPicks(p.clients.map((c) => c.tenant_id)); window.scrollTo({ top: 0, behavior: "smooth" }); }
+  if (del && confirm("Remove this caseworker? They will stop getting emails.")) { try { await rpc("caseworker_remove", { p_id: del }); await load(); say("Removed."); } catch (err) { say(err.message, true); } }
+});
+$("signOutBtn").addEventListener("click", signOut);
+const who = await signIn($("signin"), { audience: "staff" });
+$("userBar").hidden = false;
+if (who.role !== "staff") location.replace("/association-owners/roca1/"); else { $("app").hidden = false; await load(); }
+</script>
+</body>
+</html>

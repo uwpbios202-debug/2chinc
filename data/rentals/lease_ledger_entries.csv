@@ -1,0 +1,636 @@
+rental,property,unit_number,tenants_label,gl_account,entry_date,kind,raw_type,method,check_number,description,amount,buildium_running_balance,source_row
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Late Fee Income,2020-01-02,charge,Charge,,,Late fee,30,30,9
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Late Fee Income,2020-01-02,payment,Credit card payment successful,card,,Payment by Shaudai Evans,-30,0,10
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Late Fee Income,2022-02-02,charge,Charge,,,Late fee,30,30,11
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Late Fee Income,2022-02-02,payment,Credit card payment successful,card,,by William Marshall,-30,0,12
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Late Fee Income,2025-11-02,charge,Charge,,,Late fee,75,75,13
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Late Fee Income,2025-12-02,charge,Charge,,,Late fee,75,150,14
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Late Fee Income,2025-12-24,payment,Credit card payment successful,card,,by Shaudai Evans,-2.65,147.35,15
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Late Fee Income,2026-01-02,charge,Charge,,,Late fee,75,222.35,16
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Late Fee Income,2026-01-07,payment,Credit card payment successful,card,,by Shaudai Evans,-75.53,146.82,17
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Late Fee Income,2026-02-01,payment,Credit card payment successful,card,,by Shaudai Evans,-0.53,146.29,18
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Late Fee Income,2026-03-01,payment,Credit card payment successful,card,,by William Marshall,-0.53,145.76,19
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Late Fee Income,2026-03-31,payment,Credit card payment successful,card,,by William Marshall,-0.53,145.23,20
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Late Fee Income,2026-05-01,payment,Credit card payment successful,card,,by William Marshall,-0.53,144.7,21
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Late Fee Income,2026-06-02,charge,Charge,,,Late fee,75,219.7,22
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Late Fee Income,2026-06-02,payment,Credit card payment successful,card,,by William Marshall,-0.53,219.17,23
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Late Fee Income,2026-07-01,payment,Credit card payment successful,card,,by William Marshall,-25.53,193.64,24
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Late Fee Income,2026-07-30,payment,Credit card payment successful,card,,by William Marshall,-193.64,0,25
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Late Fee Income,2026-08-02,charge,Charge,,,Late fee,75,75,26
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Late Fee Income,2026-08-04,credit,Credit,,,Credit to waive 1 late fees (8/2/2026 to 8/2/2026),-75,0,27
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2019-12-30,charge,Charge,,,Initial Rent,850,850,31
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2019-12-30,payment,Credit card payment successful,card,,Payment by Shaudai Evans,-700,150,32
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2020-01-02,payment,Credit card payment successful,card,,Payment by Shaudai Evans,-150,0,33
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2020-01-30,payment,Credit card payment successful,card,,Payment by Shaudai Evans,-425,-425,34
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2020-01-30,payment,Credit card payment successful,card,,Payment by William Marshall,-200,-625,35
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2020-02-01,charge,Charge,,,Rent,850,225,36
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2020-02-01,payment,Credit card payment successful,card,,Payment by William Marshall,-225,0,37
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2020-04-01,charge,Charge,,,Rent,599.47,599.47,38
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2020-04-01,payment,Credit card payment successful,card,,Payment by William Marshall,-599.47,0,39
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2020-04-27,payment,Credit card payment successful,card,,Payment by Shaudai Evans,-300,-300,40
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2020-05-01,charge,Charge,,,Rent,599.47,299.47,41
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2020-05-01,payment,Credit card payment successful,card,,Payment by William Marshall,-299.47,0,42
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2020-05-27,payment,Credit card payment successful,card,,Payment by Shaudai Evans,-299,-299,43
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2020-06-01,charge,Charge,,,Rent,599.47,300.47,44
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2020-06-01,payment,Credit card payment successful,card,,Payment by William Marshall,-300.47,0,45
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2020-06-27,payment,Credit card payment successful,card,,Payment by Shaudai Evans,-300,-300,46
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2020-07-01,charge,Charge,,,Rent,599.47,299.47,47
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2020-07-01,payment,Credit card payment successful,card,,Payment by William Marshall,-299.47,0,48
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2020-07-28,payment,Credit card payment successful,card,,Payment by Shaudai Evans,-300,-300,49
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2020-08-01,charge,Charge,,,Rent,599.47,299.47,50
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2020-08-01,payment,Credit card payment successful,card,,Payment by William Marshall,-300,-0.53,51
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2020-08-26,payment,Credit card payment successful,card,,Payment by Shaudai Evans,-300.53,-301.06,52
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2020-09-01,charge,Charge,,,Rent,599.47,298.41,53
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2020-09-01,payment,Credit card payment successful,card,,Payment by William Marshall,-298.41,0,54
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2020-09-25,payment,Credit card payment successful,card,,Payment by Shaudai Evans,-300,-300,55
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2020-10-01,charge,Charge,,,Rent,599.47,299.47,56
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2020-10-01,payment,Credit card payment successful,card,,Payment by William Marshall,-299.47,0,57
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2020-10-26,payment,Credit card payment successful,card,,Payment by Shaudai Evans,-300,-300,58
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2020-11-01,charge,Charge,,,Rent,599.47,299.47,59
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2020-11-01,payment,Credit card payment successful,card,,Payment by William Marshall,-299.47,0,60
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2020-11-24,payment,Credit card payment successful,card,,Payment by Shaudai Evans,-300,-300,61
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2020-12-01,charge,Charge,,,Rent,599.47,299.47,62
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2020-12-01,payment,Credit card payment successful,card,,Payment by William Marshall,-299.47,0,63
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2020-12-30,payment,Credit card payment successful,card,,Payment by Shaudai Evans,-300,-300,64
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2020-12-31,payment,Credit card payment successful,card,,Payment by William Marshall,-299.47,-599.47,65
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2021-01-01,charge,Charge,,,Rent,599.47,0,66
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2021-01-29,payment,Credit card payment successful,card,,Payment by Shaudai Evans,-300,-300,67
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2021-02-01,charge,Charge,,,Rent,599.47,299.47,68
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2021-02-01,payment,Credit card payment successful,card,,Payment by William Marshall,-299.47,0,69
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2021-02-23,payment,Credit card payment successful,card,,by Shaudai Evans,-300,-300,70
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2021-03-01,charge,Charge,,,Rent,599.47,299.47,71
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2021-03-01,payment,Credit card payment successful,card,,by William Marshall,-299.47,0,72
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2021-03-26,payment,Credit card payment successful,card,,by Shaudai Evans,-300,-300,73
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2021-04-01,charge,Charge,,,Rent,599.47,299.47,74
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2021-04-01,payment,Credit card payment successful,card,,by William Marshall,-299.47,0,75
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2021-04-26,payment,Credit card payment successful,card,,by Shaudai Evans,-300,-300,76
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2021-05-01,charge,Charge,,,Rent,599.47,299.47,77
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2021-05-01,payment,Credit card payment successful,card,,by William Marshall,-299.47,0,78
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2021-05-27,payment,Credit card payment successful,card,,by Shaudai Evans,-300,-300,79
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2021-06-01,charge,Charge,,,Rent,599.47,299.47,80
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2021-06-01,payment,Credit card payment successful,card,,by William Marshall,-299.47,0,81
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2021-06-29,payment,Credit card payment successful,card,,by Shaudai Evans,-300,-300,82
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2021-07-01,charge,Charge,,,Rent,599.47,299.47,83
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2021-07-01,payment,Credit card payment successful,card,,by William Marshall,-299.47,0,84
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2021-07-27,payment,Credit card payment successful,card,,by Shaudai Evans,-300,-300,85
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2021-07-30,payment,Credit card payment successful,card,,by William Marshall,-300,-600,86
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2021-08-01,charge,Charge,,,Rent,599.47,-0.53,87
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2021-08-27,payment,Credit card payment successful,card,,by Shaudai Evans,-300.53,-301.06,88
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2021-09-01,charge,Charge,,,Rent,599.47,298.41,89
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2021-09-01,payment,Credit card payment successful,card,,by William Marshall,-298.41,0,90
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2021-09-28,payment,Credit card payment successful,card,,by Shaudai Evans,-300,-300,91
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2021-10-01,charge,Charge,,,Rent,599.47,299.47,92
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2021-10-01,payment,Credit card payment successful,card,,by William Marshall,-299.47,0,93
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2021-10-26,payment,Credit card payment successful,card,,by Shaudai Evans,-300,-300,94
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2021-11-01,charge,Charge,,,Rent,599.47,299.47,95
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2021-11-01,payment,Credit card payment successful,card,,by William Marshall,-299.47,0,96
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2021-11-24,payment,Credit card payment successful,card,,by Shaudai Evans,-295,-295,97
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2021-12-01,charge,Charge,,,Rent,599.47,304.47,98
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2021-12-01,payment,Credit card payment successful,card,,by William Marshall,-300,4.47,99
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2021-12-01,payment,Credit card payment successful,card,,by Shaudai Evans,-4.47,0,100
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2021-12-24,payment,Credit card payment successful,card,,by Shaudai Evans,-300,-300,101
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2021-12-31,payment,Credit card payment successful,card,,by William Marshall,-299.47,-599.47,102
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2022-01-01,charge,Charge,,,Rent,599.47,0,103
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2022-01-28,payment,Credit card payment successful,card,,by Shaudai Evans,-300,-300,104
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2022-02-01,charge,Charge,,,Rent,599.47,299.47,105
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2022-02-02,payment,Credit card payment successful,card,,by William Marshall,-299.47,0,106
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2022-02-23,payment,Credit card payment successful,card,,by Shaudai Evans,-300,-300,107
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2022-03-01,charge,Charge,,,Rent,599.47,299.47,108
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2022-03-01,payment,Credit card payment successful,card,,by William Marshall,-299.47,0,109
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2022-03-30,payment,Credit card payment successful,card,,by Shaudai Evans,-300,-300,110
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2022-04-01,charge,Charge,,,Rent,599.47,299.47,111
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2022-04-01,payment,Credit card payment successful,card,,by William Marshall,-299.47,0,112
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2022-04-25,payment,Credit card payment successful,card,,by Shaudai Evans,-300,-300,113
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2022-04-29,payment,Credit card payment successful,card,,by William Marshall,-300,-600,114
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2022-05-01,charge,Charge,,,Rent,599.47,-0.53,115
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2022-05-31,payment,Credit card payment successful,card,,by William Marshall,-300,-300.53,116
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2022-05-31,payment,Credit card payment successful,card,,by Shaudai Evans,-298.94,-599.47,117
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2022-06-01,charge,Charge,,,Rent,599.47,0,118
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2022-06-29,payment,Credit card payment successful,card,,by Shaudai Evans,-300,-300,119
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2022-06-30,payment,Credit card payment successful,card,,by William Marshall,-300,-600,120
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2022-07-01,charge,Charge,,,Rent,599.47,-0.53,121
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2022-07-29,payment,Credit card payment successful,card,,by Shaudai Evans,-300,-300.53,122
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2022-07-30,payment,Credit card payment successful,card,,by William Marshall,-300.53,-601.06,123
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2022-08-01,charge,Charge,,,Rent,599.47,-1.59,124
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2022-08-26,payment,Credit card payment successful,card,,by Shaudai Evans,-301,-302.59,125
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2022-08-31,payment,Credit card payment successful,card,,by William Marshall,-296.88,-599.47,126
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2022-09-01,charge,Charge,,,Rent,599.47,0,127
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2022-09-27,payment,Credit card payment successful,card,,by Shaudai Evans,-300,-300,128
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2022-09-28,payment,Credit card payment successful,card,,by William Marshall,-300,-600,129
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2022-10-01,charge,Charge,,,Rent,599.47,-0.53,130
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2022-10-27,payment,Credit card payment successful,card,,by Shaudai Evans,-300,-300.53,131
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2022-10-30,payment,Credit card payment successful,card,,by William Marshall,-300.53,-601.06,132
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2022-11-01,charge,Charge,,,Rent,599.47,-1.59,133
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2022-11-29,payment,Credit card payment successful,card,,by Shaudai Evans,-301.59,-303.18,134
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2022-11-29,payment,Credit card payment successful,card,,by William Marshall,-303.18,-606.36,135
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2022-12-01,charge,Charge,,,Rent,599.47,-6.89,136
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2022-12-23,payment,Credit card payment successful,card,,by Shaudai Evans,-300,-306.89,137
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2022-12-28,payment,Credit card payment successful,card,,by William Marshall,-306.89,-613.78,138
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2023-01-01,charge,Charge,,,Rent,599.47,-14.31,139
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2023-01-26,payment,Credit card payment successful,card,,by Shaudai Evans,-300,-314.31,140
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2023-02-01,charge,Charge,,,Rent,599.47,285.16,141
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2023-02-01,payment,Credit card payment successful,card,,by William Marshall,-300,-14.84,142
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2023-02-23,payment,Credit card payment successful,card,,by Shaudai Evans,-300,-314.84,143
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2023-02-28,payment,Credit card payment successful,card,,by William Marshall,-300,-614.84,144
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2023-03-01,charge,Charge,,,Rent,599.47,-15.37,145
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2023-03-27,payment,Credit card payment successful,card,,by Shaudai Evans,-300,-315.37,146
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2023-03-30,payment,Credit card payment successful,card,,by William Marshall,-300,-615.37,147
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2023-04-01,charge,Charge,,,Rent,599.47,-15.9,148
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2023-04-25,payment,Credit card payment successful,card,,by Shaudai Evans,-300,-315.9,149
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2023-04-29,payment,Credit card payment successful,card,,by William Marshall,-315.9,-631.8,150
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2023-05-01,charge,Charge,,,Rent,599.47,-32.33,151
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2023-05-25,payment,Credit card payment successful,card,,by Shaudai Evans,-300,-332.33,152
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2023-05-31,payment,Credit card payment successful,card,,by William Marshall,-267.14,-599.47,153
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2023-06-01,charge,Charge,,,Rent,599.47,0,154
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2023-06-29,payment,Credit card payment successful,card,,by Shaudai Evans,-300,-300,155
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2023-06-30,payment,Credit card payment successful,card,,by William Marshall,-300,-600,156
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2023-07-01,charge,Charge,,,Rent,599.47,-0.53,157
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2023-07-26,payment,Credit card payment successful,card,,by Shaudai Evans,-300,-300.53,158
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2023-07-29,payment,Credit card payment successful,card,,by William Marshall,-300.53,-601.06,159
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2023-08-01,charge,Charge,,,Rent,599.47,-1.59,160
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2023-08-28,payment,Credit card payment successful,card,,by Shaudai Evans,-300,-301.59,161
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2023-08-30,payment,Credit card payment successful,card,,by William Marshall,-301.59,-603.18,162
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2023-09-01,charge,Charge,,,Rent,599.47,-3.71,163
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2023-09-25,payment,Credit card payment successful,card,,by Shaudai Evans,-300,-303.71,164
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2023-09-29,payment,Credit card payment successful,card,,by William Marshall,-303.75,-607.46,165
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2023-10-01,charge,Charge,,,Rent,599.47,-7.99,166
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2023-10-26,payment,Credit card payment successful,card,,by Shaudai Evans,-300,-307.99,167
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2023-10-30,payment,Credit card payment successful,card,,by William Marshall,-307.99,-615.98,168
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2023-11-01,charge,Charge,,,Rent,599.47,-16.51,169
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2023-11-28,payment,Credit card payment successful,card,,by Shaudai Evans,-300,-316.51,170
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2023-11-29,payment,Credit card payment successful,card,,by William Marshall,-316.51,-633.02,171
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2023-12-01,charge,Charge,,,Rent,599.47,-33.55,172
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2023-12-23,payment,Credit card payment successful,card,,by Shaudai Evans,-300,-333.55,173
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2023-12-29,payment,Credit card payment successful,card,,by William Marshall,-333.55,-667.1,174
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2024-01-01,charge,Charge,,,Rent,599.47,-67.63,175
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2024-01-28,payment,Credit card payment successful,card,,by Shaudai Evans,-300,-367.63,176
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2024-01-31,payment,Credit card payment successful,card,,by William Marshall,-231.84,-599.47,177
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2024-02-01,charge,Charge,,,Rent,599.47,0,178
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2024-02-27,payment,Credit card payment successful,card,,by William Marshall,-300,-300,179
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2024-02-28,payment,Credit card payment successful,card,,by Shaudai Evans,-300,-600,180
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2024-03-01,charge,Charge,,,Rent,599.47,-0.53,181
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2024-03-15,payment,Credit card payment successful,card,,by William Marshall,-300,-300.53,182
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2024-03-26,payment,Credit card payment successful,card,,by Shaudai Evans,-300,-600.53,183
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2024-04-01,charge,Charge,,,Rent,599.47,-1.06,184
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2024-04-25,payment,Credit card payment successful,card,,by Shaudai Evans,-300,-301.06,185
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2024-04-30,payment,Credit card payment successful,card,,by William Marshall,-298.41,-599.47,186
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2024-05-01,charge,Charge,,,Rent,599.47,0,187
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2024-05-24,payment,Credit card payment successful,card,,by Shaudai Evans,-300,-300,188
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2024-05-29,payment,Credit card payment successful,card,,by William Marshall,-300,-600,189
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2024-06-01,charge,Charge,,,Rent,599.47,-0.53,190
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2024-06-25,payment,Credit card payment successful,card,,by Shaudai Evans,-300,-300.53,191
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2024-06-30,payment,Credit card payment successful,card,,by William Marshall,-298.94,-599.47,192
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2024-07-01,charge,Charge,,,Rent,599.47,0,193
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2024-07-26,payment,Credit card payment successful,card,,by Shaudai Evans,-600,-600,194
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2024-08-01,charge,Charge,,,Rent,599.47,-0.53,195
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2024-08-27,payment,Credit card payment successful,card,,by Shaudai Evans,-600,-600.53,196
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2024-09-01,charge,Charge,,,Rent,599.47,-1.06,197
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2024-09-25,payment,Credit card payment successful,card,,by Shaudai Evans,-600,-601.06,198
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2024-10-01,charge,Charge,,,Rent,599.47,-1.59,199
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2024-10-28,payment,Credit card payment successful,card,,by Shaudai Evans,-300,-301.59,200
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2024-11-01,charge,Charge,,,Rent,599.47,297.88,201
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2024-11-01,payment,Credit card payment successful,card,,by Shaudai Evans,-300,-2.12,202
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2024-11-22,payment,Credit card payment successful,card,,by Shaudai Evans,-600,-602.12,203
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2024-12-01,charge,Charge,,,Rent,599.47,-2.65,204
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2024-12-24,payment,Credit card payment successful,card,,by Shaudai Evans,-601,-603.65,205
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2025-01-01,charge,Charge,,,Rent,599.47,-4.18,206
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2025-01-27,payment,Credit card payment successful,card,,by Shaudai Evans,-601,-605.18,207
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2025-02-01,charge,Charge,,,Rent,599.47,-5.71,208
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2025-02-24,payment,Credit card payment successful,card,,by Shaudai Evans,-605,-610.71,209
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2025-03-01,charge,Charge,,,Rent,599.47,-11.24,210
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2025-03-26,payment,Credit card payment successful,card,,by Shaudai Evans,-600,-611.24,211
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2025-04-01,charge,Charge,,,Rent,599.47,-11.77,212
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2025-04-25,payment,Credit card payment successful,card,,by Shaudai Evans,-600,-611.77,213
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2025-05-01,charge,Charge,,,Rent,599.47,-12.3,214
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2025-05-30,payment,Credit card payment successful,card,,by Shaudai Evans,-573,-585.3,215
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2025-05-30,payment,Credit card payment successful,card,,by Shaudai Evans,-15,-600.3,216
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2025-06-01,charge,Charge,,,Rent,599.47,-0.83,217
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2025-06-30,payment,Credit card payment successful,card,,by Shaudai Evans,-598.64,-599.47,218
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2025-07-01,charge,Charge,,,Rent,599.47,0,219
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2025-07-29,payment,Credit card payment successful,card,,by Shaudai Evans,-600,-600,220
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2025-08-01,charge,Charge,,,Rent,599.47,-0.53,221
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2025-08-26,payment,Credit card payment successful,card,,by Shaudai Evans,-600,-600.53,222
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2025-09-01,charge,Charge,,,Rent,599.47,-1.06,223
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2025-09-26,payment,Credit card payment successful,card,,by Shaudai Evans,-600,-601.06,224
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2025-10-01,charge,Charge,,,Rent,599.47,-1.59,225
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2025-11-01,charge,Charge,,,Rent,599.47,597.88,226
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2025-12-01,charge,Charge,,,Rent,599.47,1197.35,227
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2025-12-24,payment,Credit card payment successful,card,,by Shaudai Evans,-1197.35,0,228
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2026-01-01,charge,Charge,,,Rent,599.47,599.47,229
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2026-01-07,payment,Credit card payment successful,card,,by Shaudai Evans,-599.47,0,230
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2026-02-01,charge,Charge,,,Rent,599.47,599.47,231
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2026-02-01,payment,Credit card payment successful,card,,by Shaudai Evans,-599.47,0,232
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2026-03-01,charge,Charge,,,Rent,599.47,599.47,233
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2026-03-01,payment,Credit card payment successful,card,,by William Marshall,-599.47,0,234
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2026-03-31,payment,Credit card payment successful,card,,by William Marshall,-599.47,-599.47,235
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2026-04-01,charge,Charge,,,Rent,599.47,0,236
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2026-05-01,charge,Charge,,,Rent,599.47,599.47,237
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2026-05-01,payment,Credit card payment successful,card,,by William Marshall,-599.47,0,238
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2026-06-01,charge,Charge,,,Rent,599.47,599.47,239
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2026-06-02,payment,Credit card payment successful,card,,by William Marshall,-599.47,0,240
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2026-07-01,charge,Charge,,,Rent,599.47,599.47,241
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2026-07-01,payment,Credit card payment successful,card,,by William Marshall,-599.47,0,242
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2026-07-30,payment,Credit card payment successful,card,,by William Marshall,-406.36,-406.36,243
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2026-08-01,charge,Charge,,,Rent,599.47,193.11,244
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2026-08-31,payment,Credit card payment successful,card,,by William Marshall,-792.58,-599.47,245
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2026-09-01,charge,Charge,,,Rent,599.47,0,246
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2026-10-01,charge,Charge,,,Rent,599.47,599.47,247
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Rent Income,2026-10-01,payment,Credit card payment successful,card,,by William Marshall,-599.47,0,248
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Security Deposit Liability,2019-12-30,charge,Charge,,,Security deposit,850,850,252
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Security Deposit Liability,2019-12-31,payment,Credit card payment successful,card,,Payment by Shaudai Evans,-635,215,253
+3446 North 12th Street,3446-n-12th,,"Shaudai Evans, William Marshall",Security Deposit Liability,2020-01-02,payment,Credit card payment successful,card,,Payment by Shaudai Evans,-215,0,254
+6622 North Bourbon St. # Fourteen,roca1,14,Searra Berry,Rent Income,2026-07-28,charge,Charge,,,Initial Rent,875,875,427
+6622 North Bourbon St. # Fourteen,roca1,14,Searra Berry,Rent Income,2026-07-28,payment,Credit card payment successful,card,,by Searra Berry,-400,475,428
+6622 North Bourbon St. # Fourteen,roca1,14,Searra Berry,Rent Income,2026-08-01,payment,Manual cash payment successful,cash,,Payment,-475,0,429
+6622 North Bourbon St. # Fourteen,roca1,14,Searra Berry,Rent Income,2026-08-30,payment,EFT payment successful,eft,,by Searra Berry,-875,-875,430
+6622 North Bourbon St. # Fourteen,roca1,14,Searra Berry,Rent Income,2026-09-01,charge,Charge,,,Rent,875,0,431
+6622 North Bourbon St. # Fourteen,roca1,14,Searra Berry,Rent Income,2026-09-30,payment,Credit card payment successful,card,,by Searra Berry,-875,-875,432
+6622 North Bourbon St. # Fourteen,roca1,14,Searra Berry,Rent Income,2026-10-01,charge,Charge,,,Rent,875,0,433
+6622 North Bourbon St. # Fourteen,roca1,14,Searra Berry,Security Deposit Liability,2026-07-28,charge,Charge,,,Security deposit,1750,1750,437
+6622 North Bourbon St. # Fourteen,roca1,14,Searra Berry,Security Deposit Liability,2026-07-28,payment,Credit card payment successful,card,,by Searra Berry,-1000,750,438
+6622 North Bourbon St. # Fourteen,roca1,14,Searra Berry,Security Deposit Liability,2026-07-29,payment,Credit card payment successful,card,,by Searra Berry,-25,725,439
+6622 North Bourbon St. # Fourteen,roca1,14,Searra Berry,Security Deposit Liability,2026-08-01,payment,Manual cash payment successful,cash,,Payment,-725,0,440
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Late Fee Income,2024-02-02,charge,Charge,,,Late fee,75,75,448
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Late Fee Income,2024-02-08,credit,Credit,,,Credit to waive 1 late fees (2/2/2024 to 2/2/2024),-75,0,449
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Late Fee Income,2024-03-02,charge,Charge,,,Late fee,75,75,450
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Late Fee Income,2024-03-07,credit,Credit,,,Credit to waive 1 late fees (3/2/2024 to 3/2/2024),-75,0,451
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Late Fee Income,2024-04-02,charge,Charge,,,Late fee,75,75,452
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Late Fee Income,2024-04-09,credit,Credit,,,Credit to waive 1 late fees (4/2/2024 to 4/2/2024),-75,0,453
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Late Fee Income,2024-09-02,charge,Charge,,,Late fee,75,75,454
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Late Fee Income,2024-09-13,credit,Credit,,,Credit to waive 1 late fees (9/2/2024 to 9/2/2024),-75,0,455
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Late Fee Income,2024-10-02,charge,Charge,,,Late fee,75,75,456
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Late Fee Income,2024-10-07,credit,Credit,,,Credit to waive 1 late fees (10/2/2024 to 10/2/2024),-75,0,457
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Late Fee Income,2024-11-02,charge,Charge,,,Late fee,75,75,458
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Late Fee Income,2024-11-14,credit,Credit,,,Credit to waive 1 late fees (11/2/2024 to 11/2/2024),-75,0,459
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Late Fee Income,2024-12-02,charge,Charge,,,Late fee,75,75,460
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Late Fee Income,2025-01-02,charge,Charge,,,Late Fee,75,150,461
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Late Fee Income,2025-01-08,payment,Credit card payment successful,card,,by Keerica Bryson,-50,100,462
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Late Fee Income,2025-02-02,charge,Charge,,,Late Fee,75,175,463
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Late Fee Income,2025-02-02,credit,Credit,,,Credit to waive 2 late fees (2/2/2025 to 1/2/2025),-150,25,464
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Late Fee Income,2025-03-02,charge,Charge,,,Late Fee,75,100,465
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Late Fee Income,2025-03-05,payment,Credit card payment successful,card,,by Keerica Bryson,-60,40,466
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Late Fee Income,2025-04-02,charge,Charge,,,Late Fee,75,115,467
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Late Fee Income,2025-04-04,credit,Credit,,,Credit to waive 1 late fees (4/2/2025 to 4/2/2025),-75,40,468
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Late Fee Income,2025-05-01,credit,Credit,,,Credit to waive 1 late fees (5/2/2025 to 5/2/2025),-75,-35,469
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Late Fee Income,2025-05-01,credit,Credit,,,Credit,-40,-75,470
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Late Fee Income,2025-05-02,charge,Charge,,,Late Fee,75,0,471
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Late Fee Income,2025-07-02,charge,Charge,,,Late Fee,75,75,472
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Late Fee Income,2025-07-09,payment,Credit card payment successful,card,,by Keerica Bryson,-50,25,473
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Late Fee Income,2025-08-02,charge,Charge,,,Late Fee,75,100,474
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Late Fee Income,2025-09-02,charge,Charge,,,Late Fee,75,175,475
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Late Fee Income,2025-09-03,payment,Credit card payment successful,card,,by Keerica Bryson,-59,116,476
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Late Fee Income,2025-09-10,credit,Credit,,,Credit to waive 1 late fees (9/2/2025 to 9/2/2025),-75,41,477
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Late Fee Income,2025-10-02,charge,Charge,,,Late Fee,75,116,478
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Late Fee Income,2025-11-02,charge,Charge,,,Late Fee,75,191,479
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Late Fee Income,2025-12-02,charge,Charge,,,Late Fee,75,266,480
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Late Fee Income,2026-01-02,charge,Charge,,,Late Fee,75,341,481
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Late Fee Income,2026-01-07,payment,Credit card payment successful,card,,by Keerica Bryson,-0.44,340.56,482
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Late Fee Income,2026-02-02,charge,Charge,,,Late Fee,75,415.56,483
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Late Fee Income,2026-02-04,payment,Credit card payment successful,card,,by Keerica Bryson,-75.55,340.01,484
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Late Fee Income,2026-02-07,credit,Credit,,,Credit to waive 4 late fees (2/2/2026 to 11/2/2025),-300,40.01,485
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Late Fee Income,2026-03-02,charge,Charge,,,Late Fee,75,115.01,486
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Late Fee Income,2026-04-01,payment,Credit card payment successful,card,,by Keerica Bryson,-100,15.01,487
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Late Fee Income,2026-04-29,payment,Credit card payment successful,card,,by Keerica Bryson,-15.01,0,488
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Pet Rent Income,2026-03-11,charge,Charge,,,Pet Violation,145,145,492
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Pet Rent Income,2026-03-24,credit,Credit,,,Pet Fee credit,-145,0,493
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Charge,2024-01-13,charge,Charge,,,Initial Rent (prorated),377.42,377.42,497
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Charge,2024-01-19,payment,Credit card payment successful,card,,by Keerica Bryson,-377.42,0,498
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2024-02-01,charge,Charge,,,Rent,900,900,502
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2024-02-07,payment,Credit card payment successful,card,,by Keerica Bryson,-900,0,503
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2024-03-01,charge,Charge,,,Rent,900,900,504
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2024-03-06,payment,Credit card payment successful,card,,by Keerica Bryson,-900,0,505
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2024-04-01,charge,Charge,,,Rent,900,900,506
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2024-04-04,payment,Credit card payment successful,card,,by Keerica Bryson,-900,0,507
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2024-05-01,charge,Charge,,,Rent,900,900,508
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2024-05-01,payment,Credit card payment successful,card,,by Keerica Bryson,-900,0,509
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2024-05-31,payment,Credit card payment successful,card,,by Keerica Bryson,-900,-900,510
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2024-06-01,charge,Charge,,,Rent,900,0,511
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2024-06-28,payment,Credit card payment successful,card,,by Keerica Bryson,-900,-900,512
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2024-07-01,charge,Charge,,,Rent,900,0,513
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2024-08-01,charge,Charge,,,Rent,900,900,514
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2024-08-01,payment,Credit card payment successful,card,,by Keerica Bryson,-900,0,515
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2024-09-01,charge,Charge,,,Rent,900,900,516
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2024-09-04,payment,Credit card payment successful,card,,by Keerica Bryson,-900,0,517
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2024-10-01,charge,Charge,,,Rent,900,900,518
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2024-10-05,payment,Credit card payment successful,card,,by Keerica Bryson,-900,0,519
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2024-11-01,charge,Charge,,,Rent,900,900,520
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2024-11-05,payment,Credit card payment successful,card,,by Keerica Bryson,-600,300,521
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2024-11-13,payment,Credit card payment successful,card,,by Keerica Bryson,-300,0,522
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2024-12-01,charge,Charge,,,Rent,900,900,523
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2024-12-11,payment,Credit card payment successful,card,,by Keerica Bryson,-900,0,524
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2025-01-01,charge,Charge,,,Rent,900,900,525
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2025-01-08,payment,Credit card payment successful,card,,by Keerica Bryson,-900,0,526
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2025-02-01,charge,Charge,,,Rent,900,900,527
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2025-02-05,payment,Credit card payment successful,card,,by Keerica Bryson,-900,0,528
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2025-03-01,charge,Charge,,,Rent,900,900,529
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2025-03-05,payment,Credit card payment successful,card,,by Keerica Bryson,-800,100,530
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2025-03-05,payment,Credit card payment successful,card,,by Keerica Bryson,-20,80,531
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2025-04-01,charge,Charge,,,Rent,900,980,532
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2025-04-02,payment,Credit card payment successful,card,,by Keerica Bryson,-815.55,164.45,533
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2025-04-02,payment,Credit card payment successful,card,,by Keerica Bryson,-60,104.45,534
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2025-04-30,payment,Credit card payment successful,card,,by Keerica Bryson,-900,-795.55,535
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2025-05-01,charge,Charge,,,Rent,900,104.45,536
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2025-05-01,credit,Credit,,,Credit,-60,44.45,537
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2025-05-30,payment,Credit card payment successful,card,,by Keerica Bryson,-944.45,-900,538
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2025-06-01,charge,Charge,,,Rent,900,0,539
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2025-07-01,charge,Charge,,,Rent,900,900,540
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2025-07-09,payment,Credit card payment successful,card,,by Keerica Bryson,-850,50,541
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2025-08-01,charge,Charge,,,Rent,900,950,542
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2025-08-06,payment,Credit card payment successful,card,,by Keerica Bryson,-700,250,543
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2025-08-28,payment,Credit card payment successful,card,,by Keerica Bryson,-200,50,544
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2025-09-01,charge,Charge,,,Rent,900,950,545
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2025-09-03,payment,Credit card payment successful,card,,by Keerica Bryson,-783,167,546
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2025-09-04,payment,Credit card payment successful,card,,by Keerica Bryson,-58,109,547
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2025-10-01,charge,Charge,,,Rent,900,1009,548
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2025-10-02,payment,Credit card payment successful,card,,by Keerica Bryson,-685,324,549
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2025-10-21,payment,Credit card payment successful,card,,by Keerica Bryson,-324,0,550
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2025-10-31,payment,Credit card payment successful,card,,by Keerica Bryson,-706,-706,551
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2025-11-01,charge,Charge,,,Rent,900,194,552
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2025-11-18,payment,Credit card payment successful,card,,by Keerica Bryson,-150,44,553
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2025-12-01,charge,Charge,,,Rent,900,944,554
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2025-12-10,payment,Credit card payment successful,card,,by Keerica Bryson,-900,44,555
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2026-01-01,charge,Charge,,,Rent,900,944,556
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2026-01-07,payment,Credit card payment successful,card,,by Keerica Bryson,-944,0,557
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2026-02-01,charge,Charge,,,Rent,900,900,558
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2026-02-04,payment,Credit card payment successful,card,,by Keerica Bryson,-900,0,559
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2026-03-01,charge,Charge,,,Rent,900,900,560
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2026-03-05,payment,Credit card payment successful,card,,by Keerica Bryson,-900,0,561
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2026-04-01,charge,Charge,,,Rent,900,900,562
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2026-04-01,payment,Credit card payment successful,card,,by Keerica Bryson,-900,0,563
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2026-04-29,payment,Credit card payment successful,card,,by Keerica Bryson,-899.99,-899.99,564
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2026-04-29,payment,Credit card payment successful,card,,by Keerica Bryson,-1,-900.99,565
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2026-05-01,charge,Charge,,,Rent,900,-0.99,566
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2026-05-27,payment,Credit card payment successful,card,,by Keerica Bryson,-900,-900.99,567
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2026-06-01,charge,Charge,,,Rent,900,-0.99,568
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2026-07-01,charge,Charge,,,Rent,900,899.01,569
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2026-07-22,payment,Credit card payment successful,card,,by Keerica Bryson,-899.01,0,570
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2026-08-01,charge,Charge,,,Rent,900,900,571
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2026-09-01,charge,Charge,,,Rent,900,1800,572
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2026-09-02,payment,Manual cash payment successful,cash,,Paid Apple Cash to Owner,-900,900,573
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2026-09-09,payment,Manual cash payment successful,cash,,Payment,-900,0,574
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Rent Income,2026-10-01,charge,Charge,,,Rent,900,900,575
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Security Deposit Liability,2024-01-13,charge,Charge,,,Security deposit,900,900,579
+"6622 North Bourbon St., Unit 16",roca1,16,"Keerica Bryson, Roger Willis",Security Deposit Liability,2024-01-19,payment,Credit card payment successful,card,,by Keerica Bryson,-900,0,580
+6622 North Bourbon Street #12,roca1,12,Andrew Cannon,Rent Income,2026-06-17,charge,Charge,,,Initial Rent,925,925,691
+6622 North Bourbon Street #12,roca1,12,Andrew Cannon,Rent Income,2026-06-18,payment,Credit card payment successful,card,,by Andrew Cannon,-925,0,692
+6622 North Bourbon Street #12,roca1,12,Andrew Cannon,Rent Income,2026-06-30,credit,Credit,,,Towing,-390,-390,693
+6622 North Bourbon Street #12,roca1,12,Andrew Cannon,Rent Income,2026-07-01,charge,Charge,,,Rent,185,-205,694
+6622 North Bourbon Street #12,roca1,12,Andrew Cannon,Security Deposit Liability,2026-06-17,charge,Charge,,,Security Deposit,1800,1800,698
+6622 North Bourbon Street #12,roca1,12,Andrew Cannon,Security Deposit Liability,2026-06-18,payment,Credit card payment successful,card,,by Andrew Cannon,-1800,0,699
+6622 North Bourbon Street #12,roca1,12,"dianne small, Glen Hierrezuelo",Rent Income,2026-07-12,charge,Charge,,,Initial Rent,925,925,705
+6622 North Bourbon Street #12,roca1,12,"dianne small, Glen Hierrezuelo",Rent Income,2026-07-18,payment,Manual cash payment successful,cash,,Payment,-900,25,706
+6622 North Bourbon Street #12,roca1,12,"dianne small, Glen Hierrezuelo",Rent Income,2026-07-18,credit,Credit,,,1st month early credit,-25,0,707
+6622 North Bourbon Street #12,roca1,12,"dianne small, Glen Hierrezuelo",Rent Income,2026-09-01,charge,Charge,,,Rent,925,925,708
+6622 North Bourbon Street #12,roca1,12,"dianne small, Glen Hierrezuelo",Rent Income,2026-09-02,payment,Manual cash payment successful,cash,,Payment,-925,0,709
+6622 North Bourbon Street #12,roca1,12,"dianne small, Glen Hierrezuelo",Rent Income,2026-10-01,charge,Charge,,,Rent,925,925,710
+6622 North Bourbon Street #12,roca1,12,"dianne small, Glen Hierrezuelo",Security Deposit Liability,2026-07-08,charge,Charge,,,Security deposit,1800,1800,714
+6622 North Bourbon Street #12,roca1,12,"dianne small, Glen Hierrezuelo",Security Deposit Liability,2026-07-18,payment,Manual cash payment successful,cash,,Payment,-1800,0,715
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2024-03-01,charge,Charge,,,Rent,850,850,893
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2024-03-01,payment,Manual cash payment successful,cash,,Transferred from #14,-850,0,894
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2024-04-01,charge,Charge,,,Rent,850,850,895
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2024-04-01,payment,Credit card payment successful,card,,by Tamika Moore,-850,0,896
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2024-05-01,charge,Charge,,,Rent,850,850,897
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2024-05-01,payment,Credit card payment successful,card,,by Tamika Moore,-850,0,898
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2024-05-31,payment,Credit card payment successful,card,,by Tamika Moore,-850,-850,899
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2024-06-01,charge,Charge,,,Rent,850,0,900
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2024-07-01,charge,Charge,,,Rent,850,850,901
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2024-07-01,payment,Credit card payment successful,card,,by Tamika Moore,-850,0,902
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2024-07-31,payment,Credit card payment successful,card,,by Tamika Moore,-850,-850,903
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2024-08-01,charge,Charge,,,Rent,850,0,904
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2024-08-30,payment,Credit card payment successful,card,,by Tamika Moore,-850,-850,905
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2024-09-01,charge,Charge,,,Rent,850,0,906
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2024-09-30,payment,Credit card payment successful,card,,by Tamika Moore,-850,-850,907
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2024-10-01,charge,Charge,,,Rent,850,0,908
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2024-10-31,payment,Credit card payment successful,card,,by Tamika Moore,-850,-850,909
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2024-11-01,charge,Charge,,,Rent,850,0,910
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2024-11-29,payment,Credit card payment successful,card,,by Tamika Moore,-850,-850,911
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2024-12-01,charge,Charge,,,Rent,850,0,912
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2024-12-31,payment,Credit card payment successful,card,,by Tamika Moore,-850,-850,913
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2025-01-01,charge,Charge,,,Rent,850,0,914
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2025-01-31,payment,Credit card payment successful,card,,by Tamika Moore,-850,-850,915
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2025-02-01,charge,Charge,,,Rent,850,0,916
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2025-02-28,payment,Credit card payment successful,card,,by Tamika Moore,-850,-850,917
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2025-03-01,charge,Charge,,,Rent,850,0,918
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2025-04-01,payment,Credit card payment successful,card,,by Tamika Moore,-850,-850,919
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2025-04-01,charge,Charge,,,Charge,850,0,920
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2025-05-01,charge,Charge,,,Recurring charge,850,850,921
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2025-05-01,payment,Credit card payment successful,card,,by Tamika Moore,-850,0,922
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2025-05-29,payment,Credit card payment successful,card,,by Tamika Moore,-850,-850,923
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2025-06-01,charge,Charge,,,Recurring charge,850,0,924
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2025-06-30,payment,Credit card payment successful,card,,by Tamika Moore,-850,-850,925
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2025-07-01,charge,Charge,,,Recurring charge,850,0,926
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2025-07-31,payment,Credit card payment successful,card,,by Tamika Moore,-850,-850,927
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2025-08-01,charge,Charge,,,Recurring charge,850,0,928
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2025-08-29,payment,Credit card payment successful,card,,by Tamika Moore,-850,-850,929
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2025-09-01,charge,Charge,,,Recurring charge,850,0,930
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2025-10-01,charge,Charge,,,Recurring charge,850,850,931
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2025-10-01,payment,Credit card payment successful,card,,by Tamika Moore,-850,0,932
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2025-10-30,payment,Credit card payment successful,card,,by Tamika Moore,-850,-850,933
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2025-11-01,charge,Charge,,,Recurring charge,850,0,934
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2025-12-01,charge,Charge,,,Recurring charge,850,850,935
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2025-12-01,payment,Credit card payment successful,card,,by Tamika Moore,-850,0,936
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2025-12-31,payment,Credit card payment successful,card,,by Tamika Moore,-850,-850,937
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2026-01-01,charge,Charge,,,Recurring charge,850,0,938
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2026-01-30,payment,Credit card payment successful,card,,by Tamika Moore,-850,-850,939
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2026-02-01,charge,Charge,,,Recurring charge,850,0,940
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2026-02-27,payment,Credit card payment successful,card,,by Tamika Moore,-850,-850,941
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2026-03-01,charge,Charge,,,Recurring charge,850,0,942
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2026-03-31,payment,Credit card payment successful,card,,by Tamika Moore,-850,-850,943
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2026-04-01,charge,Charge,,,Recurring charge,850,0,944
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2026-05-01,charge,Charge,,,Recurring charge,850,850,945
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2026-05-01,payment,Credit card payment successful,card,,by Tamika Moore,-850,0,946
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2026-05-31,payment,Credit card payment successful,card,,by Tamika Moore,-850,-850,947
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2026-06-01,charge,Charge,,,Recurring charge,850,0,948
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2026-07-01,charge,Charge,,,Recurring charge,850,850,949
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2026-07-01,payment,Credit card payment successful,card,,by Tamika Moore,-850,0,950
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2026-07-31,payment,Credit card payment successful,card,,by Tamika Moore,-850,-850,951
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2026-08-01,charge,Charge,,,Recurring charge,850,0,952
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2026-09-01,charge,Charge,,,Recurring charge,850,850,953
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2026-09-01,payment,Credit card payment successful,card,,by Tamika Moore,-850,0,954
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2026-09-30,payment,Credit card payment successful,card,,by Tamika Moore,-850,-850,955
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Rent Income,2026-10-01,charge,Charge,,,Recurring charge,850,0,956
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Security Deposit Liability,2024-02-21,payment,Manual cash payment successful,cash,,Transferred Deposit,-750,-750,960
+6622 North Bourbon Street_#11,roca1,11,Tamika Moore,Security Deposit Liability,2024-02-22,charge,Charge,,,Security deposit,750,0,961
+6626 North Bourbon St #4,roca1,4,Ashley Williams,Rent Income,2026-08-27,charge,Charge,,,Rent,900,900,1027
+6626 North Bourbon St #4,roca1,4,Ashley Williams,Rent Income,2026-08-27,payment,Manual cash payment successful,cash,,Rent Payment,-900,0,1028
+6626 North Bourbon St #4,roca1,4,Ashley Williams,Rent Income,2026-08-27,credit,Credit,,,Paint & Cleaning,-900,-900,1029
+6626 North Bourbon St #4,roca1,4,Ashley Williams,Rent Income,2026-08-27,credit,Credit,,,Floor preparation,-900,-1800,1030
+6626 North Bourbon Street #2,roca1,2,Andrew Cannon,Rent Income,2026-07-08,payment,Manual cash payment successful,cash,,From #12 to #2,-205,-205,1191
+6626 North Bourbon Street #2,roca1,2,Andrew Cannon,Rent Income,2026-07-31,payment,Credit card payment successful,card,,by Andrew Cannon,-720,-925,1192
+6626 North Bourbon Street #2,roca1,2,Andrew Cannon,Rent Income,2026-08-01,charge,Charge,,,Rent,925,0,1193
+6626 North Bourbon Street #2,roca1,2,Andrew Cannon,Rent Income,2026-09-01,charge,Charge,,,Rent,925,925,1194
+6626 North Bourbon Street #2,roca1,2,Andrew Cannon,Rent Income,2026-09-01,payment,Credit card payment successful,card,,by Andrew Cannon,-925,0,1195
+6626 North Bourbon Street #2,roca1,2,Andrew Cannon,Rent Income,2026-09-30,payment,Credit card payment successful,card,,by Andrew Cannon,-925,-925,1196
+6626 North Bourbon Street #2,roca1,2,Andrew Cannon,Rent Income,2026-10-01,charge,Charge,,,Rent,925,0,1197
+6626 North Bourbon Street #2,roca1,2,Andrew Cannon,Security Deposit Liability,2026-07-08,charge,Charge,,,Security deposit,1800,1800,1201
+6626 North Bourbon Street #2,roca1,2,Andrew Cannon,Security Deposit Liability,2026-07-08,payment,Manual cash payment successful,cash,,From Incorrect Lease #12 to #2,-1800,0,1202
+6626 North Bourbon Street #3,roca1,3,James Pritchard,Application Fee Income,2025-05-01,credit,Credit,,,Application Fee,-32,-32,1245
+6626 North Bourbon Street #3,roca1,3,James Pritchard,Rent Income,2025-05-01,charge,Charge,,,Rent,900,900,1249
+6626 North Bourbon Street #3,roca1,3,James Pritchard,Security Deposit Liability,2025-05-01,charge,Charge,,,Security Deposit,1800,1800,1253
+6626 North Bourbon Street #3,roca1,3,"James Pritchard, Zackary Pritchard",Pet Rent Income,2026-04-03,charge,Charge,,,Pet Fee,300,300,1259
+6626 North Bourbon Street #3,roca1,3,"James Pritchard, Zackary Pritchard",Pet Rent Income,2026-04-03,charge,Charge,,,Pet litter fee,25,325,1260
+6626 North Bourbon Street #3,roca1,3,"James Pritchard, Zackary Pritchard",Pet Rent Income,2026-04-21,payment,Credit card payment successful,card,,by James Pritchard,-325,0,1261
+6626 North Bourbon Street #3,roca1,3,"James Pritchard, Zackary Pritchard",Rent Income,2025-05-29,payment,Credit card payment successful,card,,by James Pritchard,-900,-900,1265
+6626 North Bourbon Street #3,roca1,3,"James Pritchard, Zackary Pritchard",Rent Income,2025-06-01,charge,Charge,,,Rent,900,0,1266
+6626 North Bourbon Street #3,roca1,3,"James Pritchard, Zackary Pritchard",Rent Income,2025-06-29,payment,Credit card payment successful,card,,by James Pritchard,-900,-900,1267
+6626 North Bourbon Street #3,roca1,3,"James Pritchard, Zackary Pritchard",Rent Income,2025-07-01,charge,Charge,,,Rent,900,0,1268
+6626 North Bourbon Street #3,roca1,3,"James Pritchard, Zackary Pritchard",Rent Income,2025-07-01,payment,Manual check payment successful (#62318),check,62318,CVI Payment,-900,-900,1269
+6626 North Bourbon Street #3,roca1,3,"James Pritchard, Zackary Pritchard",Rent Income,2025-08-01,charge,Charge,,,Rent,900,0,1270
+6626 North Bourbon Street #3,roca1,3,"James Pritchard, Zackary Pritchard",Rent Income,2025-09-01,charge,Charge,,,Rent,900,900,1271
+6626 North Bourbon Street #3,roca1,3,"James Pritchard, Zackary Pritchard",Rent Income,2025-09-01,payment,Manual cash payment successful,cash,,CVI,-900,0,1272
+6626 North Bourbon Street #3,roca1,3,"James Pritchard, Zackary Pritchard",Rent Income,2025-10-01,charge,Charge,,,Rent,900,900,1273
+6626 North Bourbon Street #3,roca1,3,"James Pritchard, Zackary Pritchard",Rent Income,2025-10-01,payment,Credit card payment successful,card,,by James Pritchard,-450,450,1274
+6626 North Bourbon Street #3,roca1,3,"James Pritchard, Zackary Pritchard",Rent Income,2025-10-01,payment,Manual check payment successful,check,,Payment,-450,0,1275
+6626 North Bourbon Street #3,roca1,3,"James Pritchard, Zackary Pritchard",Rent Income,2025-10-30,payment,Credit card payment successful,card,,by James Pritchard,-450,-450,1276
+6626 North Bourbon Street #3,roca1,3,"James Pritchard, Zackary Pritchard",Rent Income,2025-11-01,charge,Charge,,,Rent,900,450,1277
+6626 North Bourbon Street #3,roca1,3,"James Pritchard, Zackary Pritchard",Rent Income,2025-11-01,payment,Manual cash payment successful,cash,,CVI,-450,0,1278
+6626 North Bourbon Street #3,roca1,3,"James Pritchard, Zackary Pritchard",Rent Income,2025-12-01,charge,Charge,,,Rent,900,900,1279
+6626 North Bourbon Street #3,roca1,3,"James Pritchard, Zackary Pritchard",Rent Income,2025-12-01,payment,Credit card payment successful,card,,by James Pritchard,-450,450,1280
+6626 North Bourbon Street #3,roca1,3,"James Pritchard, Zackary Pritchard",Rent Income,2025-12-01,payment,Manual cash payment successful,cash,,CVI,-450,0,1281
+6626 North Bourbon Street #3,roca1,3,"James Pritchard, Zackary Pritchard",Rent Income,2025-12-31,payment,Credit card payment successful,card,,by James Pritchard,-450,-450,1282
+6626 North Bourbon Street #3,roca1,3,"James Pritchard, Zackary Pritchard",Rent Income,2026-01-01,charge,Charge,,,Rent,900,450,1283
+6626 North Bourbon Street #3,roca1,3,"James Pritchard, Zackary Pritchard",Rent Income,2026-01-01,payment,Manual cash payment successful,cash,,CVI,-450,0,1284
+6626 North Bourbon Street #3,roca1,3,"James Pritchard, Zackary Pritchard",Rent Income,2026-01-29,payment,Credit card payment successful,card,,by James Pritchard,-450,-450,1285
+6626 North Bourbon Street #3,roca1,3,"James Pritchard, Zackary Pritchard",Rent Income,2026-02-01,charge,Charge,,,Rent,900,450,1286
+6626 North Bourbon Street #3,roca1,3,"James Pritchard, Zackary Pritchard",Rent Income,2026-02-02,payment,Manual cash payment successful,cash,,CVI,-450,0,1287
+6626 North Bourbon Street #3,roca1,3,"James Pritchard, Zackary Pritchard",Rent Income,2026-02-26,payment,Credit card payment successful,card,,by James Pritchard,-450,-450,1288
+6626 North Bourbon Street #3,roca1,3,"James Pritchard, Zackary Pritchard",Rent Income,2026-03-01,charge,Charge,,,Rent,900,450,1289
+6626 North Bourbon Street #3,roca1,3,"James Pritchard, Zackary Pritchard",Rent Income,2026-03-01,payment,Manual check payment successful,check,,CVI,-450,0,1290
+6626 North Bourbon Street #3,roca1,3,"James Pritchard, Zackary Pritchard",Rent Income,2026-03-26,payment,Credit card payment successful,card,,by James Pritchard,-450,-450,1291
+6626 North Bourbon Street #3,roca1,3,"James Pritchard, Zackary Pritchard",Rent Income,2026-04-01,charge,Charge,,,Rent,900,450,1292
+6626 North Bourbon Street #3,roca1,3,"James Pritchard, Zackary Pritchard",Rent Income,2026-04-01,payment,Manual check payment successful,check,,CVI,-450,0,1293
+6626 North Bourbon Street #3,roca1,3,"James Pritchard, Zackary Pritchard",Rent Income,2026-04-30,payment,Credit card payment successful,card,,by James Pritchard,-475,-475,1294
+6626 North Bourbon Street #3,roca1,3,"James Pritchard, Zackary Pritchard",Rent Income,2026-05-01,charge,Charge,,,Rent,925,450,1295
+6626 North Bourbon Street #3,roca1,3,"James Pritchard, Zackary Pritchard",Rent Income,2026-05-01,payment,Manual check payment successful,check,,CVI,-450,0,1296
+6626 North Bourbon Street #3,roca1,3,"James Pritchard, Zackary Pritchard",Rent Income,2026-05-28,payment,Credit card payment successful,card,,by James Pritchard,-475,-475,1297
+6626 North Bourbon Street #3,roca1,3,"James Pritchard, Zackary Pritchard",Rent Income,2026-06-01,charge,Charge,,,Rent,925,450,1298
+6626 North Bourbon Street #3,roca1,3,"James Pritchard, Zackary Pritchard",Rent Income,2026-06-01,payment,Manual check payment successful,check,,CVI,-450,0,1299
+6626 North Bourbon Street #3,roca1,3,"James Pritchard, Zackary Pritchard",Rent Income,2026-06-24,payment,Credit card payment successful,card,,by James Pritchard,-475,-475,1300
+6626 North Bourbon Street #3,roca1,3,"James Pritchard, Zackary Pritchard",Rent Income,2026-07-01,charge,Charge,,,Rent,925,450,1301
+6626 North Bourbon Street #3,roca1,3,"James Pritchard, Zackary Pritchard",Rent Income,2026-07-01,payment,Manual check payment successful,check,,CVI,-450,0,1302
+6626 North Bourbon Street #3,roca1,3,"James Pritchard, Zackary Pritchard",Rent Income,2026-07-29,payment,Credit card payment successful,card,,by James Pritchard,-475,-475,1303
+6626 North Bourbon Street #3,roca1,3,"James Pritchard, Zackary Pritchard",Rent Income,2026-08-01,charge,Charge,,,Rent,925,450,1304
+6626 North Bourbon Street #3,roca1,3,"James Pritchard, Zackary Pritchard",Rent Income,2026-08-01,payment,Manual check payment successful,check,,CVI,-450,0,1305
+6626 North Bourbon Street #3,roca1,3,"James Pritchard, Zackary Pritchard",Rent Income,2026-08-26,payment,Credit card payment successful,card,,by James Pritchard,-450,-450,1306
+6626 North Bourbon Street #3,roca1,3,"James Pritchard, Zackary Pritchard",Rent Income,2026-08-26,payment,Credit card payment successful,card,,by James Pritchard,-25,-475,1307
+6626 North Bourbon Street #3,roca1,3,"James Pritchard, Zackary Pritchard",Rent Income,2026-09-01,charge,Charge,,,Rent,925,450,1308
+6626 North Bourbon Street #3,roca1,3,"James Pritchard, Zackary Pritchard",Rent Income,2026-09-01,payment,Manual check payment successful,check,,CVI,-450,0,1309
+6626 North Bourbon Street #3,roca1,3,"James Pritchard, Zackary Pritchard",Rent Income,2026-09-30,payment,Credit card payment successful,card,,by James Pritchard,-475,-475,1310
+6626 North Bourbon Street #3,roca1,3,"James Pritchard, Zackary Pritchard",Rent Income,2026-10-01,charge,Charge,,,Rent,925,450,1311
+6626 North Bourbon Street #3,roca1,3,"James Pritchard, Zackary Pritchard",Rent Income,2026-10-01,payment,Manual check payment successful,check,,CVI,-450,0,1312
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Late Fee Income,2024-02-02,charge,Charge,,,Late fee,30,30,1320
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Late Fee Income,2024-02-10,payment,Retail cash payment successful,cash,,Retail Cash payment by Dekoria Marks,-30,0,1321
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Late Fee Income,2024-06-02,charge,Charge,,,Late fee,75,75,1322
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Late Fee Income,2024-06-10,payment,Retail cash payment successful,cash,,Retail Cash payment by Dekoria Marks,-75,0,1323
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Charge,2023-10-23,charge,Charge,,,Carried Over,550,550,1327
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Charge,2023-10-24,payment,Retail cash payment successful,cash,,Retail Cash payment by Dekoria Marks,-550,0,1328
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2023-11-01,charge,Charge,,,Rent,775,775,1332
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2023-11-01,payment,Retail cash payment successful,cash,,Retail Cash payment by Dekoria Marks,-775,0,1333
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2023-12-01,charge,Charge,,,Rent,775,775,1334
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2023-12-01,payment,Retail cash payment successful,cash,,Retail Cash payment by Dekoria Marks,-775,0,1335
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2023-12-10,other,Applied deposit,,,Jan 1st Rent,-775,-775,1336
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2024-01-01,charge,Charge,,,Rent,775,0,1337
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2024-02-01,charge,Charge,,,Rent,775,775,1338
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2024-02-02,payment,Retail cash payment successful,cash,,Retail Cash payment by Dekoria Marks,-650,125,1339
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2024-02-10,payment,Retail cash payment successful,cash,,Retail Cash payment by Dekoria Marks,-125,0,1340
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2024-03-01,charge,Charge,,,Rent,775,775,1341
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2024-03-03,payment,EFT payment successful,eft,,by Dekoria Marks,-775,0,1342
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2024-04-01,charge,Charge,,,Rent,775,775,1343
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2024-04-01,reversal,EFT payment reversed,eft,,by Dekoria Marks,-775,0,1344
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2024-04-04,reversal,Reversed Payment,,,REVERSED - (R01) Balance is not sufficient to cover value of transaction.: by Dekoria Marks,775,775,1345
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2024-04-04,charge,Charge,,,Reversed Charge,30,805,1346
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2024-04-06,payment,Retail cash payment successful,cash,,Retail Cash payment by Dekoria Marks,-775,30,1347
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2024-05-01,charge,Charge,,,Rent,775,805,1348
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2024-05-01,payment,EFT payment successful,eft,,by Dekoria Marks,-775,30,1349
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2024-05-01,credit,Credit,,,To Waive Bank Fees,-30,0,1350
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2024-06-01,charge,Charge,,,Rent,775,775,1351
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2024-06-10,payment,Retail cash payment successful,cash,,Retail Cash payment by Dekoria Marks,-775,0,1352
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2024-07-01,charge,Charge,,,Rent,775,775,1353
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2024-07-01,payment,Retail cash payment successful,cash,,Retail Cash payment by Dekoria Marks,-775,0,1354
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2024-08-01,charge,Charge,,,Rent,775,775,1355
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2024-08-01,payment,Credit card payment successful,card,,by Dekoria Marks,-775,0,1356
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2024-09-01,charge,Charge,,,Rent,775,775,1357
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2024-09-01,payment,Credit card payment successful,card,,by Dekoria Marks,-775,0,1358
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2024-09-30,payment,Credit card payment successful,card,,by Dekoria Marks,-775,-775,1359
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2024-10-01,charge,Charge,,,Rent,775,0,1360
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2024-11-01,charge,Charge,,,Rent,775,775,1361
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2024-11-01,payment,Credit card payment successful,card,,by Dekoria Marks,-775,0,1362
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2024-11-29,payment,Credit card payment successful,card,,by Dekoria Marks,-775,-775,1363
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2024-12-01,charge,Charge,,,Rent,775,0,1364
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2025-01-01,charge,Charge,,,Rent,775,775,1365
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2025-01-01,payment,Credit card payment successful,card,,by Dekoria Marks,-775,0,1366
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2025-02-01,charge,Charge,,,Rent,775,775,1367
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2025-02-01,payment,Credit card payment successful,card,,by Dekoria Marks,-775,0,1368
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2025-02-28,payment,Credit card payment successful,card,,by Dekoria Marks,-775,-775,1369
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2025-03-01,charge,Charge,,,Rent,775,0,1370
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2025-03-31,payment,Credit card payment successful,card,,by Dekoria Marks,-775,-775,1371
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2025-04-01,charge,Charge,,,Rent,775,0,1372
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2025-05-01,charge,Charge,,,Rent,775,775,1373
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2025-05-01,payment,Credit card payment successful,card,,by Dekoria Marks,-775,0,1374
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2025-05-31,payment,Credit card payment successful,card,,by Dekoria Marks,-775,-775,1375
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2025-06-01,charge,Charge,,,Rent,775,0,1376
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2025-07-01,charge,Charge,,,Rent,775,775,1377
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2025-07-01,payment,Credit card payment successful,card,,by Dekoria Marks,-775,0,1378
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2025-07-31,payment,Credit card payment successful,card,,by Dekoria Marks,-775,-775,1379
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2025-08-01,charge,Charge,,,Rent,775,0,1380
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2025-08-31,payment,Credit card payment successful,card,,by Dekoria Marks,-825,-825,1381
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2025-09-01,charge,Charge,,,Rent,825,0,1382
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2025-10-01,charge,Charge,,,Rent,825,825,1383
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2025-10-01,payment,Credit card payment successful,card,,by Dekoria Marks,-825,0,1384
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2025-10-31,payment,Credit card payment successful,card,,by Dekoria Marks,-825,-825,1385
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2025-11-01,charge,Charge,,,Rent,825,0,1386
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2025-12-01,charge,Charge,,,Rent,825,825,1387
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2025-12-01,payment,Credit card payment successful,card,,by Dekoria Marks,-825,0,1388
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2025-12-31,payment,Credit card payment successful,card,,by Dekoria Marks,-825,-825,1389
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2026-01-01,charge,Charge,,,Rent,825,0,1390
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2026-01-31,payment,Credit card payment successful,card,,by Dekoria Marks,-825,-825,1391
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2026-02-01,charge,Charge,,,Rent,825,0,1392
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2026-02-28,payment,Credit card payment successful,card,,by Dekoria Marks,-825,-825,1393
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2026-03-01,charge,Charge,,,Rent,825,0,1394
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2026-03-31,payment,Credit card payment successful,card,,by Dekoria Marks,-825,-825,1395
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2026-04-01,charge,Charge,,,Rent,825,0,1396
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2026-05-01,charge,Charge,,,Rent,825,825,1397
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2026-05-01,payment,Credit card payment successful,card,,by Dekoria Marks,-825,0,1398
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2026-05-31,payment,Credit card payment successful,card,,by Dekoria Marks,-825,-825,1399
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2026-06-01,charge,Charge,,,Rent,825,0,1400
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2026-06-30,payment,Credit card payment successful,card,,by Dekoria Marks,-825,-825,1401
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2026-07-01,charge,Charge,,,Rent,825,0,1402
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2026-08-01,charge,Charge,,,Rent,825,825,1403
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2026-08-01,payment,Credit card payment successful,card,,by Dekoria Marks,-825,0,1404
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2026-08-31,payment,Credit card payment successful,card,,by Dekoria Marks,-825,-825,1405
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2026-09-01,charge,Charge,,,Rent,825,0,1406
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2026-09-30,payment,Credit card payment successful,card,,by Dekoria Marks,-825,-825,1407
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Rent Income,2026-10-01,charge,Charge,,,Rent,825,0,1408
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Security Deposit Liability,2023-10-17,charge,Charge,,,Security deposit,1500,1500,1412
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Security Deposit Liability,2023-10-23,payment,Manual cash payment successful,cash,,Carried over from the previous lease,-1500,0,1413
+6626 North Bourbon Street #5,roca1,5,Dekoria Marks,Security Deposit Liability,2023-12-10,other,Applied deposit,,,Jan 1st Rent,0,0,1414
+6626 North Bourbon Street Unit Eight,roca1,8,Sir Grant,Pet Rent Income,2026-08-01,payment,Manual cash payment successful,cash,,HACM Payment,-20,-20,1422
+6626 North Bourbon Street Unit Eight,roca1,8,Sir Grant,Pet Rent Income,2026-08-18,charge,Charge,,,Visitor Pet,20,0,1423
+6626 North Bourbon Street Unit Eight,roca1,8,Sir Grant,Rent Income,2025-07-08,charge,Charge,,,Rent,900,900,1427
+6626 North Bourbon Street Unit Eight,roca1,8,Sir Grant,Rent Income,2025-08-08,charge,Charge,,,Rent,900,1800,1428
+6626 North Bourbon Street Unit Eight,roca1,8,Sir Grant,Rent Income,2025-09-08,charge,Charge,,,Rent,900,2700,1429
+6626 North Bourbon Street Unit Eight,roca1,8,Sir Grant,Rent Income,2025-10-08,charge,Charge,,,Rent,900,3600,1430
+6626 North Bourbon Street Unit Eight,roca1,8,Sir Grant,Rent Income,2025-11-08,charge,Charge,,,Rent,900,4500,1431
+6626 North Bourbon Street Unit Eight,roca1,8,Sir Grant,Rent Income,2025-12-01,payment,Manual cash payment successful,cash,,HACM,-5520,-1020,1432
+6626 North Bourbon Street Unit Eight,roca1,8,Sir Grant,Rent Income,2025-12-08,charge,Charge,,,Rent,900,-120,1433
+6626 North Bourbon Street Unit Eight,roca1,8,Sir Grant,Rent Income,2026-01-02,payment,Manual cash payment successful,cash,,HACM,-780,-900,1434
+6626 North Bourbon Street Unit Eight,roca1,8,Sir Grant,Rent Income,2026-01-08,charge,Charge,,,Rent,900,0,1435
+6626 North Bourbon Street Unit Eight,roca1,8,Sir Grant,Rent Income,2026-02-01,payment,Manual cash payment successful,cash,,HACM,-900,-900,1436
+6626 North Bourbon Street Unit Eight,roca1,8,Sir Grant,Rent Income,2026-02-08,charge,Charge,,,Rent,900,0,1437
+6626 North Bourbon Street Unit Eight,roca1,8,Sir Grant,Rent Income,2026-03-08,charge,Charge,,,Rent,900,900,1438
+6626 North Bourbon Street Unit Eight,roca1,8,Sir Grant,Rent Income,2026-03-10,payment,Manual cash payment successful,cash,,HACM,-900,0,1439
+6626 North Bourbon Street Unit Eight,roca1,8,Sir Grant,Rent Income,2026-04-08,charge,Charge,,,Rent,900,900,1440
+6626 North Bourbon Street Unit Eight,roca1,8,Sir Grant,Rent Income,2026-04-08,payment,Manual cash payment successful,cash,,HACM Payment,-900,0,1441
+6626 North Bourbon Street Unit Eight,roca1,8,Sir Grant,Rent Income,2026-05-08,charge,Charge,,,Rent,900,900,1442
+6626 North Bourbon Street Unit Eight,roca1,8,Sir Grant,Rent Income,2026-05-08,payment,Manual cash payment successful,cash,,HACM,-900,0,1443
+6626 North Bourbon Street Unit Eight,roca1,8,Sir Grant,Rent Income,2026-06-01,payment,Manual cash payment successful,cash,,Payment,-900,-900,1444
+6626 North Bourbon Street Unit Eight,roca1,8,Sir Grant,Rent Income,2026-06-08,charge,Charge,,,Rent,900,0,1445
+6626 North Bourbon Street Unit Eight,roca1,8,Sir Grant,Rent Income,2026-07-08,charge,Charge,,,Rent,900,900,1446
+6626 North Bourbon Street Unit Eight,roca1,8,Sir Grant,Rent Income,2026-07-19,payment,Manual cash payment successful,cash,,HACM Payment,-900,0,1447
+6626 North Bourbon Street Unit Eight,roca1,8,Sir Grant,Rent Income,2026-08-01,payment,Manual cash payment successful,cash,,HACM Payment,-880,-880,1448
+6626 North Bourbon Street Unit Eight,roca1,8,Sir Grant,Rent Income,2026-08-31,credit,Credit,,,Pet removed from unit,-20,-900,1449
+6626 North Bourbon Street Unit Eight,roca1,8,Sir Grant,Rent Income,2026-09-01,charge,Charge,,,Rent,900,0,1450
+6626 North Bourbon Street Unit Eight,roca1,8,Sir Grant,Rent Income,2026-09-30,payment,Manual cash payment successful,cash,,HACM payment,-900,-900,1451
+6626 North Bourbon Street Unit Eight,roca1,8,Sir Grant,Rent Income,2026-10-01,charge,Charge,,,Rent,900,0,1452
+6626 North Bourbon Street Unit Eight,roca1,8,Sir Grant,Security Deposit Liability,2025-07-08,charge,Charge,,,,1800,1800,1456
+6626 North Bourbon Street Unit Eight,roca1,8,Sir Grant,Security Deposit Liability,2025-07-23,payment,Manual cash payment successful,cash,,StephenSiller T2T,-1800,0,1457

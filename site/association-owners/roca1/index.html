@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Owner Portal — 2nd Chance Housing</title>
+<link rel="manifest" href="/association-owners/roca1/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/logo-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="ROCA1 Owners">
+<meta name="theme-color" content="#2e7d1f">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+<style id="stmtCss"></style>
+<style>
+  .pkgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; margin-top: 10px; }
+  .pkcard { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+  .pkphotos { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 8px 0; }
+  .pkphotos img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 8px; background: #e8ece6; display: block; }
+  .acct { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; margin-top: 10px; }
+  .acct .bal { font-size: 1.5rem; font-weight: 700; } .acct .bal.owes { color: var(--bad); } .acct .bal.ok { color: var(--ok); }
+  .acct td.n, .acct th.n { text-align: right; white-space: nowrap; }
+  .acct .ledger { max-height: 420px; overflow: auto; margin-top: 8px; }
+  .acct .sm { font-size: 0.8rem; color: var(--muted); }
+  .acct .formrow { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; margin-top: 10px; }
+  .acct .formrow label { display: grid; gap: 3px; font-size: 0.85rem; color: var(--muted); }
+  .tabs { display: flex; gap: 4px; flex-wrap: wrap; border-bottom: 1px solid var(--line); }
+  .tabs a { padding: 10px 16px; color: var(--muted); font-weight: 600; text-decoration: none; border-bottom: 3px solid transparent; margin-bottom: -1px; }
+  .tabs a:hover { color: var(--accent); }
+  .tabgroup { position: relative; }
+  .tabgroup summary { list-style: none; cursor: pointer; padding: 10px 16px; color: var(--muted); font-weight: 600; border-bottom: 3px solid transparent; margin-bottom: -1px; }
+  .tabgroup summary::-webkit-details-marker { display: none; }
+  .tabgroup summary::after { content: " ▾"; font-size: .8em; }
+  .tabgroup.active summary, .tabgroup summary:hover { color: var(--accent); }
+  .tabgroup.active summary { border-bottom-color: var(--accent); }
+  .tabgroup[open] .tabmenu { position: absolute; left: 0; top: 100%; z-index: 20; display: grid; min-width: 190px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 4px; box-shadow: 0 6px 18px rgba(0,0,0,.12); }
+  .tabmenu a { border-bottom: 0 !important; margin: 0 !important; padding: 8px 12px; }
+  .tabmenu a[aria-current="page"] { background: var(--accent-soft); border-radius: 6px; }
+  .tabs a[aria-current="page"] { color: var(--accent); border-bottom-color: var(--accent); }
+  .paycards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; align-items: start; }
+  .paycard { border: 1px solid var(--line); border-radius: 8px; padding: 16px; background: var(--panel); display: grid; gap: 8px; align-content: start; min-width: 0; }
+  .paycard h3 { margin: 0; font-size: 1.05rem; }
+  .paycard .tag { font-size: 0.8rem; color: var(--ok); font-weight: 600; }
+  .paycard .formrow { margin-top: 0; }
+  .alertcount { display: inline-block; min-width: 20px; margin-left: 6px; padding: 0 6px; border-radius: 999px; background: var(--bad); color: #fff; font-size: 0.8rem; text-align: center; }
+  .view { display: grid; gap: 18px; }
+  .unit .bal { font-size: 1.5rem; font-weight: 700; } .unit .bal.owes { color: var(--bad); } .unit .bal.ok { color: var(--ok); }
+  .alert { border: 1px solid var(--bad); background: var(--bad-soft); border-left-width: 4px; border-radius: 4px; padding: 10px 14px; margin-top: 8px; }
+  .alert b { color: var(--bad); }
+  .alert.soft { border-color: var(--line); background: var(--panel); }
+  .alert.soft b { color: var(--fg); }
+  .prefrow { display: flex; gap: 10px; align-items: flex-start; padding: 8px 0; border-top: 1px solid var(--line); }
+  .doccat { margin: 14px 0 4px; font-weight: 700; }
+  .docrow { display: flex; justify-content: space-between; gap: 10px; align-items: center; padding: 8px 0; border-top: 1px solid var(--line); }
+  .acct .formrow input, .acct .formrow select { font: inherit; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; color: var(--fg); background: var(--panel); }
+</style>
+</head>
+<body>
+<div class="appbar">
+  <div class="appbar-in">
+    <div class="org">2nd Chance Housing<span>Owner Portal</span></div>
+    <div class="row" id="userBar" hidden>
+      <a class="linkbtn" id="staffLink" href="/association-owners/roca1/staff/" hidden>Staff view</a>
+      <button class="linkbtn" type="button" id="signOutBtn">Sign out</button>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+  <header>
+    <h1 id="title">Royal Orleans Condominium – Addition One</h1>
+    <p class="lead">6622 &amp; 6626 N. Bourbon St., Milwaukee, WI 53224</p>
+  </header>
+
+  <div id="signin" class="narrow"></div>
+
+  <div id="app" hidden>
+    <nav class="tabs" id="tabs" aria-label="Owner portal">
+      <a href="#home">Home</a><a href="#payments">Payments</a>
+      <a href="#requests">Requests</a><a href="#alerts">Alerts<span class="alertcount" id="alertCount" hidden></span></a><a href="#board">Board &amp; votes</a>
+      <details class="tabgroup"><summary>My unit</summary><div class="tabmenu"><a href="#parking">Parking</a><a href="#guests" id="navGuests">Guests</a><a href="#inspect">Inspect my unit</a><a href="#repairs" id="navRepairs" hidden>Repairs</a><a href="#keys" id="navKeys">Keys</a><a href="#tenant" id="navTenant">Tenant</a><a href="#statements" id="navStatements">Rent statements</a></div></details>
+      <details class="tabgroup"><summary>Records</summary><div class="tabmenu"><a href="#documents">Documents</a><a href="#reports">Reports</a><a href="#questions">Charge questions</a><a href="#violations">Violations</a><a href="#eviction" id="navEviction" hidden>Eviction costs</a><a href="#pma" id="navPma" hidden>Management agreement</a></div></details>
+      <details class="tabgroup"><summary>My account</summary><div class="tabmenu"><a href="#email">Email the office</a><a href="#update">Update info</a></div></details>
+    </nav>
+
+    <div data-view="home" class="view">
+    <div id="confirmBanner"></div>
+
+    <section class="panel">
+      <div><h2>Your units</h2><p class="sub">Units you own in the association. Contact the office if anything here is wrong.</p></div>
+      <div class="units" id="units"></div>
+    </section>
+    </div>
+
+    <div data-view="payments" class="view" hidden>
+    <div id="paidBanner"></div>
+    <section class="panel">
+      <div><h2>Pay online</h2><p class="sub">Choose one way to pay. ROCA1's bank shows us the payment and it is added to your account automatically. <a href="/association-owners/roca1/help/">Step-by-step help with pictures</a></p></div>
+      <div class="paycards" id="payWays"></div>
+    </section>
+    <section class="panel" id="goodwillPanel" hidden>
+      <div><h2>Goodwill credit</h2><p class="sub">If you are bringing your account current, or working toward it within about 6 months, you are not charged late fees or interest. Each month on the 13th we credit the late fees and interest that are still unpaid. Your dues are always owed in full. It applies to late fees and interest charged from <span id="gwSince"></span> on.</p></div>
+      <div id="goodwillMount"></div>
+    </section>
+    <section class="panel">
+      <div><h2>Your account</h2><p class="sub" id="acctSub">Association dues, late fees and payments for each unit.</p></div>
+      <div id="accounts"></div>
+    </section>
+    </div>
+
+    <div data-view="alerts" class="view" hidden>
+    <section class="panel">
+      <div><h2>Alerts</h2><p class="sub">Unpaid dues, late fees and interest charges always show here, in red.</p></div>
+      <div id="alertList"></div>
+    </section>
+    <section class="panel">
+      <div><h2>Email alerts</h2><p class="sub">Choose which alerts we also email to you.</p></div>
+      <div id="alertPrefs"></div>
+    </section>
+    </div>
+
+    <div data-view="documents" class="view" hidden>
+    <section class="panel">
+      <div><h2>Documents</h2><p class="sub">Documents the association has shared with you. Your account statements are on the <a href="#payments">Payments</a> page.</p></div>
+      <div id="docList"></div>
+    </section>
+    </div>
+
+    <div data-view="parking" class="view" hidden>
+      <div id="pstMount"></div><div id="stallsMount" style="margin-bottom:14px"></div><div id="parkSlot"><div id="parkAlertMount"></div><div id="pushMount"></div></div>
+      <section class="panel" id="vehRegPanel" hidden><div id="vehRegMount"></div></section>
+      <section class="panel"><div><h2>Parking</h2><p class="sub">Each unit has one parking stall. Tenants register their own vehicles; if you live in your unit, or your unit has no tenant, register above. These are the vehicles registered so far, so you know whose vehicle belongs in each stall. Photos are for residents and owners only.</p></div>
+        <div id="pkGrid" class="pkgrid"><p class="sub">Loading…</p></div></section>
+    </div>
+
+    <div data-view="reports" class="view" hidden>
+      <div id="reportsMount"></div>
+    </div>
+
+    <div data-view="questions" class="view" hidden>
+      <div id="disputesMount"></div>
+    </div>
+
+    <div data-view="statements" class="view" hidden>
+      <div id="stmtMount"></div>
+    </div>
+
+    <div data-view="pma" class="view" hidden>
+      <h2>Management agreement</h2>
+      <div id="pmaMount"></div>
+    </div>
+
+    <div data-view="eviction" class="view" hidden>
+      <h2>Eviction costs</h2>
+      <div id="evictionMount"></div>
+    </div>
+
+    <div data-view="violations" class="view" hidden>
+      <div id="violMount"></div>
+    </div>
+
+    <div data-view="board" class="view" hidden>
+      <div id="boardMount"></div>
+    </div>
+
+    <div data-view="requests" class="view" hidden>
+      <section class="panel"><div><h2>Requests</h2></div><div id="requestsMount"></div></section>
+    </div>
+    <div data-view="repairs" class="view" hidden>
+      <section class="panel"><div><h2>Repairs</h2><p class="sub">Your HVAC technician, and repair requests your tenant sends from the resident portal (you get an email copy of every message on them).</p></div><div id="hvacMount"></div><div id="repairsMount"></div></section>
+    </div>
+    <div data-view="keys" class="view" hidden>
+      <div id="keysMount"></div>
+    </div>
+    <div data-view="inspect" class="view" hidden>
+      <div class="panel"><h2>Inspect my unit</h2>
+        <p class="sub">Walk through your unit with your phone and take photos. Each photo is stamped with the date, time and place, and cannot be changed once you submit. Pick a unit to start.</p>
+        <div id="inspectMount"></div></div>
+    </div>
+    <div data-view="guests" class="view" hidden>
+      <div id="guestsMount"></div>
+    </div>
+
+    <div data-view="email" class="view" hidden>
+    <section class="panel">
+      <div><h2>Email the office</h2></div>
+      <form id="emailOfficeForm" class="panel" style="padding:0;border:none" novalidate>
+        <label class="f">About<select class="field" id="mailUnit"></select></label>
+        <label class="f">Subject<input class="field" id="mailSubject" maxlength="150"></label>
+        <label class="f">Message<textarea class="field" id="mailBody" rows="7" maxlength="5000"></textarea></label>
+        <div class="row"><button class="btn primary" type="submit" id="mailSend">Send</button><span class="msg" id="mailMsg" role="status"></span></div>
+      </form>
+    </section>
+    </div>
+
+    <div data-view="tenant" class="view" hidden>
+    <section class="panel">
+      <div><h2>Your tenant</h2><p class="sub">Who lives in your unit and their current balance. We don't share tenants' contact details; use the message form and we deliver it.</p></div>
+      <div id="tenantList"></div>
+    </section>
+    <div id="occupantMount"></div>
+    </div>
+
+    <div data-view="update" class="view" hidden>
+    <form class="panel" id="profileForm" novalidate>
+      <div><h2>Your contact information</h2>
+        <p class="sub">Review each section, then choose <strong>Nothing changed</strong> or <strong>Save changes</strong>.</p></div>
+
+      <fieldset><legend>Name and sign-in</legend><div class="grid2">
+        <label class="f">Owner name<input class="field" id="f-name" readonly></label>
+        <label class="f">Sign-in email<input class="field" id="f-email" readonly></label>
+      </div><p class="sub">To change your name or sign-in email, contact the office at info@2ndchinc.org.</p></fieldset>
+
+      <fieldset><legend>Phone and email</legend><div class="grid2">
+        <label class="f">Mobile phone<input class="field" type="tel" data-k="phone_mobile" autocomplete="tel"></label>
+        <label class="f">Home phone<input class="field" type="tel" data-k="phone_home"></label>
+        <label class="f">Work phone<input class="field" type="tel" data-k="phone_work"></label>
+        <label class="f">Alternate email<input class="field" type="email" data-k="alt_email"></label>
+      </div></fieldset>
+
+      <fieldset><legend>Mailing address</legend><div class="grid2">
+        <label class="f">Street<input class="field" data-k="mailing_line1" autocomplete="address-line1"></label>
+        <label class="f">Apt / unit / line 2<input class="field" data-k="mailing_line2" autocomplete="address-line2"></label>
+        <label class="f">City<input class="field" data-k="mailing_city" autocomplete="address-level2"></label>
+        <label class="f">State<input class="field" data-k="mailing_state" autocomplete="address-level1" maxlength="2"></label>
+        <label class="f">ZIP<input class="field" data-k="mailing_zip" autocomplete="postal-code" inputmode="numeric"></label>
+      </div></fieldset>
+
+      <fieldset><legend>Second address (optional)</legend><div class="grid2">
+        <label class="f">Street<input class="field" data-k="alt_line1"></label>
+        <label class="f">Apt / unit / line 2<input class="field" data-k="alt_line2"></label>
+        <label class="f">City<input class="field" data-k="alt_city"></label>
+        <label class="f">State<input class="field" data-k="alt_state" maxlength="2"></label>
+        <label class="f">ZIP<input class="field" data-k="alt_zip" inputmode="numeric"></label>
+      </div></fieldset>
+
+
+      <fieldset><legend>Emergency contact (optional)</legend><div class="grid2">
+        <label class="f">Name<input class="field" data-k="emergency_name" autocomplete="off"></label>
+        <label class="f">Phone<input class="field" type="tel" data-k="emergency_phone" autocomplete="off"></label>
+      </div><p class="sub">Someone the office can call if we can't reach you about an emergency at your unit.</p></fieldset>
+
+      <fieldset><legend>Formal notices</legend><div class="grid2">
+        <label class="f">Send my formal notices (violations, hearings, liens) by<select class="field" data-k="communications_preference"><option>Mailing</option><option>Email</option></select></label>
+      </div><p class="sub">The office follows this when it sends a formal notice. Charges, receipts and reminders are emailed as you chose under Alerts.</p></fieldset>
+
+      <div class="actions">
+        <button class="btn primary" type="button" id="nothingBtn">Nothing changed</button>
+        <button class="btn" type="submit" id="saveBtn" disabled>Save changes</button>
+        <span class="msg" id="saveMsg" role="status"></span>
+      </div>
+    </form>
+    </div>
+  </div>
+</main>
+
+<script type="module">
+import { client, $, esc, fmtDate, money, signIn, signOut, errorText, notifyStaff, todayCT, balanceText, balCell, amtCell, CREDIT_NOTE } from "/assets/portal/portal.js";
+import { balClass } from "/assets/portal/balance.js";
+import { withStepUp } from "/assets/portal/step-up.js";
+import { printStatement, STATEMENT_CSS } from "/assets/portal/statement.js";
+import { renderPayPalButtons } from "/assets/portal/paypal.js";
+import { mountGuests } from "/assets/portal/guests.js";
+import { mountKeys } from "/assets/portal/keys.js";
+import { mountOwnerRequests } from "/assets/portal/owner-requests.js";
+import { mountOwnerRepairs } from "/assets/portal/owner-repairs.js?v=20261105c";
+import { mountHvac, hasHvac } from "/assets/portal/hvac.js?v=20261105b";
+import { mountStalls } from "/assets/portal/stalls.js?v=20261103b";
+import { mountParkAlert } from "/assets/portal/parking-alert.js?v=20261108c";
+import { mountVehicleReg } from "/assets/portal/vehicle-reg.js?v=20261108c";
+import { mountParkingStatus } from "/assets/portal/parking-status.js?v=20261109a";
+import { mountPushCard } from "/assets/portal/push.js";
+import { mountOccupantAccess } from "/assets/portal/occupant-access.js?v=2";
+import { mountDisputes, questionCharge } from "/assets/portal/disputes.js";
+import { mountOwnerReports } from "/assets/portal/reports.js";
+import { mountBoard } from "/assets/portal/board.js";
+import { mountEvictionSheets, evictionAllowed } from "/assets/portal/eviction-sheet.js?v=20261111a";
+import { mountPma, pmaList } from "/assets/portal/pma.js?v=20261111b";
+import { mountOwnerViolations, mountDistributions } from "/assets/portal/roca-owner.js?v=20261111a";
+$("stmtCss").textContent = STATEMENT_CSS;
+let account = null;
+
+let payOpts = {}, reports = [], checkReq = null;
+const METHODS = { zelle: "Zelle", paypal: "PayPal", cashapp: "Cash App", bank_transfer: "Bank transfer", check: "Check (mailed)", money_order: "Money order (mailed)", other: "Other" };
+const STATUS = { pending: ["Checking with the bank", "warn"], verified: ["Received", "ok"], rejected: ["Not found", "bad"] };
+// One card per way to pay, shown once for the whole account (not once per unit).
+function payCards() {
+  const o = payOpts, cards = [], slow = [], units = account.units;
+  const box = (title, body, tag = "") => `<div class="paycard"><h3>${title}</h3>${tag ? `<span class="tag">${tag}</span>` : ""}${body}</div>`;
+  const card = (title, body, tag = "") => cards.push(box(title, body, tag)), slowCard = (title, body) => slow.push(box(title, body));
+  const first = units[0] || {}, amt0 = Number(first.balance) > 0 ? Number(first.balance) : Number(first.dues);  // "Owners pay ROCA1" (Stephen 10/7/2026): no 2nd Chance Stripe for owners unless owner_pay_stripe is switched on.
+  if (o.owner_stripe_ready === true) card("Pay from your bank account", `<span class="sm">Secured by Stripe. You don't enter bank or card numbers on this site.</span>
+    <div class="formrow">${units.length > 1 ? `<label>Unit<select id="stripeUnit">${units.map((u, i) => `<option value="${i}">#${esc(u.unit_number)}</option>`).join("")}</select></label>` : ""}
+      <label>Amount<input type="number" step="0.01" min="1" id="stripeAmt" value="${amt0.toFixed(2)}" style="width:130px"></label>
+      <button class="btn primary" type="button" id="stripeGo">Pay from my bank</button></div>
+    <span class="msg" id="stripeMsg"></span>`);
+  if (o.owner_pay_zelle_to || o.owner_pay_zelle_qr) card("Zelle", `<div>${o.owner_pay_zelle_qr ? "Scan the code in your bank's app" : "Send from your bank's app"}${o.owner_pay_zelle_to ? ` to <b>${esc(o.owner_pay_zelle_to)}</b>` : ""}${o.owner_pay_zelle_name ? ` (${esc(o.owner_pay_zelle_name)})` : ""}.</div>
+    ${o.owner_pay_zelle_qr ? `<img src="${esc(o.owner_pay_zelle_qr)}" alt="Zelle QR code" style="width:140px">` : ""}`, "Free · 1–2 business days");
+  // RULE (Stephen 10/5/2026): owners and tenants have SEPARATE bank accounts. The PayPal button is 2nd Chance's, so the server leaves
+  // owner_pay_paypal_* out unless owner_pay_paypal is "on" (once ROCA1 has its own button).
+  if (o.owner_pay_paypal_hosted_id) slowCard("PayPal or Venmo", `<div id="pp-0" data-pp style="max-width:320px"></div>`);
+  if (o.owner_pay_paypal_link) slowCard("PayPal", `<a href="${esc(o.owner_pay_paypal_link)}" target="_blank" rel="noopener">Pay here</a>`);
+  if (o.owner_pay_cashapp_tag) slowCard("Cash App", `<b>${esc(o.owner_pay_cashapp_tag)}</b>`);
+  if (o.owner_pay_bank_transfer) card("Bank transfer (ACH or wire)", `<div>${esc(o.owner_pay_bank_transfer)}</div>`);
+  // Checks are an exception: the mail-in instructions show only for a month the owner asked to pay by check (check_request_make).
+  if (checkReq?.active && checkReq.instructions) card("By mail", `<div>${esc(checkReq.instructions)}</div>`, `${esc(checkReq.month)} only`);
+  else if (checkReq) card("Need to pay by check this month?", `<div>Paying online is faster and shows on your account right away. If you need to pay by check or money order this month, ask here and the mail-in instructions will appear.</div>
+    <div class="formrow"><button class="btn" type="button" id="chkAsk">Request to pay by check this month</button></div><span class="msg" id="chkMsg"></span>`);
+  if (slow.length) cards.push(`<details style="grid-column:1/-1"><summary class="sm" style="cursor:pointer">Other ways to pay (slower to show on your account)</summary><p class="sm">PayPal, Venmo and Cash App payments can take up to 5 business days to appear on your account. Our bank sees them as one transfer from PayPal or Cash App, not from you, so the office matches each one by hand.</p><div class="paygrid">${slow.join("")}</div></details>`);
+  return cards.join("") + (o.owner_pay_memo ? `<p class="sm" style="grid-column:1/-1;margin:0">${esc(o.owner_pay_memo)} Include your unit number${units.length === 1 && first.pin ? ` and account # ${esc(first.pin)}` : ""}.</p>` : "");
+}
+
+// Per unit: payments reach the account through the bank feed; owners don't report them. Past reports stay visible.
+function payBox(u, i) {
+  const mine = reports.filter((r) => r.unit_number === u.unit_number).slice(0, 6);
+  return `<div style="margin-top:8px">
+    <p class="sub">ROCA1's bank shows us every payment, and it's added to your account automatically, usually within 1 to 2 business days. Put your unit number${u.pin ? ` and account # ${esc(u.pin)}` : ""} in the Zelle memo so it matches right away.</p>
+    <p class="sm">Paid more than 3 business days ago and it isn't in your charges and payments? Call ${esc((account || {}).office_phone || "the office")} with the date and amount.</p>
+    ${mine.length ? `<p class="sm" style="margin-top:8px">Payments you reported before:</p><table style="margin-top:4px"><tbody>${mine.map((r) => `<tr><td>${fmtDate(r.paid_on)}</td><td>${esc(METHODS[r.method] || r.method)}</td><td class="n">${money(r.amount)}</td>
+      <td><span class="pill ${STATUS[r.status][1]}">${STATUS[r.status][0]}</span>${r.reject_reason ? ` <span class="sm">${esc(r.reject_reason)}</span>` : ""}</td></tr>`).join("")}</tbody></table>` : ""}</div>`;
+}
+
+// "To bring this unit current": the whole balance, split into what is late and this month's dues, with the next charge.
+function bringCurrent(u) {
+  const { bal, notLate, pastDue, flatDay } = dueBreakdown(u), d = new Date(todayCT() + "T12:00:00");
+  const next = new Date(d.getFullYear(), d.getMonth() + 1, 1).toLocaleDateString("en-US", { month: "long", day: "numeric" });
+  return `<div class="alert soft" style="margin:8px 0"><b>To bring Unit #${esc(u.unit_number)} current: ${money(bal)}</b>
+    <div>${notLate > 0.004 && pastDue > 0.004 ? `${money(pastDue)} is past due and ${money(notLate)} is this month's dues. ` : notLate > 0.004 ? `This is this month's dues. Pay by the ${flatDay - 1}th and no late fee is added. ` : ""}Next dues of ${money(u.dues)} post on ${next}.</div></div>`;
+}
+function renderAccount(a) {
+  account = a;
+  const p = a.late_policy;
+  $("acctSub").textContent = `Dues are due on the 1st. If anything is still owed on the ${p.flat_day}th, a ${money(p.flat)} late fee is added, then interest of ${p.annual || "4.5"}% a year (simple, on unpaid dues only) on the ${p.pct_day}th.`;
+  const year = new Date().getFullYear(), today = new Date().toISOString().slice(0, 10);
+  $("accounts").innerHTML = a.units.map((u, i) => {
+    const entries = u.accounts.flatMap((x) => x.entries.map((e) => ({ ...e, who: x.owner }))).sort((x, y) => (y.date > x.date ? 1 : y.date < x.date ? -1 : y.id - x.id));
+    const owes = Number(u.balance) > 0.004;
+    return `<div class="acct"><div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:baseline">
+        <div><b>Unit #${esc(u.unit_number)}</b> <span class="sm">${esc(u.address || "")} · dues ${money(u.dues)}/month</span></div>
+        <div class="bal ${balClass(u.balance)}">${balanceText(u.balance)}</div></div>
+      ${Number(u.balance) < -0.004 ? `<p class="sub">${CREDIT_NOTE}</p>` : ""}
+      ${owes ? bringCurrent(u) + `<p class="sub">${esc(a.pay_instructions)} Questions or a payment plan: call ${esc(a.office_phone)}.</p>` : ""}
+      ${u.accounts.length > 1 ? `<p class="sm">This unit has ${u.accounts.length} accounts; your balance is all of them together.</p>` : ""}
+      <details open><summary>Charges and payments (${entries.length})</summary>
+        <div class="table-wrap ledger"><table><thead><tr><th>Date</th><th>Description</th><th class="n">Amount</th></tr></thead><tbody>
+        ${entries.map((e) => `<tr><td>${fmtDate(e.date)}</td><td>${esc(e.description || e.type)}${e.check_number ? ` #${esc(e.check_number)}` : ""}${e.note ? `<div class="sm">${esc(e.note)}</div>` : ""}${Number(e.amount) > 0 && e.id != null ? ` <button class="linkbtn" type="button" data-qid="${esc(e.id)}" style="font-size:.85rem">Question this</button>` : ""}</td><td class="n">${amtCell(e)}</td></tr>`).join("")}
+        </tbody></table></div></details>
+      <details><summary>How your payment reaches your account</summary>${payBox(u, i)}</details>
+      <div class="formrow"><label>Statement from<input type="date" data-from value="${year}-01-01"></label><label>to<input type="date" data-to value="${today}"></label>
+        <button class="btn" type="button" data-print="${i}">Print statement</button>
+        <button class="btn" type="button" data-email="${i}">Email me this statement</button></div>
+      <span class="msg" data-emailmsg="${i}"></span></div>`;
+  }).join("") || `<p class="sub">No account on file.</p>`;
+  $("payWays").innerHTML = account.units.length ? payCards() : "";
+  renderUnits(); renderAlerts();
+}
+document.addEventListener("change", (e) => {
+  if (e.target.id !== "stripeUnit" || !account) return;
+  const u = account.units[Number(e.target.value)];
+  $("stripeAmt").value = (Number(u.balance) > 0 ? Number(u.balance) : Number(u.dues)).toFixed(2);
+});
+document.addEventListener("click", async (e) => {
+  if (e.target.id === "stripeGo" && account) {
+    const sb = e.target, sel = $("stripeUnit"), u = account.units[sel ? Number(sel.value) : 0], m = $("stripeMsg");
+    const amt = Number($("stripeAmt").value);
+    if (!(amt >= 1)) { m.className = "msg err"; m.textContent = "Enter an amount of at least $1."; return; }
+    sb.disabled = true; m.className = "msg"; m.textContent = "Opening secure payment page…";
+    const { data, error } = await client.functions.invoke("stripe-pay", { body: { action: "owner_checkout", unit_number: u.unit_number, amount: amt } });
+    if (error || !data?.url) { sb.disabled = false; m.className = "msg err"; m.textContent = error ? await errorText(error) : "We couldn't start the payment."; return; }
+    location.href = data.url; return;
+  }
+  if (e.target.id === "chkAsk" && account) {
+    const cb = e.target, m = $("chkMsg"); cb.disabled = true; m.className = "msg"; m.textContent = "Sending your request…";
+    const { data, error } = await client.rpc("check_request_make", { p_kind: "owner" });
+    if (error || !data) { cb.disabled = false; m.className = "msg err"; m.textContent = error ? await errorText(error) : "Couldn't send the request. Please try again."; return; }
+    checkReq = data; $("payWays").innerHTML = payCards(); return;
+  }
+  const eb = e.target.closest("[data-email]");
+  if (eb && account) {
+    const i = Number(eb.dataset.email), u = account.units[i], box = eb.closest(".acct"), m = document.querySelector(`[data-emailmsg="${i}"]`);
+    eb.disabled = true; m.className = "msg"; m.textContent = "Sending…";
+    const { data, error } = await client.functions.invoke("owner-statement", { body: { unit_number: u.unit_number, from: box.querySelector("[data-from]").value || null, to: box.querySelector("[data-to]").value || null } });
+    eb.disabled = false;
+    if (error) { m.className = "msg err"; m.textContent = await errorText(error); return; }
+    m.className = "msg ok"; m.textContent = `Sent to ${data.to}. Check your inbox (and spam).`; return;
+  }
+  const b = e.target.closest("[data-print]"); if (!b || !account) return;
+  const u = account.units[Number(b.dataset.print)], box = b.closest(".acct");
+  printStatement({ ...u, owner: account.owner, pay_instructions: account.pay_instructions }, box.querySelector("[data-from]").value || null, box.querySelector("[data-to]").value || null);
+});
+
+let loaded = {};
+const inputs = () => Array.from(document.querySelectorAll("[data-k]"));
+const SIX_MONTHS_MS = 182 * 24 * 60 * 60 * 1000;
+
+function renderBanner(confirmedAt) {
+  const due = !confirmedAt || Date.now() - new Date(confirmedAt).getTime() > SIX_MONTHS_MS;
+  $("confirmBanner").innerHTML = due
+    ? `<div class="banner warn"><strong>Please review your information.</strong> ${confirmedAt ? `You last confirmed it on ${fmtDate(confirmedAt)}.` : "You haven't confirmed it yet."}
+        If everything is still right, <a href="#update">open Update info</a> and choose <strong>Nothing changed</strong>.</div>`
+    : `<div class="banner ok"><strong>You're up to date.</strong> Last confirmed ${fmtDate(confirmedAt)}. We'll email you a reminder in six months.</div>`;
+}
+
+function render(p) {
+  loaded = p;
+  $("title").textContent = `Welcome, ${p.name}`;
+  $("f-name").value = p.name || "";
+  $("f-email").value = p.email || "";
+  inputs().forEach((el) => { el.value = p[el.dataset.k] || (el.dataset.k === "communications_preference" ? "Mailing" : ""); });
+  renderUnits();
+  $("mailUnit").innerHTML = `<option value="">General question</option>` + (p.units || []).map((u) => `<option value="${esc(u.unit_number)}">Unit #${esc(u.unit_number)}</option>`).join("");
+  renderBanner(p.last_confirmed_at);
+  syncButtons();
+}
+
+// The landing page: one card per unit, with its current balance and a Pay button.
+function renderUnits() {
+  $("units").innerHTML = ((loaded.units) || []).map((u) => {
+    const a = account && account.units.find((x) => x.unit_number === u.unit_number), bal = a ? Number(a.balance) : null, owes = bal != null && bal > 0.004;
+    return `<div class="unit">
+      <div class="no">Unit #${esc(u.unit_number)}</div>
+      <div class="sub">${esc(u.address || "")}</div>
+      ${bal == null ? "" : `<div class="sub" style="margin-top:6px">Current balance</div>
+        <div class="bal ${balClass(bal)}">${balanceText(bal)}</div>${bal < -0.004 ? `<div class="sm">${CREDIT_NOTE}</div>` : ""}
+        <div class="row"><a class="btn primary" href="#payments">Pay online</a></div>`}
+      <dl class="kv" style="margin-top:8px">
+        <dt>Account # (PIN)</dt><dd>${esc(u.pin || "—")}</dd>
+        <dt>Owner since</dt><dd>${fmtDate(u.owner_since)}</dd>
+        <dt>Association dues</dt><dd>${money(u.fee)} ${esc(u.fee_frequency || "")}</dd>
+        ${u.board_position ? `<dt>Board seat</dt><dd><span class="pill ok">${esc(u.board_position)}</span></dd>` : ""}
+      </dl>
+    </div>`;
+  }).join("") || `<p class="sub">No units on file.</p>`;
+}
+
+// ---- Alerts: built from the ledger, so they appear and clear on their own ----
+const ALERT_DAYS = 45;
+// What is late and what is only this month's dues: this month's dues are not late until the late-fee day (the 10th).
+function dueBreakdown(u) {
+  const bal = Number(u.balance), today = todayCT(), flatDay = Number(account.late_policy.flat_day) || 10;
+  const thisMonth = u.accounts.flatMap((a) => a.entries).filter((e) => e.gl === "Association Fee Income" && e.kind === "charge" && !e.reversed && Number(e.amount) > 0 && String(e.date).slice(0, 7) === today.slice(0, 7)).reduce((t, e) => t + Number(e.amount), 0);
+  const notLate = Number(today.slice(8, 10)) < flatDay ? Math.min(thisMonth, Math.max(bal, 0)) : 0;
+  return { bal, notLate, pastDue: bal - notLate, flatDay };
+}
+// Repair alerts (Stephen, 11/5/2026): a repair waiting for a response. Red when the owner is responsible (urgent for heat Oct-Apr); grey when 2nd Chance handles it.
+let repairAlerts = [];
+const HEAT_SEASON = () => [10, 11, 12, 1, 2, 3, 4].includes(Number(todayCT().slice(5, 7)));
+function buildRepairAlerts(D) {
+  repairAlerts = (D?.requests || []).filter((r) => !["completed", "closed", "deferred"].includes(r.status) && !(r.updates || []).some((u) => u.by !== "Tenant")).map((r) => {
+    const urgent = r.handles && /heat/i.test(r.category) && HEAT_SEASON();
+    return r.handles
+      ? { urgent, title: urgent ? `URGENT: no heat, Unit #${r.unit}` : `Repair waiting for you, Unit #${r.unit}`,
+          text: `Your tenant sent repair request #${r.number} "${r.subject}" on ${fmtDate(r.created_at)}. You are responsible for this repair.${urgent ? " Someone must be on site when the HVAC technician arrives." : ""} Text the technician and post an update on the Repairs tab. This alert clears when you post an update or mark it In progress.`,
+          link: true }
+      : { soft: true, title: `Repair in progress, Unit #${r.unit}`, text: `Your tenant sent repair request #${r.number} "${r.subject}". 2nd Chance is handling it; you don't need to do anything.`, link: true };
+  });
+}
+function computeAlerts() {
+  if (!account) return repairAlerts.slice();
+  const cutoff = new Date(Date.now() - ALERT_DAYS * 864e5).toISOString().slice(0, 10), out = [];
+  for (const u of account.units) {
+    const bal = Number(u.balance);
+    if (bal > 0.004) {
+      const { notLate, pastDue, flatDay } = dueBreakdown(u);
+      if (pastDue > 0.004) out.push({ title: `Past due, Unit #${u.unit_number}`, text: `${money(pastDue)} is past due on your account.${notLate > 0.004 ? ` This month's dues (${money(notLate)}) are also owed; they are not late until after the ${flatDay - 1}th.` : ""}` });
+      else out.push({ soft: true, title: `Dues owed, Unit #${u.unit_number}`, text: `${money(bal)} is due. It is not late yet: if anything is still owed on the ${flatDay}th, a late fee is added.` });
+    }
+    for (const a of u.accounts) for (const e of a.entries) {
+      if ((e.kind === "late_fee" || e.gl === "Late Fee Income" || e.gl === "Interest Income") && Number(e.amount) > 0 && !e.reversed && e.date >= cutoff)
+        out.push({ title: `${e.gl === "Interest Income" || /%/.test(e.description || "") ? "Interest charge" : "Late fee"}, Unit #${u.unit_number}`, text: `${money(e.amount)} charged ${fmtDate(e.date)}. ${e.description || ""}`, date: e.date });
+    }
+  }
+  return [...repairAlerts.filter((x) => !x.soft), ...out.sort((x, y) => (y.date || "9") > (x.date || "9") ? 1 : -1), ...repairAlerts.filter((x) => x.soft)];
+}
+function renderAlerts() {
+  const list = computeAlerts(), c = $("alertCount"), n = list.filter((x) => !x.soft).length;
+  c.hidden = !n; c.textContent = n;
+  c.setAttribute("aria-label", `${n} alerts`);
+  $("alertList").innerHTML = list.length ? list.map((x) => `<div class="alert${x.soft ? " soft" : ""}"${x.urgent ? ' style="border-width:3px"' : ""}><b>${x.urgent ? "🔥 " : ""}${esc(x.title)}</b><div>${esc(x.text)}</div>${x.link ? `<div style="margin-top:8px"><a href="#repairs" style="display:inline-block;background:#2e7d1f;color:#fff;border-radius:999px;padding:8px 16px;font-weight:700;text-decoration:none">Open Repairs${x.soft ? "" : " (Text the technician is there)"}</a></div>` : ""}</div>`).join("")
+    : `<p class="sub">No alerts. Your account is in good standing.</p>`;
+}
+const PREF_LABELS = { email_dues_posted: "Email me when monthly dues are posted", email_past_due: "Email me when my account is past due (a balance over 60 days old is always emailed)",
+  email_late_fee: "Email me when a late fee or interest is charged", email_payment_received: "Email me when a payment is posted",
+  email_new_document: "Email me when a new document is shared with me" };
+async function loadPrefs() {
+  const { data, error } = await client.rpc("condo_my_alert_prefs");
+  if (error) { $("alertPrefs").innerHTML = `<div class="banner bad">${esc(await errorText(error))}</div>`; return; }
+  $("alertPrefs").innerHTML = Object.entries(PREF_LABELS).map(([k, t]) => `<label class="prefrow"><input type="checkbox" data-pref="${k}" ${data[k] ? "checked" : ""}> <span>${esc(t)}</span></label>`).join("") + `<span class="msg" id="prefMsg" role="status"></span>`;
+}
+document.addEventListener("change", async (e) => {
+  const k = e.target.dataset && e.target.dataset.pref; if (!k) return;
+  const m = $("prefMsg"); m.className = "msg"; m.textContent = "Saving…";
+  const { error } = await client.rpc("condo_set_my_alert_prefs", { p_prefs: { [k]: e.target.checked } });
+  if (error) { e.target.checked = !e.target.checked; m.className = "msg err"; m.textContent = await errorText(error); return; }
+  m.className = "msg ok"; m.textContent = "Saved.";
+});
+
+// ---- Documents ----
+async function loadDocs() {
+  const { data, error } = await client.rpc("condo_my_documents");
+  if (error) { $("docList").innerHTML = `<div class="banner bad">${esc(await errorText(error))}</div>`; return; }
+  const cats = {}; (data || []).forEach((d) => (cats[d.category] = cats[d.category] || []).push(d));
+  $("docList").innerHTML = Object.entries(cats).map(([c, ds]) => `<div class="doccat">${esc(c)}</div>` + ds.map((d) => `<div class="docrow"><span><b>${esc(d.title)}</b>
+    <div class="sub">${d.unit_number ? "Unit #" + esc(d.unit_number) + " · " : ""}${fmtDate(d.uploaded_at)}</div></span>
+    <button class="btn small" type="button" data-doc="${esc(d.path)}">Open</button></div>`).join("")).join("") || `<p class="sub">No documents have been shared yet.</p>`;
+}
+document.addEventListener("click", async (e) => {
+  const b = e.target.closest("[data-doc]"); if (!b) return;
+  const w = window.open("", "_blank"); b.disabled = true;
+  const { data, error } = await client.storage.from("owner-docs").createSignedUrl(b.dataset.doc, 300);
+  b.disabled = false;
+  if (error || !data) { if (w) w.close(); alert("We couldn't open that document. Try again."); return; }
+  if (w) w.location = data.signedUrl; else location.href = data.signedUrl;
+});
+
+// ---- Tenant ----
+// Owner-direct units (Unit 6): the owner keeps their own tenant information here and chooses whether staff can see it.
+let directUnits = [], ownUnits = [];
+function updateGuestsTab() {
+  noGuests = noTenant || ownUnits.length > 0 && ownUnits.every((o) => o.occupancy === "owner" || o.occupancy === "vacant" || directUnits.some((d) => d.unit === o.unit_number));
+  $("navGuests").hidden = noGuests;
+  if (noGuests && location.hash === "#guests") location.hash = "#home";
+}
+const DF = [["names", "Tenant name(s)", "text"], ["phone", "Phone", "tel"], ["email", "Email", "email"], ["move_in", "Moved in", "date"], ["lease_start", "Lease starts", "date"], ["lease_end", "Lease ends", "date"], ["rent", "Monthly rent ($)", "number"], ["deposit", "Security deposit ($)", "number"]];
+const DK = { names: "tenant_names", rent: "monthly_rent", deposit: "security_deposit" };
+function directCard(d, i) {
+  const v = d.saved || {}, val = (k) => v[DK[k] || k] == null ? "" : v[DK[k] || k];
+  return `<div class="acct" data-direct="${i}"><div><b>Unit #${esc(d.unit)}</b> <span class="sm">${esc(d.address || "")}</span></div>
+    <p class="sub" style="margin-top:6px">You manage this tenant yourself, so this page is yours. Write down whatever you want to keep about them. <b>Nobody at 2nd Chance can see it unless you choose Publish below.</b></p>
+    <div class="grid2" style="margin-top:8px">${DF.map(([k, label, type]) => `<label class="f">${label}<input class="field" data-dk="${k}" type="${type}" ${type === "number" ? 'step="0.01" min="0"' : ""} maxlength="200" value="${esc(val(k))}"></label>`).join("")}</div>
+    <label class="f" style="margin-top:8px">Notes (anything else you want to keep)<textarea class="field" data-dk="notes" rows="6" maxlength="5000">${esc(val("notes"))}</textarea></label>
+    <fieldset style="margin-top:10px"><legend>Who can see this?</legend>
+      <label style="display:flex;gap:8px;align-items:flex-start;margin:4px 0"><input type="radio" name="dpub${i}" value="no" ${v.published ? "" : "checked"}><span><b>Keep private</b> (recommended). Only you can see it. Staff cannot.</span></label>
+      <label style="display:flex;gap:8px;align-items:flex-start;margin:4px 0"><input type="radio" name="dpub${i}" value="yes" ${v.published ? "checked" : ""}><span><b>Publish to staff</b>. Staff can see what is on this page. You can switch back to private at any time.</span></label></fieldset>
+    <div class="row" style="margin-top:8px"><button class="btn primary" type="button" data-dsave="${i}">Save</button><span class="msg" data-dmsg="${i}" role="status"></span></div>
+    <p class="sm">${v.published ? "Currently <b>published</b> to staff" + (v.published_at ? " since " + fmtDate(String(v.published_at).slice(0, 10)) : "") + "." : "Currently <b>private</b>."}${v.updated_at ? " Last saved " + fmtDate(String(v.updated_at).slice(0, 10)) + "." : ""}</p></div>`;
+}
+document.addEventListener("click", async (e) => {
+  const b = e.target.closest("[data-dsave]"); if (!b) return;
+  const i = b.dataset.dsave, box = b.closest(".acct"), m = document.querySelector(`[data-dmsg="${i}"]`), g = (k) => (box.querySelector(`[data-dk="${k}"]`).value || "").trim();
+  const num = (k) => g(k) === "" ? null : Number(g(k)), day = (k) => g(k) || null;
+  b.disabled = true; m.className = "msg"; m.textContent = "Saving…";
+  const { error } = await client.rpc("owner_direct_save", { p_unit: directUnits[Number(i)].unit, p_names: g("names"), p_phone: g("phone"), p_email: g("email"), p_move_in: day("move_in"),
+    p_lease_start: day("lease_start"), p_lease_end: day("lease_end"), p_rent: num("rent"), p_deposit: num("deposit"), p_notes: box.querySelector('[data-dk="notes"]').value,
+    p_published: box.querySelector(`input[name="dpub${i}"]:checked`).value === "yes" });
+  b.disabled = false;
+  if (error) { m.className = "msg err"; m.textContent = await errorText(error); return; }
+  await loadTenants();
+  const m2 = document.querySelector(`[data-dmsg="${i}"]`); if (m2) { m2.className = "msg ok"; m2.textContent = "Saved."; }
+});
+async function loadTenants() {
+  // Units switched off in portal setting owner_no_tenant_units: no Tenant tab, no tenant contact (Stephen, 10/13/2026).
+  const off = await client.rpc("owner_tenant_tab_off");
+  noTenant = off.data === true; $("navTenant").hidden = noTenant; $("navKeys").hidden = noTenant; $("navStatements").hidden = noTenant; updateGuestsTab();
+  if (noTenant) { if (["#tenant", "#keys", "#statements"].includes(location.hash)) location.hash = "#home"; return; }
+  const [{ data: all, error }, dm] = await Promise.all([client.rpc("condo_my_tenants"), client.rpc("owner_direct_mine")]);
+  if (error) { $("tenantList").innerHTML = `<div class="banner bad">${esc(await errorText(error))}</div>`; return; }
+  directUnits = (dm.data && dm.data.units) || [];
+  updateGuestsTab();
+  if (directUnits.length) mountOccupantAccess($("occupantMount"));   // Unit 6: parking-and-keys login for the tenant (Stephen, 11/4/2026)
+  const data = (all || []).filter((u) => !directUnits.some((d) => d.unit === u.unit_number));
+  $("tenantList").innerHTML = directUnits.map(directCard).join("") + data.map((u, i) => {
+    const owes = Number(u.balance) > 0.004;
+    return `<div class="acct"><div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:baseline">
+        <div><b>Unit #${esc(u.unit_number)}</b> <span class="sm">${esc(u.address || "")}</span></div>
+        <div><span class="sm">Tenant balance</span> <span class="bal ${balClass(u.balance)}">${balanceText(u.balance)}</span></div></div>
+      <p style="margin:8px 0 0"><b>${u.tenants.map((t) => esc(t.name)).join(", ") || "No tenant on file"}</b></p>
+      ${u.tenants.length ? `<div class="formrow" data-tmail="${i}"><label>To<select data-tid>${u.tenants.map((t) => `<option value="${esc(t.id)}">${esc(t.name)}</option>`).join("")}</select></label>
+        <label style="flex:1;min-width:200px">Subject<input type="text" data-tsub maxlength="150"></label></div>
+        <label class="sm" style="display:grid;gap:3px;margin-top:8px">Message<textarea data-tbody rows="4" maxlength="5000" style="font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--fg)"></textarea></label>
+        <div class="row" style="margin-top:8px"><button class="btn primary" type="button" data-tsend="${i}">Email tenant</button><span class="msg" data-tmsg="${i}" role="status"></span></div>` : ""}</div>`;
+  }).join("") || (directUnits.length ? "" : `<p class="sub">We don't have a tenant on file for your unit.</p>`);
+}
+document.addEventListener("click", async (e) => {
+  const b = e.target.closest("[data-tsend]"); if (!b) return;
+  const i = b.dataset.tsend, box = b.closest(".acct"), m = document.querySelector(`[data-tmsg="${i}"]`);
+  const subject = box.querySelector("[data-tsub]").value.trim(), message = box.querySelector("[data-tbody]").value.trim();
+  if (!subject || !message) { m.className = "msg err"; m.textContent = "Add a subject and a message."; return; }
+  b.disabled = true; m.className = "msg"; m.textContent = "Sending…";
+  const { error } = await client.functions.invoke("owner-tenant-email", { body: { tenant_id: box.querySelector("[data-tid]").value, subject, message } });
+  b.disabled = false;
+  if (error) { m.className = "msg err"; m.textContent = await errorText(error); return; }
+  box.querySelector("[data-tsub]").value = ""; box.querySelector("[data-tbody]").value = "";
+  m.className = "msg ok"; m.textContent = "Sent. Replies come to your sign-in email.";
+});
+
+// ---- Email the office ----
+$("emailOfficeForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const m = $("mailMsg"), subject = $("mailSubject").value.trim(), message = $("mailBody").value.trim();
+  if (!subject || !message) { m.className = "msg err"; m.textContent = "Add a subject and a message."; return; }
+  $("mailSend").disabled = true; m.className = "msg"; m.textContent = "Sending…";
+  const { error } = await client.functions.invoke("owner-email", { body: { subject, message, unit_number: $("mailUnit").value } });
+  $("mailSend").disabled = false;
+  if (error) { m.className = "msg err"; m.textContent = await errorText(error); return; }
+  $("mailSubject").value = ""; $("mailBody").value = "";
+  m.className = "msg ok"; m.textContent = "Sent. We'll reply to your sign-in email.";
+});
+
+// ---- Charge questions: "Question this" on a ledger line opens the form with that charge chosen ----
+let qPending = false;
+document.addEventListener("click", (e) => {
+  const b = e.target.closest("[data-qid]"); if (!b) return;
+  qPending = true; location.hash = "#questions";
+  questionCharge($("disputesMount"), { side: "owner", id: b.dataset.qid }).finally(() => { qPending = false; });
+});
+
+// ---- Inspect my unit: one link per unit the owner currently owns, into the inspection screen (the database checks the ownership again) ----
+async function mountInspect() {
+  const box = $("inspectMount");
+  const { properties } = await fetch("/data/properties.json").then((r) => r.json());
+  const rows = ownUnits.map((o) => ({ u: o.unit_number, p: properties.find((x) => x.units.includes(String(o.unit_number))) })).filter((r) => r.p);
+  box.innerHTML = rows.length ? rows.map((r) => `<p><a class="btn" href="/inspections/unit/?p=${encodeURIComponent(r.p.id)}&u=${encodeURIComponent(r.u)}">Inspect Unit ${esc(r.u)}</a> <span class="sm">${esc(r.p.address)}</span></p>`).join("") : `<p class="sub">No units found on your account.</p>`;
+}
+
+// ---- Tabs ----
+let noGuests = false, noTenant = false;  // owner-occupants (Units 1, 7, 13) need no guest approval: whoever, whenever, however long (Stephen, 10/12/2026)
+const VIEWS = ["home", "payments", "alerts", "parking", "inspect", "guests", "keys", "requests", "repairs", "documents", "reports", "questions", "statements", "violations", "board", "tenant", "email", "update", "eviction", "pma"];
+function route(scroll) {
+  const v = VIEWS.includes(location.hash.slice(1)) && !(noGuests && location.hash === "#guests") && !(noTenant && ["#tenant", "#keys", "#statements"].includes(location.hash)) ? location.hash.slice(1) : "home";
+  document.querySelectorAll("[data-view]").forEach((el) => { el.hidden = el.dataset.view !== v; });
+  document.querySelectorAll("#tabs a").forEach((a) => { if (a.getAttribute("href") === "#" + v) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
+  document.querySelectorAll("#tabs .tabgroup").forEach((g) => { g.open = false; g.classList.toggle("active", !!g.querySelector('[aria-current="page"]')); });
+  if (v === "parking") { loadParkingDir(); mountParkingStatus($("pstMount")); mountVehicleReg($("vehRegMount")).then(() => { $("vehRegPanel").hidden = !$("vehRegMount").innerHTML.trim(); }); mountStalls($("stallsMount"), { alert: mountParkAlert($("parkAlertMount")), slot: $("parkSlot") }); mountPushCard($("pushMount")); }
+  if (v === "inspect") mountInspect();
+  if (v === "guests") mountGuests($("guestsMount"));
+  if (v === "keys") mountKeys($("keysMount"));
+  if (v === "requests") mountOwnerRequests($("requestsMount"));
+  if (v === "repairs") { mountHvac($("hvacMount")); mountOwnerRepairs($("repairsMount")); }
+  if (v === "reports") mountOwnerReports($("reportsMount"));
+  if (v === "statements") mountDistributions($("stmtMount"));
+  if (v === "violations") mountOwnerViolations($("violMount"));
+  if (v === "board") mountBoard($("boardMount"));
+  if (v === "eviction") mountEvictionSheets($("evictionMount"));
+  if (v === "pma") mountPma($("pmaMount"), "owner");
+  if (v === "questions" && !qPending) mountDisputes($("disputesMount"), { side: "owner" });
+  if (scroll === true) window.scrollTo(0, 0);
+}
+let pkLoaded = false;
+async function loadParkingDir() {
+  if (pkLoaded) return; pkLoaded = true;
+  const { data, error } = await client.rpc("vehicles_directory");
+  const g = $("pkGrid");
+  if (error) { g.innerHTML = `<p class="sub">${esc(await errorText(error))}</p>`; pkLoaded = false; return; }
+  const KIND = { own: "Vehicle", loaner: "Loaner", visitor: "Regular visitor" };
+  g.innerHTML = (data || []).map((v) => `<div class="pkcard"><b>Unit ${esc(v.unit)} · ${esc(KIND[v.kind] || v.kind)}</b>${v.kind === "loaner" && v.loaner_until ? ` <span class="sub">until ${fmtDate(v.loaner_until)}</span>` : ""}
+    <div>${v.kind === "visitor" ? esc(v.visitor_frequency || "Regular visitor") : esc([v.color, v.year, v.make, v.model].filter(Boolean).join(" "))}</div>
+    ${v.front_path || v.back_path ? `<div class="pkphotos"><img data-pk="${esc(v.front_path || "")}" alt="Front"><img data-pk="${esc(v.back_path || "")}" alt="Back"></div>` : ""}</div>`).join("") || `<p class="sub">No vehicles have been registered yet.</p>`;
+  const imgs = [...g.querySelectorAll("img[data-pk]")].filter((i) => i.dataset.pk);
+  if (imgs.length) {
+    const { data: urls } = await client.storage.from("vehicles").createSignedUrls(imgs.map((i) => i.dataset.pk), 3600);
+    const by = Object.fromEntries((urls || []).map((x) => [x.path, x.signedUrl]));
+    imgs.forEach((i) => { if (by[i.dataset.pk]) i.src = by[i.dataset.pk]; });
+  }
+}
+addEventListener("hashchange", () => route(true));
+document.addEventListener("click", (e) => { document.querySelectorAll("#tabs .tabgroup[open]").forEach((g) => { if (!g.contains(e.target)) g.open = false; }); });
+
+function changes() {
+  const out = {};
+  inputs().forEach((el) => {
+    const now = el.value.trim();
+    const was = (loaded[el.dataset.k] || (el.dataset.k === "communications_preference" ? "Mailing" : "")).trim();
+    if (now !== was) out[el.dataset.k] = now;
+  });
+  return out;
+}
+
+function syncButtons() {
+  const dirty = Object.keys(changes()).length > 0;
+  $("saveBtn").disabled = !dirty;
+  $("saveBtn").className = "btn" + (dirty ? " primary" : "");
+  $("nothingBtn").hidden = dirty;
+  if (dirty) { $("saveMsg").className = "msg"; $("saveMsg").textContent = "You have unsaved changes."; }
+  else if ($("saveMsg").textContent === "You have unsaved changes.") $("saveMsg").textContent = "";
+}
+
+async function load() {
+  const { data, error } = await client.rpc("condo_my_profile");
+  if (error) {
+    $("app").hidden = true;
+    $("signin").innerHTML = `<div class="banner bad">${esc(await errorText(error))}</div>`;
+    return;
+  }
+  render(data);
+  const own = data.units || [];   // guests are only for homes with someone to approve: owner-occupied and vacant units need none
+  ownUnits = own; updateGuestsTab();
+  $("app").hidden = false;
+  route();
+  loadPrefs(); loadDocs(); loadTenants();
+  Promise.all([client.rpc("owner_repairs_mine"), hasHvac()]).then(([rp, b]) => {
+    const a = !rp.error && (rp.data?.units || []).length > 0;
+    $("navRepairs").hidden = !(a || b);
+    if (a) { buildRepairAlerts(rp.data); renderAlerts(); }
+  });   // repair-thread copies (Stephen, 11/5/2026)
+  evictionAllowed().then((d) => { $("navEviction").hidden = !d; });
+  pmaList("owner").then((l) => { $("navPma").hidden = !l.length; }).catch(() => {});   // management agreement to review/sign (Stephen, 11/11/2026)   // eviction costs: owners of Units 15, 16, 17 edit their own copy (Stephen, 11/11/2026)
+  await loadAccount();
+}
+// ---- Goodwill credit: whether it applies to each unit and why (read-only; the credit itself is posted by the monthly run) ----
+async function loadGoodwill() {
+  const { data, error } = await client.rpc("owner_goodwill_mine");
+  const panel = $("goodwillPanel");
+  if (error || !data || !data.enabled || !(data.units || []).some((u) => u.status.state !== "paid_up" || Number(u.credited_total) > 0)) { panel.hidden = true; return; }
+  $("gwSince").textContent = fmtDate(data.effective);
+  const next = fmtDate(data.next_run), months = data.months, days = data.trying_days;
+  const line = (u) => {
+    const st = u.status, owed = Number(st.fees || 0) + Number(st.interest || 0);
+    if (st.state === "paid_up") return `Nothing is owed on this unit.`;
+    if (st.state === "eligible") return `<b>You qualify.</b> ${owed > 0.004 ? `If you stay eligible, ${money(owed)} of unpaid late fees and interest will be credited on ${next}.` : "There are no unpaid late fees or interest to credit right now."}${st.window_ends ? ` Your oldest unpaid dues are from ${fmtDate(st.oldest_unpaid)}; the credit applies while they are under ${months} months old (until ${fmtDate(st.window_ends)}).` : ""}`;
+    if (st.state === "not_trying") return `<b>Not yet.</b> Make a payment of any amount, or arrange a payment plan with the office, to qualify. A payment in the last ${days} days keeps you eligible.${owed > 0.004 ? ` Late fees and interest of ${money(owed)} are not credited until you do.` : ""}`;
+    if (st.state === "too_old") return `<b>Not at this time.</b> Your oldest unpaid dues are from ${fmtDate(st.oldest_unpaid)}, more than ${months} months ago. Call the office to arrange a payment plan.`;
+    return `<b>Not at this time.</b> This unit is in formal collection, so the goodwill credit does not apply. Call ${esc((account || {}).office_phone || "the office")}.`;
+  };
+  $("goodwillMount").innerHTML = data.units.map((u) => `<div class="acct"><b>Unit #${esc(u.unit)}</b>
+    <p class="sub" style="margin:6px 0 0">${line(u)}</p>
+    ${Number(u.credited_total) > 0 ? `<p class="sm" style="margin-top:6px">Credited so far: <b>${money(u.credited_total)}</b> · ${u.credits.slice(0, 4).map((c) => `${fmtDate(c.date)} ${money(c.amount)}`).join(" · ")}</p>` : ""}</div>`).join("");
+  panel.hidden = false;
+}
+async function loadAccount() {
+  const [acct, opts, reps, chk] = await Promise.all([client.rpc("condo_my_account"), client.rpc("condo_owner_pay_options"), client.rpc("condo_my_payment_reports"), client.rpc("check_request_mine", { p_kind: "owner" })]);
+  if (acct.error) { $("accounts").innerHTML = `<div class="banner bad">${esc(await errorText(acct.error))}</div>`; return; }
+  payOpts = opts.data || {}; reports = reps.data || []; checkReq = chk.data || null;
+  renderAccount(acct.data);
+  loadGoodwill();
+  renderPayPalButtons(payOpts.owner_pay_paypal_client_id, payOpts.owner_pay_paypal_hosted_id);
+}
+
+async function submit(payload, doneText) {
+  $("saveBtn").disabled = true; $("nothingBtn").disabled = true;
+  $("saveMsg").className = "msg"; $("saveMsg").textContent = "Saving…";
+  const { error } = await withStepUp(() => client.rpc("condo_update_my_profile", { p_changes: payload }));
+  $("nothingBtn").disabled = false;
+  if (error) {
+    $("saveMsg").className = "msg err";
+    $("saveMsg").textContent = error.code === "42501" ? "Your session expired. Reload the page and sign in again." : await errorText(error);
+    syncButtons();
+    return;
+  }
+  notifyStaff();
+  await load();
+  $("saveMsg").className = "msg ok";
+  $("saveMsg").textContent = doneText;
+}
+
+document.addEventListener("input", (e) => { if (e.target.dataset && e.target.dataset.k) syncButtons(); });
+document.addEventListener("change", (e) => { if (e.target.dataset && e.target.dataset.k) syncButtons(); });
+$("nothingBtn").addEventListener("click", () => submit({}, "Thanks — your information is confirmed."));
+$("profileForm").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const c = changes();
+  if (c.phone_mobile && c.phone_mobile.replace(/\D/g, "").length < 10) {
+    $("saveMsg").className = "msg err";
+    $("saveMsg").textContent = "Enter your full 10-digit mobile number, or leave it blank.";
+    return;
+  }
+  submit(c, "Saved. The office has been notified of your changes.");
+});
+$("signOutBtn").addEventListener("click", signOut);
+
+// Back from the bank-payment page: say so, so nobody pays twice while it clears.
+if (new URLSearchParams(location.search).get("paid") === "1") {
+  $("paidBanner").innerHTML = `<div class="banner ok"><strong>Thank you. Your bank payment was submitted.</strong> Bank payments take 1 to 3 business days to clear, then they appear in your charges and payments below. You don't need to pay again.</div>`;
+  history.replaceState(null, "", location.pathname + "#payments");
+}
+const who = await signIn($("signin"), { audience: "owner" });
+$("userBar").hidden = false;
+$("staffLink").hidden = who.role !== "staff";
+// Route each role to its own place. Only office staff may go to the staff page: sending anyone else there bounced them
+// straight back here, a redirect loop that made the page flicker (investors, residents, contractors and agents hit it).
+if (who.is_owner) load();
+else if (who.role === "field") location.replace("/staff/");
+else if (who.role === "staff") location.replace("/association-owners/roca1/staff/");
+else if (who.is_investor) location.replace("/investor/desk/");
+else {
+  $("signin").innerHTML = `<div class="panel"><h2>This is the owner portal</h2><p class="sub">The email you signed in with isn't an owner account.</p><p><button class="btn" type="button" id="wrongOut">Sign out</button></p></div>`;
+  $("wrongOut").addEventListener("click", signOut);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "name": "ROCA1 Owner Portal",
+  "short_name": "ROCA1 Owners",
+  "start_url": "/association-owners/roca1/",
+  "scope": "/association-owners/roca1/",
+  "display": "standalone",
+  "background_color": "#f5f5ef",
+  "theme_color": "#2e7d1f",
+  "icons": [
+    { "src": "/logo-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/logo.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

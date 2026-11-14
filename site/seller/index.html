@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Land Contract Seller — 2nd Chance Housing</title>
+<link rel="icon" href="/favicon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+<style>
+  .kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:8px 0 4px}
+  .kv div{border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--panel)}
+  .kv b{display:block;font-size:1.25rem;margin-top:2px}
+  .kv span{font-size:.85rem;color:var(--muted)}
+  table.t{width:100%;border-collapse:collapse;font-size:.95rem}
+  table.t th,table.t td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
+  table.t td.n,table.t th.n{text-align:right;white-space:nowrap}
+  .scroll{max-height:420px;overflow:auto}
+  .good{color:#1a7f37;font-weight:700} .bad{color:#b42318;font-weight:700}
+</style>
+</head>
+<body>
+<div class="appbar"><div class="appbar-in">
+  <a class="org" href="/" style="color:inherit;text-decoration:none">2nd Chance Housing<span>Land contract seller</span></a>
+  <div class="row" id="userBar" hidden><span class="sub" id="who"></span><button class="linkbtn" type="button" id="signOutBtn">Sign out</button></div>
+</div></div>
+<main class="wrap">
+  <header><h1>Your land contract</h1><p class="lead">A read-only view of your land contract: the terms, the balance, the next payment, the payment schedule and the payments received. Nothing on this page moves money.</p></header>
+  <div id="signin" class="narrow"></div>
+  <div id="app" hidden></div>
+</main>
+<script type="module">
+import { $, client, signIn, signOut, esc, money, fmtDate, errorText } from "/assets/portal/portal.js";
+import { balClass } from "/assets/portal/balance.js";
+const who = await signIn($("signin"), { audience: "seller" });
+$("userBar").hidden = false; $("signOutBtn").onclick = signOut;
+if (!who.is_seller) {
+  $("signin").hidden = false;
+  $("signin").innerHTML = `<div class="panel"><p>This area is for the seller of a land contract with 2nd Chance Housing. <a href="/">Back to the home page</a></p></div>`;
+} else {
+  $("who").textContent = who.first_name ? "Hi " + who.first_name : "";
+  $("signin").hidden = true; $("app").hidden = false;
+  try { render(await load()); } catch (e) { $("app").innerHTML = `<div class="panel"><p class="msg err">${esc(await errorText(e))}</p></div>`; }
+}
+async function load() { const { data, error } = await client.rpc("seller_land_contracts"); if (error) throw error; return data || []; }
+const pct = (r) => (Number(r) * 100).toFixed(2).replace(/\.?0+$/, "") + "%";
+function render(list) {
+  if (!list.length) { $("app").innerHTML = `<div class="panel"><p>No active land contract is linked to this sign-in yet. Please call or text (262) 236-5443.</p></div>`; return; }
+  $("app").innerHTML = list.map((c, i) => {
+    const owed = Number(c.balance), next = c.next_due;
+    const status = `<span class="${balClass(owed)}">${owed > 0.004 ? money(owed) + " past due" : owed < -0.004 ? "Credit " + money(-owed) : "Paid up"}</span>`;
+    const rows = (c.schedule || []);
+    const upcoming = rows.filter((s) => s.due >= new Date().toISOString().slice(0, 10)).slice(0, 12);
+    return `<section class="panel"><h2>${esc(c.street)}</h2>
+      <p class="sub">Buyers: ${esc(c.buyers)} · Seller: ${esc(c.seller)} · Contract dated ${fmtDate(c.contract_date)}</p>
+      <div class="kv">
+        <div><span>Status</span><b>${status}</b></div>
+        <div><span>Next payment due</span><b>${next ? fmtDate(next.due) : "—"}</b><span>${next ? money(next.payment) : ""}</span></div>
+        <div><span>Principal still owed by the buyers</span><b>${money(c.principal_now)}</b><span>Interest accrued so far: ${money(c.accrued_interest)}</span></div>
+        <div><span>Monthly payment</span><b>${money(c.monthly_payment)}</b><span>${pct(c.interest_rate)} for ${c.term_months} months · ${c.grace_days} days' grace</span></div>
+      </div>
+      <p class="sub">Price ${money(c.purchase_price)}, down payment ${money(c.down_payment)}. First payment ${fmtDate(c.first_payment_date)}${c.maturity_date ? `, final payment ${fmtDate(c.maturity_date)}` : ""}. Payments are collected by 2nd Chance Housing.</p>
+    </section>
+    <section class="panel"><h2>Payments received</h2>
+      ${(c.payments || []).length ? `<div class="scroll"><table class="t"><thead><tr><th>Date</th><th>From</th><th class="n">Amount</th></tr></thead><tbody>${c.payments.map((p) =>
+        `<tr><td>${fmtDate(p.date)}</td><td>${esc(String(p.note || "").replace(/^(by|payment by)\s+/i, "") || "—")}${p.what === "Late Fee Income" ? " (late fee)" : ""}</td><td class="n">${money(p.amount)}</td></tr>`).join("")}</tbody></table></div>
+        <p class="sub">The last ${c.payments.length} payments.</p>` : `<p>No payments yet.</p>`}
+    </section>
+    <section class="panel"><h2>Payment schedule</h2>
+      <p class="sub">The next 12 payments. <button class="linkbtn" type="button" data-all="${i}">Show all ${rows.length}</button></p>
+      <div class="scroll" id="sched${i}">${sched(upcoming)}</div>
+    </section>
+    <section class="panel"><h2>Documents</h2>
+      ${(c.documents || []).length ? `<ul>${c.documents.map((d) => `<li><button class="linkbtn" type="button" data-doc="${esc(d.path)}">${esc(d.title)}</button> <span class="sub">${esc(d.kind || "")}${d.tax_year ? " " + d.tax_year : ""}${d.dated ? " · " + fmtDate(d.dated) : ""}</span></li>`).join("")}</ul>` : `<p>No documents have been added yet. Ask us if you need a copy of anything.</p>`}
+      <div class="msg err" id="docMsg" role="alert"></div>
+    </section>`;
+  }).join("") + `<p class="sub">Questions? Email <a href="mailto:info@2ndchinc.org">info@2ndchinc.org</a> or call or text <a href="tel:2622365443">(262) 236-5443</a>.</p>`;
+  document.querySelectorAll("[data-all]").forEach((b) => b.onclick = () => { const c = list[Number(b.dataset.all)]; $("sched" + b.dataset.all).innerHTML = sched(c.schedule || []); b.hidden = true; });
+  document.querySelectorAll("[data-doc]").forEach((b) => b.onclick = async () => {
+    const { data, error } = await client.storage.from("land-contract-docs").createSignedUrl(b.dataset.doc, 300);
+    if (error || !data) { $("docMsg").textContent = "That document could not be opened. Please call or text (262) 236-5443."; return; }
+    window.open(data.signedUrl, "_blank", "noopener");
+  });
+}
+function sched(rows) {
+  return `<table class="t"><thead><tr><th>#</th><th>Due</th><th class="n">Payment</th><th class="n">Principal</th><th class="n">Interest</th><th class="n">Balance after</th></tr></thead><tbody>${rows.map((s) =>
+    `<tr><td>${s.n}</td><td>${fmtDate(s.due)}</td><td class="n">${money(s.payment)}</td><td class="n">${money(s.principal)}</td><td class="n">${money(s.interest)}</td><td class="n">${money(s.end)}</td></tr>`).join("")}</tbody></table>`;
+}
+</script>
+</body>
+</html>

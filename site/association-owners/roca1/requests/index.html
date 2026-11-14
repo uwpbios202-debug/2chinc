@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Owner requests — 2nd Chance Housing Staff</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+<style>
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-bottom: 12px; }
+  .card.closed { opacity: 0.65; }
+  .meta { color: var(--muted); font-size: 0.9rem; }
+  .tag { display: inline-block; padding: 1px 9px; border-radius: 999px; font-size: 0.78rem; font-weight: 700; background: var(--off-soft); color: var(--off); }
+  .tag.bad { background: var(--bad-soft); color: var(--bad); } .tag.warn { background: var(--warn-soft); color: var(--warn); } .tag.ok { background: var(--ok-soft); color: var(--ok); }
+  .head { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: baseline; }
+  .said { white-space: pre-wrap; margin: 6px 0; overflow-wrap: anywhere; }
+  .formrow { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; margin-top: 8px; }
+  .formrow label { display: grid; gap: 3px; font-size: 0.85rem; color: var(--muted); }
+  .formrow input, .formrow select, .formrow textarea { font: inherit; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); min-width: 0; }
+  .upd { border-left: 3px solid var(--line); padding: 2px 10px; margin: 4px 0; font-size: 0.9rem; }
+  .upd.internal { border-left-color: var(--warn); background: var(--warn-soft); }
+  table.t { width: 100%; border-collapse: collapse; font-size: 0.93rem; }
+  table.t th { text-align: left; font-size: 0.75rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); padding: 6px 8px; border-bottom: 1px solid var(--line); }
+  table.t td { padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .photo { max-width: 200px; max-height: 200px; border-radius: 8px; border: 1px solid var(--line); margin: 6px 6px 0 0; }
+</style>
+</head>
+<body>
+<div class="appbar" data-nav="staff">
+  <div class="appbar-in">
+    <div class="org">2nd Chance Housing<span>Owner requests · Staff</span></div>
+    <div class="row" id="userBar" hidden><button class="linkbtn" type="button" id="signOutBtn">Sign out</button></div>
+  </div>
+</div>
+<main class="wrap">
+  <header><h1>Owner requests</h1><p class="lead">What ROCA1 owners send from the Requests tab of their portal. Set the status, link it to the repair priority list, add the budget code and an estimate, and write the reply the owner will see. "Internal note" is for staff only. A request is never a charge: assessing a repair to an owner is a board vote.</p></header>
+  <div id="signin" class="narrow"></div>
+  <div id="app" hidden>
+    <div class="formrow" style="margin:0 0 12px"><label class="meta"><input type="checkbox" id="showClosed"> Show closed (done, declined, withdrawn)</label></div>
+    <div id="list"></div>
+    <h2 style="margin-top:28px">Repair priority list</h2>
+    <p class="meta">What owners see on their Requests tab. Update a repair's status or estimate here.</p>
+    <div style="overflow-x:auto"><table class="t" id="prio"></table></div>
+    <details style="margin-top:10px"><summary><b>Add a repair to the list</b></summary>
+      <div class="formrow" style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">
+        <label class="meta">Rank shown<input id="paRank" placeholder="e.g. 23" style="width:6em"></label>
+        <label class="meta">Order number<input id="paSort" type="number" step="0.1" placeholder="23" style="width:6em"></label>
+        <label class="meta" style="flex:1;min-width:220px">Repair<input id="paTitle" maxlength="200" style="width:100%"></label>
+        <label class="meta">Estimate ($)<input id="paEst" type="number" step="0.01" min="0" style="width:8em"></label>
+        <label class="meta"><input type="checkbox" id="paUrg"> Urgent</label>
+      </div>
+      <label class="meta" style="display:block;margin-top:6px">What owners should know<input id="paDetail" maxlength="500" style="width:100%"></label>
+      <button class="btn small" type="button" id="paAdd" style="margin-top:8px">Add to the list</button>
+    </details>
+    <div class="meta" id="msg" role="status"></div>
+  </div>
+</main>
+<script type="module">
+import { client, $, esc, fmtDate, signIn, signOut, errorText } from "/assets/portal/portal.js";
+let D = null;
+const say = (t, bad) => { $("msg").textContent = t; $("msg").style.color = bad ? "var(--bad)" : ""; };
+const STATUS = { new: "New", reviewing: "Reviewing", ranked: "On the priority list", approved: "Approved", scheduled: "Scheduled", done: "Done", declined: "Not approved", withdrawn: "Withdrawn" };
+const WHERE = { "6622": "6622", "6626": "6626", both: "Both buildings", my_unit: "Inside own unit" };
+
+function card(r) {
+  const closed = ["done", "declined", "withdrawn"].includes(r.status);
+  return `<div class="card ${closed ? "closed" : ""}" data-id="${r.id}">
+    <div class="head"><span><b>#${r.number} · ${esc(r.subject)}</b> <span class="tag ${r.status === "new" ? "warn" : closed ? "" : "ok"}">${esc(STATUS[r.status])}</span>
+      ${r.urgency === "emergency" || r.urgency === "urgent" ? `<span class="tag bad">${r.urgency === "emergency" ? "Emergency" : "Urgent"}</span>` : ""}${r.safety ? ` <span class="tag bad">Safety / health</span>` : ""}${r.inspector_note ? ` <span class="tag warn">Inspector noted</span>` : ""}</span>
+      <span class="meta">${new Date(r.created_at).toLocaleDateString("en-US")}</span></div>
+    <div class="meta">${esc(r.owner)} · ${esc(r.owner_email || "no email")} · ${esc(r.owner_phone || "no phone")} · ${esc(WHERE[r.location])}${r.unit ? " Unit " + esc(r.unit) : ""} · ${esc(r.category)}</div>
+    <div class="said">${esc(r.description)}</div>
+    ${(r.photos || []).map((p) => `<img class="photo" data-ph="${esc(p)}" alt="Photo from the owner" hidden>`).join("")}
+    ${(r.updates || []).map((u) => `<div class="upd ${u.internal ? "internal" : ""}">${new Date(u.at).toLocaleDateString("en-US")} · ${u.by === "staff" ? esc(u.email || "staff") : "owner"}${u.internal ? " (internal)" : ""}: ${esc(u.note)}</div>`).join("")}
+    <details style="margin-top:8px"><summary><b>Update</b></summary>
+      <div class="formrow">
+        <label>Status<select data-f="status">${Object.entries(STATUS).map(([k, v]) => `<option value="${k}" ${k === r.status ? "selected" : ""}>${v}</option>`).join("")}</select></label>
+        <label>Priority list item<select data-f="priority"><option value="">None</option>${D.priorities.map((p) => `<option value="${p.id}" ${p.id === r.priority_id ? "selected" : ""}>${esc(p.rank)} · ${esc(p.title.slice(0, 50))}</option>`).join("")}</select></label>
+        <label>Budget code<input data-f="budget" size="5" value="${esc(r.budget_code || "")}"></label>
+        <label>Estimate ($)<input data-f="estimate" type="number" step="0.01" min="0" style="width:8em" value="${r.estimate == null ? "" : r.estimate}"></label></div>
+      <div class="formrow"><label style="flex:1;min-width:260px">Reply the owner will see<textarea data-f="response" rows="3" style="width:100%">${esc(r.response || "")}</textarea></label></div>
+      <div class="formrow"><label style="flex:1;min-width:260px">Internal note (staff only)<input data-f="internal" style="width:100%" maxlength="500"></label>
+        <button class="btn primary" type="button" data-save>Save</button></div>
+      <div class="formrow">${r.resolution_id ? `<span class="meta">Sent to the board: resolution ${esc((r.resolution && r.resolution.number) || "draft")} (${esc((r.resolution && r.resolution.status) || "draft")}). <a href="/association-owners/roca1/board/">Open board area</a></span>` : `<button class="btn" type="button" data-board>Send to the board as a draft resolution</button>`}</div></details></div>`;
+}
+function render() {
+  const show = $("showClosed").checked;
+  $("list").innerHTML = D.requests.filter((r) => show || !["done", "declined", "withdrawn"].includes(r.status)).map(card).join("") || `<p class="meta">No open owner requests.</p>`;
+  document.querySelectorAll("img[data-ph]").forEach(async (img) => {
+    const { data } = await client.storage.from("owner-requests").createSignedUrl(img.dataset.ph, 300);
+    if (data && data.signedUrl) { img.src = data.signedUrl; img.hidden = false; }
+  });
+  $("prio").innerHTML = `<tr><th>Rank</th><th>Repair</th><th>Estimate ($)</th><th>Status</th><th></th></tr>` + D.priorities.map((p) => `<tr data-pid="${p.id}"><td>${esc(p.rank)}</td><td>${esc(p.title)}${p.urgent ? ` <span class="tag bad">Urgent</span>` : ""}</td>
+    <td><input data-pe type="number" step="0.01" min="0" style="width:8em" value="${p.estimate == null ? "" : p.estimate}"></td>
+    <td><select data-ps>${["open", "scheduled", "done", "dropped"].map((s) => `<option ${s === p.status ? "selected" : ""}>${s}</option>`).join("")}</select></td><td><button class="btn small" type="button" data-psave>Save</button></td></tr>`).join("");
+}
+async function load() {
+  const { data, error } = await client.rpc("owner_requests_staff_list");
+  if (error) { say(await errorText(error), true); return; }
+  D = data; render();
+}
+document.addEventListener("click", async (e) => {
+  try {
+    const c = e.target.closest(".card[data-id]");
+    if (c && e.target.closest("[data-save]")) {
+      const f = (k) => c.querySelector(`[data-f="${k}"]`).value;
+      const { error } = await client.rpc("owner_request_staff_update", { p_id: c.dataset.id, p_status: f("status"), p_priority: f("priority") || null, p_budget: f("budget"),
+        p_estimate: f("estimate") === "" ? null : Number(f("estimate")), p_response: f("response"), p_internal_note: f("internal") });
+      if (error) throw new Error(await errorText(error));
+      say("Saved."); await load();
+    }
+    if (c && e.target.closest("[data-board]")) {
+      if (!confirm("Draft a board resolution from this request and email the board? Nothing is decided or charged until the board votes.")) return;
+      const { error } = await client.rpc("owner_request_staff_send_to_board", { p_id: c.dataset.id });
+      if (error) throw new Error(await errorText(error));
+      client.functions.invoke("outbox-flush", { body: {} }).catch(() => {});
+      say("Drafted. The board has been emailed; open the board area to open it for a vote."); await load();
+    }
+    const row = e.target.closest("tr[data-pid]");
+    if (row && e.target.closest("[data-psave]")) {
+      const est = row.querySelector("[data-pe]").value;
+      const { error } = await client.rpc("roca_priority_staff_update", { p_id: row.dataset.pid, p_status: row.querySelector("[data-ps]").value, p_estimate: est === "" ? null : Number(est) });
+      if (error) throw new Error(await errorText(error));
+      say("Priority list saved."); await load();
+    }
+  } catch (err) { say(err.message, true); }
+});
+$("paAdd").addEventListener("click", async () => {
+  try {
+    const est = $("paEst").value;
+    const { error } = await client.rpc("roca_priority_staff_add", { p_rank: $("paRank").value, p_sort: $("paSort").value === "" ? null : Number($("paSort").value), p_title: $("paTitle").value,
+      p_estimate: est === "" ? null : Number(est), p_detail: $("paDetail").value, p_urgent: $("paUrg").checked });
+    if (error) throw new Error(await errorText(error));
+    ["paRank", "paSort", "paTitle", "paEst", "paDetail"].forEach((id) => { $(id).value = ""; }); $("paUrg").checked = false;
+    say("Added. Owners see it on their Requests tab."); await load();
+  } catch (err) { say(err.message, true); }
+});
+$("showClosed").addEventListener("change", () => D && render());
+$("signOutBtn").addEventListener("click", signOut);
+const who = await signIn($("signin"), { audience: "staff" });
+$("userBar").hidden = false;
+if (who.role !== "staff") location.replace("/association-owners/roca1/"); else { $("app").hidden = false; load(); }
+</script>
+</body>
+</html>

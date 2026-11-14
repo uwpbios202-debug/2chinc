@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Our Services | The Human Mirror</title>
+<link rel="icon" href="/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Source+Serif+4:opsz,wght@8..60,600&display=swap">
+<link rel="stylesheet" href="/mirror/assets/mirror.css?v=20261113l">
+</head>
+<body data-area="workspace">
+<main id="main" class="mm-main">
+  <p class="mm-eyebrow"><a href="/mirror/workspace/">Workspace</a></p>
+  <h1>Our services</h1>
+  <p class="mm-lead">What your organization itself provides, such as a food pantry, rides or a class. To enroll a person, open their Mirror from
+    <a href="/mirror/workspace/people/">People</a>. Programs of other organizations are in the resource directory.</p>
+  <div id="mmSv"><p role="status">Loading…</p></div>
+</main>
+<script type="module" src="/mirror/assets/mirror-ui.js?v=20261113h"></script>
+<script type="module">
+// Phase 8 T8.4 (11/13/2026, D-34): the organization's own list of services. Organization admins add, change and retire them;
+// coordinators read the list. Counts beside a service include only the people who share that part of life with you.
+import { requireArea, rpc } from "/mirror/assets/mirror-client.js?v=20261113p";
+import { esc, notice, toast } from "/mirror/assets/mirror-ui.js?v=20261113h";
+import { voiceAll } from "/mirror/assets/mirror-voice.js?v=20261113c";
+import { DIMENSIONS } from "/mirror/assets/dimensions.js?v=20261113a";
+
+// the private parts of life (mirror.dimension_category)
+const PRIVATE = ["physical_health", "mental_health", "identity_legal", "finances", "safety"];
+const dims = DIMENSIONS.map((d) => ({ key: d.key, title: d.title, private: PRIVATE.includes(d.key) }));
+
+const w = await requireArea("workspace");
+const orgs = w.memberships.filter((m) => m.role === "org_admin" || m.role === "coordinator");
+const box = document.getElementById("mmSv");
+const asked = new URLSearchParams(location.search).get("org");
+let org = (orgs.find((o) => o.organization_id === asked) || orgs[0] || {}).organization_id;
+
+if (!orgs.length) box.innerHTML = notice("info", "<p>Volunteers don't manage services. Ask your organization's coordinator.</p>");
+else draw();
+
+async function draw(note = "") {
+  let S;
+  try { S = await rpc("mirror_services", { p_org: org }); } catch (e) { box.innerHTML = notice("urgent", `<p>${esc(e.message)}</p>`); return; }
+  const dimOpts = (sel) => `<option value="">Everyday (no one area)</option>` + dims.map((d) => `<option value="${esc(d.key)}"${d.key === sel ? " selected" : ""}>${esc(d.title)}${d.private ? " (private)" : ""}</option>`).join("");
+  const row = (s) => `<tr data-svc="${esc(s.id)}">
+      <td data-label="Service"><strong>${esc(s.name)}</strong>${s.active ? "" : ' <span class="mm-tag">Retired</span>'}${s.description ? `<br><span class="mm-small">${esc(s.description)}</span>` : ""}</td>
+      <td data-label="Part of life">${s.area ? esc(s.area) : "Everyday"}${s.private ? ' <span class="mm-tag mm-tag-info">private</span>' : ""}</td>
+      <td class="mm-num" data-label="Getting it">${Number(s.getting_it) || 0}</td>
+      <td class="mm-num" data-label="On hold">${Number(s.on_hold) || 0}</td>
+      <td data-label="">${S.can_manage ? `<button class="mm-btn mm-btn-quiet" type="button" data-edit>Change</button>` : ""}</td></tr>`;
+  box.innerHTML = `
+    ${orgs.length > 1 ? `<div class="mm-field" style="max-width:24rem"><label for="mmOrg">Organization</label>
+      <select class="mm-select" id="mmOrg">${orgs.map((o) => `<option value="${esc(o.organization_id)}"${o.organization_id === org ? " selected" : ""}>${esc(o.organization)}</option>`).join("")}</select></div>` : ""}
+    ${note}
+    ${S.services.length ? `<div class="mm-table-wrap mm-stack"><table class="mm-table"><caption class="mm-sr">Your organization's services</caption>
+      <thead><tr><th scope="col">Service</th><th scope="col">Part of life</th><th scope="col" class="mm-num">Getting it</th><th scope="col" class="mm-num">On hold</th><th scope="col"><span class="mm-sr">Actions</span></th></tr></thead>
+      <tbody>${S.services.map(row).join("")}</tbody></table></div>
+      <p class="mm-small mm-muted mm-read">The counts include only people who share that part of life with you. A service in a private part of life
+        (health, feelings, safety, legal, money) is private: a person is enrolled in it only if they share that part with your organization.</p>`
+      : notice("info", `<p>No services yet.${S.can_manage ? " Add the first one below." : " Your organization admin adds them."}</p>`)}
+    <div id="mmEdit"></div>
+    ${S.can_manage ? `<form class="mm-card mm-read" id="mmAdd" novalidate style="margin-top:var(--mm-space-6)">
+      <h2 style="margin-top:0">Add a service</h2>
+      <div class="mm-field"><label for="aName">Name</label><input class="mm-input" id="aName" maxlength="120" autocomplete="off"></div>
+      <div class="mm-field"><label for="aDesc">What it is <span class="mm-muted">(optional; people see it)</span></label><textarea class="mm-textarea" id="aDesc" rows="2" maxlength="1000"></textarea></div>
+      <div class="mm-field" style="max-width:24rem"><label for="aDim">Part of life</label><span class="mm-hint" id="aDimHint">Sets who may see it. It can't change once someone is enrolled.</span>
+        <select class="mm-select" id="aDim" aria-describedby="aDimHint">${dimOpts("")}</select></div>
+      <div id="mmAddMsg" aria-live="assertive"></div>
+      <button class="mm-btn" type="submit">Add service</button></form>` : ""}`;
+  voiceAll(box);
+  box.querySelector("#mmOrg")?.addEventListener("change", (e) => { org = e.target.value; draw(); });
+  box.querySelector("#mmAdd")?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const v = (k) => document.getElementById(k).value;
+    try {
+      await rpc("mirror_service_save", { p: { organization_id: org, name: v("aName"), description: v("aDesc"), dimension_key: v("aDim") } });
+      draw(notice("ok", `<p><strong>${esc(v("aName").trim())}</strong> was added.</p>`));
+    } catch (err) { box.querySelector("#mmAddMsg").innerHTML = notice("urgent", `<p>${esc(err.message)}</p>`); }
+  });
+  box.querySelectorAll("[data-svc]").forEach((tr) => tr.querySelector("[data-edit]")?.addEventListener("click", () => {
+    const s = S.services.find((x) => x.id === tr.dataset.svc);
+    const ed = box.querySelector("#mmEdit");
+    ed.innerHTML = `<form class="mm-card mm-read" novalidate style="margin-top:var(--mm-space-4)">
+      <h2 style="margin-top:0">Change ${esc(s.name)}</h2>
+      <div class="mm-field"><label for="eName">Name</label><input class="mm-input" id="eName" maxlength="120" value="${esc(s.name)}"></div>
+      <div class="mm-field"><label for="eDesc">What it is</label><textarea class="mm-textarea" id="eDesc" rows="2" maxlength="1000">${esc(s.description || "")}</textarea></div>
+      <div class="mm-field" style="max-width:24rem"><label for="eDim">Part of life</label>
+        <select class="mm-select" id="eDim"${s.has_enrollments ? " disabled" : ""}>${dimOpts(s.dimension_key || "")}</select>
+        ${s.has_enrollments ? '<span class="mm-hint">People are enrolled, so the part of life stays. Add a new service instead.</span>' : ""}</div>
+      <div class="mm-field"><label class="mm-choice"><input type="checkbox" id="eActive"${s.active ? " checked" : ""}> Offered now <span class="mm-muted">(untick to retire it; people keep their history)</span></label></div>
+      <div id="mmEditMsg" aria-live="assertive"></div>
+      <button class="mm-btn" type="submit">Save</button> <button class="mm-btn mm-btn-quiet" type="button" data-cancel>Cancel</button></form>`;
+    ed.querySelector("[data-cancel]").addEventListener("click", () => { ed.innerHTML = ""; });
+    ed.querySelector("form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const v = (k) => document.getElementById(k).value;
+      try {
+        await rpc("mirror_service_save", { p: { id: s.id, name: v("eName"), description: v("eDesc"),
+          dimension_key: s.has_enrollments ? (s.dimension_key || "") : v("eDim"), active: document.getElementById("eActive").checked } });
+        toast("Saved."); draw();
+      } catch (err) { ed.querySelector("#mmEditMsg").innerHTML = notice("urgent", `<p>${esc(err.message)}</p>`); }
+    });
+    ed.scrollIntoView({ block: "start" });
+  }));
+}
+</script>
+</body>
+</html>

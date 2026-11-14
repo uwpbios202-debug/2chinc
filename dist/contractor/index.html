@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Contractor Jobs — 2nd Chance Housing</title>
+<link rel="icon" href="/favicon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+<style>
+.job{margin-bottom:12px}
+.job h2{margin:0 0 2px;font-size:1.1rem}
+.meta{color:var(--muted);font-size:.92rem}
+.pill2{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;border-radius:20px;padding:.15rem .6rem;background:var(--accent-soft);color:var(--accent)}
+.pill2.warn{background:#fff3cd;color:#7a5200}.pill2.done{background:#e8e8e8;color:#444}
+.when{font-weight:700}
+.row3{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;align-items:flex-end}
+.row3 label{display:grid;gap:3px;font-size:.85rem;color:var(--muted);flex:1;min-width:200px}
+.row3 input{font:inherit;padding:8px;border:1px solid var(--line);border-radius:6px;color:var(--fg);background:var(--panel)}
+.stalls{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 10px}.stall{display:inline-flex;gap:4px;align-items:center;border:1px solid var(--line);border-radius:6px;padding:4px 8px;background:var(--panel)}
+.notes{white-space:pre-wrap;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:8px 10px;margin-top:8px;font-size:.92rem}
+</style>
+</head>
+<body>
+<div class="appbar"><div class="appbar-in">
+  <a class="org" href="/" style="color:inherit;text-decoration:none">2nd Chance Housing<span>Contractors</span></a>
+  <div class="row" id="userBar" hidden><span class="sub" id="who"></span><button class="linkbtn" type="button" id="signOutBtn">Sign out</button></div>
+</div></div>
+<main class="wrap">
+  <header><h1>My jobs</h1><p class="lead">The work assigned to you. You see only your own jobs: the address, the problem, the tenant's name and phone so you can set a time directly, and whether entry is allowed.</p></header>
+  <div id="signin" class="narrow"></div>
+  <div id="snow" hidden></div>
+  <div id="app" hidden></div>
+</main>
+<script type="module">
+import { client, $, esc, fmtDate, signIn, signOut, errorText } from "/assets/portal/portal.js";
+import { mountSnow } from "/assets/portal/snow-vendor.js";
+const ENTRY = { yes: "Tenant allows entry", no: "Tenant does NOT allow entry: do not enter without the tenant", call_first: "Call the office before entering" };
+const STATUS = { new: "New", scheduled: "Scheduled", in_progress: "Started", deferred: "On hold", completed: "Done", closed: "Closed" };
+const when = (s, e) => s ? new Date(s).toLocaleString("en-US", { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) + (e ? " to " + new Date(e).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) : "") : "Not scheduled yet";
+
+function card(j) {
+  const done = ["completed", "closed"].includes(j.status);
+  return `<div class="panel job" data-id="${esc(j.id)}">
+    <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><div><h2>#${esc(j.number)} · ${esc(j.subject)}</h2>
+      <div class="meta">${esc(j.address || "")}${j.unit ? " · Unit " + esc(j.unit) : ""}</div></div>
+      <span class="pill2 ${done ? "done" : j.status === "deferred" ? "warn" : ""}">${esc(STATUS[j.status] || j.status)}</span></div>
+    <p class="when" style="margin-top:8px">${esc(when(j.scheduled_start, j.scheduled_end))}</p>
+    <p>${esc(j.description)}</p>
+    ${(j.tenants || []).length && !["completed", "closed"].includes(j.status) ? `<div class="notes" style="white-space:normal"><b>Contact the tenant directly to set a time.</b> It gets the work done faster.
+      ${j.tenants.map((t) => `<div>${esc(t.name)}${t.phone ? ` · <a href="tel:${esc(String(t.phone).replace(/\D/g, ""))}">${esc(t.phone)}</a> · <a href="sms:${esc(String(t.phone).replace(/\D/g, ""))}">text</a>` : " (no phone on file: call the office)"}</div>`).join("")}</div>` : ""}
+    <p class="meta">${esc(ENTRY[j.entry_permission] || "")}${j.entry_purpose ? " · Purpose: " + esc(j.entry_purpose) : ""}${j.has_pets ? " · <b>Pets in the home</b>" + (j.pets_note ? ": " + esc(j.pets_note) : "") : ""}</p>
+    ${j.notes ? `<div class="notes">${esc(j.notes)}</div>` : ""}
+    ${done ? "" : `<div class="row3"><label>Note (required when you finish)<input data-note maxlength="500" placeholder="What you did, parts needed, anything for the office"></label>
+      ${j.status !== "in_progress" ? `<button class="btn" type="button" data-act="in_progress">I started</button>` : ""}<button class="btn primary" type="button" data-act="completed">Mark done</button></div><span class="msg" data-msg></span>`}
+  </div>`;
+}
+async function load() {
+  const { data, error } = await client.rpc("contractor_tasks");
+  if (error) { $("signin").hidden = false; $("signin").innerHTML = `<div class="panel">${esc(await errorText(error))}</div>`; return; }
+  $("app").innerHTML = data.length ? data.map(card).join("") : `<div class="panel"><p>No jobs are assigned to you right now. We'll email you when one is.</p></div>`;
+  $("app").hidden = false;
+}
+$("app").addEventListener("click", async (e) => {
+  const b = e.target.closest("[data-act]"); if (!b) return;
+  const c = b.closest(".job"), m = c.querySelector("[data-msg]");
+  b.disabled = true;
+  const { error } = await client.rpc("contractor_update", { p_id: c.dataset.id, p_status: b.dataset.act, p_note: c.querySelector("[data-note]").value });
+  if (error) { m.className = "msg err"; m.textContent = await errorText(error); b.disabled = false; return; }
+  await load();
+});
+const who = await signIn($("signin"), { audience: "contractor" });
+$("userBar").hidden = false; $("signOutBtn").onclick = signOut;
+if (who.role !== "contractor" && !who.is_contractor) {
+  $("signin").hidden = false;
+  $("signin").innerHTML = `<div class="panel"><p>This area is for contractors and vendors. <a href="/">Back to the home page</a></p></div>`;
+} else { $("who").textContent = who.email || ""; $("signin").hidden = true; await mountSnow($("snow")); await load(); }
+</script>
+</body>
+</html>

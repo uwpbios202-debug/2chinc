@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="How the Human Mirror protects your information: what we keep, who can see it, when we may have to share it, private topics, safety mode, and how to download or delete it.">
+<title>Privacy | The Human Mirror</title>
+<link rel="icon" href="/favicon.png">
+<style>
+:root{
+  --bg:#fbf7f0; --card:#ffffff; --text:#1f2a30; --muted:#4a5a62;
+  --accent:#1d5c63; --accent-ink:#ffffff; --line:#d9d2c5;
+  --alert-bg:#fff1dc; --alert-line:#a14a00;
+  --exit-bg:#9b1c1c; --exit-ink:#ffffff; --focus:#0b3d91;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#14191c; --card:#1c2327; --text:#eef1f2; --muted:#b8c4c9;
+    --accent:#8fd0d6; --accent-ink:#0f2326; --line:#38444a;
+    --alert-bg:#33250f; --alert-line:#f0a64b;
+    --exit-bg:#ffb4b4; --exit-ink:#3a0a0a; --focus:#9ec5ff;
+  }
+}
+*{box-sizing:border-box}
+html{font-size:100%;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--text);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  font-size:1.125rem;line-height:1.6}
+a{color:var(--accent);text-underline-offset:3px}
+:focus-visible{outline:3px solid var(--focus);outline-offset:3px;border-radius:4px}
+.skip{position:absolute;left:-999px;top:0;background:var(--card);color:var(--text);padding:.75rem 1rem;z-index:20}
+.skip:focus{left:8px;top:8px}
+
+.topbar{position:sticky;top:0;z-index:10;background:var(--bg);border-bottom:1px solid var(--line);
+  display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.5rem 1rem}
+.brand{font-weight:700;color:var(--accent)}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;min-width:48px;
+  padding:.5rem 1.1rem;border-radius:10px;border:2px solid transparent;
+  font:inherit;font-weight:700;cursor:pointer;text-decoration:none}
+.btn-exit{background:var(--exit-bg);color:var(--exit-ink)}
+.btn-plain{background:var(--card);color:var(--accent);border-color:var(--accent)}
+.btn-call{background:var(--accent);color:var(--accent-ink)}
+
+main{max-width:44rem;margin:0 auto;padding:1.25rem 1rem 3rem}
+h1{font-size:2rem;line-height:1.2;margin:.25rem 0 .5rem}
+h2{font-size:1.35rem;line-height:1.3;margin:0}
+h3{font-size:1.1rem;margin:1.25rem 0 .25rem}
+.eyebrow{color:var(--muted);margin:0}
+.updated{color:var(--muted);margin:0 0 1.25rem}
+
+.crisis{background:var(--alert-bg);border:2px solid var(--alert-line);border-radius:14px;padding:1rem 1.1rem;margin:0 0 1.25rem}
+.crisis h2{margin-bottom:.5rem}
+.crisis .actions{display:flex;flex-wrap:wrap;gap:.75rem;margin:.75rem 0}
+.crisis p{margin:.4rem 0}
+
+.glance{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:1rem 1.1rem;margin:0 0 1.25rem}
+.glance ul{margin:.5rem 0 0;padding-left:1.25rem}
+.glance li{margin:.35rem 0}
+
+.toc{margin:0 0 1.25rem}
+.toc ol{margin:.5rem 0 0;padding-left:1.4rem}
+.toc li{margin:.15rem 0}
+.toc a{display:inline-block;padding:.35rem 0;min-height:44px}
+
+.controls{margin:0 0 .75rem}
+
+details.sec{background:var(--card);border:1px solid var(--line);border-radius:14px;margin:0 0 .75rem}
+details.sec>summary{cursor:pointer;list-style:none;padding:1rem 1.1rem;min-height:56px;
+  display:flex;align-items:center;justify-content:space-between;gap:1rem}
+details.sec>summary::-webkit-details-marker{display:none}
+details.sec>summary::after{content:"+";font-size:1.5rem;font-weight:700;color:var(--accent);flex:none}
+details.sec[open]>summary::after{content:"\2212"}
+.body{padding:0 1.1rem 1rem}
+.body p{margin:.5rem 0}
+.body ul{margin:.5rem 0;padding-left:1.25rem}
+.body li{margin:.5rem 0}
+
+footer{margin-top:1.5rem;color:var(--muted)}
+
+@media (prefers-reduced-motion:no-preference){ html{scroll-behavior:smooth} }
+@media (prefers-reduced-motion:reduce){ *{animation:none!important;transition:none!important;scroll-behavior:auto!important} }
+@media (min-width:40rem){ h1{font-size:2.4rem} }
+@media print{ .topbar,.controls,.skip{display:none} details.sec{break-inside:avoid} }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the page content</a>
+
+<header class="topbar">
+  <span class="brand">The Human Mirror</span>
+  <button type="button" class="btn btn-exit" id="quick-exit" aria-label="Quick exit. Leaves this page right away.">Quick exit</button>
+</header>
+
+<main id="main">
+  <p class="eyebrow">Privacy</p>
+  <h1>Your Mirror belongs to you</h1>
+  <p class="updated">Last updated November 14, 2026.</p>
+
+  <section class="crisis" aria-labelledby="crisis-title">
+    <h2 id="crisis-title">If you are in a crisis or may be unsafe</h2>
+    <div class="actions">
+      <a class="btn btn-call" href="tel:988">Call or text 988</a>
+      <a class="btn btn-call" href="tel:911">Call 911</a>
+    </div>
+    <p>Nobody watches your answers as you give them. Asking for help in the Mirror does not alert anyone yet.</p>
+    <p>If someone may be watching your phone or email, turn on <strong>safety mode</strong> in Settings. Use the red <strong>Quick exit</strong> button at the top of this page to leave fast. You can also press the Esc key 3 times.</p>
+    <p>On a shared or public device, sign out and close the browser window when you finish.</p>
+  </section>
+
+  <section class="glance" aria-labelledby="glance-title">
+    <h2 id="glance-title">The short version</h2>
+    <ul>
+      <li>We keep only what you choose to tell us. You can skip any question.</li>
+      <li>We never sell your information or use it for ads.</li>
+      <li>You see everything. Your coordinator sees your everyday answers. Private topics stay hidden unless you share them.</li>
+      <li>In a few cases the law can require us to share information. We explain them below.</li>
+      <li>You can change what you share, download everything, or ask us to delete your Mirror.</li>
+    </ul>
+  </section>
+
+  <nav class="toc" aria-label="Jump to a section">
+    <h2>Jump to a section</h2>
+    <ol>
+      <li><a href="#keep">What we keep</a></li>
+      <li><a href="#why">Why we keep it</a></li>
+      <li><a href="#see">Who can see it</a></li>
+      <li><a href="#share">When we may have to share it</a></li>
+      <li><a href="#safety">Safety mode and shared devices</a></li>
+      <li><a href="#voice">Your voice</a></li>
+      <li><a href="#email">Email</a></li>
+      <li><a href="#choices">Your choices</a></li>
+      <li><a href="#protect">How we protect it</a></li>
+      <li><a href="#breach">If your information is exposed</a></li>
+      <li><a href="#closes">If our organization closes or changes</a></li>
+      <li><a href="#who">Who can use the Mirror</a></li>
+      <li><a href="#questions">Questions, complaints and changes</a></li>
+    </ol>
+  </nav>
+
+  <div class="controls">
+    <button type="button" class="btn btn-plain" id="toggle-all" aria-pressed="false">Close all sections</button>
+  </div>
+
+  <details class="sec" id="keep" open>
+    <summary><h2>What we keep</h2></summary>
+    <div class="body">
+      <p>We keep only what you choose to tell us: your answers, your goals and plan, your Daily Number figures, and, later, documents you choose to upload.</p>
+      <p>You can skip any question. We only ask for what the Mirror needs.</p>
+      <p>Some documents, like an ID, can hold numbers that thieves want, such as a driver&rsquo;s license number. Upload one only if you want to.</p>
+      <p>We keep your Mirror until you ask us to delete it.</p>
+    </div>
+  </details>
+
+  <details class="sec" id="why" open>
+    <summary><h2>Why we keep it</h2></summary>
+    <div class="body">
+      <p>We use it to give you a clear picture of your life, to build the plan you choose, and to connect you with programs and people who can help.</p>
+      <p>We never sell your information or use it for advertising.</p>
+    </div>
+  </details>
+
+  <details class="sec" id="see" open>
+    <summary><h2>Who can see it</h2></summary>
+    <div class="body">
+      <ul>
+        <li><strong>You</strong> see everything in your Mirror.</li>
+        <li><strong>Your coordinator or Housing Navigator</strong> sees your everyday answers (who you are, your strengths, your plans). This starts after you accept their organization&rsquo;s invitation. You can stop working with them at any time.</li>
+        <li><strong>Private topics</strong> are health, mental health, safety, legal matters, immigration, money details and ID papers. They stay hidden from your coordinator unless you share that topic.</li>
+        <li><strong>Other organizations</strong> see nothing unless you agree to a referral. Then they see only what the referral needs. You can take a referral back at any time. After that we stop sharing. We cannot undo what they already received, so ask them about their rules.</li>
+        <li><strong>Our staff.</strong> Only staff who need access to run the Mirror can reach the system. They can open a private topic only to fix a problem or keep it safe.</li>
+        <li><strong>We keep a log.</strong> Every time someone opens a private topic, changes an answer, or is turned away, we write it down. You can see who did it, when, and what they did. We review the log every month.</li>
+        <li><strong>Your earlier answers</strong> stay private. When you change an answer, we keep the old ones for you only. Organizations see only your current answer. You can also clear an answer so nobody sees one.</li>
+      </ul>
+    </div>
+  </details>
+
+  <details class="sec" id="share" open>
+    <summary><h2>When we may have to share it</h2></summary>
+    <div class="body">
+      <p>We do not share your private information to be nosy or for money. But the law can require us to share some information. Here are the cases we know about.</p>
+      <h3>Reports about children</h3>
+      <p>Wisconsin law requires some professionals to report if they have reason to suspect that a child they see in their work has been abused or neglected. Some of the staff who work with you may be in that group. If so, they must make that report, even if you ask them not to. Ask your coordinator if you are unsure.</p>
+      <h3>Court orders and subpoenas</h3>
+      <p>A court order is signed by a judge. A subpoena is different. In a court case, a lawyer can issue one. We will not give out your records just because someone asks.</p>
+      <p>If we get a court order or a subpoena for your records, our lawyer reviews it. We share only what the law requires. When we can, we ask the court to limit the request. We tell you first, unless the law or your safety says we cannot.</p>
+      <h3>Emergencies</h3>
+      <p>If we believe someone is in immediate danger, we may call 911 or share only what is needed to keep people safe.</p>
+    </div>
+  </details>
+
+  <details class="sec" id="safety" open>
+    <summary><h2>Safety mode and shared devices</h2></summary>
+    <div class="body">
+      <p>If someone may be watching your phone or email, turn on safety mode in Settings.</p>
+      <ul>
+        <li>The Mirror never reads private questions out loud.</li>
+        <li>The Mirror checks with you before it saves a copy on your device.</li>
+      </ul>
+      <h3>On a shared or public device</h3>
+      <ul>
+        <li>Sign out when you finish, and close the browser window.</li>
+        <li>A file you download stays on that device until you delete it.</li>
+        <li>Your sign-in code comes by email. Anyone who can open your email can see it.</li>
+      </ul>
+    </div>
+  </details>
+
+  <details class="sec" id="voice" open>
+    <summary><h2>Your voice</h2></summary>
+    <div class="body">
+      <p>The Mirror never records or keeps your voice. If you speak an answer, the words show up in a box so you can check them first.</p>
+      <ul>
+        <li><strong>On a phone,</strong> your keyboard&rsquo;s microphone follows your phone&rsquo;s own settings.</li>
+        <li><strong>On a computer,</strong> your voice might be sent to a company such as Google, Microsoft or Apple to be typed. If so, we ask you first. You can say no and type instead. You can change this choice in Settings. If you say yes, that company&rsquo;s rules apply to your voice.</li>
+      </ul>
+      <h3>Hands-free</h3>
+      <ul>
+        <li>An everyday answer saves itself after a 2-second pause, unless you touch the screen.</li>
+        <li>A private answer saves only when you say &ldquo;save&rdquo;.</li>
+        <li>Hands-free also asks you first, on phones too, before your voice goes to a company to be typed.</li>
+      </ul>
+    </div>
+  </details>
+
+  <details class="sec" id="email" open>
+    <summary><h2>Email</h2></summary>
+    <div class="body">
+      <p>Emails from the Mirror never contain health, legal or money details. They only say there is something new. You sign in to see it.</p>
+      <p>Today the Mirror sends no emails except your sign-in codes. Sign-in emails have a plain subject line that does not name the Mirror or housing.</p>
+    </div>
+  </details>
+
+  <details class="sec" id="choices" open>
+    <summary><h2>Your choices</h2></summary>
+    <div class="body">
+      <ul>
+        <li><strong>Change what you share</strong> at any time. It takes effect right away.</li>
+        <li><strong>Download everything</strong> about you as a file. You can keep it, take it to someone else, or print a copy.</li>
+        <li><strong>Ask us to delete your Mirror.</strong> We wait 30 days in case you change your mind. Then we delete it. We erase it or make it unreadable. Backup copies are removed automatically within 7 days after that. We keep a record that a deletion happened, without your information.</li>
+        <li><strong>If you are in danger,</strong> tell your coordinator or call us. We will hide your Mirror from everyone right away while the 30 days run.</li>
+      </ul>
+    </div>
+  </details>
+
+  <details class="sec" id="protect" open>
+    <summary><h2>How we protect it</h2></summary>
+    <div class="body">
+      <ul>
+        <li>You sign in with a code we send to your email, so there is no password to steal. Keep your email private, because anyone who can open it can see the code.</li>
+        <li>Staff who work with people&rsquo;s records also use an authenticator app (an app that gives a second sign-in code).</li>
+        <li>Each organization sees only its own people.</li>
+        <li>We store your records in a protected database. The rules about who can see what are enforced there, not only on the screen.</li>
+      </ul>
+    </div>
+  </details>
+
+  <details class="sec" id="breach" open>
+    <summary><h2>If your information is exposed</h2></summary>
+    <div class="body">
+      <p>If someone who should not have your personal information gets it, we will tell you. We do this for any private topic, not only ID numbers.</p>
+      <ul>
+        <li>We will tell you as soon as we can, and no later than 30 days after we find out.</li>
+        <li>We will use a safe way to reach you. Tell your coordinator or us how you want to be reached.</li>
+        <li>You can ask us in writing what information was taken.</li>
+        <li>One exception: if police ask us to wait so they can protect an investigation, we must wait until they say we can.</li>
+      </ul>
+    </div>
+  </details>
+
+  <details class="sec" id="closes" open>
+    <summary><h2>If our organization closes or changes</h2></summary>
+    <div class="body">
+      <p>If 2nd Chance Housing closes, merges, or hands the Mirror to another group, we will tell you first. You will have time to download or delete your Mirror.</p>
+      <p>We will not give your information to anyone else unless they agree in writing to keep the promises on this page, or you agree.</p>
+    </div>
+  </details>
+
+  <details class="sec" id="who" open>
+    <summary><h2>Who can use the Mirror</h2></summary>
+    <div class="body">
+      <p>The Mirror is for adults 18 and older. We do not create Mirror accounts for people under 18.</p>
+      <p>If you are under 18 and need help, you do not need a parent&rsquo;s permission to contact us. Call or text 988, or call 911 in an emergency. You can also reach us at the number below. We will listen and help you find a program for young people.</p>
+    </div>
+  </details>
+
+  <details class="sec" id="questions" open>
+    <summary><h2>Questions, complaints and changes</h2></summary>
+    <div class="body">
+      <p>Ask your coordinator, or contact 2nd Chance Housing Inc:</p>
+      <ul>
+        <li>Email: <a href="mailto:info@2ndchinc.org">info@2ndchinc.org</a></li>
+        <li>Phone: <a href="tel:+12622365443">(262) 236&#8209;5443</a></li>
+      </ul>
+      <p>If you think we handled your information the wrong way, tell your coordinator or contact us. We will answer within 14 days.</p>
+      <p>When we change this page, we change the date at the top. If we change how we use or share your information, we will tell you in the Mirror the next time you sign in, before the change starts.</p>
+    </div>
+  </details>
+
+  <footer>
+    <p>The Human Mirror &middot; 2nd Chance Housing Inc</p>
+  </footer>
+</main>
+
+<script>
+(function(){
+  function quickExit(){
+    try{ window.open('https://www.weather.com','_blank','noopener'); }catch(e){}
+    window.location.replace('https://www.google.com');
+  }
+  document.getElementById('quick-exit').addEventListener('click', quickExit);
+
+  var escCount=0, escTimer=null;
+  document.addEventListener('keydown', function(e){
+    if(e.key==='Escape'){
+      escCount++;
+      clearTimeout(escTimer);
+      escTimer=setTimeout(function(){escCount=0;},1500);
+      if(escCount>=3){ quickExit(); }
+    }
+  });
+
+  var btn=document.getElementById('toggle-all');
+  var secs=document.querySelectorAll('details.sec');
+  btn.addEventListener('click', function(){
+    var open = btn.getAttribute('aria-pressed')!=='true';
+    secs.forEach(function(d){ d.open = !open; });
+    btn.setAttribute('aria-pressed', open ? 'true' : 'false');
+    btn.textContent = open ? 'Open all sections' : 'Close all sections';
+  });
+
+  document.querySelectorAll('.toc a').forEach(function(a){
+    a.addEventListener('click', function(){
+      var t=document.querySelector(a.getAttribute('href'));
+      if(t && t.tagName==='DETAILS'){ t.open=true; }
+    });
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,3 @@
+Human Mirror P2-10 (Phase 9 step 27): change a person's email on the People list. A never-used email (typo on an invitation): any coordinator, with a reason, invitation to the new address. A used email: only an organization admin or platform admin of an organization the person is active with, after confirming who they are (phone, video, in person) + reason; old email's sign-ins end unless it signs in to something else; both addresses get a security notice (held while the kind is off). Never own, taken or a coordinator's email; 5 a day; audit log (migration 20261119695000, check p210 6/6, D-44 default); docs
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>

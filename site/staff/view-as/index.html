@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>View as — 2nd Chance Housing</title>
+<link rel="icon" href="/favicon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+<style>
+.grp{margin-bottom:16px}
+.grp h2{margin:0 0 8px}
+.ppl{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:8px}
+.p{border:1px solid var(--line);border-radius:8px;background:var(--panel);padding:10px 12px;display:grid;gap:2px}
+.p b{font-size:1rem}
+.p .sub{word-break:break-all}
+.p button{justify-self:start;margin-top:6px}
+</style>
+</head>
+<body>
+<div class="appbar" data-nav="staff"><div class="appbar-in">
+  <a class="org" href="/" style="color:inherit;text-decoration:none">2nd Chance Housing<span>Staff</span></a>
+  <div class="row" id="userBar" hidden><span class="sub" id="who"></span><button class="linkbtn" type="button" id="signOutBtn">Sign out</button></div>
+</div></div>
+<main class="wrap">
+  <header><h1>View as</h1>
+    <p class="lead">Open the real portal as any tenant, owner or staff member and see exactly what they see. It opens in a new tab and your own sign-in stays untouched. Each view is logged with your name, and it ends after an hour.</p></header>
+  <div id="signin" class="narrow"></div>
+  <div id="app" hidden>
+    <div class="panel"><label class="f">Find a person or unit<input class="field" id="find" placeholder="Name, email or unit number"></label>
+      <div class="msg err" id="msg" role="alert"></div></div>
+    <div id="list"></div>
+  </div>
+</main>
+<script type="module">
+import { client, $, esc, signIn, signOut, errorText } from "/assets/portal/portal.js";
+const who = await signIn($("signin"), { audience: "staff" });
+$("userBar").hidden = false; $("signOutBtn").onclick = signOut; $("who").textContent = who.email || "";
+const { data: isAdmin } = await client.rpc("portal_is_admin");
+if (isAdmin !== true) {
+  $("signin").hidden = false;
+  $("signin").innerHTML = `<div class="panel"><p>This page is for the administrator. <a href="/staff/">Back to staff home</a></p></div>`;
+} else {
+  const { data, error } = await client.rpc("admin_login_directory");
+  if (error) { $("signin").hidden = false; $("signin").innerHTML = `<div class="panel">${esc(await errorText(error))}</div>`; }
+  else {
+    $("signin").hidden = true; $("app").hidden = false;
+    const groups = [["Office staff", data.staff], ["Field staff", data.field], ["Lease agents", data.agents], ["Housing Navigators", data.navigators], ["Owners", data.owners], ["Tenants", data.tenants]];
+    const render = () => {
+      const q = $("find").value.trim().toLowerCase();
+      $("list").innerHTML = groups.map(([title, rows]) => {
+        const hit = (rows || []).filter((p) => !q || [p.name, p.email, p.unit, p.units, p.kind].join(" ").toLowerCase().includes(q) || (q.replace(/^unit\s*/, "") === String(p.unit || "")));
+        if (!hit.length) return "";
+        return `<section class="grp"><h2>${title} <span class="sub">(${hit.length})</span></h2><div class="ppl">${hit.map((p) =>
+          `<div class="p"><b>${esc(p.name)}</b><span class="sub">${esc(p.email)}</span><span class="sub">${esc(p.kind)}${p.unit ? " · Unit " + esc(p.unit) : ""}${p.units ? " · " + (String(p.units).startsWith("Unit") ? esc(p.units) : "Units " + esc(p.units)) : ""}</span>
+          <button class="btn" type="button" data-email="${esc(p.email)}" data-name="${esc(p.name)}">View as ${esc(p.name.split(" ")[0])}</button></div>`).join("")}</div></section>`;
+      }).join("") || `<p class="sub">Nobody matches.</p>`;
+    };
+    $("find").addEventListener("input", render); render();
+    $("list").addEventListener("click", async (e) => {
+      const b = e.target.closest("button[data-email]"); if (!b) return;
+      // Open the tab first (browsers block pop-ups opened after an await), then point it at the sign-in page.
+      const w = window.open("about:blank", "_blank");
+      b.disabled = true; $("msg").textContent = "";
+      const { data: r, error } = await client.functions.invoke("admin-view-as", { body: { action: "start", email: b.dataset.email } });
+      b.disabled = false;
+      if (error || !r || !r.token_hash) { if (w) w.close(); $("msg").textContent = await errorText(error) || "Couldn't open that view."; return; }
+      const go = "/staff/view-as/go/#" + new URLSearchParams({ t: r.token_hash, e: b.dataset.email, n: b.dataset.name, p: r.path });
+      if (w) w.location.href = go; else $("msg").innerHTML = `Your browser blocked the new tab. <a href="${esc(go)}" target="_blank" rel="noopener">Open the view</a>.`;
+    });
+  }
+}
+</script>
+</body>
+</html>

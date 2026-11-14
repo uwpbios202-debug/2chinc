@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Problem reports — 2nd Chance Housing Staff</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+<style>
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-bottom: 12px; }
+  .card.resolved { opacity: 0.7; }
+  .meta { color: var(--muted); font-size: 0.9rem; }
+  .tag { display: inline-block; padding: 1px 9px; border-radius: 999px; font-size: 0.78rem; font-weight: 700; }
+  .tag.new { background: var(--bad-soft); color: var(--bad); } .tag.fixing { background: var(--warn-soft); color: var(--warn); } .tag.resolved { background: var(--ok-soft); color: var(--ok); }
+  .tag.ok { background: var(--ok-soft); color: var(--ok); } .tag.wait { background: var(--warn-soft); color: var(--warn); } .tag.off { background: var(--off-soft); color: var(--off); }
+  .head { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: baseline; }
+  .said { font-size: 1.05rem; font-weight: 600; margin: 6px 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+  details { margin-top: 10px; border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; }
+  summary { cursor: pointer; font-weight: 600; }
+  .formrow { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; margin-top: 8px; }
+  .formrow label { display: grid; gap: 3px; font-size: 0.85rem; color: var(--muted); }
+  .formrow input { font: inherit; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); min-width: 0; }
+  .formrow input.wide { min-width: 260px; }
+  .photo { max-width: 240px; max-height: 320px; border-radius: 8px; border: 1px solid var(--line); margin-top: 8px; display: block; }
+  .code { font: 700 1.6rem/1.2 ui-monospace, Consolas, monospace; letter-spacing: 0.15em; background: var(--accent-soft); padding: 6px 12px; border-radius: 8px; display: inline-block; }
+  table.t { width: 100%; border-collapse: collapse; font-size: 0.93rem; }
+  table.t th { text-align: left; font-size: 0.75rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); padding: 8px; border-bottom: 1px solid var(--line); }
+  table.t td { padding: 9px 8px; border-bottom: 1px solid var(--line); vertical-align: top; overflow-wrap: anywhere; }
+  .scroll { overflow-x: auto; }
+  .btns { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+</style>
+</head>
+<body>
+<div class="appbar" data-nav="staff">
+  <div class="appbar-in">
+    <div class="org">2nd Chance Housing<span>Problem reports · Staff</span></div>
+    <div class="row" id="userBar" hidden>
+      <button class="linkbtn" type="button" id="signOutBtn">Sign out</button>
+    </div>
+  </div>
+</div>
+<main class="wrap">
+  <header><h1>Problem reports</h1><p class="lead">What tenants send with the "Report a problem" button. Fix the tenant's email or phone here, issue a new registration code, reply, then mark it resolved.</p></header>
+  <div id="signin" class="narrow"></div>
+  <div id="app" hidden>
+    <div class="btns" style="margin:0 0 12px"><label class="meta"><input type="checkbox" id="showResolved"> Show resolved</label></div>
+    <div id="reports"></div>
+    <h2 style="margin-top:28px">Registration: who has signed in?</h2>
+    <p class="meta">Everyone on an active lease. "Registered" means they used the code on their notice. "Signed in" is the last time they signed in to the portal.</p>
+    <div class="scroll"><table class="t" id="regtable"></table></div>
+    <div id="newcode" class="card" hidden></div>
+    <h2 style="margin-top:28px">Email delivery: the "register your account" email</h2>
+    <p class="meta">One row per tenant. <b>Opened</b> is only a hint (some phones hide it); <b>Registered</b> and <b>Last sign-in</b> are the real proof they read it. A bounced email is red: fix the address (Fix their contact info above, or here), then send it again.</p>
+    <div class="btns" style="margin:6px 0 10px"><button class="btn" type="button" id="refreshMail">Refresh</button><button class="btn" type="button" id="resendBounced">Send again to bounced</button></div>
+    <div class="scroll"><table class="t" id="mailtable"></table></div>
+    <div class="meta" id="mailmsg"></div>
+  </div>
+</main>
+<script type="module">
+import { client, $, esc, fmtDate, signIn, signOut, errorText } from "/assets/portal/portal.js";
+let reports = [], people = [], mails = [];
+const when = (iso) => iso ? new Date(iso).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "";
+const device = (ua) => { ua = ua || ""; const os = /iPhone|iPad/.test(ua) ? "iPhone/iPad" : /Android/.test(ua) ? "Android" : /Windows/.test(ua) ? "Windows" : /Mac/.test(ua) ? "Mac" : "device";
+  const br = /CriOS|Chrome/.test(ua) ? "Chrome" : /FxiOS|Firefox/.test(ua) ? "Firefox" : /Safari/.test(ua) ? "Safari" : ""; return [os, br].filter(Boolean).join(" · "); };
+
+function reportCard(r) {
+  const t = r.tenant_name ? `<b>${esc(r.tenant_name)}</b>${r.unit ? ` · Unit ${esc(r.unit)}` : ""} · ${esc(r.tenant_email || "no email")} · ${esc(r.tenant_phone || "no phone")}` : "";
+  return `<div class="card ${r.status === "resolved" ? "resolved" : ""}" data-id="${r.id}" data-tenant="${r.tenant_id || ""}">
+    <div class="head"><span><span class="tag ${r.status}">${r.status === "new" ? "New" : r.status === "fixing" ? "Working on it" : "Resolved"}</span> <span class="meta">${when(r.created_at)} · ref ${esc(String(r.id).slice(0, 8).toUpperCase())}</span></span>
+      <span class="meta">${esc(device(r.user_agent))} · ${esc(r.viewport || "")}</span></div>
+    <div class="said">${esc(r.message)}</div>
+    <div class="meta">Page: ${esc(r.page_url || "")}${r.page_title ? " (" + esc(r.page_title) + ")" : ""}</div>
+    <div class="meta">${r.signed_in_email ? "Signed in as " + esc(r.signed_in_email) : "Not signed in"} ${r.contact_name ? " · " + esc(r.contact_name) : ""} ${r.contact_email ? " · " + esc(r.contact_email) : ""} ${r.contact_phone ? " · " + esc(r.contact_phone) : ""}</div>
+    ${t ? `<div class="meta" style="margin-top:4px">Tenant: ${t}${r.has_code ? ` · <span class="tag ${r.code_used_at ? "ok" : "wait"}">${r.code_used_at ? "registered" : "code not used yet"}</span>` : ""}</div>` : `<div class="meta" style="margin-top:4px">Tenant not matched.</div>
+      <div class="formrow"><label>Find the tenant<input class="wide" data-search placeholder="name or email"></label><button class="btn small" type="button" data-find>Search</button></div><div data-found></div>`}
+    ${r.errors && r.errors.length ? `<details><summary>${r.errors.length} script error(s) on their screen</summary><pre style="white-space:pre-wrap;font-size:.8rem">${esc(r.errors.join("\n"))}</pre></details>` : ""}
+    ${r.photo_path ? `<img class="photo" data-photo="${esc(r.photo_path)}" alt="Photo from the tenant" hidden>` : ""}
+    ${r.staff_note ? `<div class="meta" style="margin-top:6px">Your note: ${esc(r.staff_note)}</div>` : ""}
+    ${r.tenant_id ? `<details><summary>Fix their contact info or sign-in</summary>
+      <div class="formrow"><label>Email<input class="wide" data-email type="email" value="${esc(r.tenant_email || "")}"></label><label>Phone<input data-phone value="${esc(r.tenant_phone || "")}"></label>
+        <button class="btn primary" type="button" data-setcontact>Save now</button><button class="btn" type="button" data-newcode>New registration code</button></div></details>` : ""}
+    <details><summary>Reply and close</summary>
+      <div class="formrow"><label>Note (kept here; goes in the reply)<input class="wide" data-note maxlength="400" value=""></label>
+        ${r.contact_email || r.tenant_email ? `<a class="btn" data-reply href="#">Write the reply</a>` : ""}
+        <button class="btn" type="button" data-status="fixing">Working on it</button><button class="btn primary" type="button" data-status="resolved">Resolved</button><button class="btn" type="button" data-status="new">Reopen</button></div></details>
+    <div class="btns"><button class="btn small" type="button" data-copy>Copy this report for Claude</button></div>
+    <span class="msg" data-msg></span></div>`;
+}
+function renderReports() {
+  const show = $("showResolved").checked;
+  const list = reports.filter((r) => show || r.status !== "resolved");
+  $("reports").innerHTML = list.map(reportCard).join("") || `<p class="meta">No problem reports${show ? "" : " waiting"}. Nice.</p>`;
+  document.querySelectorAll("img[data-photo]").forEach(async (img) => {
+    const { data } = await client.storage.from("issue-reports").createSignedUrl(img.dataset.photo, 300);
+    if (data && data.signedUrl) { img.src = data.signedUrl; img.hidden = false; }
+  });
+}
+function renderPeople() {
+  $("regtable").innerHTML = `<tr><th>Unit</th><th>Name</th><th>Email on file</th><th>Phone</th><th>Registered</th><th>Last sign-in</th><th></th></tr>` + people.map((p) => {
+    const reg = p.code_used_at ? `<span class="tag ok">${fmtDate(p.code_used_at.slice(0, 10))}</span>` : p.code_issued_at ? `<span class="tag wait">code not used</span>` : `<span class="tag off">no code</span>`;
+    return `<tr data-tenant="${p.tenant_id}" data-name="${esc(p.name)}"><td>${esc(p.unit)}</td><td>${esc(p.name)}</td><td>${esc(p.email || "")}</td><td>${esc(p.phone || "")}</td><td>${reg}${p.code_failed_tries >= 8 ? ` <span class="tag new">locked</span>` : ""}</td>
+      <td>${p.last_sign_in ? fmtDate(p.last_sign_in.slice(0, 10)) : "never"}</td><td><button class="btn small" type="button" data-newcode>New code</button></td></tr>`; }).join("");
+}
+function renderMail() {
+  const tag = (m) => m.status === "bounced" || m.status === "complained" || m.status === "failed" ? `<span class="tag new">${m.status === "complained" ? "marked spam" : m.status}</span>`
+    : !m.sent_at ? `<span class="tag off">not sent</span>` : m.status === "delivered" ? `<span class="tag ok">delivered</span>` : m.status === "delayed" ? `<span class="tag wait">delayed</span>` : `<span class="tag wait">sent</span>`;
+  $("mailtable").innerHTML = `<tr><th>Unit</th><th>Name</th><th>Sent to</th><th>Status</th><th>Opened</th><th>Registered</th><th>Last sign-in</th><th></th></tr>` + mails.map((m) => {
+    const bad = ["bounced", "complained", "failed"].includes(m.status) && !m.email_changed_since;
+    return `<tr data-tenant="${m.tenant_id}" data-name="${esc(m.name)}"><td>${esc(m.unit)}</td><td>${esc(m.name)}</td><td>${esc(m.sent_to || m.email || "")}${m.email_changed_since ? ` <span class="meta">(email changed since: now ${esc(m.email)})</span>` : ""}</td>
+      <td>${tag(m)}${m.bounce_reason ? `<div class="meta">${esc(m.bounce_reason)}</div>` : ""}</td>
+      <td>${m.first_opened_at ? `${m.open_count}× <span class="meta">${when(m.first_opened_at)}</span>` : "–"}</td>
+      <td>${m.registered_at ? `<span class="tag ok">${fmtDate(m.registered_at.slice(0, 10))}</span>` : "–"}</td><td>${m.last_sign_in ? fmtDate(m.last_sign_in.slice(0, 10)) : "never"}</td>
+      <td>${bad || m.email_changed_since || !m.sent_at ? `<button class="btn small" type="button" data-sendone="${m.tenant_id}">${m.sent_at ? "Send again" : "Send"}</button>` : ""}</td></tr>`; }).join("");
+}
+async function sendLaunch(ids) {
+  $("mailmsg").textContent = "Sending…";
+  const { data, error } = await client.functions.invoke("tenant-email", { body: { action: "send_launch", tenant_ids: ids } });
+  if (error) { let m = error.message; try { m = (await error.context.json()).error || m; } catch {} $("mailmsg").textContent = m; return; }
+  $("mailmsg").textContent = `Sent ${data.sent.length}${data.skipped.length ? `; skipped ${data.skipped.length}: ` + data.skipped.map((s) => s.name + " (" + s.why + ")").join(", ") : ""}.`;
+  setTimeout(load, 1500);
+}
+async function load() {
+  const [a, b] = await Promise.all([client.rpc("reports_staff_list"), client.rpc("register_staff_status")]);
+  if (a.error) { $("signin").innerHTML = `<div class="banner bad">${esc(await errorText(a.error))}</div>`; return; }
+  reports = a.data || []; people = (b.data || []); renderReports(); renderPeople(); $("app").hidden = false;
+  const c = await client.rpc("email_staff_launch_status"); mails = c.data || []; renderMail();
+}
+$("showResolved").addEventListener("change", renderReports);
+$("refreshMail").addEventListener("click", load);
+$("resendBounced").addEventListener("click", () => { const ids = mails.filter((m) => ["bounced", "complained", "failed"].includes(m.status) && m.email_changed_since).map((m) => m.tenant_id); if (!ids.length) { $("mailmsg").textContent = "No bounced email has a fixed address yet. Fix the address first, then send again."; return; } sendLaunch(ids); });
+
+document.addEventListener("click", async (e) => {
+  const one = e.target.closest("[data-sendone]"); if (one) { sendLaunch([one.dataset.sendone]); return; }
+  // New registration code, from a report card or the table: shown once.
+  if (e.target.closest("[data-newcode]")) {
+    const host = e.target.closest("[data-tenant]"); const id = host.dataset.tenant;
+    const name = host.dataset.name || (host.querySelector(".said") ? "this tenant" : "this tenant");
+    if (!confirm("Make a new registration code? The old one stops working.")) return;
+    const { data, error } = await client.rpc("tenant_staff_issue_code", { p_tenant: id });
+    const box = $("newcode");
+    if (error) { alert(await errorText(error)); return; }
+    box.hidden = false; box.innerHTML = `<div class="meta">New registration code for ${esc(name)}. It is shown once: write it on the notice.</div><div class="code">${esc(data.slice(0, 4) + "-" + data.slice(4))}</div>`;
+    box.scrollIntoView({ behavior: "smooth", block: "center" }); load(); return;
+  }
+  const c = e.target.closest(".card[data-id]"); if (!c) return;
+  const q = (s) => c.querySelector(s), m = q("[data-msg]"), say = (t, bad) => { m.className = bad ? "msg err" : "msg"; m.textContent = t; };
+  const id = c.dataset.id, r = reports.find((x) => x.id === id);
+  try {
+    if (e.target.closest("[data-setcontact]")) {
+      say("Saving…");
+      const { data, error } = await client.rpc("tenant_staff_set_contact", { p_tenant: c.dataset.tenant, p_email: q("[data-email]").value, p_phone: q("[data-phone]").value });
+      if (error) throw new Error(await errorText(error));
+      say(`Saved. ${data.name}: ${data.email || "no email"}, ${data.phone || "no phone"}. Tell them to try again.`); await load();
+    } else if (e.target.closest("[data-status]")) {
+      const s = e.target.closest("[data-status]").dataset.status;
+      const { error } = await client.rpc("report_staff_update", { p_id: id, p_status: s, p_note: q("[data-note]").value });
+      if (error) throw new Error(await errorText(error));
+      await load();
+    } else if (e.target.closest("[data-find]")) {
+      const { data, error } = await client.rpc("tenant_staff_search", { p_q: q("[data-search]").value });
+      if (error) throw new Error(await errorText(error));
+      q("[data-found]").innerHTML = (data || []).map((t) => `<div class="formrow"><span>${esc(t.name)}${t.unit ? " · Unit " + esc(t.unit) : ""} · ${esc(t.email || "")}</span><button class="btn small" type="button" data-link="${t.id}">This is them</button></div>`).join("") || `<span class="meta">No match.</span>`;
+    } else if (e.target.closest("[data-link]")) {
+      const { error } = await client.rpc("report_staff_link_tenant", { p_id: id, p_tenant: e.target.closest("[data-link]").dataset.link });
+      if (error) throw new Error(await errorText(error));
+      await load();
+    } else if (e.target.closest("[data-copy]")) {
+      const txt = `Problem report ${String(r.id).slice(0, 8).toUpperCase()} (${r.status})\nWhen: ${r.created_at}\nSaid: ${r.message}\nPage: ${r.page_url}\nDevice: ${r.user_agent}  Viewport: ${r.viewport}\nScript errors: ${(r.errors || []).join(" | ") || "none"}\nSigned in as: ${r.signed_in_email || "no"}  Contact: ${[r.contact_name, r.contact_email, r.contact_phone].filter(Boolean).join(", ")}\nTenant: ${r.tenant_name || "not matched"} ${r.unit ? "Unit " + r.unit : ""} ${r.tenant_email || ""}\nreport id: ${r.id}`;
+      try { await navigator.clipboard.writeText(txt); say("Copied. Paste it to Claude."); } catch { say("Couldn't copy. Select the text above instead.", true); }
+    }
+  } catch (err) { say(err.message, true); }
+});
+document.addEventListener("input", (e) => {
+  const rep = e.target.closest(".card[data-id]"); if (!rep || !e.target.matches("[data-note]")) return;
+  const r = reports.find((x) => x.id === rep.dataset.id), a = rep.querySelector("[data-reply]"); if (!r || !a) return;
+  const to = r.contact_email || r.tenant_email;
+  a.href = `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent("Your problem report " + String(r.id).slice(0, 8).toUpperCase())}&body=${encodeURIComponent("Hi,\n\n" + (e.target.value || "We looked into it and fixed it. Please try again.") + "\n\n2nd Chance Housing\n(262) 236-5443")}`;
+});
+document.addEventListener("focusin", (e) => { if (e.target.matches("[data-note]")) e.target.dispatchEvent(new Event("input", { bubbles: true })); });
+$("signOutBtn").addEventListener("click", signOut);
+const who = await signIn($("signin"), { audience: "staff" });
+$("userBar").hidden = false;
+if (who.role !== "staff") location.replace("/association-owners/roca1/"); else load();
+</script>
+</body>
+</html>

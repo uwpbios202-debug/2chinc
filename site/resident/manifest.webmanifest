@@ -1,0 +1,13 @@
+{
+  "name": "2nd Chance Resident Portal",
+  "short_name": "2nd Chance",
+  "start_url": "/resident/",
+  "scope": "/resident/",
+  "display": "standalone",
+  "background_color": "#f5f5ef",
+  "theme_color": "#2e7d1f",
+  "icons": [
+    { "src": "/logo-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/logo.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

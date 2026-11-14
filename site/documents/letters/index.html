@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Letters & announcements — 2nd Chance Housing Staff</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+<style>
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-bottom: 14px; }
+  .card h2 { margin: 0 0 8px; font-size: 1.2rem; }
+  .meta { color: var(--muted); font-size: 0.9rem; }
+  .tag { display: inline-block; padding: 1px 9px; border-radius: 999px; font-size: 0.78rem; font-weight: 700; }
+  .tag.ok { background: var(--ok-soft); color: var(--ok); } .tag.draft { background: var(--warn-soft); color: var(--warn); } .tag.off { background: var(--off-soft); color: var(--off); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px 16px; }
+  label.f { display: grid; gap: 4px; font-size: 0.88rem; color: var(--muted); margin-top: 8px; }
+  label.f input, label.f textarea, label.f select { font-size: 1rem; color: var(--text); padding: 8px; border: 1px solid var(--line); border-radius: 6px; }
+  textarea { min-height: 90px; }
+  .rec { border: 1px dashed var(--line); border-radius: 10px; padding: 12px; margin-top: 12px; }
+  .rec video, .rec audio { width: 100%; max-width: 520px; display: block; margin: 8px 0; border-radius: 8px; }
+  .rec video { background: #000; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 10px; }
+  .lt { border-top: 1px solid var(--line); padding: 10px 0; display: flex; gap: 12px; justify-content: space-between; flex-wrap: wrap; }
+  .live { color: var(--bad); font-weight: 700; }
+</style>
+</head>
+<body>
+<div class="appbar" data-nav="staff">
+  <div class="appbar-in">
+    <div class="org">2nd Chance Housing<span>Letters · Staff</span></div>
+    <div class="row" id="userBar" hidden style="margin:0">
+      
+      
+      <button class="linkbtn" type="button" id="signOutBtn">Sign out</button>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+  <header><h1>Letters &amp; announcements</h1>
+    <p class="lead">The monthly video or audio letter focuses on one rule. It is emailed to every tenant, kept in their portal, and searchable. You'll get a reminder on the 25th if next month's letter isn't sent.</p></header>
+  <div id="signin" class="narrow"></div>
+  <div id="app" hidden>
+    <section class="card"><h2 id="formTitle">New monthly letter</h2>
+      <div class="grid">
+        <label class="f">Month<input type="month" id="lMonth"></label>
+        <label class="f">Title<input id="lTitle" maxlength="120" placeholder="e.g. Guests and the 13-night rule"></label>
+        <label class="f">Rule it focuses on<input id="lRule" maxlength="120" placeholder="e.g. Overnight guests"></label>
+        <label class="f">Lease section (optional)<input id="lSection" maxlength="120" placeholder="e.g. Rules & Regulations: Guests"></label>
+      </div>
+      <label class="f">Written version (tenants read this and search it)<textarea id="lSummary" maxlength="4000"></textarea></label>
+      <label class="f">Full transcript (optional)<textarea id="lTranscript" maxlength="20000"></textarea></label>
+      <div class="rec">
+        <b>Recording</b> <span class="meta" id="recState">None yet.</span>
+        <div id="recPreview"></div>
+        <div class="row">
+          <button class="btn" type="button" id="recVideo">🎥 Record video</button><button class="btn" type="button" id="recAudio">🎙️ Record audio</button>
+          <button class="btn" type="button" id="recStop" hidden>⏹ Stop</button>
+          <label class="btn" style="cursor:pointer">⬆ Upload a file<input type="file" id="recFile" accept="video/*,audio/*" hidden></label>
+          <span class="meta">Up to 50 MB (a few minutes).</span>
+        </div>
+      </div>
+      <div class="row"><button class="btn" type="button" id="lSave">Save draft</button><button class="btn primary" type="button" id="lSend">Save &amp; send to all tenants</button>
+        <button class="btn" type="button" id="lNew" hidden>Start a new letter</button><span class="msg" id="lMsg"></span></div>
+    </section>
+    <section class="card"><h2>Letters</h2><div id="letters"></div></section>
+
+    <section class="card"><h2>Post an announcement</h2>
+      <div class="grid">
+        <label class="f">Title<input id="aTitle" maxlength="120"></label>
+        <label class="f">Who sees it<select id="aProp"></select></label>
+        <label class="f">Show until (optional)<input type="date" id="aExp"></label>
+      </div>
+      <label class="f">Announcement<textarea id="aBody" maxlength="4000"></textarea></label>
+      <div class="row"><label><input type="checkbox" id="aEmail" checked> Email it to the tenants too</label>
+        <button class="btn primary" type="button" id="aPost">Post</button><span class="msg" id="aMsg"></span></div>
+    </section>
+    <section class="card"><h2>Announcements</h2><div id="anns"></div></section>
+  </div>
+</main>
+
+<script type="module">
+import { client, $, esc, fmtDate, signIn, signOut, errorText } from "/assets/portal/portal.js";
+let data = { letters: [], tenants: 0 }, ann = { announcements: [], properties: [] }, editing = null, media = null, recorder = null, stream = null, recStart = 0;
+const flush = () => client.functions.invoke("outbox-flush", { body: {} }).catch(() => {});
+const monthName = (d) => new Date(d + "T12:00:00").toLocaleDateString("en-US", { month: "long", year: "numeric" });
+const say = (id, t, bad) => { $(id).className = bad ? "msg err" : "msg"; $(id).textContent = t; };
+
+function renderLetters() {
+  $("letters").innerHTML = data.letters.map((x) => `<div class="lt"><div><b>${monthName(x.month)} · ${esc(x.title)}</b>
+      <div class="meta">${esc(x.rule_topic)} · ${x.media_kind ? (x.media_kind === "audio" ? "🎙️ audio" : "🎥 video") : "no recording yet"}${x.duration_seconds ? " · " + Math.round(x.duration_seconds / 60) + " min" : ""}</div>
+      ${x.status === "published" ? `<div class="meta">Sent ${fmtDate(x.published_at)} · watched by ${x.views} of ${data.tenants} tenants${x.viewers ? ": " + esc(x.viewers.join(", ")) : ""}</div>` : ""}</div>
+    <div>${x.status === "published" ? `<span class="tag ok">Sent</span>` : `<span class="tag draft">Draft</span> <button class="btn small" type="button" data-edit="${x.id}">Open</button>`}
+      ${x.media_path ? ` <button class="btn small" type="button" data-play="${esc(x.media_path)}">Play</button>` : ""}</div></div>`).join("") || `<p class="meta">No letters yet.</p>`;
+}
+function renderAnns() {
+  $("aProp").innerHTML = `<option value="">All tenants</option>` + ann.properties.map((p) => `<option value="${p.id}">${esc(p.name)} only</option>`).join("");
+  $("anns").innerHTML = ann.announcements.slice(0, 30).map((a) => `<div class="lt"><div><b>${esc(a.title)}</b> <span class="meta">${fmtDate(a.created_on)} · ${esc(a.property || "All tenants")}${a.emailed_count != null ? " · emailed to " + a.emailed_count : ""}${a.expires_on ? " · until " + fmtDate(a.expires_on) : ""}</span>
+      <div class="meta">${esc((a.body || "").slice(0, 200))}</div></div>
+    <div>${a.status === "current" ? `<span class="tag ok">Showing</span> <button class="btn small" type="button" data-expire="${a.id}">Take down</button>` : `<span class="tag off">${esc(a.status)}</span>`}</div></div>`).join("") || `<p class="meta">None.</p>`;
+}
+async function load() {
+  const [l, a] = await Promise.all([client.rpc("letters_staff_list"), client.rpc("announcements_staff_list")]);
+  if (l.error) { $("signin").innerHTML = `<div class="banner bad">${esc(await errorText(l.error))}</div>`; return; }
+  data = l.data; ann = a.data || ann; renderLetters(); renderAnns(); $("app").hidden = false;
+}
+function resetForm() {
+  editing = null; media = null;
+  const next = new Date(); next.setMonth(next.getMonth() + 1);
+  $("lMonth").value = next.toISOString().slice(0, 7);
+  ["lTitle", "lRule", "lSection", "lSummary", "lTranscript"].forEach((id) => $(id).value = "");
+  $("recPreview").innerHTML = ""; $("recState").textContent = "None yet."; $("formTitle").textContent = "New monthly letter"; $("lNew").hidden = true; say("lMsg", "");
+}
+function showMedia(url, kind) {
+  $("recPreview").innerHTML = kind === "audio" ? `<audio controls src="${url}"></audio>` : `<video controls playsinline src="${url}"></video>`;
+}
+
+async function startRec(kind) {
+  try {
+    stream = await navigator.mediaDevices.getUserMedia(kind === "video" ? { video: { width: 1280, height: 720 }, audio: true } : { audio: true });
+  } catch { return say("lMsg", "The browser couldn't use the camera or microphone. Allow access, or upload a file instead.", true); }
+  const chunks = [], mime = MediaRecorder.isTypeSupported(kind === "video" ? "video/webm" : "audio/webm") ? (kind === "video" ? "video/webm" : "audio/webm") : "";
+  recorder = new MediaRecorder(stream, mime ? { mimeType: mime, videoBitsPerSecond: 900000, audioBitsPerSecond: 64000 } : {});
+  if (kind === "video") { $("recPreview").innerHTML = `<video autoplay muted playsinline></video>`; $("recPreview").firstChild.srcObject = stream; }
+  else $("recPreview").innerHTML = "";
+  recorder.ondataavailable = (e) => e.data.size && chunks.push(e.data);
+  recorder.onstop = () => {
+    stream.getTracks().forEach((t) => t.stop());
+    const blob = new Blob(chunks, { type: recorder.mimeType || (kind === "video" ? "video/webm" : "audio/webm") });
+    media = { blob, kind, mime: blob.type.split(";")[0], seconds: Math.round((Date.now() - recStart) / 1000) };
+    showMedia(URL.createObjectURL(blob), kind);
+    $("recState").textContent = `New ${kind} recording, ${media.seconds} seconds (${(blob.size / 1048576).toFixed(1)} MB). Not saved yet.`;
+    $("recStop").hidden = true; $("recVideo").hidden = $("recAudio").hidden = false;
+  };
+  recStart = Date.now(); recorder.start(1000);
+  $("recState").innerHTML = `<span class="live">● Recording ${kind}…</span>`; $("recStop").hidden = false; $("recVideo").hidden = $("recAudio").hidden = true;
+}
+$("recVideo").onclick = () => startRec("video");
+$("recAudio").onclick = () => startRec("audio");
+$("recStop").onclick = () => recorder && recorder.state !== "inactive" && recorder.stop();
+$("recFile").onchange = () => {
+  const f = $("recFile").files[0]; if (!f) return;
+  if (f.size > 50 * 1048576) return say("lMsg", "That file is over 50 MB. Record a shorter letter or compress it.", true);
+  const kind = f.type.startsWith("audio") ? "audio" : "video";
+  media = { blob: f, kind, mime: f.type, seconds: null };
+  const url = URL.createObjectURL(f); showMedia(url, kind);
+  const el = $("recPreview").firstChild; el.onloadedmetadata = () => { if (isFinite(el.duration)) media.seconds = Math.round(el.duration); };
+  $("recState").textContent = `File: ${f.name} (${(f.size / 1048576).toFixed(1)} MB). Not saved yet.`;
+};
+
+async function save() {
+  const month = $("lMonth").value; if (!month) throw new Error("Choose the month.");
+  let path = null;
+  if (media) {
+    if (media.blob.size > 50 * 1048576) throw new Error("The recording is over 50 MB. Record a shorter one.");
+    const ext = media.mime.includes("mp4") ? (media.kind === "audio" ? "m4a" : "mp4") : media.mime.includes("mpeg") ? "mp3" : media.mime.includes("ogg") ? "ogg" : media.mime.includes("quicktime") ? "mov" : media.mime.includes("wav") ? "wav" : "webm";
+    path = `${month}/${crypto.randomUUID()}.${ext}`;
+    say("lMsg", "Uploading the recording…");
+    const { error } = await client.storage.from("rule-letters").upload(path, media.blob, { contentType: media.mime });
+    if (error) throw new Error("The recording couldn't be uploaded: " + error.message);
+  }
+  const { data: r, error } = await client.rpc("letters_staff_save", { p_id: editing, p_month: month + "-01", p_title: $("lTitle").value, p_rule_topic: $("lRule").value,
+    p_lease_section: $("lSection").value, p_summary: $("lSummary").value, p_transcript: $("lTranscript").value,
+    p_media_path: path, p_media_kind: media ? media.kind : null, p_media_mime: media ? media.mime : null, p_seconds: media ? media.seconds : null });
+  if (error) throw new Error(await errorText(error));
+  editing = r.id; media = null; $("lNew").hidden = false; $("formTitle").textContent = "Monthly letter (draft)";
+  return r.id;
+}
+$("lSave").onclick = async () => { try { await save(); say("lMsg", "Draft saved."); await load(); } catch (e) { say("lMsg", e.message, true); } };
+$("lSend").onclick = async () => {
+  try {
+    if (!confirm(`Send this letter to all ${data.tenants} tenants by email? It can't be unsent.`)) return;
+    const id = await save();
+    const { data: r, error } = await client.rpc("letters_staff_publish", { p_id: id });
+    if (error) throw new Error(await errorText(error));
+    flush(); resetForm(); say("lMsg", `Sent to ${r.emailed} tenants.`); await load();
+  } catch (e) { say("lMsg", e.message, true); }
+};
+$("lNew").onclick = resetForm;
+$("letters").addEventListener("click", async (e) => {
+  const ed = e.target.closest("[data-edit]"), pl = e.target.closest("[data-play]");
+  if (ed) {
+    const x = data.letters.find((l) => l.id === ed.dataset.edit);
+    editing = x.id; media = null; $("lMonth").value = x.month.slice(0, 7); $("lTitle").value = x.title; $("lRule").value = x.rule_topic;
+    $("lSection").value = x.lease_section || ""; $("lSummary").value = x.summary; $("lTranscript").value = x.transcript || "";
+    $("formTitle").textContent = "Monthly letter (draft)"; $("lNew").hidden = false;
+    $("recPreview").innerHTML = ""; $("recState").textContent = x.media_path ? `Saved ${x.media_kind} recording. Record or upload again to replace it.` : "None yet.";
+    if (x.media_path) { const { data: u } = await client.storage.from("rule-letters").createSignedUrl(x.media_path, 3600); if (u) showMedia(u.signedUrl, x.media_kind); }
+    window.scrollTo(0, 0);
+  }
+  if (pl) { const { data: u } = await client.storage.from("rule-letters").createSignedUrl(pl.dataset.play, 3600); if (u) window.open(u.signedUrl, "_blank", "noopener"); }
+});
+
+$("aPost").onclick = async () => {
+  const email = $("aEmail").checked;
+  if (email && !confirm("Post this and email it to the tenants?")) return;
+  say("aMsg", "Posting…");
+  const { data: r, error } = await client.rpc("announcements_staff_post", { p_title: $("aTitle").value, p_body: $("aBody").value, p_property: $("aProp").value || null,
+    p_expires: $("aExp").value || null, p_email: email });
+  if (error) return say("aMsg", await errorText(error), true);
+  flush(); ["aTitle", "aBody", "aExp"].forEach((id) => $(id).value = ""); say("aMsg", email ? `Posted and emailed to ${r.emailed} tenants.` : "Posted."); await load();
+};
+$("anns").addEventListener("click", async (e) => {
+  const b = e.target.closest("[data-expire]"); if (!b || !confirm("Take this announcement down?")) return;
+  await client.rpc("announcements_staff_expire", { p_id: b.dataset.expire }); await load();
+});
+$("signOutBtn").addEventListener("click", signOut);
+const who = await signIn($("signin"), { audience: "staff" });
+$("userBar").hidden = false;
+if (who.role !== "staff") location.replace("/association-owners/roca1/"); else { resetForm(); load(); }
+</script>
+</body>
+</html>

@@ -1,0 +1,39 @@
+# Outside uptime check (Stephen, 11/5/2026): every 30 minutes GitHub checks, from outside Cloudflare and Supabase, that the
+# website, the tenant portal, sign-in (Supabase Auth), the database and the payment functions answer. If one does not
+# (after one retry), this run FAILS and GitHub emails the account owner (scheduled-workflow failure notice).
+# No secrets: it uses only the public key the website itself publishes in /assets/portal/config.js.
+name: Uptime check
+on:
+  schedule:
+    - cron: "7,37 * * * *"
+  workflow_dispatch:
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check the site, sign-in, database and payment functions
+        shell: bash
+        run: |
+          set -u
+          SB=https://hvnsgwfcjpakvhhkfsuy.supabase.co
+          fail=0
+          check() {   # name, command that prints an HTTP status, expected status
+            local name="$1" want="$3" got=""
+            for try in 1 2; do
+              got=$(eval "$2" || true)
+              [ "$got" = "$want" ] && { echo "OK    $name ($got)"; return 0; }
+              [ $try = 1 ] && sleep 30
+            done
+            echo "DOWN  $name (got '$got', expected $want)"; fail=1
+          }
+          check "Website home"        "curl -s -o /dev/null -w '%{http_code}' --max-time 20 https://2ndchinc.org/" 200
+          check "Tenant portal page"  "curl -s -o /dev/null -w '%{http_code}' --max-time 20 https://2ndchinc.org/resident/" 200
+          check "Staff page"          "curl -s -o /dev/null -w '%{http_code}' --max-time 20 https://2ndchinc.org/staff/" 200
+          KEY=$(curl -s --max-time 20 https://2ndchinc.org/assets/portal/config.js | grep -oE 'sb_publishable_[A-Za-z0-9_-]+' | head -1)
+          [ -n "$KEY" ] && echo "OK    Portal script (public key found)" || { echo "DOWN  Portal script (no public key)"; fail=1; }
+          check "Sign-in service"     "curl -s -o /dev/null -w '%{http_code}' --max-time 20 -H 'apikey: $KEY' $SB/auth/v1/health" 200
+          check "Database"            "curl -s -o /dev/null -w '%{http_code}' --max-time 20 -X POST -H 'apikey: $KEY' -H 'Content-Type: application/json' -d '{\"p_mail_on\":\"2026-01-05\",\"p_days\":5}' $SB/rest/v1/rpc/notice_deadline" 200
+          check "Payment function"    "curl -s -o /dev/null -w '%{http_code}' --max-time 20 -X OPTIONS -H 'Origin: https://2ndchinc.org' $SB/functions/v1/stripe-pay" 200
+          check "Stripe webhook"      "curl -s -o /dev/null -w '%{http_code}' --max-time 20 -X GET $SB/functions/v1/stripe-webhook" 405
+          if [ $fail = 1 ]; then echo "Something is down. Check https://2ndchinc.org/ and https://status.supabase.com/ and https://www.cloudflarestatus.com/"; exit 1; fi

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Rental Assistance Directory — 2nd Chance Housing Staff</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+<style>
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-bottom: 12px; max-width: 900px; }
+  .meta { color: var(--muted); font-size: 0.9rem; }
+  .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; max-width: 900px; }
+  .filters input, .filters select, .form input, .form select, .form textarea { font: inherit; padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); color: inherit; box-sizing: border-box; }
+  .filters input { flex: 1 1 220px; }
+  .form { display: grid; gap: 10px; margin-top: 10px; }
+  .form label { display: grid; gap: 4px; font-size: 0.9rem; color: var(--muted); }
+  .form input, .form select, .form textarea { width: 100%; }
+  .pill { display: inline-block; font-size: 0.78rem; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--line); margin: 2px 4px 2px 0; }
+  .pill.good { border-color: #2e7d32; color: #2e7d32; }
+  .pill.warn { border-color: #b26a00; color: #b26a00; }
+  .pill.bad { border-color: var(--bad); color: var(--bad); }
+  .prog { border-top: 1px solid var(--line); padding-top: 8px; margin-top: 8px; }
+  .row2 { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .stats { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 10px; }
+</style>
+</head>
+<body>
+<div class="appbar" data-nav="staff">
+  <div class="appbar-in">
+    <div class="org">2nd Chance Housing<span>Rental assistance · Staff</span></div>
+    <div class="row" id="userBar" hidden>
+      <button class="linkbtn" type="button" id="signOutBtn">Sign out</button>
+    </div>
+  </div>
+</div>
+<main class="wrap">
+  <header><h1>Rental assistance directory</h1><p class="lead">Every organization that has anything to do with rental assistance: Milwaukee first, then Chicago. "The program exists" and "money is there today" are kept apart: <b>Status</b> is whether the program runs; <b>Money today</b> is what you last heard about its funds. Amounts show only when the organization published one. A row is <b>not checked</b> until someone here confirms it and sets the date.</p></header>
+  <div id="signin" class="narrow"></div>
+  <div id="app" hidden>
+    <div class="stats meta" id="stats"></div>
+    <div class="filters">
+      <input id="q" type="search" placeholder="Search name, program, notes…">
+      <select id="fRegion"><option value="">All areas</option><option value="milwaukee">Milwaukee</option><option value="chicago">Chicago</option><option value="wisconsin">Wisconsin (statewide)</option><option value="illinois">Illinois (statewide)</option><option value="national">National</option></select>
+      <select id="fPop"><option value="">All people</option></select>
+      <select id="fHelp"><option value="">Any kind of help</option></select>
+      <select id="fShow"><option value="">Every organization</option><option value="money">Pays money now (open or limited program)</option><option value="unchecked">Not checked by us yet</option><option value="inactive">Inactive or paused</option></select>
+      <button class="btn primary" type="button" id="addOrg" hidden>Add organization</button>
+    </div>
+    <div class="meta" id="msg" role="status"></div>
+    <div id="editor"></div>
+    <div id="list"></div>
+  </div>
+</main>
+<script type="module">
+import { client, $, esc, signIn, signOut, errorText, money } from "/assets/portal/portal.js";
+const rpc = async (fn, args) => { const { data, error } = await client.rpc(fn, args); if (error) throw new Error(await errorText(error)); return data; };
+const say = (t, bad) => { $("msg").textContent = t; $("msg").style.color = bad ? "var(--bad)" : ""; };
+const VER = { verified_current: ["Verified, current", "good"], verified_limited: ["Verified, details thin", "warn"], needs_confirmation: ["Needs confirming", "warn"], inactive: ["Inactive", "bad"], unverified_lead: ["Lead, unverified", "warn"] };
+const REL = { none: "No contact yet", contacted: "Contacted", talking: "In talks", partner: "Partner", do_not_refer: "Do not refer" };
+const PST = { open: ["Open", "good"], limited: ["Limited", "warn"], referral_only: ["Referral only", "warn"], paused: ["Paused", "bad"], inactive: ["Inactive", "bad"], unclear: ["Unclear", "warn"] };
+const FUND = { unknown: "Money today: unknown", available: "Money today: available", low: "Money today: low", none: "Money today: none" };
+const KINDS = ["money", "navigation", "services", "subsidy", "access", "housing", "funder", "legal", "landlord"];
+const POPS = ["general", "veterans", "families", "youth", "seniors", "disability", "dv", "reentry", "hiv", "immigrant", "native", "lgbtq"];
+const HELP = ["rent", "arrears", "deposit", "first_month", "utility", "voucher", "rrh", "psh", "landlord_risk", "flexible", "loan", "legal", "mediation"];
+let D = { orgs: [], can_edit: false };
+const fmt = (d) => d ? new Date(d + "T12:00:00").toLocaleDateString("en-US") : "";
+const pill = (t, c = "") => `<span class="pill ${c}">${esc(t)}</span>`;
+const link = (u) => u ? `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(u.replace(/^https?:\/\//, "").replace(/\/$/, ""))}</a>` : "";
+
+$("fPop").innerHTML += POPS.map((p) => `<option>${p}</option>`).join("");
+$("fHelp").innerHTML += HELP.map((p) => `<option>${p}</option>`).join("");
+
+const matches = (o) => {
+  const q = $("q").value.trim().toLowerCase(), r = $("fRegion").value, p = $("fPop").value, h = $("fHelp").value, s = $("fShow").value;
+  if (r && o.region !== r) return false;
+  if (p && !o.populations.includes(p) && !o.programs.some((x) => x.populations.includes(p))) return false;
+  if (h && !o.programs.some((x) => x.help_types.includes(h))) return false;
+  if (s === "money" && !o.programs.some((x) => ["open", "limited"].includes(x.status) && x.help_types.some((t) => !["legal", "mediation"].includes(t)))) return false;
+  if (s === "unchecked" && o.last_checked) return false;
+  if (s === "inactive" && !(o.verification === "inactive" || o.programs.some((x) => ["paused", "inactive"].includes(x.status)))) return false;
+  if (q && !JSON.stringify(o).toLowerCase().includes(q)) return false;
+  return true;
+};
+
+const progHtml = (x) => `<div class="prog"><b>${esc(x.name)}</b> ${pill(...PST[x.status])} ${pill(FUND[x.funds_today], x.funds_today === "available" ? "good" : x.funds_today === "none" ? "bad" : "")}
+  ${x.max_amount_cents != null ? pill("Up to " + money(x.max_amount_cents / 100)) : ""}
+  <div class="meta">${x.help_types.map(esc).join(", ")}${x.populations.length ? " · " + x.populations.map(esc).join(", ") : ""}${x.pays_to ? " · pays " + esc(x.pays_to) : ""}</div>
+  ${x.terms ? `<div>${esc(x.terms)}</div>` : ""}
+  ${x.how_to_apply ? `<div class="meta">How: ${esc(x.how_to_apply)}</div>` : ""}
+  ${x.note ? `<div class="meta">${esc(x.note)}</div>` : ""}
+  <div class="meta">${x.last_checked ? "Checked " + fmt(x.last_checked) : "Not checked by us"}${x.source_url ? " · source " + link(x.source_url) : ""}</div>
+  ${D.can_edit ? `<div class="row2"><button class="linkbtn" data-editprog="${esc(x.id)}">Edit program</button></div>` : ""}</div>`;
+
+const render = () => {
+  const shown = D.orgs.filter(matches);
+  const progs = D.orgs.flatMap((o) => o.programs);
+  $("stats").innerHTML = `<span><b>${D.orgs.length}</b> organizations</span><span><b>${progs.length}</b> programs</span><span><b>${progs.filter((p) => p.status === "open").length}</b> open</span><span><b>${progs.filter((p) => p.status === "paused").length}</b> paused</span><span><b>${D.orgs.filter((o) => !o.last_checked).length}</b> not checked by us</span><span>Showing <b>${shown.length}</b></span>`;
+  $("list").innerHTML = shown.map((o) => `<div class="card">
+    <div class="row2" style="justify-content:space-between"><span><b>${esc(o.name)}</b> <span class="meta">${esc(o.code || "")} · ${esc(o.region)}</span></span>
+    <span>${pill(...VER[o.verification])}${pill(REL[o.relationship], o.relationship === "partner" ? "good" : o.relationship === "do_not_refer" ? "bad" : "")}</span></div>
+    ${o.summary ? `<div>${esc(o.summary)}</div>` : ""}
+    <div class="meta">${o.kinds.map(esc).join(", ")}${o.populations.length ? " · for: " + o.populations.map(esc).join(", ") : ""}</div>
+    <div class="meta">${[o.phone ? `<a href="tel:${esc(o.phone.replace(/[^0-9]/g, ""))}">${esc(o.phone)}</a>` : "", esc(o.address || ""), link(o.website)].filter(Boolean).join(" · ")}</div>
+    ${o.staff_note ? `<div class="meta"><b>Our note:</b> ${esc(o.staff_note)}</div>` : ""}
+    <div class="meta">${o.last_checked ? "Checked by us " + fmt(o.last_checked) : "Not checked by us"}${o.source_note ? " · " + esc(o.source_note) : ""}${o.source_url ? " · " + link(o.source_url) : ""}</div>
+    ${o.programs.map(progHtml).join("")}
+    ${D.can_edit ? `<div class="row2" style="margin-top:8px"><button class="linkbtn" data-editorg="${esc(o.id)}">Edit organization</button><button class="linkbtn" data-addprog="${esc(o.id)}">Add program</button></div>` : ""}
+  </div>`).join("") || '<p class="meta">Nothing matches.</p>';
+};
+
+const checks = (name, all, on) => `<div class="row2">${all.map((k) => `<label style="display:flex;gap:4px;align-items:center"><input type="checkbox" name="${name}" value="${k}" ${on.includes(k) ? "checked" : ""} style="width:auto">${k}</label>`).join("")}</div>`;
+const opts = (map, cur) => Object.entries(map).map(([k, v]) => `<option value="${k}" ${k === cur ? "selected" : ""}>${esc(Array.isArray(v) ? v[0] : v)}</option>`).join("");
+const field = (label, id, val, type = "text") => `<label>${label}<input id="${id}" type="${type}" value="${esc(val ?? "")}"></label>`;
+const picked = (name) => [...document.querySelectorAll(`input[name=${name}]:checked`)].map((i) => i.value);
+const close = () => { $("editor").innerHTML = ""; };
+
+const editOrg = (o = { region: "milwaukee", kinds: [], populations: [], verification: "unverified_lead", relationship: "none" }) => {
+  $("editor").innerHTML = `<div class="card"><h2 style="margin-top:0">${o.id ? "Edit organization" : "Add organization"}</h2><div class="form">
+    ${field("Name", "eName", o.name)}${field("Code (e.g. MKE-050, CHI-001)", "eCode", o.code)}
+    <label>Area<select id="eRegion">${opts({ milwaukee: "Milwaukee", chicago: "Chicago", wisconsin: "Wisconsin (statewide)", illinois: "Illinois (statewide)", national: "National" }, o.region)}</select></label>
+    <label>What it does<textarea id="eSummary" rows="3">${esc(o.summary || "")}</textarea></label>
+    <label>Kind${checks("kinds", KINDS, o.kinds)}</label><label>Who it serves${checks("pops", POPS, o.populations)}</label>
+    <label>Verification<select id="eVer">${opts(VER, o.verification)}</select></label>
+    <label>Our relationship<select id="eRel">${opts(REL, o.relationship)}</select></label>
+    ${field("Website", "eWeb", o.website)}${field("Phone", "ePhone", o.phone)}${field("Address", "eAddr", o.address)}
+    ${field("Source link", "eSrc", o.source_url)}${field("Source note", "eSrcNote", o.source_note)}
+    ${field("Checked by us on", "eChecked", o.last_checked, "date")}
+    <label>Our note<textarea id="eNote" rows="2">${esc(o.staff_note || "")}</textarea></label>
+    <div class="row2"><button class="btn primary" id="eSave">Save</button><button class="btn" id="eCancel">Cancel</button>${o.id ? '<button class="linkbtn" id="eDel">Delete organization</button>' : ""}</div></div></div>`;
+  $("eCancel").onclick = close;
+  $("eSave").onclick = async () => {
+    try {
+      await rpc("aid_org_save", { p: { id: o.id || "", name: $("eName").value, code: $("eCode").value, region: $("eRegion").value, summary: $("eSummary").value,
+        kinds: picked("kinds"), populations: picked("pops"), verification: $("eVer").value, relationship: $("eRel").value, website: $("eWeb").value,
+        phone: $("ePhone").value, address: $("eAddr").value, source_url: $("eSrc").value, source_note: $("eSrcNote").value, last_checked: $("eChecked").value, staff_note: $("eNote").value } });
+      close(); say("Saved."); await load();
+    } catch (err) { say(err.message, true); }
+  };
+  if (o.id) $("eDel").onclick = async () => { if (!confirm(`Delete ${o.name} and its programs?`)) return; try { await rpc("aid_delete", { p_kind: "org", p_id: o.id }); close(); await load(); } catch (err) { say(err.message, true); } };
+  $("editor").scrollIntoView({ behavior: "smooth" });
+};
+
+const editProg = (x) => {
+  $("editor").innerHTML = `<div class="card"><h2 style="margin-top:0">${x.id ? "Edit program" : "Add program"}</h2><div class="form">
+    ${field("Program name", "pName", x.name)}
+    <label>Kind of help${checks("help", HELP, x.help_types)}</label><label>Who it serves${checks("ppops", POPS, x.populations)}</label>
+    <label>Terms (as published)<textarea id="pTerms" rows="3">${esc(x.terms || "")}</textarea></label>
+    ${field("Published maximum in dollars (leave blank if not published)", "pMax", x.max_amount_cents != null ? x.max_amount_cents / 100 : "", "number")}
+    ${field("Pays (landlord, utility, tenant, varies)", "pPays", x.pays_to)}
+    <label>Status<select id="pStatus">${opts(PST, x.status)}</select></label>
+    <label>Money today<select id="pFund">${opts(FUND, x.funds_today)}</select></label>
+    ${field("How to apply", "pHow", x.how_to_apply)}${field("Source link", "pSrc", x.source_url)}${field("Checked by us on", "pChecked", x.last_checked, "date")}
+    <label>Note<textarea id="pNote" rows="2">${esc(x.note || "")}</textarea></label>
+    <div class="row2"><button class="btn primary" id="pSave">Save</button><button class="btn" id="pCancel">Cancel</button>${x.id ? '<button class="linkbtn" id="pDel">Delete program</button>' : ""}</div></div></div>`;
+  $("pCancel").onclick = close;
+  $("pSave").onclick = async () => {
+    const max = $("pMax").value.trim();
+    try {
+      await rpc("aid_program_save", { p: { id: x.id || "", org_id: x.org_id, name: $("pName").value, help_types: picked("help"), populations: picked("ppops"), terms: $("pTerms").value,
+        max_amount_cents: max === "" ? "" : String(Math.round(Number(max) * 100)), pays_to: $("pPays").value, status: $("pStatus").value, funds_today: $("pFund").value,
+        how_to_apply: $("pHow").value, source_url: $("pSrc").value, last_checked: $("pChecked").value, note: $("pNote").value } });
+      close(); say("Saved."); await load();
+    } catch (err) { say(err.message, true); }
+  };
+  if (x.id) $("pDel").onclick = async () => { if (!confirm(`Delete program ${x.name}?`)) return; try { await rpc("aid_delete", { p_kind: "program", p_id: x.id }); close(); await load(); } catch (err) { say(err.message, true); } };
+  $("editor").scrollIntoView({ behavior: "smooth" });
+};
+
+$("list").addEventListener("click", (e) => {
+  const d = e.target.dataset || {};
+  if (d.editorg) editOrg(D.orgs.find((o) => o.id === d.editorg));
+  if (d.addprog) editProg({ org_id: d.addprog, help_types: [], populations: [], status: "unclear", funds_today: "unknown" });
+  if (d.editprog) editProg(D.orgs.flatMap((o) => o.programs).find((p) => p.id === d.editprog));
+});
+$("addOrg").onclick = () => editOrg();
+["q", "fRegion", "fPop", "fHelp", "fShow"].forEach((id) => $(id).addEventListener("input", render));
+const load = async () => { D = await rpc("aid_directory"); $("addOrg").hidden = !D.can_edit; render(); };
+$("signOutBtn").addEventListener("click", signOut);
+const who = await signIn($("signin"), { audience: "staff" });
+$("userBar").hidden = false;
+if (who.role !== "staff") location.replace("/association-owners/roca1/"); else { $("app").hidden = false; try { await load(); } catch (err) { say(err.message, true); } }
+</script>
+</body>
+</html>

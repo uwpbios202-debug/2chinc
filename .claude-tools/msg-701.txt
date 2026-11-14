@@ -1,0 +1,3 @@
+Human Mirror Phase 11 T11.1: clothing, laundry and garment care. Clothes and laundry page (person) and box (coordinator): what they can wear and what needs fixing per kind, how many they want (suggested from how often they can do laundry), sizes private unless shared (a coordinator records agreement only for someone without a sign-in), storage and skills; gaps and no place to do laundry become suggested needs; coordinators see matching donated goods; clothing in Download everything (migration 20261119701000, new tables with explicit grants, check p11b 6/6); docs
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>

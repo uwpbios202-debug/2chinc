@@ -1,0 +1,3 @@
+Human Mirror People list: show Hide their Mirror only for active people (the database refuses it for invited ones since P10-02, migration 20261119699000)
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>

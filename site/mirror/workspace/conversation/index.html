@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Conversation Plan | The Human Mirror</title>
+<link rel="icon" href="/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Source+Serif+4:opsz,wght@8..60,600&display=swap">
+<link rel="stylesheet" href="/mirror/assets/mirror.css?v=20261113l">
+<style>
+  .cg-quote { margin: var(--mm-space-2) 0 0; padding-left: var(--mm-space-3); border-left: 3px solid var(--mm-line); color: var(--mm-ink-2); font-style: italic; }
+  .cg-prog { border-top: 1px solid var(--mm-line); padding-top: var(--mm-space-3); margin-top: var(--mm-space-3); }
+  .cg-prog p { margin: var(--mm-space-1) 0 0; }
+  .cg-meta { font-size: var(--mm-small); color: var(--mm-ink-2); margin: var(--mm-space-1) 0 0; }
+  .cg-step { counter-increment: step; }
+  .cg-step > h3::before { content: counter(step) ". "; color: var(--mm-warm); }
+  .cg-plan { counter-reset: step; }
+</style>
+</head>
+<body data-area="workspace">
+<!-- T1.6 (D-21, D-29): what a person shared from a conversation, as the coordinator's draft plan: needs, suggested programs, referrals,
+     and the words the phrase list missed. The person's answers themselves are never shown here. -->
+<main id="main" class="mm-main">
+  <p class="mm-eyebrow"><a href="/mirror/workspace/people/">People</a></p>
+  <div id="cgBox"><p role="status">Loading…</p></div>
+</main>
+<script type="module" src="/mirror/assets/mirror-ui.js?v=20261113h"></script>
+<script type="module">
+import { requireArea, rpc } from "/mirror/assets/mirror-client.js?v=20261113p";
+import { draftPlan, URGENT, MEANINGS } from "/mirror/assets/mirror-listen.js?v=20261113c";
+import { esc, notice, toast } from "/mirror/assets/mirror-ui.js?v=20261113h";
+
+const w = await requireArea("workspace");
+const q = new URLSearchParams(location.search);
+const id = q.get("id") || "", org = q.get("org") || (w.memberships[0] && w.memberships[0].organization_id);
+const box = /** @type {HTMLElement} */ (document.getElementById("cgBox"));
+/** @type {any} */ let person;
+/** @type {any} */ let data;
+/** @type {any} */ let dir = null;
+const STATUS = { identified: "Noted", planning: "Planning", in_progress: "Working on it", obtained: "Got it", verified: "Confirmed", no_longer_needed: "No longer needed" };
+const day = (/** @type {string} */ d) => new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+/** Findings as mirror-listen.js expects them. @param {any} f */
+const asFinding = (f) => ({ ...f, urgent: f.kind === "urgent" ? f.key : undefined });
+
+async function load() {
+  try {
+    const people = await rpc("mirror_people", { p_org: org });
+    person = people.find((/** @type {any} */ p) => p.id === id);
+    if (!person) throw new Error("This person is not on your organization's list.");
+    data = await rpc("mirror_conversations_shared", { p_individual: id, p_org: org });
+  } catch (e) { box.innerHTML = notice("caution", `<p>${esc(e.message)}</p>`); return; }
+  if (data.can_refer && dir === null) { try { dir = await rpc("chpms_directory"); } catch { dir = false; } }
+  draw();
+}
+
+function quotes(/** @type {any} */ f) { return f.quotes.map((/** @type {any} */ x) => `<p class="cg-quote">"${esc(x.words)}"</p>`).join(""); }
+
+/** The need line under a finding: its status on the needs list, or a button to add it. */
+function needLine(/** @type {any} */ f) {
+  if (!f.dimension) return "";
+  if (f.need) return `<p class="cg-meta">On their needs list: ${esc(STATUS[f.need.status] || f.need.status)}</p>`;
+  return `<p><button class="mm-btn mm-btn-quiet" type="button" data-need="${esc(f.id)}">Put on their needs list</button></p>`;
+}
+function refLines(/** @type {any} */ f) {
+  return f.referrals.map((/** @type {any} */ r) => `<p class="cg-meta">Referred to ${esc(r.org_name)}${r.program_name ? " (" + esc(r.program_name) + ")" : ""} on ${esc(day(r.at))}</p>`).join("");
+}
+
+function progLine(/** @type {any} */ s, /** @type {any} */ f) {
+  const p = s.p, o = p.org;
+  const bits = [p.current_status, p.waiting_list && /yes|open/i.test(p.waiting_list) ? "Waiting list: " + p.waiting_list : "", p.intake_phone || o.main_phone].filter(Boolean);
+  return `<div class="cg-prog">
+    <strong>${esc(p.program_name)}</strong> <span class="mm-tag mm-tag-suggested">Suggested</span>${o.our_relationship === "partner" ? ' <span class="mm-tag mm-tag-ok">Partner</span>' : ""}
+    <p class="cg-meta">${esc(o.dba || o.legal_name)}${bits.length ? " · " + bits.map(esc).join(" · ") : ""}</p>
+    ${s.popHits.length ? `<p class="cg-meta">Meant for: ${s.popHits.map(esc).join(", ")}</p>` : ""}
+    ${p.how_to_apply ? `<p class="cg-meta">How to apply: ${esc(String(p.how_to_apply).slice(0, 220))}</p>` : ""}
+    <p><button class="mm-btn mm-btn-quiet" type="button" data-refer="${esc(f.id)}" data-org="${esc(o.org_id)}" data-prog="${esc(p.program_id)}"
+      data-name="${esc(p.program_name)}" data-need-key="${esc(f.key)}">Refer</button></p>
+    <div data-refer-box></div>
+  </div>`;
+}
+
+function convSection(/** @type {any} */ c) {
+  const P = draftPlan(c.findings.map(asFinding), dir || null);
+  const byKey = new Map(c.findings.map((/** @type {any} */ f) => [f.kind + ":" + f.key, f]));
+  const F = (/** @type {any} */ x) => byKey.get(x.kind + ":" + x.key);
+  return `<section style="margin-bottom:var(--mm-space-6)">
+    <h2>Shared on ${esc(day(c.shared_at))}</h2>
+    <p>Every program is a suggestion: confirm it with ${esc(person.preferred_name)} and with the program before referring.</p>
+    ${c.not_shared ? `<p class="mm-muted">${c.not_shared} item${c.not_shared === 1 ? " was" : "s were"} not shared and ${c.not_shared === 1 ? "is" : "are"} not shown.</p>` : ""}
+    ${data.can_refer ? (dir ? "" : notice("info", "<p>The resource directory could not be read with this sign-in.</p>"))
+      : notice("info", "<p>Matching programs and referrals are for office staff, field staff and Housing Navigators with a signed agreement.</p>")}
+    ${P.urgent.length ? `<section class="mm-card" style="margin-bottom:var(--mm-space-4);border-color:var(--mm-urgent)"><h3>First: right away</h3>
+      ${P.urgent.map((f) => `<p><span class="mm-tag mm-tag-urgent">Urgent</span> <strong>${esc(f.label)}</strong></p>${quotes(f)}<p>${esc(URGENT[f.urgent].help)}</p>${needLine(F(f))}`).join("")}
+    </section>` : ""}
+    ${P.pops.length ? `<p><strong>About ${esc(person.preferred_name)}:</strong> ${P.pops.map((x) => `<span class="mm-tag">${esc(x)}</span>`).join(" ")}</p>` : ""}
+    <div class="cg-plan">
+    ${P.steps.map((s) => `<section class="mm-card cg-step" style="margin-bottom:var(--mm-space-4)">
+      <h3>${esc(s.need.label)}</h3>${quotes(s.need)}${needLine(F(s.need))}${refLines(F(s.need))}
+      ${dir ? (s.suggestions.length ? s.suggestions.map((x) => progLine(x, F(s.need))).join("") + (s.more ? `<p class="cg-meta">${s.more} more in the directory.</p>` : "")
+        : '<p class="cg-meta">No open program in the directory for this yet.</p>') : ""}
+    </section>`).join("")}
+    </div>
+    ${P.other.length ? `<section class="mm-card" style="margin-bottom:var(--mm-space-4)"><h3>Also mentioned (not in the housing directory yet)</h3>
+      ${P.other.map((f) => `<p><strong>${esc(f.label)}</strong> ${f.private ? '<span class="mm-tag mm-tag-info">Private, shared by them</span>' : ""}</p>${quotes(f)}${needLine(F(f))}`).join("")}
+    </section>` : ""}
+  </section>`;
+}
+
+function phrasePanel() {
+  const opts = Object.entries(MEANINGS).map(([k, m]) => `<option value="${esc(k)}">${esc(m.label)}</option>`).join("");
+  return `<section class="mm-card mm-read" style="margin-top:var(--mm-space-6)">
+    <h2 style="margin-top:0">Words the guide missed</h2>
+    <p>If ${esc(person.preferred_name)} said something the guide didn't pick up, add the words and what they mean. They are used for everyone
+      your organization works with, from the next conversation on. Plain words only.</p>
+    <form id="cgPh" novalidate>
+      <div class="mm-field"><label for="cgPhW">Words</label><input class="mm-input" id="cgPhW" maxlength="60" placeholder="for example: rent man"></div>
+      <div class="mm-field"><label for="cgPhM">What they mean</label><select class="mm-select" id="cgPhM">${opts}</select></div>
+      <button class="mm-btn mm-btn-secondary" type="submit">Add the words</button>
+      <div id="cgPhMsg" aria-live="assertive"></div>
+    </form>
+    ${data.phrases.length ? `<h3>Your organization's words</h3><ul>${data.phrases.map((p) => `<li>"${esc(p.phrase)}" means ${esc(p.label)}
+      <button class="mm-btn mm-btn-quiet" type="button" data-retire="${esc(p.id)}">Retire</button></li>`).join("")}</ul>` : ""}
+  </section>`;
+}
+
+function draw() {
+  box.innerHTML = `
+    <h1>${esc(person.preferred_name)}: conversation plan</h1>
+    <p class="mm-lead">Only what ${esc(person.preferred_name)} chose to share with your organization. Their answers themselves stay with them.</p>
+    <p><a class="mm-btn mm-btn-quiet" href="/mirror/workspace/person/?id=${encodeURIComponent(id)}&org=${encodeURIComponent(org)}">Back to ${esc(person.preferred_name)}</a></p>
+    ${data.conversations.length ? data.conversations.map(convSection).join("")
+      : notice("info", `<p>${esc(person.preferred_name)} hasn't shared a conversation with your organization. They start one from My Mirror &gt; A conversation, on their own phone or with you beside them.</p>`)}
+    ${phrasePanel()}`;
+  wire();
+}
+
+function wire() {
+  box.querySelectorAll("[data-need]").forEach((b) => b.addEventListener("click", async () => {
+    try { await rpc("mirror_conversation_need", { p_finding: b.getAttribute("data-need"), p_org: org }); toast("Added to their needs list."); load(); }
+    catch (e) { toast(e.message); }
+  }));
+  box.querySelectorAll("[data-refer]").forEach((b) => b.addEventListener("click", () => referForm(/** @type {HTMLElement} */ (b))));
+  box.querySelectorAll("[data-retire]").forEach((b) => b.addEventListener("click", async () => {
+    try { data.phrases = await rpc("mirror_listen_phrase_retire", { p_id: b.getAttribute("data-retire") }); draw(); } catch (e) { toast(e.message); }
+  }));
+  /** @type {HTMLFormElement} */ (box.querySelector("#cgPh")).addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const [kind, ...rest] = /** @type {HTMLSelectElement} */ (box.querySelector("#cgPhM")).value.split(":");
+    const msg = /** @type {HTMLElement} */ (box.querySelector("#cgPhMsg"));
+    try {
+      data.phrases = await rpc("mirror_listen_phrase_add", { p_org: org, p_phrase: /** @type {HTMLInputElement} */ (box.querySelector("#cgPhW")).value,
+        p_kind: kind, p_key: rest.join(":") });
+      draw(); toast("Added.");
+    } catch (err) { msg.innerHTML = notice("caution", `<p>${esc(err.message)}</p>`); }
+  });
+}
+
+/** The referral form (the directory's own rules: the person agrees and types their own name). */
+function referForm(/** @type {HTMLElement} */ b) {
+  const holder = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (b.closest(".cg-prog")).querySelector("[data-refer-box]"));
+  if (holder.innerHTML) { holder.innerHTML = ""; return; }
+  const n = Math.random().toString(36).slice(2, 8);
+  holder.innerHTML = `<form class="mm-card" novalidate style="margin-top:var(--mm-space-3)">
+    <h4 style="margin-top:0">Refer ${esc(person.preferred_name)} to ${esc(b.dataset.name)}</h4>
+    <div class="mm-row">
+      <div class="mm-field" style="min-width:12rem"><label for="f${n}">First name</label><input class="mm-input" id="f${n}" autocomplete="off"></div>
+      <div class="mm-field" style="min-width:12rem"><label for="l${n}">Last name</label><input class="mm-input" id="l${n}" autocomplete="off"></div></div>
+    <div class="mm-row">
+      <div class="mm-field" style="min-width:12rem"><label for="p${n}">Phone</label><input class="mm-input" id="p${n}" inputmode="tel" autocomplete="off"></div>
+      <div class="mm-field" style="min-width:12rem"><label for="e${n}">Email</label><input class="mm-input" id="e${n}" inputmode="email" autocomplete="off"></div></div>
+    <div class="mm-field"><label for="n${n}">Notes for the program</label><textarea class="mm-textarea" id="n${n}" rows="3" maxlength="2000"></textarea></div>
+    <label class="mm-choice"><input type="checkbox" id="c${n}"> ${esc(person.preferred_name)} agrees to this referral.</label>
+    <div class="mm-field"><label for="s${n}">${esc(person.preferred_name)} types their own name</label><input class="mm-input" id="s${n}" autocomplete="off"></div>
+    <div class="mm-row"><button class="mm-btn" type="submit">Send the referral</button></div>
+    <div aria-live="assertive" data-msg></div>
+  </form>`;
+  const form = /** @type {HTMLFormElement} */ (holder.querySelector("form"));
+  const v = (/** @type {string} */ k) => /** @type {HTMLInputElement} */ (form.querySelector("#" + k + n)).value;
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const msg = /** @type {HTMLElement} */ (form.querySelector("[data-msg]"));
+    try {
+      const refId = await rpc("chpms_referral_save", { p: { org_id: b.dataset.org, program_id: b.dataset.prog, first_name: v("f"), last_name: v("l"),
+        phone: v("p"), email: v("e"), notes: v("n"), consent: /** @type {HTMLInputElement} */ (form.querySelector("#c" + n)).checked,
+        consent_name: v("s"), help_needed: [b.dataset.needKey] } });
+      await rpc("mirror_conversation_referral_log", { p_finding: b.dataset.refer, p_org: org, p_referral: refId });
+      toast("Referral made."); load();
+    } catch (err) { msg.innerHTML = notice("caution", `<p>${esc(err.message)}</p>`); }
+  });
+}
+
+load();
+</script>
+</body>
+</html>

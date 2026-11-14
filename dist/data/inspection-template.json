@@ -1,0 +1,106 @@
+{
+  "_note": "Inspection checklist used for every unit. Edit areas/items here and every unit's inspection follows. Bedroom 'standard items' were not specified; assumed: door, walls, ceiling, floor, outlets, lights.",
+  "statuses": [
+    "OK",
+    "Needs repair",
+    "N/A"
+  ],
+  "areas": [
+    {
+      "id": "hallway",
+      "name": "Hallway",
+      "items": [
+        "Hallway"
+      ]
+    },
+    {
+      "id": "entry",
+      "name": "Entry",
+      "items": [
+        "Door",
+        "Walls",
+        "Ceiling",
+        "Floor"
+      ]
+    },
+    {
+      "id": "living",
+      "name": "Living room",
+      "items": [
+        "Patio door",
+        "Walls",
+        "Ceiling",
+        "Porch",
+        "Floor",
+        "Outlets",
+        "Lights"
+      ]
+    },
+    {
+      "id": "kitchen",
+      "name": "Kitchen",
+      "items": [
+        "Walls",
+        "Ceiling",
+        "Floor",
+        "Appliances",
+        "Countertops",
+        "Sink",
+        "Faucet",
+        "Drain",
+        "Cabinets",
+        "Base",
+        "Outlets",
+        "Lights"
+      ]
+    },
+    {
+      "id": "bathroom",
+      "name": "Bathroom",
+      "items": [
+        "Walls",
+        "Ceiling",
+        "Floor",
+        "Bathtub",
+        "Shower panel",
+        "Toilet",
+        "Countertop",
+        "Sink",
+        "Faucet",
+        "Drain",
+        "Cabinet",
+        "Outlets",
+        "Lights",
+        "Bath fan"
+      ]
+    },
+    {
+      "id": "br1",
+      "name": "Bedroom 1",
+      "items": [
+        "Door",
+        "Walls",
+        "Ceiling",
+        "Floor",
+        "Outlets",
+        "Lights",
+        "Windows",
+        "Closet"
+      ]
+    },
+    {
+      "id": "br2",
+      "name": "Bedroom 2",
+      "items": [
+        "Door",
+        "Walls",
+        "Ceiling",
+        "Floor",
+        "Outlets",
+        "Lights",
+        "Windows",
+        "Closet"
+      ]
+    }
+  ]
+}

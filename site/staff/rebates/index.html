@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Menards rebates — 2nd Chance Housing Staff</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+<style>
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-bottom: 14px; }
+  .meta { color: var(--muted); font-size: 0.9rem; }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin-bottom: 14px; }
+  .tile { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+  .tile .v { font-size: 1.6rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .tile .l { color: var(--muted); font-size: 0.85rem; }
+  .tile.warn .v { color: var(--bad); }
+  .scroll { overflow-x: auto; }
+  table.t { width: 100%; border-collapse: collapse; font-size: 0.93rem; }
+  table.t th { text-align: left; font-size: 0.75rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); padding: 6px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  table.t td { padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  table.t td.n, table.t th.n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .tag { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 0.78rem; font-weight: 700; background: var(--off-soft); color: var(--off); white-space: nowrap; }
+  .tag.to_mail { background: var(--warn-soft); color: var(--warn); } .tag.mailed { background: var(--accent-soft); color: var(--accent); }
+  .tag.received { background: var(--ok-soft); color: var(--ok); } .tag.denied { background: var(--bad-soft); color: var(--bad); }
+  .tag.late { background: var(--bad-soft); color: var(--bad); }
+  .drop { border: 2px dashed var(--line); border-radius: 10px; padding: 22px 16px; text-align: center; background: var(--head); }
+  .drop.over { border-color: var(--accent); background: var(--accent-soft); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; }
+  .grid label, .rb label { display: grid; gap: 3px; font-size: 0.85rem; color: var(--muted); }
+  .grid input, .grid textarea, .rb input, .rb textarea, .rb select { font: inherit; color: var(--fg); padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); min-width: 0; }
+  .rb { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; margin-top: 10px; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+  .rb .wide { grid-column: 1 / -1; }
+  .row2 { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 10px; }
+  .group { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; margin-top: 10px; }
+  .group h3 { margin: 0 0 4px; font-size: 1rem; white-space: pre-line; }
+  .thumbs { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+  .thumbs a { font-size: 0.85rem; }
+  ol.steps li { margin-bottom: 4px; }
+  #printArea { display: none; }
+  @media print {
+    body > *:not(#printArea) { display: none !important; }
+    #printArea { display: block !important; color: #000; background: #fff; }
+    body { background: #fff !important; }
+  }
+  .env { width: 9.5in; height: 4.125in; position: relative; font-family: Arial, Helvetica, sans-serif; }
+  .env .from { position: absolute; left: 0.35in; top: 0.3in; font-size: 10.5pt; line-height: 1.3; white-space: pre-line; }
+  .env .to { position: absolute; left: 4.1in; top: 1.75in; font-size: 13pt; line-height: 1.4; white-space: pre-line; text-transform: uppercase; }
+  .card46 { width: 6in; height: 4in; display: flex; align-items: center; justify-content: center; }
+  .card46 img { display: block; }
+  .claim { font-family: Arial, Helvetica, sans-serif; font-size: 11pt; color: #000; }
+  .claim h1 { font-size: 18pt; margin: 0 0 2px; }
+  .claim .cut { border: 2px dashed #000; padding: 12px 16px; width: 4.6in; margin: 14px 0; line-height: 1.55; font-size: 12.5pt; }
+  .claim .cut .k { display: inline-block; width: 1.25in; font-size: 9pt; text-transform: uppercase; color: #333; }
+  .claim table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 10pt; }
+  .claim th, .claim td { border: 1px solid #000; padding: 4px 6px; text-align: left; vertical-align: top; }
+  .claim td.n, .claim th.n { text-align: right; }
+  .claim .mailto { white-space: pre-line; font-size: 12pt; border: 1px solid #000; padding: 8px 12px; display: inline-block; margin-top: 4px; }
+  .claim ul { margin: 6px 0 0 18px; padding: 0; }
+</style>
+</head>
+<body>
+<div class="appbar" data-nav="staff">
+  <div class="appbar-in">
+    <div class="org">2nd Chance Housing<span>Menards rebates · Staff</span></div>
+    <div class="row" id="userBar" hidden>
+      <button class="linkbtn" type="button" id="signOutBtn">Sign out</button>
+    </div>
+  </div>
+</div>
+<main class="wrap">
+  <header><h1>Menards receipts &amp; rebates</h1>
+    <p class="lead">Upload a Menards receipt and it is read for you. Check the rebate amounts, then print the rebate claim and the envelope, and track each rebate until the check comes.</p></header>
+  <div id="signin" class="narrow"></div>
+  <div id="app" hidden>
+    <div class="tiles" id="tiles"></div>
+
+    <section class="card">
+      <h2 style="margin-top:0">1. Upload a receipt</h2>
+      <div class="drop" id="drop">
+        <p style="margin:0 0 10px"><b>Take a photo of the receipt, or choose the photo or PDF.</b><br>
+          <span class="meta">A long receipt can be several photos of the same purchase (up to 6). Include the rebate receipt if Menards printed one.</span></p>
+        <input type="file" id="file" accept="image/*,application/pdf" multiple hidden>
+        <input type="file" id="cam" accept="image/*" capture="environment" hidden>
+        <button class="btn primary" type="button" id="camGo">Take rebate photos</button>
+        <button class="btn" type="button" id="pick">Choose receipt photos or PDF</button>
+        <button class="btn" type="button" id="manual">Type one in by hand</button>
+      </div>
+      <div id="camBox" hidden style="margin-top:12px;border:2px solid var(--accent,#2e7d1f);border-radius:12px;padding:12px 14px">
+        <p style="margin:0 0 8px"><b id="camAsk">Photo saved. Take the next rebate photo?</b></p>
+        <div class="row2"><button class="btn primary" type="button" id="camNext">Take the next rebate photo</button>
+          <button class="btn" type="button" id="camDone">I'm done</button></div>
+        <ol id="camList" class="meta" style="margin:10px 0 0 18px;padding:0"></ol></div>
+      <p class="meta" id="upMsg" role="status" style="margin-bottom:0"></p>
+    </section>
+
+    <section class="card" id="editor" hidden></section>
+
+    <section class="card">
+      <h2 style="margin-top:0">2. Rebates to mail</h2>
+      <p class="meta" style="margin-top:0">Rebates going to the same address can share one envelope. Tick the ones going in this envelope, print the claim and the envelope, put the <b>original rebate receipts</b> in (no staples), then press <b>Mark mailed</b>.</p>
+      <div id="toMail"></div>
+    </section>
+
+    <section class="card">
+      <h2 style="margin-top:0">3. Waiting for the rebate check</h2>
+      <p class="meta" style="margin-top:0">Menards pays rebates as a merchandise credit check, good in Menards stores. Mark each one when it comes.</p>
+      <div class="scroll" id="waiting"></div>
+    </section>
+
+    <section class="card">
+      <h2 style="margin-top:0">All receipts</h2>
+      <div class="scroll" id="receipts"></div>
+    </section>
+
+    <details class="card">
+      <summary><b>Track in-store purchases in the Menards account</b></summary>
+      <ol class="steps">
+        <li>Sign in to the 2nd Chance Menards account (info@2ndchinc.org) at <a href="https://www.menards.com/main/accountoverview.html" target="_blank" rel="noopener">https://www.menards.com/main/accountoverview.html</a>. Preferred store: Milwaukee, 8110 W Brown Deer Rd.</li>
+        <li>Under <b>Wallet → Payment Methods</b>, add every card 2nd Chance pays with at Menards. Receipts are looked up by card, so a purchase only shows up if its card is saved there.</li>
+        <li>After each store trip: <b>Purchase History → Lookup Receipts</b> (<a href="https://www.menards.com/main/receiptLookup.html" target="_blank" rel="noopener">https://www.menards.com/main/receiptLookup.html</a>), pick the card, tick the purchase, <b>Download receipt</b>, and upload the PDF above. The paper rebate receipt is still the one that goes in the envelope.</li>
+        <li>Rebate offers and forms: <a href="https://www.menards.com/main/rebates.html" target="_blank" rel="noopener">https://www.menards.com/main/rebates.html</a>.</li>
+      </ol>
+    </details>
+
+    <details class="card">
+      <summary><b>Claimant and addresses</b> <span class="meta">(printed on the claim and envelope)</span></summary>
+      <div class="row2" style="margin-top:10px"><b>Menards rebate form (PDF with the QR code):</b> <span class="meta" id="formState">checking…</span>
+        <input type="file" id="formFile" accept="application/pdf" hidden><button class="btn small" type="button" id="formUp">Replace the form PDF</button></div>
+      <p class="meta" style="margin:4px 0 0">The form (Albert Harris, with Menards' QR code) is already on file and has not changed in years. The page prints only the form itself, actual size, on a 6 × 4 index card: nothing to cut. Replace it only if Menards changes the form (new PDF from <a href="https://www.menards.com/main/rebates.html" target="_blank" rel="noopener">https://www.menards.com/main/rebates.html</a>).</p>
+      <div class="grid" id="settings" style="margin-top:10px"></div>
+      <div class="row2"><button class="btn" type="button" id="saveSettings">Save</button>
+        <span class="meta">Check the rebate mailing address against the form or rebate receipt before mailing: each offer prints its own.</span></div>
+    </details>
+    <div class="meta" id="msg" role="status"></div>
+  </div>
+</main>
+<div id="printArea"></div>
+<style id="pageSize"></style>
+<script type="module">
+import { client, $, esc, signIn, signOut, errorText, money, todayCT } from "/assets/portal/portal.js";
+const BUCKET = "menards-receipts";
+let D = { receipts: [], settings: {} }, EDIT = null;
+const say = (t, bad) => { $("msg").textContent = t; $("msg").style.color = bad ? "var(--bad)" : ""; };
+const up = (t, bad) => { $("upMsg").textContent = t; $("upMsg").style.color = bad ? "var(--bad)" : ""; };
+const fd = (d) => d ? new Date(d + "T12:00:00").toLocaleDateString("en-US", { month: "numeric", day: "numeric", year: "numeric" }) : "";
+const r2 = (x) => Math.round(Number(x || 0) * 100) / 100;
+const daysTo = (d) => Math.round((new Date(d + "T12:00:00") - new Date(todayCT() + "T12:00:00")) / 864e5);
+const S = (k) => D.settings["menards_" + k] || "";
+const STATUS = { to_mail: "To mail", mailed: "Mailed", received: "Check received", denied: "Denied" };
+const addrKey = (a) => (a || S("default_mail_to")).trim().toUpperCase().replace(/\s+/g, " ");
+
+$("formFile").addEventListener("change", async (e) => {
+  const f = e.target.files[0]; if (!f) return;
+  if (f.type !== "application/pdf") { say("Choose the PDF from Menards.", true); return; }
+  await client.storage.from(BUCKET).remove([FORM_PATH]);   // replace the old one (staff may delete, not overwrite)
+  const { error } = await client.storage.from(BUCKET).upload(FORM_PATH, f, { contentType: "application/pdf" });
+  e.target.value = "";
+  if (error) { say("Upload failed: " + error.message, true); return; }
+  say("Rebate form saved."); formState();
+});
+async function load() {
+  formState().catch(() => {});
+  const { data, error } = await client.rpc("menards_view");
+  if (error) { say(await errorText(error), true); return; }
+  D = data; render();
+}
+const allRebates = () => D.receipts.flatMap((r) => r.rebates.map((b) => ({ ...b, r })));
+
+function render() {
+  const rb = allRebates(), year = todayCT().slice(0, 4);
+  const sum = (a, f = (b) => b.amount) => r2(a.reduce((s, b) => s + Number(f(b) || 0), 0));
+  const toMail = rb.filter((b) => b.status === "to_mail"), waiting = rb.filter((b) => b.status === "mailed");
+  const soon = toMail.filter((b) => b.mail_by && daysTo(b.mail_by) <= 14);
+  const got = rb.filter((b) => b.status === "received" && (b.received_on || "").startsWith(year));
+  $("tiles").innerHTML = `
+    <div class="tile"><div class="v">${money(sum(toMail))}</div><div class="l">${toMail.length} rebate${toMail.length === 1 ? "" : "s"} to mail</div></div>
+    <div class="tile ${soon.length ? "warn" : ""}"><div class="v">${soon.length}</div><div class="l">due to mail within 14 days</div></div>
+    <div class="tile"><div class="v">${money(sum(waiting))}</div><div class="l">${waiting.length} mailed, waiting for the check</div></div>
+    <div class="tile"><div class="v">${money(sum(got, (b) => b.check_amount ?? b.amount))}</div><div class="l">checks received in ${year}</div></div>`;
+
+  // To mail, grouped by mailing address (one envelope per address).
+  const groups = new Map();
+  for (const b of toMail.sort((a, c) => (a.mail_by || "9999").localeCompare(c.mail_by || "9999"))) {
+    const k = addrKey(b.mail_to); if (!groups.has(k)) groups.set(k, { addr: (b.mail_to || S("default_mail_to")).trim(), list: [] }); groups.get(k).list.push(b);
+  }
+  $("toMail").innerHTML = groups.size ? [...groups.values()].map((g, gi) => `
+    <div class="group" data-group="${gi}">
+      <h3>${esc(g.addr)}</h3>
+      <table class="t"><tr><th></th><th>Rebate #</th><th>For</th><th>Purchased</th><th>Mail by</th><th class="n">Amount</th></tr>
+      ${g.list.map((b) => `<tr><td><input type="checkbox" data-pick="${b.id}" checked aria-label="Include rebate ${esc(b.rebate_number || "")}"></td>
+        <td>${esc(b.rebate_number || "—")}</td><td>${esc(b.description || "")}${b.r.for_what ? `<div class="meta">${esc(b.r.for_what)}</div>` : ""}</td>
+        <td>${fd(b.r.purchased_on)}</td>
+        <td>${b.mail_by ? `${fd(b.mail_by)} ${daysTo(b.mail_by) < 0 ? '<span class="tag late">past due</span>' : daysTo(b.mail_by) <= 14 ? `<span class="tag late">${daysTo(b.mail_by)} days</span>` : ""}` : ""}</td>
+        <td class="n">${money(b.amount)}</td></tr>`).join("")}
+      </table>
+      <div class="row2"><button class="btn primary" type="button" data-print-claim="${gi}">Print rebate form (6 × 4 card)</button>
+        <button class="btn" type="button" data-print-env="${gi}">Print envelope (#10)</button>
+        <button class="btn" type="button" data-mailed="${gi}">Mark mailed today</button></div>
+    </div>`).join("") : `<p class="meta">Nothing to mail.</p>`;
+  // Generic (no rebates entered): claim with blank lines to fill in by hand, and an envelope to the usual address (Stephen 11/8/2026).
+  $("toMail").insertAdjacentHTML("beforeend", `<div class="row2" style="margin-top:10px"><span class="meta">No rebates entered yet:</span>
+    <button class="btn" type="button" data-print-blank-claim>Print rebate form (6 × 4 card)</button>
+    <button class="btn" type="button" data-print-blank-env>Print envelope (#10) to the usual address</button></div>
+    <p class="meta" style="margin:6px 0 0"><b>Rebate form:</b> load a 6 × 4 index card; Paper Size <b>4 x 6 inches</b>, Landscape, Margins None, Scaling 100%. <b>Envelope:</b> Paper Size <b>#10 envelope</b> (on iPhone scroll the Paper Size list: "Envelope #10" / "Com-10"), Landscape, Scaling 100%. <b>iPhone: turn Double-sided Off</b> for both. One form goes in each envelope with the original rebate receipts.</p>`);
+  $("toMail").groups = [...groups.values()];
+
+  $("waiting").innerHTML = waiting.length ? `<table class="t"><tr><th>Rebate #</th><th>For</th><th>Mailed</th><th class="n">Amount</th><th>Check</th><th></th></tr>
+    ${waiting.sort((a, c) => (a.mailed_on || "").localeCompare(c.mailed_on || "")).map((b) => `<tr>
+      <td>${esc(b.rebate_number || "—")}</td><td>${esc(b.description || "")}<div class="meta">${fd(b.r.purchased_on)} ${esc(b.r.for_what || "")}</div></td>
+      <td>${fd(b.mailed_on)} ${b.mailed_on && daysTo(b.mailed_on) < -70 ? '<span class="tag late">over 10 weeks</span>' : ""}</td>
+      <td class="n">${money(b.amount)}</td>
+      <td><input type="number" step="0.01" min="0" value="${b.amount}" data-check="${b.id}" style="width:7em" aria-label="Check amount"></td>
+      <td style="white-space:nowrap"><button class="btn small" type="button" data-received="${b.id}">Received</button>
+        <button class="linkbtn" type="button" data-denied="${b.id}">Denied</button></td></tr>`).join("")}</table>`
+    : `<p class="meta">None waiting.</p>`;
+
+  $("receipts").innerHTML = D.receipts.length ? `<table class="t"><tr><th>Purchased</th><th>Store</th><th>For</th><th class="n">Total</th><th>Rebates</th><th></th></tr>
+    ${D.receipts.map((r) => `<tr>
+      <td>${fd(r.purchased_on) || '<span class="tag">not saved</span>'}</td><td>${esc(r.store || "")}${r.receipt_no ? `<div class="meta">#${esc(r.receipt_no)}</div>` : ""}</td>
+      <td>${esc(r.for_what || "")}</td><td class="n">${money(r.total)}</td>
+      <td>${r.rebates.map((b) => `<span class="tag ${b.status}">${money(b.amount)} ${STATUS[b.status]}</span>`).join(" ") || '<span class="meta">none</span>'}</td>
+      <td style="white-space:nowrap"><button class="btn small" type="button" data-edit="${r.id}">Open</button></td></tr>`).join("")}</table>`
+    : `<p class="meta">No receipts yet.</p>`;
+
+  const F = [["claimant_name", "Claimant name"], ["claimant_street", "Street"], ["claimant_city_state_zip", "City, state ZIP"],
+             ["claimant_phone", "Phone"], ["claimant_email", "Email"]];
+  $("settings").innerHTML = F.map(([k, l]) => `<label>${l}<input data-set="menards_${k}" value="${esc(S(k))}"></label>`).join("") +
+    `<label style="grid-column:1/-1">Usual rebate mailing address<textarea rows="3" data-set="menards_default_mail_to">${esc(S("default_mail_to"))}</textarea></label>`;
+}
+
+// ---------- Upload and read ----------
+async function shrink(file) {
+  if (file.type === "application/pdf") return { blob: file, ext: "pdf", type: "application/pdf" };
+  try {
+    const img = await createImageBitmap(file);
+    const k = Math.min(1, 2400 / Math.max(img.width, img.height));
+    const c = document.createElement("canvas"); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+    c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+    const blob = await new Promise((res) => c.toBlob(res, "image/jpeg", 0.88));
+    if (blob) return { blob, ext: "jpg", type: "image/jpeg" };
+  } catch {}
+  if (["image/jpeg", "image/png", "image/webp"].includes(file.type)) return { blob: file, ext: file.type.split("/")[1].replace("jpeg", "jpg"), type: file.type };
+  throw new Error(`${file.name}: this kind of picture can't be read. Use a JPG, PNG or PDF.`);
+}
+
+// ---------- Reading, on this computer or phone (free; nothing is sent anywhere but our own storage) ----------
+const loadScript = (src) => new Promise((ok, bad) => { if (document.querySelector(`script[src="${src}"]`)) return ok();
+  const s = document.createElement("script"); s.src = src; s.onload = ok; s.onerror = () => bad(new Error("The reader could not load. Check the internet connection.")); document.head.appendChild(s); });
+const TESS = "https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js";
+const PDFJS = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
+let OCR = null;
+async function ocr(img) {
+  if (!OCR) { await loadScript(TESS);
+    OCR = await window.Tesseract.createWorker("eng", 1, { logger: (m) => { if (m.status === "recognizing text") up(`Reading the receipt… ${Math.round(m.progress * 100)}%`); } }); }
+  const { data } = await OCR.recognize(img);
+  return data.text || "";
+}
+async function pdfText(file) {
+  await loadScript(PDFJS);
+  const lib = window.pdfjsLib; lib.GlobalWorkerOptions.workerSrc = PDFJS.replace("pdf.min.js", "pdf.worker.min.js");
+  const pdf = await lib.getDocument({ data: await file.arrayBuffer() }).promise;
+  let out = "";
+  for (let n = 1; n <= Math.min(pdf.numPages, 6); n++) {
+    const page = await pdf.getPage(n), tc = await page.getTextContent();
+    let lastY = null, line = "";
+    for (const it of tc.items) { const y = Math.round(it.transform[5]);
+      if (lastY !== null && Math.abs(y - lastY) > 2) { out += line.trim() + "\n"; line = ""; } line += it.str + " "; lastY = y; }
+    out += line.trim() + "\n";
+    if (tc.items.length < 5) {   // a scanned PDF: no text inside, so read the picture of the page
+      const vp = page.getViewport({ scale: 2.5 }), c = document.createElement("canvas"); c.width = vp.width; c.height = vp.height;
+      await page.render({ canvasContext: c.getContext("2d"), viewport: vp }).promise; out += await ocr(c) + "\n";
+    }
+  }
+  return out;
+}
+
+// Pull the fields out of the text of a Menards receipt or rebate receipt. Staff check everything before saving.
+function parseMenards(text) {
+  const L = text.split(/\r?\n/).map((s) => s.replace(/\s+/g, " ").trim()).filter(Boolean);
+  const amt = (s) => { const m = [...String(s || "").matchAll(/\$?\s?(\d{1,3}(?:,\d{3})*\.\d{2})(?!\d)/g)]; return m.length ? Number(m[m.length - 1][1].replace(/,/g, "")) : null; };
+  const isoDate = (m) => { if (!m) return ""; let [, mo, d, y] = m; y = y.length === 2 ? "20" + y : y;
+    const s = `${y}-${mo.padStart(2, "0")}-${d.padStart(2, "0")}`; return isNaN(new Date(s + "T12:00:00")) ? "" : s; };
+  const DATE = /\b(\d{1,2})[\/-](\d{1,2})[\/-](\d{4}|\d{2})\b/;
+  const lineAmt = (re, not) => { for (const l of L) if (re.test(l) && !(not && not.test(l))) { const a = amt(l); if (a != null) return a; } return null; };
+  const x = { items: [], rebates: [] };
+  const deadlineRe = /(POST\s*MARK|MAIL(?:ED)?\s*BY|MUST BE (?:RECEIVED|POSTMARKED)|EXPIRES?|VALID THRU|NO LATER THAN)/i;
+  x.purchased_on = isoDate((L.find((l) => DATE.test(l) && !deadlineRe.test(l)) || "").match(DATE));
+  x.subtotal = lineAmt(/SUB\s*-?\s*TOTAL/i);
+  x.tax = lineAmt(/\bTAX\b/i, /TAXABLE|EXEMPT|SUB/i);
+  x.total = lineAmt(/\bTOTAL\b/i, /SUB|TAX|SAVINGS|SAVED|ITEMS|REBATE|POINTS/i);
+  const store = text.match(/STORE\s*(?:#|NO\.?|NUMBER)?\s*:?\s*(\d{3,5})/i);
+  const city = L.find((l) => /\b[A-Z][A-Za-z .]+,?\s+(WI|IL|MN|IA|MI|IN|OH|NE|ND|SD|KS|MO|WY)\s+\d{5}/.test(l) && !/BOX/i.test(l));
+  x.store = ["Menards" + (store ? ` #${store[1]}` : ""), city ? city.replace(/\s+\d{5}(-\d{4})?$/, "") : ""].filter(Boolean).join(", ");
+  const rn = text.match(/(?:TRANS(?:ACTION)?|RECEIPT|ORDER|INVOICE|TICKET)\s*(?:#|NO\.?|NUMBER|NBR)?\s*:?\s*([A-Z0-9][A-Z0-9-]{3,})/i);
+  x.receipt_no = rn ? rn[1] : "";
+  const card = L.find((l) => /(VISA|MASTER\s?CARD|\bMC\b|AMEX|AMERICAN EXPRESS|DISCOVER|DEBIT|BIG CARD|MENARDS CARD)/i.test(l) && /(\*|X|x|#){2,}\s*\d{4}/.test(l));
+  if (card) x.paid_with = `${card.match(/(VISA|MASTER\s?CARD|\bMC\b|AMEX|AMERICAN EXPRESS|DISCOVER|DEBIT|BIG CARD|MENARDS CARD)/i)[1].toUpperCase()} …${card.match(/(?:\*|X|x|#){2,}\s*(\d{4})/)[1]}`;
+  // Rebates: every line that says REBATE and has an amount on it or the next line.
+  const deadline = isoDate((L.find((l) => deadlineRe.test(l) && DATE.test(l)) || "").match(DATE));
+  const boxAt = L.findIndex((l) => /P\.?\s*O\.?\s*BOX\s*\d+/i.test(l));
+  let mailTo = "";
+  if (boxAt >= 0) { const a = [];
+    if (boxAt > 0 && /REBATE|OFFER|MENARDS/i.test(L[boxAt - 1]) && amt(L[boxAt - 1]) == null) a.push(L[boxAt - 1]);
+    a.push(L[boxAt]); if (L[boxAt + 1] && /\b[A-Z]{2}\s+\d{5}/.test(L[boxAt + 1])) a.push(L[boxAt + 1]);
+    mailTo = a.join("\n"); }
+  const seen = new Set();
+  L.forEach((l, i) => {
+    if (!/REBATE/i.test(l) || /P\.?\s*O\.?\s*BOX/i.test(l)) return;
+    const near = [l, L[i + 1] || "", L[i + 2] || ""].join(" ");
+    const a = amt(l) ?? amt(L[i + 1]); if (a == null || a <= 0) return;
+    const num = near.match(/REBATE\s*(?:OFFER\s*)?(?:#|NO\.?|NUMBER|NBR)\s*:?\s*(\d{3,6})/i) || near.match(/#\s*(\d{3,6})\b/);
+    const pct = l.match(/(\d{1,2})\s*%/);
+    const k = `${num ? num[1] : ""}|${a}`; if (seen.has(k)) return; seen.add(k);
+    x.rebates.push({ rebate_number: num ? num[1] : "", description: pct ? `${pct[1]}% rebate` : "Mail-in rebate", amount: a, mail_by: deadline, mail_to: mailTo });
+  });
+  return x;
+}
+
+async function handleFiles(list) {
+  const files = [...list].slice(0, 6);
+  if (!files.length) return;
+  const id = crypto.randomUUID(), paths = [];
+  let text = "";
+  try {
+    $("pick").disabled = true;
+    for (const [i, f] of files.entries()) {
+      up(`Saving ${i + 1} of ${files.length}…`);
+      const s = await shrink(f), path = `${id}/${i + 1}-${crypto.randomUUID().slice(0, 8)}.${s.ext}`;
+      const { error } = await client.storage.from(BUCKET).upload(path, s.blob, { contentType: s.type });
+      if (error) throw new Error("Upload failed: " + error.message);
+      paths.push(path);
+      up(`Reading ${i + 1} of ${files.length}…`);
+      text += (s.type === "application/pdf" ? await pdfText(f) : await ocr(s.blob)) + "\n";
+    }
+    // Keep the receipt even if the form is never saved.
+    const { error } = await client.rpc("menards_receipt_save", { p: { id, files: paths, read_text: text, rebates: [] } });
+    if (error) throw new Error(await errorText(error));
+    const read = parseMenards(text);
+    up(read.rebates.length ? `Read: ${read.rebates.length} rebate${read.rebates.length === 1 ? "" : "s"} found. Check every figure against the receipt, then Save.`
+      : "Read. No rebate line was found: if there is one, press Add a rebate. Check the figures, then Save.");
+    openEditor(fromRead(id, paths, read, text), true);
+    load();
+  } catch (e) { up(`${e.message} ${paths.length ? "The receipt is saved; fill in the form below." : ""}`, true); if (paths.length) openEditor(fromRead(id, paths, null, text), true); }
+  finally { $("pick").disabled = false; $("file").value = ""; }
+}
+
+// ---------- Rebate photos, one after another (Stephen 11/8/2026) ----------
+// Each photo is its own receipt: saved, read and stored with the rebates found, in the background, while the next photo is taken.
+const CAM = { n: 0, queue: Promise.resolve(), rows: [] };
+function camDraw() {
+  $("camAsk").textContent = CAM.n ? `Rebate photo ${CAM.n} taken. Take the next rebate photo?` : "Take the first rebate photo.";
+  $("camList").innerHTML = CAM.rows.map((r, i) => `<li>Photo ${i + 1}: ${esc(r)}</li>`).join("");
+}
+async function camOne(f, k) {
+  const id = crypto.randomUUID();
+  try {
+    const s = await shrink(f), path = `${id}/1-${crypto.randomUUID().slice(0, 8)}.${s.ext}`;
+    const { error: ue } = await client.storage.from(BUCKET).upload(path, s.blob, { contentType: s.type });
+    if (ue) throw new Error("Upload failed: " + ue.message);
+    CAM.rows[k] = "saved, reading…"; camDraw();
+    const text = await ocr(s.blob), read = parseMenards(text), r = fromRead(id, [path], read, text);
+    r.rebates = r.rebates.filter((b) => Number(b.amount) > 0);
+    let { error } = await client.rpc("menards_receipt_save", { p: r });
+    if (error) ({ error } = await client.rpc("menards_receipt_save", { p: { id, files: [path], read_text: text, rebates: [] } }));
+    if (error) throw new Error(await errorText(error));
+    CAM.rows[k] = r.rebates.length ? `${r.rebates.length} rebate${r.rebates.length === 1 ? "" : "s"} found (${r.rebates.map((b) => money(b.amount)).join(", ")}). Check it under Receipts.`
+      : "saved; no rebate amount could be read. Open it under Receipts and type it in.";
+  } catch (e) { CAM.rows[k] = "NOT saved: " + e.message + " Take it again."; }
+  camDraw();
+}
+function camShoot() { $("cam").value = ""; $("cam").click(); }
+$("camGo").onclick = () => { CAM.n = 0; CAM.rows = []; $("camBox").hidden = false; camDraw(); camShoot(); };
+$("camNext").onclick = camShoot;
+$("cam").addEventListener("change", (e) => {
+  const f = e.target.files[0]; if (!f) return;
+  const k = CAM.n++; CAM.rows[k] = "saving…"; camDraw();
+  CAM.queue = CAM.queue.then(() => camOne(f, k));
+  $("camBox").scrollIntoView({ behavior: "smooth", block: "center" });
+});
+$("camDone").onclick = async () => {
+  $("camDone").disabled = true; $("camAsk").textContent = "Finishing the last photos…";
+  await CAM.queue; $("camDone").disabled = false;
+  $("camBox").hidden = true;
+  up(`${CAM.n} rebate photo${CAM.n === 1 ? "" : "s"} saved. Open each one under Receipts to check the figures against the paper.`);
+  load();
+};
+
+function fromRead(id, files, x, text) {
+  x = x || {};
+  return { id, files, read_text: text || "", store: x.store || "", purchased_on: x.purchased_on || "", receipt_no: x.receipt_no || "", for_what: "",
+    subtotal: x.subtotal ?? "", tax: x.tax ?? "", total: x.total ?? "", paid_with: x.paid_with || "", items: x.items || [], notes: "",
+    rebates: (x.rebates || []).map((b) => ({ rebate_number: b.rebate_number || "", description: b.description || "", amount: b.amount ?? "",
+      mail_by: b.mail_by || "", mail_to: b.mail_to || "", status: "to_mail" })) };
+}
+
+// ---------- Editor ----------
+function openEditor(r, isNew) {
+  EDIT = structuredClone(r); EDIT.isNew = !!isNew;
+  drawEditor(); $("editor").hidden = false; $("editor").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+function drawEditor() {
+  const r = EDIT, f = (k, l, type = "text", extra = "") => `<label>${l}<input type="${type}" data-f="${k}" value="${esc(r[k] ?? "")}" ${extra}></label>`;
+  $("editor").innerHTML = `
+    <h2 style="margin-top:0">${r.isNew ? "Check what was read" : "Receipt"}</h2>
+    <div class="thumbs" id="thumbs">${(r.files || []).map((p, i) => `<a href="#" data-file="${esc(p)}">View receipt ${r.files.length > 1 ? `page ${i + 1}` : ""} ↗</a>`).join("")}</div>
+    <div class="grid" style="margin-top:10px">
+      ${f("purchased_on", "Purchase date", "date")}${f("store", "Store")}${f("receipt_no", "Receipt / order #")}
+      ${f("for_what", "For (unit, building or job)", "text", 'placeholder="e.g. Unit 12 bathroom"')}
+      ${f("subtotal", "Subtotal", "number", 'step="0.01"')}${f("tax", "Tax", "number", 'step="0.01"')}${f("total", "Total", "number", 'step="0.01"')}
+      ${f("paid_with", "Paid with")}
+      <label style="grid-column:1/-1">Notes<textarea rows="2" data-f="notes">${esc(r.notes || "")}</textarea></label>
+    </div>
+    ${r.read_text ? `<details style="margin-top:10px"><summary>What was read from the receipt</summary><pre style="white-space:pre-wrap;font-size:0.85rem;max-height:320px;overflow:auto">${esc(r.read_text)}</pre></details>` : ""}
+    ${r.items?.length ? `<details style="margin-top:10px"><summary>${r.items.length} item${r.items.length === 1 ? "" : "s"} on the receipt</summary>
+      <table class="t"><tr><th>Item</th><th>SKU</th><th class="n">Qty</th><th class="n">Amount</th></tr>
+      ${r.items.map((it) => `<tr><td>${esc(it.description)}</td><td>${esc(it.sku || "")}</td><td class="n">${it.qty ?? ""}</td><td class="n">${money(it.amount)}</td></tr>`).join("")}</table></details>` : ""}
+    <h3 style="margin:16px 0 0">Rebates on this receipt</h3>
+    <div id="rbList">${r.rebates.map((b, i) => `
+      <div class="rb" data-rb="${i}">
+        <label>Rebate #<input data-b="rebate_number" value="${esc(b.rebate_number || "")}"></label>
+        <label>Rebate amount<input type="number" step="0.01" min="0" data-b="amount" value="${esc(b.amount ?? "")}"></label>
+        <label>Mail by<input type="date" data-b="mail_by" value="${esc(b.mail_by || "")}"></label>
+        <label>Status<select data-b="status">${Object.entries(STATUS).map(([k, l]) => `<option value="${k}" ${b.status === k ? "selected" : ""}>${l}</option>`).join("")}</select></label>
+        <label class="wide">What it is for<input data-b="description" value="${esc(b.description || "")}"></label>
+        <label class="wide">Mail to (leave empty for the usual address)<textarea rows="3" data-b="mail_to" placeholder="${esc(S("default_mail_to"))}">${esc(b.mail_to || "")}</textarea></label>
+        <div class="wide"><button class="linkbtn" type="button" data-rb-del="${i}">Remove this rebate</button></div>
+      </div>`).join("") || `<p class="meta">No rebates found on this receipt. Add one if there is a rebate.</p>`}</div>
+    <div class="row2"><button class="btn" type="button" id="rbAdd">Add a rebate</button>
+      <button class="btn" type="button" id="rb11">Add 11% rebate (of the subtotal)</button></div>
+    <div class="row2" style="margin-top:16px"><button class="btn primary" type="button" id="rSave">Save</button>
+      <button class="btn" type="button" id="rClose">Close</button>
+      ${r.isNew ? "" : `<button class="linkbtn" type="button" id="rDel" style="margin-left:auto;color:var(--bad)">Delete receipt</button>`}</div>`;
+}
+function pullEditor() {
+  const e = $("editor");
+  e.querySelectorAll("[data-f]").forEach((i) => { EDIT[i.dataset.f] = i.value; });
+  e.querySelectorAll("[data-rb]").forEach((box) => { const b = EDIT.rebates[box.dataset.rb]; box.querySelectorAll("[data-b]").forEach((i) => { b[i.dataset.b] = i.value; }); });
+}
+
+function printNow(html, pageCss) {
+  $("pageSize").textContent = pageCss;
+  $("printArea").innerHTML = html;
+  setTimeout(() => window.print(), 50);
+}
+function claimHtml(g) {
+  const list = g.list.filter((b) => document.querySelector(`[data-pick="${b.id}"]`)?.checked);
+  if (!list.length) throw new Error("Tick at least one rebate.");
+  const tot = r2(list.reduce((s, b) => s + Number(b.amount || 0), 0));
+  return `<div class="claim">
+    <h1>Rebate claim</h1><div>Prepared ${fd(todayCT())} · ${list.length} rebate receipt${list.length === 1 ? "" : "s"} enclosed</div>
+    <div class="cut">
+      <div><span class="k">Name</span><b>${esc(S("claimant_name"))}</b></div>
+      <div><span class="k">Address</span>${esc(S("claimant_street"))}</div>
+      <div><span class="k">City, State, ZIP</span>${esc(S("claimant_city_state_zip"))}</div>
+      <div><span class="k">Phone</span>${esc(S("claimant_phone"))}</div>
+      <div><span class="k">Email</span>${esc(S("claimant_email"))}</div>
+    </div>
+    <table><tr><th>Rebate #</th><th>For</th><th>Purchased</th><th>Receipt #</th><th>Store</th><th>Mail by</th><th class="n">Amount</th></tr>
+      ${list.map((b) => `<tr><td><b>${esc(b.rebate_number || "")}</b></td><td>${esc(b.description || "")}</td><td>${fd(b.r.purchased_on)}</td>
+        <td>${esc(b.r.receipt_no || "")}</td><td>${esc(b.r.store || "")}</td><td>${fd(b.mail_by)}</td><td class="n">${money(b.amount)}</td></tr>`).join("")}
+      <tr><td colspan="6"><b>Total</b></td><td class="n"><b>${money(tot)}</b></td></tr></table>
+    <p style="margin:14px 0 2px"><b>Mail to:</b></p><div class="mailto">${esc(g.addr)}</div>
+    <ul><li>Enclose the <b>original</b> rebate receipt(s) listed above. Do not staple or tape them.</li>
+      <li>If the offer needs its own Menards form, cut out the dashed box and attach it to that form as the name and address.</li>
+      <li>Mail before the earliest "mail by" date.</li></ul></div>`;
+}
+
+// The Menards rebate form, cut out of Menards' own PDF (with its QR code) and printed actual size on a 6 x 4 card (Stephen 11/8/2026).
+// CROP is the inside of the dashed "cut here" box on Menards' letter-size form, in inches from the top-left (no dashes, no scissors).
+const FORM_PATH = "form/menards-rebate-form.pdf", CROP = { x: 1.40, y: 0.62, w: 5.66, h: 3.0 }, DPI = 300;
+async function formState() {
+  const { data } = await client.storage.from(BUCKET).list("form");
+  const f = (data || []).find((x) => x.name === "menards-rebate-form.pdf");
+  $("formState").textContent = f ? `on file (uploaded ${new Date(f.updated_at || f.created_at).toLocaleDateString("en-US")})` : "not uploaded yet";
+  return !!f;
+}
+async function formCardHtml() {
+  const { data, error } = await client.storage.from(BUCKET).download(FORM_PATH);
+  if (error || !data) throw new Error("The rebate form PDF is missing: open Claimant and addresses, then Replace the form PDF.");
+  await loadScript(PDFJS);
+  const lib = window.pdfjsLib; lib.GlobalWorkerOptions.workerSrc = PDFJS.replace("pdf.min.js", "pdf.worker.min.js");
+  const page = await (await lib.getDocument({ data: await data.arrayBuffer() }).promise).getPage(1);
+  const vp = page.getViewport({ scale: DPI / 72 }), full = document.createElement("canvas");
+  full.width = Math.round(vp.width); full.height = Math.round(vp.height);
+  await page.render({ canvasContext: full.getContext("2d"), viewport: vp }).promise;
+  const c = document.createElement("canvas"); c.width = Math.round(CROP.w * DPI); c.height = Math.round(CROP.h * DPI);
+  const g = c.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, c.width, c.height);
+  g.drawImage(full, Math.round(CROP.x * DPI), Math.round(CROP.y * DPI), c.width, c.height, 0, 0, c.width, c.height);
+  return `<div class="card46"><img src="${c.toDataURL("image/png")}" style="width:${CROP.w}in;height:${CROP.h}in" alt="Menards rebate form"></div>`;
+}
+async function printFormCard() {
+  say("Preparing the rebate form…");
+  const html = await formCardHtml();
+  say("Print on a 6 × 4 index card: in the print window choose paper size 4 x 6 in, Landscape, Margins None, Scale 100%.");
+  printNow(html, "@page { size: 6in 4in; margin: 0; }");
+}
+
+function blankClaimHtml() {
+  const line = `<tr><td style="height:26px"></td><td></td><td></td><td></td><td></td><td class="n"></td></tr>`;
+  return `<div class="claim">
+    <h1>Rebate claim</h1><div>Prepared ${fd(todayCT())} · original rebate receipt(s) enclosed</div>
+    <div class="cut">
+      <div><span class="k">Name</span><b>${esc(S("claimant_name"))}</b></div>
+      <div><span class="k">Address</span>${esc(S("claimant_street"))}</div>
+      <div><span class="k">City, State, ZIP</span>${esc(S("claimant_city_state_zip"))}</div>
+      <div><span class="k">Phone</span>${esc(S("claimant_phone"))}</div>
+      <div><span class="k">Email</span>${esc(S("claimant_email"))}</div>
+    </div>
+    <table><tr><th>Rebate #</th><th>For</th><th>Purchased</th><th>Receipt #</th><th>Store</th><th class="n">Amount</th></tr>
+      ${line.repeat(8)}<tr><td colspan="5"><b>Total</b></td><td class="n"></td></tr></table>
+    <p style="margin:14px 0 2px"><b>Mail to:</b></p><div class="mailto">${esc(S("default_mail_to"))}</div>
+    <ul><li>Enclose the <b>original</b> rebate receipt(s). Do not staple or tape them.</li>
+      <li>If the offer needs its own Menards form, cut out the dashed box and attach it to that form as the name and address.</li>
+      <li>Mail before the earliest "mail by" date on the rebate receipts.</li></ul></div>`;
+}
+
+// ---------- Events ----------
+document.addEventListener("click", async (e) => {
+  const t = e.target;
+  try {
+    if (t.closest("#pick")) $("file").click();
+    if (t.closest("#manual")) openEditor(fromRead(crypto.randomUUID(), [], null), true);
+    const ed = t.closest("[data-edit]"); if (ed) { const r = D.receipts.find((x) => x.id === ed.dataset.edit); openEditor({ ...r, rebates: r.rebates.map((b) => ({ ...b })) }, false); }
+    const fl = t.closest("[data-file]");
+    if (fl) { e.preventDefault(); const w = window.open("", "_blank");
+      const { data, error } = await client.storage.from(BUCKET).createSignedUrl(fl.dataset.file, 600);
+      if (error) { w?.close(); throw new Error(error.message); } if (w) w.location = data.signedUrl; else location.href = data.signedUrl; }
+    if (t.closest("#rbAdd")) { pullEditor(); EDIT.rebates.push({ rebate_number: "", description: "", amount: "", mail_by: "", mail_to: "", status: "to_mail" }); drawEditor(); }
+    if (t.closest("#rb11")) { pullEditor(); const base = Number(EDIT.subtotal || EDIT.total || 0);
+      if (!base) throw new Error("Fill in the subtotal first.");
+      EDIT.rebates.push({ rebate_number: "", description: "11% rebate", amount: r2(base * 0.11), mail_by: "", mail_to: "", status: "to_mail" }); drawEditor(); }
+    const del = t.closest("[data-rb-del]"); if (del) { pullEditor(); EDIT.rebates.splice(Number(del.dataset.rbDel), 1); drawEditor(); }
+    if (t.closest("#rClose")) { $("editor").hidden = true; EDIT = null; }
+    if (t.closest("#rSave")) {
+      pullEditor();
+      if (EDIT.rebates.some((b) => !(Number(b.amount) > 0))) throw new Error("Every rebate needs an amount.");
+      const { error } = await client.rpc("menards_receipt_save", { p: EDIT });
+      if (error) throw new Error(await errorText(error));
+      $("editor").hidden = true; EDIT = null; up(""); say("Saved."); await load();
+    }
+    if (t.closest("#rDel")) {
+      const { data, error } = await client.rpc("menards_receipt_delete", { p_id: EDIT.id });
+      if (error) throw new Error(await errorText(error));
+      if (data?.length) await client.storage.from(BUCKET).remove(data);
+      $("editor").hidden = true; EDIT = null; say("Receipt deleted."); await load();
+    }
+    if (t.closest("[data-print-claim]")) await printFormCard();
+    if (t.closest("#formUp")) $("formFile").click();
+    const pe = t.closest("[data-print-env]");
+    if (pe) { const g = $("toMail").groups[pe.dataset.printEnv];
+      printNow(`<div class="env"><div class="from">${esc([S("claimant_name"), S("claimant_street"), S("claimant_city_state_zip")].join("\n"))}</div><div class="to">${esc(g.addr)}</div></div>`,
+        "@page { size: 9.5in 4.125in; margin: 0; }"); }
+    if (t.closest("[data-print-blank-claim]")) await printFormCard();
+    if (t.closest("[data-print-blank-env]"))
+      printNow(`<div class="env"><div class="from">${esc([S("claimant_name"), S("claimant_street"), S("claimant_city_state_zip")].join("\n"))}</div><div class="to">${esc(S("default_mail_to"))}</div></div>`,
+        "@page { size: 9.5in 4.125in; margin: 0; }");
+    const pm = t.closest("[data-mailed]");
+    if (pm) { const g = $("toMail").groups[pm.dataset.mailed], ids = g.list.filter((b) => document.querySelector(`[data-pick="${b.id}"]`)?.checked).map((b) => b.id);
+      if (!ids.length) throw new Error("Tick at least one rebate.");
+      const { error } = await client.rpc("menards_rebates_mark", { p_ids: ids, p_status: "mailed" }); if (error) throw new Error(await errorText(error));
+      say(`Marked ${ids.length} mailed.`); await load(); }
+    const rc = t.closest("[data-received]");
+    if (rc) { const amt = Number(document.querySelector(`[data-check="${rc.dataset.received}"]`).value);
+      const { error } = await client.rpc("menards_rebates_mark", { p_ids: [rc.dataset.received], p_status: "received", p_check_amount: amt || null }); if (error) throw new Error(await errorText(error));
+      say("Check recorded."); await load(); }
+    const dn = t.closest("[data-denied]");
+    if (dn) { const { error } = await client.rpc("menards_rebates_mark", { p_ids: [dn.dataset.denied], p_status: "denied" }); if (error) throw new Error(await errorText(error)); say("Marked denied."); await load(); }
+    if (t.closest("#saveSettings")) {
+      const p = {}; document.querySelectorAll("[data-set]").forEach((i) => { p[i.dataset.set] = i.value; });
+      const { error } = await client.rpc("menards_settings_save", { p }); if (error) throw new Error(await errorText(error));
+      say("Saved."); await load();
+    }
+  } catch (err) { say(err.message, true); if ($("editor").contains(t)) up(err.message, true); }
+});
+$("file").addEventListener("change", (e) => handleFiles(e.target.files));
+const drop = $("drop");
+drop.addEventListener("dragover", (e) => { e.preventDefault(); drop.classList.add("over"); });
+drop.addEventListener("dragleave", () => drop.classList.remove("over"));
+drop.addEventListener("drop", (e) => { e.preventDefault(); drop.classList.remove("over"); handleFiles(e.dataTransfer.files); });
+
+$("signOutBtn").addEventListener("click", signOut);
+const who = await signIn($("signin"), { audience: "staff" });
+$("userBar").hidden = false;
+if (who.role !== "staff") { $("signin").hidden = false; $("signin").innerHTML = `<div class="panel"><p>This page is for office staff. <a href="/staff/">Go to My units</a></p></div>`; }
+else { $("app").hidden = false; load(); }
+</script>
+</body>
+</html>

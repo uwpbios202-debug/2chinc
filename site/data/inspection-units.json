@@ -1,0 +1,358 @@
+{
+ "_note": "Unit-specific additions to the inspection template, keyed property id|unit. Unit 18 is the model for the other units: copy an entry and change what is known about that unit. 'expect' is how many the unit should have (the inspector enters what is there); 'fact' is a measurement or description shown on the item; areaFacts show under the room name.",
+ "6622-n-bourbon|18": {
+  "areaFacts": {
+   "br1": "Floor 10' x 12'",
+   "br2": "Floor 12' x 13'",
+   "living": "Floor 12' x 16'",
+   "hallway": "Floor 4' x 23'"
+  },
+  "patch": {
+   "bathroom|Outlets": {
+    "expect": 2
+   },
+   "kitchen|Outlets": {
+    "expect": 3
+   },
+   "living|Outlets": {
+    "expect": 5
+   },
+   "br1|Outlets": {
+    "expect": 3
+   },
+   "br2|Outlets": {
+    "expect": 3
+   },
+   "keys|Parking sticker": {
+    "fact": "1 stall; 2 stickers provided in case one is lost"
+   },
+   "hallway|Smoke / CO detectors": {
+    "expectLoc": [
+     "Hallway (smoke and carbon monoxide)",
+     "Bedroom 1 (smoke)"
+    ]
+   },
+   "br1|Door": {
+    "fact": "30\" door"
+   },
+   "br2|Door": {
+    "fact": "30\" door"
+   },
+   "keys|Unit entry key": {
+    "expectStamp": "MP3"
+   },
+   "keys|Building entry key": {
+    "expectStamp": "AL2"
+   }
+  },
+  "addAreas": [
+   {
+    "after": "living",
+    "area": {
+     "id": "dining",
+     "name": "Dining room",
+     "items": [
+      {
+       "name": "Ceiling",
+       "ok": [
+        "Clean, no damage"
+       ],
+       "bad": [
+        "Stained",
+        "Cracked or peeling",
+        "Holes"
+       ],
+       "photos": 1
+      },
+      {
+       "name": "Floor",
+       "ok": [
+        "Clean, no damage"
+       ],
+       "bad": [
+        "Stained",
+        "Scratched",
+        "Damaged"
+       ],
+       "photos": 1
+      },
+      {
+       "name": "Walls",
+       "ok": [
+        "Clean, no damage"
+       ],
+       "bad": [
+        "Marks",
+        "Holes",
+        "Damaged"
+       ],
+       "photos": 1
+      },
+      {
+       "name": "Outlets",
+       "ok": [
+        "All work"
+       ],
+       "bad": [
+        "Not working",
+        "Cover missing",
+        "Cover damaged"
+       ],
+       "expect": 2,
+       "photos": 1
+      },
+      {
+       "name": "AT&T ethernet outlet",
+       "ok": [
+        "Present"
+       ],
+       "bad": [
+        "Missing",
+        "Damaged"
+       ],
+       "expect": 1,
+       "photos": 1,
+       "fact": "For AT&T-type ethernet cables"
+      }
+     ]
+    }
+   }
+  ],
+  "addItems": [
+   {
+    "area": "hallway",
+    "after": "Hallway",
+    "item": {
+     "name": "Switches",
+     "ok": [
+      "All work"
+     ],
+     "bad": [
+      "Not working",
+      "Cover missing",
+      "Cover damaged"
+     ],
+     "expect": 3,
+     "photos": 1
+    }
+   },
+   {
+    "area": "hallway",
+    "after": "Switches",
+    "item": {
+     "name": "Lights",
+     "ok": [
+      "Both work"
+     ],
+     "bad": [
+      "Not working",
+      "Bulb missing",
+      "Fixture damaged"
+     ],
+     "expect": 2,
+     "photos": 1
+    }
+   },
+   {
+    "area": "hallway",
+    "after": "Lights",
+    "item": {
+     "name": "Vent cover",
+     "ok": [
+      "Present"
+     ],
+     "bad": [
+      "Missing",
+      "Damaged"
+     ],
+     "expect": 1,
+     "photos": 1
+    }
+   },
+   {
+    "area": "hallway",
+    "after": "Vent cover",
+    "item": {
+     "name": "Thermostat",
+     "ok": [
+      "Works"
+     ],
+     "bad": [
+      "Not working",
+      "Missing",
+      "Damaged"
+     ],
+     "expect": 1,
+     "photos": 1
+    }
+   },
+   {
+    "area": "living",
+    "after": "Outlets",
+    "item": {
+     "name": "Switch",
+     "ok": [
+      "Works"
+     ],
+     "bad": [
+      "Not working",
+      "Cover missing",
+      "Cover damaged"
+     ],
+     "expect": 1,
+     "photos": 1
+    }
+   },
+   {
+    "area": "living",
+    "after": "Switch",
+    "item": {
+     "name": "Vent covers",
+     "ok": [
+      "Present"
+     ],
+     "bad": [
+      "Missing",
+      "Damaged"
+     ],
+     "expect": 2,
+     "photos": 1
+    }
+   },
+   {
+    "area": "kitchen",
+    "after": "Outlets",
+    "item": {
+     "name": "Light switch",
+     "ok": [
+      "Works"
+     ],
+     "bad": [
+      "Not working",
+      "Cover missing",
+      "Cover damaged"
+     ],
+     "expect": 1,
+     "photos": 1
+    }
+   },
+   {
+    "area": "bathroom",
+    "after": "Outlets",
+    "item": {
+     "name": "Switches",
+     "ok": [
+      "Both work"
+     ],
+     "bad": [
+      "Not working",
+      "Cover missing",
+      "Cover damaged"
+     ],
+     "expect": 2,
+     "photos": 1
+    }
+   },
+   {
+    "area": "br1",
+    "after": "Outlets",
+    "item": {
+     "name": "Switch",
+     "ok": [
+      "Works"
+     ],
+     "bad": [
+      "Not working",
+      "Cover missing",
+      "Cover damaged"
+     ],
+     "expect": 1,
+     "photos": 1
+    }
+   },
+   {
+    "area": "br1",
+    "after": "Switch",
+    "item": {
+     "name": "Vent covers",
+     "ok": [
+      "Present"
+     ],
+     "bad": [
+      "Missing",
+      "Damaged"
+     ],
+     "expect": 2,
+     "photos": 1
+    }
+   },
+   {
+    "area": "br2",
+    "after": "Outlets",
+    "item": {
+     "name": "Switch",
+     "ok": [
+      "Works"
+     ],
+     "bad": [
+      "Not working",
+      "Cover missing",
+      "Cover damaged"
+     ],
+     "expect": 1,
+     "photos": 1
+    }
+   },
+   {
+    "area": "br2",
+    "after": "Switch",
+    "item": {
+     "name": "Vent covers",
+     "ok": [
+      "Present"
+     ],
+     "bad": [
+      "Missing",
+      "Damaged"
+     ],
+     "expect": 2,
+     "photos": 1
+    }
+   },
+   {
+    "area": "kitchen",
+    "after": "Drain",
+    "item": {
+     "name": "Garbage disposal",
+     "ok": [
+      "Works"
+     ],
+     "bad": [
+      "Does not work",
+      "Jammed",
+      "Leaks"
+     ],
+     "fact": "Left sink drain",
+     "photos": 0
+    }
+   },
+   {
+    "area": "bathroom",
+    "after": "Walls",
+    "item": {
+     "name": "Door",
+     "ok": [
+      "Good"
+     ],
+     "bad": [
+      "Sticks",
+      "Damaged",
+      "Marked"
+     ],
+     "fact": "28\" door",
+     "photos": 0
+    }
+   }
+  ]
+ }
+}

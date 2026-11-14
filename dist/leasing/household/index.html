@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Household Members — 2nd Chance Housing Staff</title>
+<link rel="icon" href="/favicon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+<style>
+.card2{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:14px}
+.card2 h2{margin:0 0 6px;font-size:1.15rem}
+.meta{color:var(--muted);font-size:.9rem}
+.pill3{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;border-radius:20px;padding:.12rem .55rem;background:var(--accent-soft);color:var(--accent)}
+.pill3.warn{background:#fff3cd;color:#7a5200}.pill3.off{background:#e8e8e8;color:#444}.pill3.bad{background:#fde8e6;color:#8a1c1c}
+.q{border-top:1px solid var(--line);padding:10px 0}
+.grid2{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px}
+.formrow{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-top:8px}
+.formrow label{display:grid;gap:3px;font-size:.85rem;color:var(--muted)}
+.formrow input,.formrow select{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:6px;color:var(--fg);background:var(--panel)}
+</style>
+</head>
+<body>
+<div class="appbar" data-nav="staff"><div class="appbar-in">
+  <div class="org">2nd Chance Housing<span>Household members · Staff</span></div>
+  <div class="row" id="userBar" hidden>
+    
+    <button class="linkbtn" type="button" id="signOutBtn">Sign out</button>
+  </div>
+</div></div>
+<main class="wrap">
+  <header><h1>Household members</h1><p class="lead">Everyone living in a unit who doesn't sign the lease. Tenants add people in their portal and you approve them; tenants report move-outs themselves. Each unit has a people limit (Milwaukee bedroom-size rule; every 2-bedroom starts at 5). Approving past it asks you to confirm. Overnight guests are separate (Parking page, 13-night rule).</p></header>
+  <div id="signin" class="narrow"></div>
+  <div id="app" hidden>
+    <div class="card2"><h2>Waiting for approval <span class="pill3 warn" id="pCount"></span></h2><div id="pending"></div></div>
+    <div class="card2"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center"><h2>By unit</h2>
+      <label class="meta"><input type="checkbox" id="showPast"> Include past leases with members</label></div>
+      <div id="leases" class="grid2"></div></div>
+    <div class="card2"><h2>People limits</h2><p class="meta">Change a unit's limit if its bedrooms measure differently. Say why (it's kept).</p>
+      <div class="formrow"><label>Unit<input id="lU" style="width:70px"></label><label>Up to (people)<input id="lN" type="number" min="1" max="20" style="width:80px"></label><label>Why<input id="lB" style="min-width:300px" placeholder="e.g. BR1 13x14 = 182 sq ft"></label><button class="btn primary" type="button" id="lSave">Save</button><span class="msg" id="lMsg"></span></div>
+      <div class="table-wrap"><table><thead><tr><th>Unit</th><th>Up to</th><th>Basis</th><th>Set by</th></tr></thead><tbody id="limits"></tbody></table></div></div>
+  </div>
+</main>
+<script type="module">
+import { client, $, esc, fmtDate, signIn, signOut, errorText } from "/assets/portal/portal.js";
+let D = null;
+const flush = () => client.functions.invoke("outbox-flush", { body: {} }).catch(() => {});
+const who2 = (m) => `${m.age != null ? (m.minor ? "child, " + m.age : "adult") : "age not given"}`;
+const overMsg = (t) => /^OVER_LIMIT/.test(t) || /OVER_LIMIT/.test(t);
+async function call(fn, args, confirmOver) {
+  let r = await client.rpc(fn, args);
+  if (r.error) {
+    const t = await errorText(r.error);
+    if (confirmOver && overMsg(t)) {
+      if (!confirm(t.replace(/^.*OVER_LIMIT:\s*/, "") + "\n\nGo past the limit anyway?")) return null;
+      r = await client.rpc(fn, { ...args, p_over_limit_ok: true });
+      if (r.error) { alert(await errorText(r.error)); return null; }
+    } else { alert(t); return null; }
+  }
+  flush(); return r.data;
+}
+function render() {
+  $("pCount").textContent = D.pending.length ? D.pending.length + " waiting" : "";
+  $("pending").innerHTML = D.pending.map((m) => `<div class="q"><b>Unit ${esc(m.unit)} · ${esc(m.name)}</b>${m.relationship ? ` (${esc(m.relationship)})` : ""} · ${who2(m)}${m.moved_in ? " · moving in " + fmtDate(m.moved_in) : ""}
+      <div class="meta">Asked by ${esc(m.added_by || "")} ${fmtDate(m.created_at)} · living there now: ${m.people}${m.limit ? " of " + m.limit : ""}${m.limit && m.people + 1 > m.limit ? ` <span class="pill3 bad">would be over the limit</span>` : ""}</div>
+      ${m.note ? `<div class="meta">“${esc(m.note)}”</div>` : ""}
+      <div class="formrow"><button class="btn primary small" type="button" data-ok="${esc(m.id)}">Approve</button><button class="btn small" type="button" data-no="${esc(m.id)}">Decline</button></div></div>`).join("") || `<p class="meta">Nothing waiting.</p>`;
+  const show = $("showPast").checked;
+  $("leases").innerHTML = D.leases.filter((l) => show || l.lease_status === "active" || l.lease_status === "future").map((l) => {
+    const over = l.limit && l.people > l.limit;
+    const app = (l.application_household || []).filter((p) => p && p.name);
+    return `<div class="card2" style="margin:0"><div style="display:flex;justify-content:space-between;gap:8px"><b>Unit ${esc(l.unit)}</b>
+        <span class="pill3 ${over ? "bad" : ""}">${l.people}${l.limit ? " of " + l.limit : ""} people</span></div>
+      <div class="meta">On the lease: ${l.signers.map(esc).join(", ") || "—"}${l.lease_status !== "active" ? " · lease " + esc(l.lease_status) : ""}</div>
+      ${l.members.filter((m) => m.status !== "declined").map((m) => `<div class="q" style="padding:6px 0"><b>${esc(m.name)}</b>${m.relationship ? " (" + esc(m.relationship) + ")" : ""} · ${who2(m)}
+        <span class="pill3 ${m.status === "pending" ? "warn" : m.status === "removed" ? "off" : ""}">${m.status === "removed" ? "moved out " + fmtDate(m.moved_out) : esc(m.status)}</span>${m.over_limit_ok ? ` <span class="pill3 bad">approved over limit</span>` : ""}
+        ${m.status === "approved" ? `<button class="btn small" type="button" data-rm="${esc(m.id)}">Moved out</button>` : ""}</div>`).join("") || `<p class="meta">No other household members listed.</p>`}
+      ${l.application_id && app.length ? `<div class="formrow"><button class="btn small" type="button" data-app="${esc(l.lease_id)}">Add from application (${app.map((p) => esc(p.name)).join(", ")})</button></div>` : ""}
+      <details style="margin-top:6px"><summary class="meta">Add someone</summary><div class="formrow">
+        <label>Name<input data-n="${esc(l.lease_id)}"></label><label>Relationship<input data-r="${esc(l.lease_id)}" style="width:110px"></label>
+        <label>Born<input type="date" data-b="${esc(l.lease_id)}"></label><label>Moved in<input type="date" data-i="${esc(l.lease_id)}"></label>
+        <button class="btn primary small" type="button" data-add="${esc(l.lease_id)}">Add</button></div></details></div>`;
+  }).join("") || `<p class="meta">No leases.</p>`;
+  $("limits").innerHTML = D.limits.map((x) => `<tr><td><b>${esc(x.unit_number)}</b></td><td>${x.max_people}</td><td class="meta">${esc(x.basis || "")}</td><td class="meta">${esc(x.set_by || "")} ${fmtDate(x.set_at)}</td></tr>`).join("");
+}
+async function load() {
+  const { data, error } = await client.rpc("household_staff_list", { p_all: $("showPast").checked });
+  if (error) { $("signin").hidden = false; $("signin").innerHTML = `<div class="panel">${esc(await errorText(error))}</div>`; return; }
+  D = data; $("signin").hidden = true; $("app").hidden = false; render();
+}
+$("showPast").onchange = load;
+document.addEventListener("click", async (e) => {
+  const t = e.target.closest("button"); if (!t || !$("app").contains(t)) return;
+  const d = t.dataset; let ok = null;
+  if (d.ok) { const n = prompt("Approve. Note for the tenant? (optional)", ""); if (n === null) return; ok = await call("household_staff_decide", { p_id: d.ok, p_approve: true, p_note: n }, true); }
+  else if (d.no) { const n = prompt("Why is it declined? The tenant sees this."); if (n === null) return; ok = await call("household_staff_decide", { p_id: d.no, p_approve: false, p_note: n }); }
+  else if (d.rm) { const dt = prompt("Moved out on (YYYY-MM-DD)", new Date().toISOString().slice(0, 10)); if (!dt) return; ok = await call("household_staff_remove", { p_id: d.rm, p_moved_out: dt, p_note: null }); }
+  else if (d.app) { ok = await call("household_staff_from_application", { p_lease: d.app }); if (ok) alert(`Added ${ok.added}.${ok.skipped.length ? " Already listed or on the lease: " + ok.skipped.join(", ") + "." : ""}`); }
+  else if (d.add) {
+    const v = (k) => document.querySelector(`[data-${k}="${d.add}"]`).value.trim();
+    ok = await call("household_staff_add", { p_lease: d.add, p_name: v("n"), p_relationship: v("r"), p_birth: v("b") || null, p_moved_in: v("i") || null, p_note: null }, true);
+  } else if (t.id === "lSave") {
+    const { error } = await client.rpc("household_staff_set_limit", { p_unit: $("lU").value.trim(), p_max: Number($("lN").value), p_basis: $("lB").value.trim() });
+    $("lMsg").className = error ? "msg err" : "msg ok"; $("lMsg").textContent = error ? await errorText(error) : "Saved."; if (!error) load(); return;
+  } else return;
+  if (ok) load();
+});
+$("signOutBtn").onclick = signOut;
+const who = await signIn($("signin"), { audience: "staff" });
+$("userBar").hidden = false;
+if (who.role !== "staff") { $("signin").hidden = false; $("signin").innerHTML = `<div class="panel"><p>This page is for office staff. <a href="/staff/">Go to My units</a></p></div>`; }
+else await load();
+</script>
+</body>
+</html>

@@ -1,0 +1,168 @@
+/* 2nd Chance Housing public site — shared styles for /, /who-we-serve/,
+   /documents/. Colors are sampled from the 2CH logo (deep green to leaf
+   green on near-black). The owner portal keeps its own /owners/portal.css. */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --ink:      #13201A;   /* header / dark panels */
+  --ink-2:    #1C2E24;
+  --green-dk: #0B5A1E;
+  --green:    #2E7D1F;
+  --green-lt: #6BAF2E;
+  --cream:    #F6F7F2;
+  --white:    #FFFFFF;
+  --text:     #17231C;
+  --gray:     #5F6B63;
+  --border:   #D8DDD3;
+  --tint:     #EAF3E4;
+  --soon-bg:  #EFEFEA;
+  --serif: 'DM Serif Display', Georgia, serif;
+  --sans:  'Inter', 'Segoe UI', Helvetica, Arial, sans-serif;
+}
+
+html { scroll-behavior: smooth; }
+body { font-family: var(--sans); background: var(--cream); color: var(--text); min-height: 100vh; line-height: 1.5; }
+a { color: var(--green); }
+:focus-visible { outline: 3px solid var(--green-lt); outline-offset: 2px; }
+
+/* header */
+.site-header { background: var(--ink); padding: 0 2rem; }
+.site-header .inner { max-width: 1240px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem 0; }
+.brand { display: flex; align-items: center; gap: 0.8rem; text-decoration: none; }
+.brand img { width: 56px; height: 56px; border-radius: 50%; background: #fff; display: block; }
+.brand strong { display: block; font-family: var(--serif); font-size: 1.15rem; color: var(--white); letter-spacing: 0.01em; }
+.brand span { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--green-lt); }
+.site-nav { display: flex; gap: 0.25rem; flex-wrap: wrap; }
+.site-nav a { color: rgba(255,255,255,0.82); text-decoration: none; font-size: 0.82rem; font-weight: 600; padding: 0.45rem 0.65rem; border-radius: 6px; }
+.site-nav a:hover, .site-nav a[aria-current="page"] { background: rgba(255,255,255,0.09); color: var(--white); }
+.site-nav a.apply { background: var(--green); color: var(--white); }
+.site-nav a.apply:hover { background: var(--green-lt); }
+.site-nav a.waitlist { box-shadow: inset 0 0 0 1.5px #f2b21a; color: var(--white); }
+.site-nav a.waitlist:hover, .site-nav a.waitlist[aria-current="page"] { background: rgba(242,178,26,0.2); }
+.site-nav a.signin { box-shadow: inset 0 0 0 1.5px rgba(255,255,255,0.55); color: var(--white); }
+.site-nav a.signin:hover { background: rgba(255,255,255,0.12); }
+
+/* hero */
+.hero { background: var(--ink); padding: 1.4rem 2rem 1.5rem; border-bottom: 4px solid var(--green-lt); }
+.hero .inner { max-width: 1100px; margin: 0 auto; }
+.eyebrow { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--green-lt); margin-bottom: 0.4rem; }
+.hero h1 { font-family: var(--serif); font-weight: 400; font-size: clamp(1.7rem, 3.2vw, 2.3rem); color: var(--white); line-height: 1.15; max-width: 760px; margin-bottom: 0.6rem; }
+.hero h1 em { font-style: italic; color: var(--green-lt); }
+.hero p.desc { color: rgba(255,255,255,0.75); font-size: 1rem; line-height: 1.55; max-width: 820px; }
+.hero p.desc + p.desc { margin-top: 0.5rem; }
+.hero p.desc strong { color: var(--white); font-weight: 600; }
+.stats { display: flex; gap: 2rem; margin-top: 1rem; flex-wrap: wrap; }
+.stat b { display: block; font-family: var(--serif); font-weight: 400; font-size: 1.5rem; color: var(--white); line-height: 1; }
+.stat span { font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.5); }
+
+/* layout */
+main { max-width: 1100px; margin: 0 auto; padding: 1.75rem 2rem 3rem; }
+section { margin-bottom: 2.25rem; scroll-margin-top: 1rem; }
+.section-title { font-family: var(--serif); font-weight: 400; font-size: 1.9rem; margin-bottom: 0.4rem; }
+.section-lead { color: var(--gray); font-size: 0.95rem; margin-bottom: 1.75rem; max-width: 660px; line-height: 1.6; }
+
+.building { display: flex; align-items: flex-start; gap: 1.1rem; margin-bottom: 1.5rem; padding-bottom: 1.25rem; border-bottom: 1px solid var(--border); }
+.building .icon { width: 50px; height: 50px; background: var(--green); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.building .icon svg { width: 26px; height: 26px; fill: var(--white); }
+.building .addr { font-family: var(--serif); font-size: 1.5rem; }
+.building .city { font-size: 0.85rem; color: var(--gray); font-weight: 500; }
+.pill { background: var(--tint); color: var(--green-dk); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 0.3rem 0.75rem; border-radius: 20px; margin-top: 0.5rem; display: inline-block; }
+
+/* cards */
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 1.25rem; }
+.card { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; position: relative; display: flex; flex-direction: column; transition: box-shadow 0.2s, border-color 0.2s, transform 0.2s; }
+.card:hover { box-shadow: 0 8px 24px rgba(19,32,26,0.1); border-color: var(--green); }
+.tag { position: absolute; top: 1rem; right: 1rem; background: var(--tint); color: var(--green-dk); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 0.25rem 0.6rem; border-radius: 6px; }
+.tag.soon { background: var(--soon-bg); color: var(--gray); }
+.card h3 { font-family: var(--serif); font-weight: 400; font-size: 1.5rem; margin-bottom: 0.4rem; }
+.card .sub { font-size: 0.8rem; color: var(--gray); margin-bottom: 1rem; line-height: 1.4; }
+.card .desc { font-size: 0.86rem; color: var(--gray); line-height: 1.5; margin-bottom: 1.25rem; flex: 1; }
+.features { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.25rem; flex: 1; }
+.features li { display: flex; align-items: center; gap: 0.5rem; font-size: 0.84rem; }
+.features svg { width: 15px; height: 15px; fill: var(--green); flex-shrink: 0; }
+.role-icon { width: 40px; height: 40px; border-radius: 10px; background: var(--tint); display: flex; align-items: center; justify-content: center; margin-bottom: 0.9rem; }
+.role-icon svg { width: 22px; height: 22px; fill: var(--green); }
+
+.btn { display: block; text-align: center; background: var(--ink); color: var(--white); font: 600 0.84rem var(--sans); letter-spacing: 0.03em; padding: 0.7rem 1rem; border-radius: 8px; text-decoration: none; border: 0; cursor: pointer; transition: background 0.2s; }
+.btn:hover { background: var(--green); }
+.btn.ghost { background: transparent; color: var(--text); border: 1px solid var(--border); }
+.btn.ghost:hover { background: var(--soon-bg); }
+.btn.green { background: var(--green); }
+.btn.green:hover { background: var(--green-dk); }
+.btn.inline { display: inline-block; padding: 0.7rem 1.4rem; }
+
+/* policy banner (who we serve) */
+.policy { background: var(--white); border-left: 6px solid var(--green); border-radius: 8px; padding: 1.25rem 1.5rem; box-shadow: 0 6px 24px rgba(19,32,26,0.08); font-size: 1rem; line-height: 1.6; }
+.policy strong { color: var(--green-dk); }
+
+.chips { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1.25rem 0 1.5rem; }
+.chips a { background: var(--white); border: 1px solid var(--border); color: var(--text); text-decoration: none; font-size: 0.84rem; font-weight: 600; padding: 0.45rem 0.9rem; border-radius: 20px; }
+.chips a:hover { border-color: var(--green); color: var(--green-dk); }
+
+/* dark band + mission */
+.band { background: var(--ink); border-radius: 16px; padding: 2.5rem; }
+.band-head { display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.75rem; }
+.band h2 { font-family: var(--serif); font-weight: 400; font-size: 1.6rem; color: var(--white); }
+.band h2 span { color: var(--green-lt); font-style: italic; }
+.band p { color: rgba(255,255,255,0.6); font-size: 0.86rem; max-width: 420px; margin-top: 0.4rem; }
+.video { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 10px; border: 2px solid rgba(255,255,255,0.08); }
+.video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.mission { background: var(--green); border-radius: 12px; padding: 1.75rem 2rem; margin-top: 2rem; display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; }
+.mission .text { flex: 1; min-width: 220px; }
+.mission h3 { font-family: var(--serif); font-weight: 400; font-size: 1.2rem; color: var(--white); margin-bottom: 0.3rem; }
+.mission p { font-size: 0.86rem; color: rgba(255,255,255,0.88); line-height: 1.6; }
+.mission a { background: var(--white); color: var(--green-dk); font-size: 0.8rem; font-weight: 700; padding: 0.6rem 1.2rem; border-radius: 8px; text-decoration: none; white-space: nowrap; }
+
+/* documents list */
+.doc-group { margin-bottom: 2.25rem; }
+.doc-group h3 { font-family: var(--serif); font-weight: 400; font-size: 1.35rem; margin-bottom: 0.75rem; }
+.doc-list { list-style: none; background: var(--white); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.doc-list li + li { border-top: 1px solid var(--border); }
+.doc-list a { display: flex; align-items: center; gap: 0.9rem; padding: 1rem 1.25rem; text-decoration: none; color: var(--text); }
+.doc-list a:hover { background: var(--tint); }
+.doc-list svg { width: 22px; height: 22px; fill: var(--green); flex-shrink: 0; }
+.doc-list .t { font-weight: 600; font-size: 0.95rem; }
+.doc-list .m { font-size: 0.8rem; color: var(--gray); }
+
+/* footer */
+.site-footer { background: var(--ink); padding: 2rem; text-align: center; }
+.site-footer p { color: rgba(255,255,255,0.5); font-size: 0.78rem; line-height: 1.7; }
+.site-footer strong, .site-footer a { color: rgba(255,255,255,0.75); }
+.site-footer .tagline { color: var(--green-lt); letter-spacing: 0.14em; text-transform: uppercase; font-size: 0.72rem; font-weight: 700; margin-bottom: 0.5rem; }
+
+@media (max-width: 760px) {
+  .site-header { padding: 0 1rem; }
+  .site-header .inner { flex-direction: column; align-items: flex-start; }
+  .hero { padding: 1.25rem 1rem 1.4rem; }
+  main { padding: 1.25rem 1rem 2.5rem; }
+  .band { padding: 1.75rem 1.25rem; }
+  .mission { padding: 1.5rem; }
+  .building { flex-direction: column; gap: 0.75rem; }
+}
+
+/* Unit listing cards */
+.price { font-size: 1.9rem; font-weight: 700; color: var(--green-dk); line-height: 1.1; margin-bottom: 1rem; }
+.price small { font-size: 0.95rem; font-weight: 600; color: var(--gray); margin-left: 2px; }
+.price .dep { display: block; font-size: 0.85rem; font-weight: 500; color: var(--gray); margin-top: 0.25rem; }
+.btn-link { display: block; text-align: center; margin-top: 0.75rem; font-size: 0.85rem; color: var(--green-dk); font-weight: 600; }
+.policy-list { margin: 0.5rem 0 0.75rem 1.25rem; padding: 0; }
+.policy-list li { margin: 0.15rem 0; }
+
+.tag.soon { background: #fff3cd; color: #7a5200; }
+.tag.held { background: #fde2e0; color: #a4161a; }
+.soon-note.held { background: #fde2e0; color: #a4161a; border-color: #c62828; }
+.soon-note { background: #fff3cd; color: #7a5200; border: 2px solid #e0a800; border-radius: 8px; text-align: center; font-weight: 800; font-size: 1.05rem; letter-spacing: 0.08em; padding: 0.55rem 0.75rem; margin-bottom: 0.6rem; }
+
+/* sign-in cards: icon and heading share one line */
+#signin .card { display: grid; grid-template-columns: auto 1fr; column-gap: 0.8rem; row-gap: 0.9rem; align-items: center; padding: 1.1rem 1.25rem; }
+#signin .card .role-icon { margin-bottom: 0; }
+#signin .card h3 { margin-bottom: 0; line-height: 1.15; }
+#signin .card .btn { grid-column: 1 / -1; }
+
+/* Listing Q&A (landing page, built from /data/listings.json) */
+.qa-title { font-family: var(--serif); font-weight: 400; font-size: 1.5rem; margin: 2.25rem 0 0.9rem; }
+.qa { max-width: 760px; display: flex; flex-direction: column; gap: 0.5rem; }
+.qa details { background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: 0.8rem 1rem; }
+.qa summary { cursor: pointer; font-weight: 600; font-size: 0.95rem; }
+.qa details p { margin-top: 0.6rem; font-size: 0.9rem; color: var(--gray); line-height: 1.6; }
+.qa-more { font-size: 0.9rem; color: var(--gray); margin-top: 0.5rem; }

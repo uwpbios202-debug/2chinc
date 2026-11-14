@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>My Appointments | The Human Mirror</title>
+<link rel="icon" href="/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Source+Serif+4:opsz,wght@8..60,600&display=swap">
+<link rel="stylesheet" href="/mirror/assets/mirror.css?v=20261113l">
+</head>
+<body data-area="my">
+<!-- Phase 8 (T8.5, D-35): every appointment of the person's, with every organization, plus their own (theirs alone). On an organization's
+     appointment they can say they can't make it, or that it happened; the organization changes the rest. No reminder emails yet (Phase 9). -->
+<main id="main" class="mm-main">
+  <div class="mm-read">
+    <p class="mm-eyebrow"><a href="/mirror/my-mirror/">My Mirror</a></p>
+    <h1>My appointments</h1>
+    <p class="mm-lead">Appointments with the organizations you work with, and your own. The ones you add yourself stay yours: no organization sees them.</p>
+  </div>
+  <div id="mmBox"><p role="status">Loading…</p></div>
+</main>
+<script type="module" src="/mirror/assets/mirror-ui.js?v=20261113h"></script>
+<script type="module">
+import { requireArea, rpc } from "/mirror/assets/mirror-client.js?v=20261113p";
+import { esc, notice, toast } from "/mirror/assets/mirror-ui.js?v=20261113h";
+import { voiceAll } from "/mirror/assets/mirror-voice.js?v=20261113c";
+import { DIMENSIONS } from "/mirror/assets/dimensions.js?v=20261113a";
+
+const APPT = { scheduled: "Coming up", done: "Happened", cancelled: "Cancelled", not_happened: "Didn't happen" };
+const msg = (e) => (e instanceof Error ? e.message : String(e));
+const when = (t) => new Date(t).toLocaleString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" });
+const day = (t) => new Date(t).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+const localInput = (t) => { if (!t) return ""; const d = new Date(t); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 16); };
+const iso = (v) => (v ? new Date(v).toISOString() : "");
+const by = (r) => (r === "self" ? "you" : "the organization");
+
+await requireArea("my");
+const box = /** @type {HTMLElement} */ (document.getElementById("mmBox"));
+
+function ownForm(a) {
+  const k = a ? a.id : "new";
+  return `<form class="mm-card mm-read" data-own="${esc(k)}" novalidate style="margin-top:var(--mm-space-3)">
+    ${a ? "" : '<h2 style="margin-top:0">Add my own appointment</h2>'}
+    <div class="mm-field"><label for="t-${k}">What it's for</label><input class="mm-input" id="t-${k}" maxlength="200" value="${esc(a ? a.title : "")}"></div>
+    <div class="mm-row" style="gap:var(--mm-space-3)">
+      <div class="mm-field"><label for="s-${k}">Starts</label><input class="mm-input" type="datetime-local" id="s-${k}" value="${esc(localInput(a && a.starts_at))}" data-mm-no-voice></div>
+      <div class="mm-field"><label for="e-${k}">Ends <span class="mm-muted">(optional)</span></label><input class="mm-input" type="datetime-local" id="e-${k}" value="${esc(localInput(a && a.ends_at))}" data-mm-no-voice></div></div>
+    <div class="mm-field"><label for="p-${k}">Where <span class="mm-muted">(optional)</span></label><input class="mm-input" id="p-${k}" maxlength="300" value="${esc((a && a.place) || "")}"></div>
+    <div class="mm-field"><label for="w-${k}">With whom <span class="mm-muted">(optional)</span></label><input class="mm-input" id="w-${k}" maxlength="200" value="${esc((a && a.with_whom) || "")}"></div>
+    <div class="mm-field"><label for="d-${k}">Details <span class="mm-muted">(optional)</span></label><textarea class="mm-textarea" id="d-${k}" rows="2" maxlength="1000">${esc((a && a.detail) || "")}</textarea></div>
+    <div class="mm-field" style="max-width:24rem"><label for="k-${k}">Part of life <span class="mm-muted">(optional)</span></label><select class="mm-select" id="k-${k}">
+      <option value="">Everyday</option>${DIMENSIONS.map((d) => `<option value="${esc(d.key)}"${a && a.dimension_key === d.key ? " selected" : ""}>${esc(d.title)}</option>`).join("")}</select></div>
+    ${a ? `<div class="mm-field" style="max-width:16rem"><label for="x-${k}">Where it stands</label><select class="mm-select" id="x-${k}">
+      ${Object.entries(APPT).map(([v, l]) => `<option value="${v}"${v === a.status ? " selected" : ""}>${esc(l)}</option>`).join("")}</select></div>` : ""}
+    <button class="mm-btn" type="submit">${a ? "Save" : "Add"}</button></form>`;
+}
+
+async function load() {
+  let A;
+  try { A = await rpc("mirror_appointments"); }
+  catch (e) { box.innerHTML = notice("urgent", `<p>${esc(msg(e))}</p>`); return; }
+  const now = Date.now();
+  const card = (a) => `<li class="mm-card" style="list-style:none;margin-bottom:var(--mm-space-3)" data-appt="${esc(a.id)}">
+    <p class="mm-muted mm-small" style="margin:0">${esc(when(a.starts_at))} · ${a.own ? "My own" : esc(a.organization)}${a.area ? " · " + esc(a.area) : ""}</p>
+    <strong>${esc(a.title)}</strong> <span class="mm-small">· ${esc(APPT[a.status] || a.status)}</span>
+    ${a.place || a.with_whom ? `<p class="mm-small" style="margin:var(--mm-space-1) 0">${a.place ? "Where: " + esc(a.place) : ""}${a.place && a.with_whom ? " · " : ""}${a.with_whom ? "With: " + esc(a.with_whom) : ""}</p>` : ""}
+    ${a.detail ? `<p class="mm-small" style="margin:var(--mm-space-1) 0">${esc(a.detail)}</p>` : ""}
+    <details class="mm-small"><summary>History</summary><ul>${a.history.map((h) => `<li>${esc(day(h.at))}: ${h.from && h.from !== h.to ? esc(APPT[h.from] || h.from) + " → " : ""}${esc(APPT[h.to] || h.to)}${h.from ? "" : " (added)"}, by ${esc(by(h.by_role))}${h.note ? ": " + esc(h.note) : ""}</li>`).join("")}</ul></details>
+    ${a.own ? `<p style="margin:var(--mm-space-2) 0 0"><button class="mm-btn mm-btn-quiet" type="button" data-edit>Change</button></p>`
+      : a.status === "scheduled" ? `<form data-org novalidate style="margin-top:var(--mm-space-2)">
+        <div class="mm-field" style="margin-bottom:var(--mm-space-2)"><label for="n-${esc(a.id)}">A note for ${esc(a.organization)} <span class="mm-muted">(optional)</span></label><input class="mm-input" id="n-${esc(a.id)}" maxlength="1000"></div>
+        <p class="mm-row" style="margin:0"><button class="mm-btn mm-btn-secondary" type="submit" data-to="cancelled">I can't make it</button>
+          <button class="mm-btn mm-btn-quiet" type="submit" data-to="done">It happened</button></p></form>` : ""}
+    <div data-more></div></li>`;
+  const coming = A.appointments.filter((a) => a.status === "scheduled" && new Date(a.starts_at).getTime() >= now - 3600e3).reverse();
+  const past = A.appointments.filter((a) => !coming.includes(a));
+  box.innerHTML = `${coming.length ? `<h2>Coming up (${coming.length})</h2><ul style="padding:0">${coming.map(card).join("")}</ul>` : notice("info", "<p>Nothing coming up.</p>")}
+    ${past.length ? `<details><summary>Earlier or cancelled (${past.length})</summary><ul style="padding:0;margin-top:var(--mm-space-3)">${past.map(card).join("")}</ul></details>` : ""}
+    <div data-new>${ownForm(null)}</div>
+    <p class="mm-small mm-muted mm-read">No reminder emails are sent yet. When they start, you choose in <a href="/mirror/my-mirror/settings/">Settings</a> (Appointment reminders),
+      and safety mode stops them. Notes an organization writes about a visit or call with you: <a href="/mirror/my-mirror/notes/">Notes about me</a>.</p>`;
+  voiceAll(box);
+  const wireOwn = (f, a) => f.addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+    const k = a ? a.id : "new";
+    const v = (x) => { const el = f.querySelector("#" + x + "-" + k); return el ? el.value : ""; };
+    const p = { title: v("t"), starts_at: iso(v("s")), ends_at: iso(v("e")), place: v("p"), with_whom: v("w"), detail: v("d"), dimension_key: v("k") };
+    try { await rpc("mirror_appointment_save", { p: a ? { ...p, id: a.id, status: v("x") } : p }); toast(a ? "Saved." : "Added."); load(); }
+    catch (err) { toast(msg(err)); }
+  });
+  wireOwn(box.querySelector('[data-own="new"]'), null);
+  box.querySelectorAll("[data-appt]").forEach((li) => {
+    const a = A.appointments.find((x) => x.id === li.dataset.appt);
+    li.querySelector("[data-edit]")?.addEventListener("click", () => {
+      const more = li.querySelector("[data-more]");
+      more.innerHTML = ownForm(a);
+      wireOwn(more.querySelector("form"), a);
+      voiceAll(more);
+    });
+    const f = li.querySelector("[data-org]");
+    f?.addEventListener("submit", async (ev) => {
+      ev.preventDefault();
+      const to = ev.submitter && ev.submitter.dataset.to || "cancelled";
+      try { await rpc("mirror_appointment_save", { p: { id: a.id, status: to, note: f.querySelector("input").value } });
+        toast(to === "cancelled" ? "Saved. They see that you can't make it." : "Saved."); load(); }
+      catch (err) { toast(msg(err)); }
+    });
+  });
+}
+load();
+</script>
+</body>
+</html>

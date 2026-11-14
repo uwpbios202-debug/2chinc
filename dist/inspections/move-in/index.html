@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Move-ins — 2nd Chance Housing Staff</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+<style>
+  .unit { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; margin-bottom: 14px; }
+  .unit-head { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: baseline; padding: 12px 16px; background: var(--head); border-bottom: 1px solid var(--line); }
+  .unit-head h2 { margin: 0; font-size: 1.15rem; }
+  .meta { color: var(--muted); font-size: 0.9rem; }
+  .tag { display: inline-block; padding: 1px 9px; border-radius: 999px; font-size: 0.78rem; font-weight: 700; }
+  .tag.ok { background: var(--ok-soft); color: var(--ok); }
+  .tag.wait { background: var(--off-soft); color: var(--off); }
+  .tag.todo { background: var(--accent-soft); color: var(--accent); }
+  .tag.flag { background: var(--bad-soft); color: var(--bad); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px 16px; padding: 12px 16px; }
+  .grid div > span { display: block; color: var(--muted); font-size: 0.8rem; }
+  .actions2 { display: flex; gap: 8px; flex-wrap: wrap; padding: 0 16px 14px; align-items: center; }
+  .detail { border-top: 1px solid var(--line); padding: 12px 16px; }
+  .room { margin: 0 0 14px; }
+  .room h3 { font-size: 1rem; margin: 0 0 6px; }
+  .items { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+  .items { table-layout: fixed; }
+  .items td { padding: 5px 8px; border-top: 1px solid var(--line); vertical-align: top; }
+  .items td:nth-child(1) { width: 34%; } .items td:nth-child(2) { width: 16%; }
+  .items tr.damaged td { background: var(--bad-soft); }
+  .thumbs { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+  .thumbs a img { width: 110px; height: 110px; object-fit: cover; border-radius: 8px; border: 1px solid var(--line); }
+  textarea { width: 100%; min-height: 64px; font: inherit; padding: 8px; border: 1px solid var(--line); border-radius: 8px; }
+</style>
+</head>
+<body>
+<div class="appbar" data-nav="staff">
+  <div class="appbar-in">
+    <div class="org">2nd Chance Housing<span>Move-ins · Staff</span></div>
+    <div class="row" id="userBar" hidden>
+      
+      
+      
+      
+      
+      
+      <button class="linkbtn" type="button" id="signOutBtn">Sign out</button>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+  <header>
+    <h1>Move-ins</h1>
+    <p class="lead">New tenancies from leases signed online: move-in payment, keys, the tenant's move-in checklist (sign off on it; it's kept for move-out).</p>
+  </header>
+  <div id="signin" class="narrow"></div>
+  <div id="app" hidden><div id="list"></div></div>
+</main>
+
+<script type="module">
+import { client, $, esc, fmtDate, money, signIn, signOut, errorText } from "/assets/portal/portal.js";
+
+let rows = [], open = new Set(), details = {}, pre = {};
+const flush = () => client.functions.invoke("outbox-flush", { body: {} }).catch(() => {});
+const CHECK = { draft: ["Tenant working on it", "todo"], submitted: ["Ready to review", "flag"], returned: ["Sent back to tenant", "todo"], approved: ["Approved", "ok"] };
+const COND = { good: "Good", fair: "Fair", clean: "Clean", marked: "Marked", dirty: "Dirty", damaged: "Damaged" };
+
+function preInspection(m) {
+  const x = pre[m.lease_id];
+  if (!x) return "";
+  const base = `/inspections/unit/?p=${encodeURIComponent(x.property_id)}&u=${encodeURIComponent(x.unit)}`;
+  if (x.inspection_id && x.status === "submitted") return `<span class="tag ok">Done ${fmtDate(x.inspected_on)}</span> <a href="${base}&id=${x.inspection_id}">Open report</a>`;
+  if (x.inspection_id) return `<span class="tag flag">Started, not submitted</span> <a href="${base}&id=${x.inspection_id}">Continue</a>`;
+  return `<span class="tag todo">Not done</span> <a href="${base}&purpose=pre_move_in">Start the pre-move-in inspection</a>`;
+}
+
+function card(m) {
+  const keys = m.keys_released_at ? `<span class="tag ok">Handed over ${fmtDate(m.keys_released_at)}</span>`
+    : m.keys_ready_at ? `<span class="tag flag">Ready to release</span>` : `<span class="tag wait">Waiting for payment</span>`;
+  const ck = m.checklist_status ? CHECK[m.checklist_status] : m.keys_ready_at ? ["Not started", "todo"] : ["Opens after payment", "wait"];
+  const late = !["submitted", "approved"].includes(m.checklist_status) && m.keys_ready_at && new Date(m.due_on + "T23:59:59") < new Date();
+  return `<section class="unit"><div class="unit-head"><h2>${esc(m.address)}</h2><span class="meta">${esc(m.tenants)} · starts ${fmtDate(m.start_date)} · ${esc(m.status)}</span></div>
+    <div class="grid">
+      <div><span>Move-in amount still owed</span>${money(Math.max(Number(m.balance), 0))}</div>
+      <div><span>Pre-move-in inspection (recommended before keys)</span>${preInspection(m)}</div>
+      <div><span>Keys</span>${keys}</div>
+      <div><span>Checklist (due ${fmtDate(m.due_on)})</span><span class="tag ${ck[1]}">${ck[0]}</span>${late ? ` <span class="tag flag">Overdue</span>` : ""}${m.prior_damage_list_requested ? `<div class="meta">Asked for the previous tenant's damage list</div>` : ""}</div>
+    </div>
+    <div class="actions2">
+      ${m.keys_ready_at && !m.keys_released_at ? `<button class="btn primary" type="button" data-keys="${m.lease_id}">Keys handed over</button>` : ""}
+      <button class="btn" type="button" data-open="${m.lease_id}" aria-expanded="${open.has(m.lease_id)}">${open.has(m.lease_id) ? "Hide" : "Review checklist"}</button>
+      <span class="msg" data-msg="${m.lease_id}"></span>
+    </div>
+    ${open.has(m.lease_id) ? `<div class="detail" id="d-${m.lease_id}">${details[m.lease_id] ? detailHtml(m.lease_id) : `<span class="sub">Loading…</span>`}</div>` : ""}
+  </section>`;
+}
+
+function detailHtml(id) {
+  const d = details[id], c = d.checklist;
+  let html = `<h3 style="margin-top:0">Move-in checklist</h3>`;
+  if (!c) html += `<p class="sub">The tenant hasn't started it.</p>`;
+  else {
+    html += `<p class="meta">Status: <b>${esc(CHECK[c.status][0])}</b>${c.submitted_at ? ` · sent ${fmtDate(c.submitted_at)} by ${esc(c.submitted_by || "")}` : ""}${c.decided_at ? ` · reviewed ${fmtDate(c.decided_at)} by ${esc(c.decided_by || "")}` : ""}</p>
+      ${c.prior_damage_list_requested ? `<p class="banner">The tenant asked for the list of damages charged to the previous tenant's security deposit. Send it to them.</p>` : ""}
+      ${c.staff_notes ? `<p class="meta">Note to tenant: ${esc(c.staff_notes)}</p>` : ""}`;
+    for (const r of d.rooms) {
+      const x = ((c.data || {}).rooms || {})[r.key] || {};
+      if (r.optional && x.na) { html += `<div class="room"><h3>${esc(r.name)}</h3><p class="sub">Not in this unit.</p></div>`; continue; }
+      html += `<div class="room"><h3>${esc(r.name)}</h3><table class="items">${r.items.map((it) => { const v = (x.items || {})[it] || {};
+          return `<tr class="${v.c === "damaged" ? "damaged" : ""}"><td>${esc(it)}</td><td><b>${esc(COND[v.c] || "—")}</b></td><td>${esc(v.n || "")}${(v.p || []).length ? `<div class="thumbs">${v.p.map((p) => `<a target="_blank" rel="noopener" data-photo="${esc(p)}"><img alt="${esc(it)} photo"></a>`).join("")}</div>` : ""}</td></tr>`; }).join("")}</table>
+        <div class="thumbs">${(x.photos || []).map((p) => `<a target="_blank" rel="noopener" data-photo="${esc(p)}"><img alt="${esc(r.name)} photo"></a>`).join("") || `<span class="sub">No room photos.</span>`}</div></div>`;
+    }
+    if (c.status === "submitted") html += `<label class="sub" for="n-${id}">Note to the tenant (required to send it back; optional when approving)</label>
+      <textarea id="n-${id}" maxlength="1000"></textarea>
+      <div class="actions"><button class="btn primary" type="button" data-decide="approve" data-id="${id}">Approve &amp; sign off</button>
+        <button class="btn" type="button" data-decide="return" data-id="${id}">Send back to tenant</button></div>`;
+  }
+  return html;
+}
+
+async function photos() {
+  const links = [...document.querySelectorAll("a[data-photo]")].filter((a) => !a.href);
+  if (!links.length) return;
+  const { data } = await client.storage.from("move-in").createSignedUrls(links.map((a) => a.dataset.photo), 900);
+  (data || []).forEach((d, k) => { if (d.signedUrl) { links[k].href = d.signedUrl; links[k].querySelector("img").src = d.signedUrl; } });
+}
+
+function render() {
+  $("list").innerHTML = rows.length ? rows.map(card).join("") : `<p class="sub">No move-ins right now. They appear here when a lease signed online is fully executed.</p>`;
+  photos();
+}
+
+async function loadDetail(id) {
+  const { data, error } = await client.rpc("move_in_staff_detail", { p_lease: id });
+  details[id] = error ? { rooms: [], checklist: null } : data;
+  render();
+}
+
+async function load() {
+  const { data, error } = await client.rpc("move_in_staff_list");
+  if (error) { $("signin").innerHTML = `<div class="banner bad">${esc(await errorText(error))}</div>`; return; }
+  rows = data || [];
+  const p = await client.rpc("move_in_pre_inspections");
+  pre = p.error ? {} : (p.data || {});
+  render();
+  $("app").hidden = false;
+}
+
+const say = (id, t) => { const m = document.querySelector(`[data-msg="${id}"]`); if (m) m.textContent = t; };
+$("list").addEventListener("click", async (e) => {
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.dataset.open) { const id = b.dataset.open; if (open.has(id)) open.delete(id); else { open.add(id); loadDetail(id); } render(); return; }
+  if (b.dataset.keys) {
+    if (!confirm("Record that the keys were handed over today? The tenant gets the Move-In and Online Payments letters.")) return;
+    b.disabled = true;
+    const { error } = await client.rpc("lease_keys_released", { p_lease: b.dataset.keys });
+    if (error) { say(b.dataset.keys, await errorText(error)); b.disabled = false; return; }
+    flush(); await load(); return;
+  }
+  if (b.dataset.decide) {
+    const id = b.dataset.id, notes = $("n-" + id).value;
+    b.disabled = true;
+    const { error } = await client.rpc("move_in_staff_decide", { p_lease: id, p_action: b.dataset.decide, p_notes: notes || null });
+    if (error) { alert(await errorText(error)); b.disabled = false; return; }
+    flush(); delete details[id]; await load(); if (open.has(id)) loadDetail(id); return;
+  }
+});
+$("signOutBtn").addEventListener("click", signOut);
+
+const who = await signIn($("signin"), { audience: "staff" });
+$("userBar").hidden = false;
+if (who.role !== "staff") location.replace("/association-owners/roca1/");
+else load();
+</script>
+</body>
+</html>

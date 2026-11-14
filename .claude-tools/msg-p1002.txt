@@ -1,0 +1,3 @@
+Human Mirror P10-02, P10-03, P10-04: only an organization the person actively works with can hide them (an unaccepted invitation cannot cut them off from the others); the email rule answers an ended link or a hidden person with a refusal only; mirror_notice_seen gets the session and view-as checks of mirror.me() (migration 20261119699000, check p1002 5/5, fails 3/5 without the fix; p10pp 6/6, p210 6/6)
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>

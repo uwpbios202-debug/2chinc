@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Admin | The Human Mirror</title>
+<link rel="icon" href="/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Source+Serif+4:opsz,wght@8..60,600&display=swap">
+<link rel="stylesheet" href="/mirror/assets/mirror.css?v=20261113l">
+</head>
+<body data-area="admin">
+<main id="main" class="mm-main">
+  <p class="mm-eyebrow">Administration</p>
+  <h1>Organizations and members</h1>
+  <p class="mm-lead">Who works in the Mirror, for which organization, and in what role.</p>
+  <div id="mmAdmin"><p role="status">Loading…</p></div>
+</main>
+<script type="module" src="/mirror/assets/mirror-ui.js?v=20261113h"></script>
+<script type="module">
+import { requireArea, rpc } from "/mirror/assets/mirror-client.js?v=20261113p";
+import { esc, notice, toast } from "/mirror/assets/mirror-ui.js?v=20261113h";
+
+const KIND = { nonprofit: "Nonprofit", agency: "Agency", navigator: "Navigator business", other: "Other" };
+const ROLE = { org_admin: "Admin", coordinator: "Coordinator", volunteer: "Volunteer" };
+const ROLE_HELP = "Admin: manages the organization's members and its people. Coordinator: works with the organization's people. Volunteer: no access to people yet.";
+
+await requireArea("workspace");
+const box = document.getElementById("mmAdmin");
+let data, openOrg = null;
+
+async function load(note = "") {
+  try { data = await rpc("mirror_admin_orgs"); }
+  catch (e) { box.innerHTML = notice("caution", `<p>${esc(e.message)}</p><p><a href="/mirror/workspace/">Back to the workspace</a></p>`); return; }
+  if (!openOrg && data.orgs.length === 1) openOrg = data.orgs[0].id;
+  draw(note);
+}
+
+const sel = (id, opts, cur) => `<select class="mm-select" id="${id}">${Object.entries(opts).map(([k, v]) => `<option value="${esc(k)}"${k === cur ? " selected" : ""}>${esc(v)}</option>`).join("")}</select>`;
+
+function draw(note = "") {
+  box.innerHTML = `${note}
+    ${data.platform_admin ? '<p class="mm-row"><a class="mm-btn mm-btn-secondary" href="/mirror/admin/platform/">Platform overview: users, roles, sharing, audit log, email, settings, data</a></p>' : ""}
+    ${data.orgs.map((o) => `<section class="mm-card" style="margin-bottom:var(--mm-space-4)">
+      <div class="mm-row" style="justify-content:space-between">
+        <div><h2 style="margin:0">${esc(o.name)} ${o.active ? "" : '<span class="mm-tag">Closed</span>'}</h2>
+          <p class="mm-muted mm-small" style="margin:0">${esc(KIND[o.kind] || o.kind)}${o.navigator ? " · Navigator: " + esc(o.navigator) : ""} · ${o.members} ${o.members === 1 ? "member" : "members"} · ${o.people} ${o.people === 1 ? "person" : "people"}</p></div>
+        <button class="mm-btn mm-btn-secondary" type="button" data-open="${esc(o.id)}" aria-expanded="${openOrg === o.id}">${openOrg === o.id ? "Close" : "Members"}</button>
+      </div>
+      ${openOrg === o.id ? `<div id="mmOrgBody" data-org="${esc(o.id)}"><p role="status">Loading members…</p></div>` : ""}
+    </section>`).join("")}
+    ${data.platform_admin ? `<form class="mm-card mm-read" id="mmNewOrg" novalidate>
+      <h2 style="margin-top:0">Add an organization</h2>
+      <p class="mm-muted">For example a Navigator's own business. Its people and members stay separate from every other organization.</p>
+      <div class="mm-field"><label for="oName">Name</label><input class="mm-input" id="oName" required></div>
+      <div class="mm-field"><label for="oKind">Kind</label>${sel("oKind", KIND, "navigator")}</div>
+      <div class="mm-field" id="oNavWrap"><label for="oNav">Which Navigator <span class="mm-muted">(optional)</span></label>
+        <select class="mm-select" id="oNav"><option value="">Not linked</option>${data.navigators.map((n) => `<option value="${esc(n.id)}">${esc(n.name)} (${esc(n.status)})</option>`).join("")}</select></div>
+      <div id="oMsg" aria-live="assertive"></div>
+      <button class="mm-btn" type="submit">Add organization</button>
+    </form>` : ""}
+    ${data.platform_admin ? '<section class="mm-card mm-read" id="mmPlat" style="margin-top:var(--mm-space-4)"><p role="status">Loading platform admins…</p></section>' : ""}`;
+
+  box.querySelectorAll("[data-open]").forEach((b) => b.addEventListener("click", () => { openOrg = openOrg === b.dataset.open ? null : b.dataset.open; draw(); }));
+  const f = box.querySelector("#mmNewOrg");
+  if (f) {
+    const kind = f.querySelector("#oKind"), wrap = f.querySelector("#oNavWrap");
+    const syncKind = () => { wrap.hidden = kind.value !== "navigator"; };
+    kind.addEventListener("change", syncKind); syncKind();
+    f.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const name = f.querySelector("#oName").value.trim();
+      if (!name) { f.querySelector("#oMsg").innerHTML = notice("urgent", "<p>Give the organization a name.</p>"); return; }
+      try {
+        openOrg = await rpc("mirror_admin_org_save", { p: { name, kind: kind.value, navigator_id: kind.value === "navigator" ? f.querySelector("#oNav").value : "" } });
+        load(notice("ok", `<p><strong>${esc(name)}</strong> was added. Now add its first admin below.</p>`));
+      } catch (err) { f.querySelector("#oMsg").innerHTML = notice("urgent", `<p>${esc(err.message)}</p>`); }
+    });
+  }
+  const body = box.querySelector("#mmOrgBody");
+  if (body) members(body, data.orgs.find((o) => o.id === body.dataset.org));
+  const plat = box.querySelector("#mmPlat");
+  if (plat) platform(plat);
+}
+
+async function members(body, org) {
+  let list;
+  /** @type {any[]} */ let auth = [];
+  try { [list, auth] = await Promise.all([rpc("mirror_admin_members", { p_org: org.id }), rpc("mirror_admin_authenticators", { p_org: org.id })]); }
+  catch (e) { body.innerHTML = notice("caution", `<p>${esc(e.message)}</p>`); return; }
+  body.innerHTML = `
+    ${list.length ? `<div class="mm-table-wrap mm-stack" style="margin-top:var(--mm-space-4)"><table class="mm-table">
+      <caption class="mm-sr">Members of ${esc(org.name)}</caption>
+      <thead><tr><th scope="col">Name</th><th scope="col">Email</th><th scope="col">Role</th><th scope="col">Active</th><th scope="col">Authenticator</th><th scope="col"><span class="mm-sr">Save</span></th></tr></thead>
+      <tbody>${list.map((m) => `<tr data-member="${esc(m.id)}" data-name="${esc(m.name)}">
+        <td data-label="Name">${esc(m.name)}${m.is_me ? ' <span class="mm-tag mm-tag-info">You</span>' : ""}${m.platform_changed_at ? `<br><span class="mm-muted mm-small">Added or changed by ${esc(m.platform_changed_by)} (2nd Chance), ${esc(new Date(m.platform_changed_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }))}</span>` : ""}</td>
+        <td data-label="Email">${esc(m.email)}</td>
+        <td data-label="Role">${sel("r-" + m.id, ROLE, m.role)}</td>
+        <td data-label="Active"><label style="display:inline-flex;gap:.5rem;align-items:center;min-height:48px"><input type="checkbox" id="a-${esc(m.id)}" ${m.active ? "checked" : ""} style="width:1.3rem;height:1.3rem"> Active</label></td>
+        <td data-label="Authenticator">${authCell(auth.find((a) => a.id === m.id), m)}</td>
+        <td data-label=""><button class="mm-btn mm-btn-quiet" type="button" data-save="${esc(m.id)}">Save</button>${m.active && !m.is_me ? ` <button class="mm-btn mm-btn-quiet" type="button" data-reinvite="${esc(m.id)}">Send the invitation again</button>` : ""}</td>
+      </tr>`).join("")}</tbody></table></div><div id="mmReset"></div>` : notice("info", "<p>No members yet. Add the first admin below.</p>")}
+    <form class="mm-read" id="mmNewMember" novalidate style="margin-top:var(--mm-space-5)">
+      <h3 style="margin-top:0">Add a member to ${esc(org.name)}</h3>
+      <p class="mm-hint">${esc(ROLE_HELP)} Members sign in with an emailed code and an authenticator app. No email is sent from here.</p>
+      <div class="mm-field"><label for="mName">Name</label><input class="mm-input" id="mName" autocomplete="off"></div>
+      <div class="mm-field"><label for="mEmail">Email</label><input class="mm-input" type="email" id="mEmail" autocomplete="off"></div>
+      <div class="mm-field" style="max-width:16rem"><label for="mRole">Role</label>${sel("mRole", ROLE, list.length ? "coordinator" : "org_admin")}</div>
+      <div id="mMsg" aria-live="assertive"></div>
+      <button class="mm-btn" type="submit">Add member</button>
+    </form>`;
+  body.querySelectorAll("[data-save]").forEach((b) => b.addEventListener("click", async () => {
+    const id = b.dataset.save, tr = b.closest("tr");
+    b.disabled = true;
+    try {
+      await rpc("mirror_admin_member_save", { p: { id, name: tr.dataset.name, role: body.querySelector("#r-" + CSS.escape(id)).value, active: body.querySelector("#a-" + CSS.escape(id)).checked } });
+      toast("Saved."); load();
+    } catch (e) { b.disabled = false; toast(e.message); }
+  }));
+  // P2-11 (11/13/2026): reset a member's authenticator after confirming who they are. The database decides who may (migration 20261119600000).
+  body.querySelectorAll("[data-reset]").forEach((b) => b.addEventListener("click", () => {
+    const m = list.find((x) => x.id === b.dataset.reset), box = body.querySelector("#mmReset");
+    box.innerHTML = `<form class="mm-card mm-read" id="mmResetForm" novalidate style="margin-top:var(--mm-space-4)">
+      <h3 style="margin-top:0">Reset the authenticator of ${esc(m.name)}</h3>
+      <p>Their authenticator app is removed and they are signed out on every device. At their next sign-in at https://2ndchinc.org/mirror/sign-in/
+        (emailed code) they set up a new authenticator app. No email is sent from here; tell them yourself.</p>
+      <div class="mm-field"><label for="rsWhy">Why</label><span class="mm-hint" id="rsWhyHint">For example: lost their phone; new phone; deleted the app.</span>
+        <input class="mm-input" id="rsWhy" maxlength="300" aria-describedby="rsWhyHint" autocomplete="off"></div>
+      <label class="mm-choice"><input type="checkbox" id="rsSure"> I confirmed it is really ${esc(m.name)}, by phone or in person (not only by email).</label>
+      <div id="rsMsg" aria-live="assertive"></div>
+      <p class="mm-row" style="gap:var(--mm-space-2)"><button class="mm-btn" type="submit">Reset their authenticator</button>
+        <button class="mm-btn mm-btn-quiet" type="button" id="rsNo">Cancel</button></p></form>`;
+    box.querySelector("#rsNo").addEventListener("click", () => { box.innerHTML = ""; });
+    box.querySelector("#rsWhy").focus();
+    box.querySelector("#mmResetForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      try {
+        const r = await rpc("mirror_admin_authenticator_reset", { p_org: org.id, p_member: m.id, p_reason: box.querySelector("#rsWhy").value, p_confirmed: box.querySelector("#rsSure").checked });
+        load(notice("ok", `<p>The authenticator of <strong>${esc(r.name)}</strong> was reset${r.signed_out_devices ? " and they were signed out on " + r.signed_out_devices + (r.signed_out_devices === 1 ? " device" : " devices") : ""}.
+          Tell them to sign in again at https://2ndchinc.org/mirror/sign-in/ and set up a new authenticator app. It is in your organization's audit log.</p>`));
+      } catch (err) { box.querySelector("#rsMsg").innerHTML = notice("urgent", `<p>${esc(err.message)}</p>`); }
+    });
+  }));
+  // T2.6 (Phase 9): the member invitation email again (held while Stephen has it switched off).
+  body.querySelectorAll("[data-reinvite]").forEach((b) => b.addEventListener("click", async () => {
+    b.disabled = true;
+    try { const s = await rpc("mirror_member_invite_resend", { p_member: b.dataset.reinvite });
+      toast({ queued: "Invitation sent.", held: "Recorded. Invitation emails are not switched on yet: tell them to sign in at https://2ndchinc.org/mirror/sign-in/.", skipped: "Not sent again: it was sent in the last 12 hours." }[s] || s); }
+    catch (e) { b.disabled = false; toast(e.message); }
+  }));
+  body.querySelector("#mmNewMember").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const name = body.querySelector("#mName").value.trim(), email = body.querySelector("#mEmail").value.trim();
+    try {
+      await rpc("mirror_admin_member_save", { p: { organization_id: org.id, name, email, role: body.querySelector("#mRole").value } });
+      load(notice("ok", `<p><strong>${esc(name)}</strong> was added to ${esc(org.name)}. They can sign in at https://2ndchinc.org/mirror/sign-in/ once their email is allowed to get codes.</p>`));
+    } catch (err) { body.querySelector("#mMsg").innerHTML = notice("urgent", `<p>${esc(err.message)}</p>`); }
+  });
+}
+
+/** The Authenticator cell: set up or not, the Reset button when this admin may, or why only 2nd Chance can. @param {any} a @param {any} m */
+function authCell(a, m) {
+  if (!a) return "";
+  const last = a.last_reset_at ? `<br><span class="mm-muted mm-small">Last reset ${esc(new Date(a.last_reset_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }))}</span>` : "";
+  if (!a.has_authenticator) return `<span class="mm-muted mm-small">Not set up yet (they set it up at their first sign-in)</span>${last}`;
+  if (m.is_me) return `Set up${last}`;
+  if (a.refusal) return `Set up<br><span class="mm-muted mm-small">${esc(a.refusal)}</span>${last}`;
+  return `Set up <button class="mm-btn mm-btn-quiet" type="button" data-reset="${esc(m.id)}">Reset</button>${last}`;
+}
+
+// Phase 2 finding E (11/13/2026): who is a 2nd Chance platform admin is an explicit list (mirror.platform_admins).
+// Platform admins see it; only the 2nd Chance main admin can change it. Every change is logged.
+async function platform(el) {
+  let P;
+  try { P = await rpc("mirror_platform_admins"); }
+  catch (e) { el.innerHTML = notice("caution", `<p>${esc(e.message)}</p>`); return; }
+  const day = (d) => new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  const on = P.admins.filter((a) => a.active), off = P.admins.filter((a) => !a.active);
+  el.innerHTML = `<h2 style="margin-top:0">2nd Chance platform admins</h2>
+    <p>Platform admins can see and manage every organization and its members. Only the people on this list have that power.
+      Being an admin of 2nd Chance Housing's own team does not give it, and leaving 2nd Chance ends it.</p>
+    <ul>${on.map((a) => `<li style="margin-bottom:var(--mm-space-3)"><strong>${esc(a.name)}</strong> (${esc(a.email)})${a.is_me ? ' <span class="mm-tag mm-tag-info">You</span>' : ""}
+        ${a.member_active ? "" : ' <span class="mm-tag">Not an active 2nd Chance member, so no power now</span>'}
+        <br><span class="mm-muted mm-small">Added by ${esc(a.added_by)}, ${esc(day(a.added_at))}</span>
+        ${P.can_edit && !a.is_me ? ` <button class="mm-btn mm-btn-quiet" type="button" data-unplat="${esc(a.email)}">Remove</button>` : ""}</li>`).join("")}</ul>
+    ${off.length ? `<details><summary>Removed (${off.length})</summary><ul>${off.map((a) => `<li>${esc(a.name)} (${esc(a.email)})
+        <span class="mm-muted mm-small">removed by ${esc(a.removed_by || "")}${a.removed_at ? ", " + esc(day(a.removed_at)) : ""}</span></li>`).join("")}</ul></details>` : ""}
+    ${P.can_edit ? `<form id="mmPlatAdd" novalidate style="margin-top:var(--mm-space-4)">
+      <h3 style="margin-top:0">Add a platform admin</h3>
+      <p class="mm-hint">They must be an active member of 2nd Chance Housing first (add them in its member list above). Every change is recorded with your name.</p>
+      <div class="mm-field"><label for="pEmail">Their email</label><input class="mm-input" type="email" id="pEmail" autocomplete="off"></div>
+      <div id="pMsg" aria-live="assertive"></div>
+      <button class="mm-btn" type="submit">Add platform admin</button>
+    </form>` : '<p class="mm-muted mm-small">Only the 2nd Chance main admin can change this list.</p>'}`;
+  el.querySelectorAll("[data-unplat]").forEach((b) => b.addEventListener("click", async () => {
+    if (b.dataset.sure !== "1") { b.dataset.sure = "1"; b.textContent = "Press again to remove"; return; }   // a second press confirms
+    b.disabled = true;
+    try { await rpc("mirror_platform_admin_save", { p: { email: b.dataset.unplat, active: false } }); toast("Removed. It's in the audit log."); platform(el); }
+    catch (e) { b.disabled = false; toast(e.message); }
+  }));
+  el.querySelector("#mmPlatAdd")?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email = el.querySelector("#pEmail").value.trim();
+    try { await rpc("mirror_platform_admin_save", { p: { email, active: true } }); toast("Added. It's in the audit log."); platform(el); }
+    catch (err) { el.querySelector("#pMsg").innerHTML = notice("urgent", `<p>${esc(err.message)}</p>`); }
+  });
+}
+
+load();
+</script>
+</body>
+</html>

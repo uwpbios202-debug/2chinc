@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Smoke alarms — 2nd Chance Housing Staff</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+<style>
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-bottom: 12px; }
+  .meta { color: var(--muted); font-size: 0.9rem; }
+  .tag { display: inline-block; padding: 1px 9px; border-radius: 999px; font-size: 0.8rem; font-weight: 700; background: var(--off-soft); color: var(--off); }
+  .tag.ok { background: #e6f4ea; color: #1a7f37; } .tag.fixed { background: #e7f0fb; color: #0b5cad; } .tag.attention, .tag.late { background: #fdecea; color: #b42318; }
+  .alarm { display: grid; grid-template-columns: 64px 1fr auto; gap: 12px; align-items: center; }
+  .alarm .acts { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+  .btn.okbtn { background: #1a7f37; border-color: #1a7f37; color: #fff; }
+  .btn.big { font-size: 1.05rem; padding: 10px 16px; }
+  .bldg { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
+  .card.slim { padding: 10px 12px; margin-bottom: 8px; }
+  @media (max-width: 520px) { .alarm { grid-template-columns: 52px 1fr; } .alarm .acts { grid-column: 1 / -1; justify-content: stretch; } .alarm .acts .btn { flex: 1; } }
+  .alarm .ref { width: 64px; height: 64px; border-radius: 8px; border: 1px solid var(--line); object-fit: cover; background: var(--off-soft); display: grid; place-items: center; font-size: 0.75rem; color: var(--muted); text-align: center; }
+  .boxes { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px 18px; margin: 10px 0; }
+  .boxes fieldset { border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; margin: 0; }
+  .boxes legend { font-weight: 700; font-size: 0.9rem; padding: 0 4px; }
+  .boxes label { display: flex; gap: 8px; align-items: center; padding: 5px 0; font-size: 1rem; cursor: pointer; }
+  .boxes input[type=checkbox] { width: 22px; height: 22px; flex: none; }
+  .formrow { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; margin-top: 8px; }
+  .formrow label { display: grid; gap: 3px; font-size: 0.85rem; color: var(--muted); }
+  .formrow input, .formrow select, textarea { font: inherit; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); }
+  textarea { width: 100%; min-height: 54px; box-sizing: border-box; }
+  table.t { width: 100%; border-collapse: collapse; font-size: 0.93rem; margin-top: 8px; }
+  table.t th { text-align: left; font-size: 0.75rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); padding: 6px 8px; border-bottom: 1px solid var(--line); }
+  table.t td { padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .thumbs img { width: 72px; height: 72px; object-fit: cover; border-radius: 6px; border: 1px solid var(--line); margin: 4px 4px 0 0; }
+  .progress { font-size: 1.05rem; }
+  iframe#preview { width: 100%; height: 520px; border: 1px solid var(--line); border-radius: 8px; background: #fff; margin-top: 10px; }
+</style>
+</head>
+<body>
+<div class="appbar" data-nav="staff">
+  <div class="appbar-in">
+    <div class="org">2nd Chance Housing<span>Smoke alarms · Staff</span></div>
+    <div class="row" id="userBar" hidden>
+      <button class="linkbtn" type="button" id="signOutBtn">Sign out</button>
+    </div>
+  </div>
+</div>
+<main class="wrap">
+  <header><h1>Smoke alarms</h1><p class="lead">Between the <b>1st and the 5th of every month</b>, walk the building and press each alarm's test button, in the order listed. <b>Only stop if one does not work:</b> tap <b>Problem</b> on it and tick what you found (anything not fixed emails the office). When you are done, tap <b>✓ All the rest work</b>.</p></header>
+  <div id="signin" class="narrow"></div>
+  <div id="app" hidden>
+    <div class="card progress" id="progress"></div>
+    <div id="alarms"></div>
+    <details class="card"><summary><b>Add an alarm</b></summary>
+      <div class="formrow">
+        <label>Building<select id="newBuilding"><option value="6626">6626</option><option value="6622">6622</option></select></label>
+        <label>Name<input id="newName" maxlength="60" placeholder="e.g. Alarm 8"></label>
+        <label style="flex:1;min-width:220px">Where it is<input id="newLocation" maxlength="120" placeholder="e.g. 2nd floor hallway, by the stairs"></label>
+        <button class="btn primary" type="button" id="addAlarm">Add</button>
+      </div></details>
+
+    <section id="reportBox" hidden>
+      <h2 style="margin-top:24px">Send a report</h2>
+      <div class="card">
+        <p class="meta" style="margin-top:0">For anyone who asks (an inspector, insurer, owner, tenant). Their <b>first</b> report covers every check since the checks began. Each <b>later</b> report to the same email starts where their last one ended. Press <b>Preview</b> first, then <b>Send</b>.</p>
+        <div class="formrow">
+          <label>Their name<input id="rName" maxlength="80"></label>
+          <label>Their email<input id="rEmail" type="email" maxlength="120"></label>
+          <label>Organization (optional)<input id="rOrg" maxlength="120"></label>
+          <label>Start from (optional)<input id="rFrom" type="date" title="Leave empty: from the end of their last report, or from the first check"></label>
+          <button class="btn" type="button" id="rPreview">Preview</button>
+          <button class="btn primary" type="button" id="rSend" disabled>Send report</button>
+        </div>
+        <div class="meta" id="rInfo" role="status" style="margin-top:8px"></div>
+        <iframe id="preview" hidden title="Report preview"></iframe>
+      </div>
+      <h3>Reports sent</h3>
+      <table class="t" id="reports"></table>
+    </section>
+
+    <h2 style="margin-top:24px">Recent checks</h2>
+    <table class="t" id="recent"></table>
+    <div class="meta" id="msg" role="status"></div>
+  </div>
+</main>
+<script type="module">
+import { client, $, esc, signIn, signOut, errorText } from "/assets/portal/portal.js";
+
+// The check boxes (codes match alarm_finding_label() in the database).
+const GROUPS = [
+  ["When I pressed the test button", [["sounded", "Sounded"], ["weak", "Sound was weak or quiet"], ["no_sound", "Did not sound"], ["no_access", "Could not get to it"]]],
+  ["What I saw", [["chirping", "Chirping (low battery)"], ["dusty", "Dusty or dirty"], ["damaged", "Damaged or cracked"], ["missing", "Missing or taken down"],
+    ["covered", "Covered, painted over or blocked"], ["disconnected", "Battery taken out or unplugged"], ["expired", "Past its replace-by date"]]],
+  ["What I did", [["battery_replaced", "Put in a new battery"], ["cleaned", "Cleaned it"], ["reattached", "Put it back up or reconnected it"],
+    ["replaced", "Replaced the alarm"], ["needs_repair", "Needs a repair I could not do"]]],
+];
+const LABEL = Object.fromEntries(GROUPS.flatMap(([, l]) => l));
+const STATUS = { ok: "✓ OK", fixed: "✓ Fixed", attention: "⚠ Needs work" };
+const KIND = { smoke_co: "Smoke + CO combo", smoke: "Smoke only", co: "CO only", heat: "Heat" };
+const POWER = { ten_year: "Sealed 10-year battery", hardwired_ten_year: "Hardwired + 10-year backup", battery_9v: "9-volt battery", battery_aa: "AA batteries", hardwired: "Hardwired + replaceable backup", unknown: "Not known yet" };
+const ymd = (d) => d ? new Date(d + "T12:00:00") : null;
+const mY = (d) => ymd(d).toLocaleDateString("en-US", { month: "numeric", year: "numeric" });
+const replaceTag = (p) => {
+  if (!p.installed_on) return `<span class="tag" title="Enter it with Edit">Installed: date not entered</span>`;
+  const by = ymd(p.replace_by), now = new Date(), soon = new Date(now.getFullYear() + 1, now.getMonth(), now.getDate());
+  return by < now ? `<span class="tag attention">Replace now (was due ${mY(p.replace_by)})</span>`
+    : by < soon ? `<span class="tag late">Replace by ${mY(p.replace_by)}</span>` : `<span class="tag ok">Replace by ${mY(p.replace_by)}</span>`;
+};
+const typeTag0 = (p) => p.standard ? `<span class="tag ok" title="${esc(KIND[p.kind])}, ${esc(POWER[p.power])}">Smoke/CO · 10-yr</span>`
+  : `<span class="tag attention" title="Standard: smoke + CO combo with a sealed 10-year battery">Needs upgrade: ${esc([p.kind !== "smoke_co" ? KIND[p.kind] : "", !["ten_year", "hardwired_ten_year"].includes(p.power) ? (p.power === "unknown" ? "battery unknown" : POWER[p.power]) : ""].filter(Boolean).join(", "))}</span>`;
+let D = null, OPEN = null;
+const say = (t, bad) => { $("msg").textContent = t; $("msg").style.color = bad ? "var(--bad)" : ""; };
+const day = (iso) => new Date(iso).toLocaleDateString("en-US", { timeZone: "America/Chicago" });
+const when = (iso) => new Date(iso).toLocaleString("en-US", { timeZone: "America/Chicago", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+const findings = (f) => (f || []).map((c) => LABEL[c] || c).join(", ");
+
+// Photos: shrink on the phone first (about 1,600 px), then upload to the private alarm-photos bucket.
+async function shrink(file) {
+  const img = await createImageBitmap(file).catch(() => null);
+  if (!img) return file;
+  const k = Math.min(1, 1600 / Math.max(img.width, img.height)), c = document.createElement("canvas");
+  c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+  c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+  return await new Promise((r) => c.toBlob((b) => r(b || file), "image/jpeg", 0.82));
+}
+async function upload(alarmId, file) {
+  const path = `${alarmId}/${Date.now()}.jpg`;
+  const { error } = await client.storage.from("alarm-photos").upload(path, await shrink(file), { contentType: "image/jpeg" });
+  if (error) throw new Error("The photo did not upload: " + error.message);
+  return path;
+}
+async function showPhotos() {
+  for (const img of document.querySelectorAll("img[data-path]:not([src])")) {
+    const { data } = await client.storage.from("alarm-photos").createSignedUrl(img.dataset.path, 3600);
+    if (data?.signedUrl) { img.src = data.signedUrl; img.closest("a") && (img.closest("a").href = data.signedUrl); }
+  }
+}
+
+function progress() {
+  const act = D.points.filter((p) => p.active && !p.unit), done = act.filter((p) => p.this_month).length;
+  const m = new Date(D.month + "T12:00:00"), mon = m.toLocaleDateString("en-US", { month: "long" }), late = Number(D.today.slice(8, 10)) > 5;
+  $("progress").innerHTML = `<b>${mon} hall check:</b> ${done} of ${act.length} alarms done. ` + (done === act.length ? `<span class="tag ok">All done</span>`
+    : late ? `<span class="tag late">Late: due by ${mon} 5</span>` : `Due by <b>${mon} 5</b>.`)
+    + ` <span class="meta">${act.filter((p) => p.this_month && p.this_month.status === "attention").length ? "· Some need work (see below)." : ""}</span>`;
+}
+function checkForm(p) {
+  return `<div class="card" style="margin-top:10px;background:var(--bg)" data-form>
+    <div class="boxes">${GROUPS.map(([g, list]) => `<fieldset><legend>${esc(g)}</legend>${list.map(([c, l]) =>
+      `<label><input type="checkbox" value="${c}"> ${esc(l)}</label>`).join("")}</fieldset>`).join("")}</div>
+    <label class="meta">Notes (optional)<textarea data-notes maxlength="1000" placeholder="e.g. replaced the 9V battery; alarm is from 2014"></textarea></label>
+    <div class="formrow"><label>Photo (optional)<input type="file" accept="image/*" capture="environment" data-photo></label>
+      <button class="btn primary" type="button" data-save>Save check</button> <button class="btn" type="button" data-cancel>Cancel</button></div></div>`;
+}
+function editForm(p) {
+  return `<div class="card" style="margin-top:10px;background:var(--bg)" data-edit>
+    <div class="formrow"><label>Name<input data-name value="${esc(p.name)}" maxlength="60"></label>
+      <label style="flex:1;min-width:220px">Where it is<input data-location value="${esc(p.location || "")}" maxlength="120" placeholder="e.g. Basement, by the furnace"></label>
+      <label>Type<select data-kind>${Object.entries(KIND).map(([v, l]) => `<option value="${v}"${p.kind === v ? " selected" : ""}>${l}</option>`).join("")}</select></label>
+      <label>Installed on<input type="date" data-installed value="${esc(p.installed_on || "")}"></label>
+      <label>Battery / power<select data-power>${Object.entries(POWER).map(([v, l]) => `<option value="${v}"${p.power === v ? " selected" : ""}>${l}</option>`).join("")}</select></label></div>
+    <p class="meta" style="margin:6px 0 0">Standard: <b>smoke + CO combo with a sealed 10-year battery</b>. The type and the date are on the label on the back.</p>
+    <div class="formrow"><label>New reference photo<input type="file" accept="image/*" capture="environment" data-refphoto></label>
+      <button class="btn primary" type="button" data-editsave>Save</button>
+      <button class="btn" type="button" data-retire>${p.active ? "Retire this alarm" : "Bring back"}</button> <button class="btn" type="button" data-cancel>Cancel</button></div></div>`;
+}
+function unitState(p) {
+  const l = p.last;
+  return (p.due ? `<span class="tag attention">Due: ${esc(p.due.reason)}</span> ` : `<span class="tag ok">Not due</span> `)
+    + (l ? `<span class="meta">Last: ${day(l.at)} <span class="tag ${l.status}">${STATUS[l.status]}</span>${l.status !== "ok" ? " " + esc(findings(l.findings)) : ""}</span>` : `<span class="meta">No check on record</span>`);
+}
+function alarmCard(p, i) {
+  const t = p.unit ? null : p.this_month;
+  return `<div class="card slim" data-alarm="${p.id}"><div class="alarm">
+    ${p.photo_path ? `<a target="_blank" rel="noopener"><img class="ref" data-path="${esc(p.photo_path)}" alt="Photo of ${esc(p.name)}"></a>` : `<div class="ref">No photo</div>`}
+    <div><b>${i != null ? i + 1 + ". " : ""}${esc(p.name)}</b> ${p.standard ? "" : typeTag0(p)} ${replaceTag(p)}
+      ${p.location ? `<div class="meta">${esc(p.location)}</div>` : ""}
+      <div style="margin-top:4px">${p.unit ? unitState(p) : t ? `<span class="tag ${t.status}">${STATUS[t.status]}</span>${t.status !== "ok" || t.notes ? ` <span class="meta">${esc(findings(t.findings))}${t.notes ? " · " + esc(t.notes) : ""}</span>` : ""}`
+        : `<span class="tag">Not checked yet</span>`}</div></div>
+    <div class="acts">${p.active ? (p.unit ? (p.due ? `<button class="btn okbtn" type="button" data-works>✓ Works</button> <button class="btn" type="button" data-check>Problem</button>` : `<button class="btn small" type="button" data-check>Check now</button>`) : t ? `<button class="btn small" type="button" data-check>Problem</button>`
+        : `<button class="btn okbtn" type="button" data-works>✓ Works</button> <button class="btn" type="button" data-check>Problem</button>`) : ""}
+      <button class="btn small" type="button" data-editbtn>Edit</button></div>
+    </div>${OPEN && OPEN.id === p.id ? (OPEN.mode === "check" ? checkForm(p) : editForm(p)) : ""}</div>`;
+}
+function render() {
+  progress();
+  const act = D.points.filter((p) => p.active), old = D.points.filter((p) => !p.active);
+  $("alarms").innerHTML = ["6626", "6622"].map((b) => {
+    const list = act.filter((p) => p.building === b && !p.unit), left = list.filter((p) => !p.this_month).length;
+    return `<div class="bldg"><h2 style="margin:0">${b} N Bourbon St</h2>${left ? `<button class="btn okbtn big" type="button" data-allok="${b}">✓ All the rest work (${left})</button>` : `<span class="tag ok">✓ All checked this month</span>`}</div>`
+      + list.map((p, i) => alarmCard(p, i)).join("");
+  }).join("") + `<div class="bldg"><h2 style="margin:0">Inside the units</h2></div><p class="meta" style="margin-top:2px">Checked <b>once a year</b> and <b>whenever a new tenant moves in</b>, not monthly. Give the tenant notice before you go in.</p>`
+    + act.filter((p) => p.unit).map((p) => alarmCard(p)).join("") + (old.length ? `<details class="card"><summary>Retired alarms (${old.length})</summary>${old.map((p) => alarmCard(p)).join("")}</details>` : "");
+  $("recent").innerHTML = `<tr><th>When</th><th>Alarm</th><th>Result</th><th>Found / done</th><th>By</th></tr>` + (D.recent.length ? D.recent.map((c) =>
+    `<tr><td>${when(c.at)}</td><td>${esc(c.building)} · ${esc(c.name)}${c.location ? `<div class="meta">${esc(c.location)}</div>` : ""}</td><td><span class="tag ${c.status}">${STATUS[c.status]}</span></td>
+     <td>${esc(findings(c.findings))}${c.notes ? `<div class="meta">${esc(c.notes)}</div>` : ""}${c.photo_path ? `<div class="thumbs"><a target="_blank" rel="noopener"><img data-path="${esc(c.photo_path)}" alt="Check photo"></a></div>` : ""}</td>
+     <td class="meta">${esc(c.by || "")}</td></tr>`).join("") : `<tr><td colspan="5" class="meta">No checks yet.</td></tr>`);
+  $("reportBox").hidden = !D.office;
+  if (D.office) $("reports").innerHTML = `<tr><th>Sent</th><th>To</th><th>Period</th><th>Checks</th><th>By</th></tr>` + (D.reports.length ? D.reports.map((r) =>
+    `<tr><td>${day(r.sent_at)}</td><td>${esc(r.recipient_name)}${r.organization ? ", " + esc(r.organization) : ""}<div class="meta">${esc(r.recipient_email)}</div></td>
+     <td>${day(r.period_from)} to ${day(r.period_to)}</td><td>${r.checks_count}</td><td class="meta">${esc(r.sent_by)}</td></tr>`).join("") : `<tr><td colspan="5" class="meta">None yet.</td></tr>`);
+  showPhotos();
+}
+async function load() {
+  const { data, error } = await client.rpc("alarm_staff_list");
+  if (error) { say(await errorText(error), true); return; }
+  D = data; render();
+}
+
+document.addEventListener("click", async (e) => {
+  const card = e.target.closest("[data-alarm]"), id = card && card.dataset.alarm, p = id && D.points.find((x) => x.id === id);
+  const busy = (b, on) => { if (b) b.disabled = on; };
+  try {
+    if (p && e.target.closest("[data-works]")) {
+      busy(e.target.closest("[data-works]"), true);
+      const { error } = await client.rpc("alarm_check_save", { p_alarm: id, p_findings: ["sounded"], p_notes: null, p_photo: null });
+      if (error) throw new Error(await errorText(error));
+      say(`✓ ${p.name} works.`); await load();
+    } else if (e.target.closest("[data-allok]")) {
+      const b = e.target.closest("[data-allok]").dataset.allok, n = D.points.filter((x) => x.active && x.building === b && !x.this_month).length;
+      if (!confirm(`Record the other ${n} alarm${n === 1 ? "" : "s"} in ${b} as working (sounded when tested)?`)) return;
+      busy(e.target.closest("[data-allok]"), true);
+      const { data, error } = await client.rpc("alarm_check_all_ok", { p_building: b });
+      if (error) throw new Error(await errorText(error));
+      say(`✓ ${data} alarm${data === 1 ? "" : "s"} in ${b} recorded as working.`); await load();
+    } else if (p && e.target.closest("[data-check]")) { OPEN = { id, mode: "check" }; render(); }
+    else if (p && e.target.closest("[data-editbtn]")) { OPEN = { id, mode: "edit" }; render(); }
+    else if (e.target.closest("[data-cancel]")) { OPEN = null; render(); }
+    else if (p && e.target.closest("[data-save]")) {
+      const f = card.querySelector("[data-form]"), btn = e.target.closest("[data-save]");
+      const ticked = [...f.querySelectorAll("input[type=checkbox]:checked")].map((x) => x.value);
+      if (!ticked.some((c) => ["sounded", "no_sound", "no_access"].includes(c))) { say("Tick what happened when you pressed the test button: Sounded, Did not sound, or Could not get to it.", true); return; }
+      busy(btn, true); say("Saving…");
+      const file = f.querySelector("[data-photo]").files[0];
+      const photo = file ? await upload(id, file) : null;
+      const { error } = await client.rpc("alarm_check_save", { p_alarm: id, p_findings: ticked, p_notes: f.querySelector("[data-notes]").value, p_photo: photo });
+      if (error) { busy(btn, false); throw new Error(await errorText(error)); }
+      client.functions.invoke("outbox-flush", { body: {} }).catch(() => {});   // a "needs work" email goes to the office right away
+      OPEN = ticked.includes("replaced") ? { id, mode: "edit" } : null;
+      say(ticked.includes("replaced") ? `Saved: ${p.name}. You replaced it: set the new alarm's type and battery below, and add a photo.` : `Saved: ${p.name}.`); await load();
+    } else if (p && e.target.closest("[data-editsave]")) {
+      const f = card.querySelector("[data-edit]"), file = f.querySelector("[data-refphoto]").files[0];
+      say("Saving…");
+      const photo = file ? await upload(id, file) : null;
+      const { error } = await client.rpc("alarm_point_save", { p_id: id, p_building: p.building, p_name: f.querySelector("[data-name]").value,
+        p_location: f.querySelector("[data-location]").value, p_kind: f.querySelector("[data-kind]").value, p_power: f.querySelector("[data-power]").value, p_unit: p.unit, p_active: p.active, p_photo: photo, p_installed: f.querySelector("[data-installed]").value || null });
+      if (error) throw new Error(await errorText(error));
+      OPEN = null; say("Saved."); await load();
+    } else if (p && e.target.closest("[data-retire]")) {
+      if (p.active && !confirm(`Retire ${p.name}? It will no longer be on the monthly list. Its past checks stay in the reports.`)) return;
+      const { error } = await client.rpc("alarm_point_save", { p_id: id, p_building: p.building, p_name: p.name, p_location: p.location, p_kind: p.kind, p_power: p.power, p_unit: p.unit, p_active: !p.active, p_photo: null, p_installed: p.installed_on });
+      if (error) throw new Error(await errorText(error));
+      OPEN = null; await load();
+    } else if (e.target.closest("#addAlarm")) {
+      const { error } = await client.rpc("alarm_point_save", { p_id: null, p_building: $("newBuilding").value, p_name: $("newName").value, p_location: $("newLocation").value, p_kind: "smoke_co", p_power: "ten_year", p_unit: null, p_active: true, p_photo: null, p_installed: null });
+      if (error) throw new Error(await errorText(error));
+      $("newName").value = ""; $("newLocation").value = ""; say("Added. Tap Edit on it to add a photo."); await load();
+    } else if (e.target.closest("#rPreview")) {
+      $("rSend").disabled = true; $("rInfo").textContent = "Building the report…";
+      const { data, error } = await client.rpc("alarm_report_preview", { p_email: $("rEmail").value, p_name: $("rName").value, p_org: $("rOrg").value, p_from: $("rFrom").value || null });
+      if (error) throw new Error(await errorText(error));
+      $("rInfo").innerHTML = `Covers <b>${day(data.from)} to ${day(data.to)}</b> (${data.checks} check${data.checks === 1 ? "" : "s"}). `
+        + (data.last_report ? `Their last report ended ${day(data.last_report)}.` : `First report to this email: it covers every check since the checks began.`);
+      $("preview").hidden = false; $("preview").srcdoc = data.html;
+      $("rSend").disabled = false;
+    } else if (e.target.closest("#rSend")) {
+      if (!confirm(`Email this report to ${$("rEmail").value}?`)) return;
+      $("rSend").disabled = true; $("rInfo").textContent = "Sending…";
+      const { error } = await client.rpc("alarm_report_send", { p_email: $("rEmail").value, p_name: $("rName").value, p_org: $("rOrg").value, p_from: $("rFrom").value || null });
+      if (error) { $("rSend").disabled = false; throw new Error(await errorText(error)); }
+      await client.functions.invoke("outbox-flush", { body: {} }).catch(() => {});
+      $("rInfo").textContent = `Sent to ${$("rEmail").value}. Their next report will start from today.`;
+      $("preview").hidden = true; ["rName", "rEmail", "rOrg", "rFrom"].forEach((k) => $(k).value = ""); await load();
+    }
+  } catch (err) { say(err.message, true); $("rInfo") && e.target.closest("#reportBox") && ($("rInfo").textContent = err.message); }
+});
+["rEmail", "rFrom"].forEach((k) => $(k).addEventListener("input", () => { $("rSend").disabled = true; }));   // changed after the preview: preview again
+$("signOutBtn").addEventListener("click", signOut);
+const who = await signIn($("signin"), { audience: "field" });
+$("userBar").hidden = false;
+if (!["staff", "field"].includes(who.role)) { $("signin").hidden = false; $("signin").innerHTML = `<div class="panel"><p>This page is for staff. <a href="/staff/">Go to My units</a></p></div>`; }
+else { $("app").hidden = false; load(); }
+</script>
+</body>
+</html>

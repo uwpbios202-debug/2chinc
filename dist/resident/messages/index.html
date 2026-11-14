@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Messages — 2nd Chance Housing Staff</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+<style>
+  .layout { display: grid; grid-template-columns: 320px 1fr; gap: 16px; }
+  @media (max-width: 800px) { .layout { grid-template-columns: 1fr; } }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-bottom: 14px; }
+  .card h2 { margin: 0 0 8px; font-size: 1.15rem; }
+  .meta { color: var(--muted); font-size: 0.88rem; }
+  .th { display: block; width: 100%; text-align: left; border: 0; border-top: 1px solid var(--line); background: none; padding: 10px 4px; cursor: pointer; font: inherit; color: inherit; }
+  .th[aria-current="true"] { background: var(--accent-soft); }
+  .th .u { float: right; background: var(--bad); color: #fff; border-radius: 999px; padding: 0 8px; font-size: 0.8rem; }
+  .chat { display: grid; gap: 8px; max-height: 55vh; overflow-y: auto; padding: 4px; }
+  .b { max-width: 80%; padding: 9px 13px; border-radius: 12px; background: #f1f3f5; white-space: pre-wrap; }
+  .b.staff { justify-self: end; background: var(--accent-soft); }
+  .b .meta { display: block; margin-top: 3px; }
+  textarea { width: 100%; min-height: 80px; font: inherit; padding: 8px; border: 1px solid var(--line); border-radius: 6px; }
+  .cc { border-top: 1px solid var(--line); padding: 10px 0; display: flex; gap: 10px; flex-wrap: wrap; justify-content: space-between; align-items: center; }
+  select { font: inherit; padding: 6px; }
+</style>
+</head>
+<body>
+<div class="appbar" data-nav="staff">
+  <div class="appbar-in">
+    <div class="org">2nd Chance Housing<span>Messages · Staff</span></div>
+    <div class="row" id="userBar" hidden>
+      
+      
+      <button class="linkbtn" type="button" id="signOutBtn">Sign out</button>
+    </div>
+  </div>
+</div>
+<main class="wrap">
+  <header><h1>Messages</h1><p class="lead">Messages from tenants' portals. Replies are emailed to the tenant and kept in their portal. Contact changes (mobile number or email, which are sign-in factors) wait here until you confirm them with the tenant by phone.</p></header>
+  <div id="signin" class="narrow"></div>
+  <div id="app" hidden>
+    <section class="card" id="ccCard" hidden><h2>Contact changes to confirm</h2><div id="cc"></div></section>
+    <div class="layout">
+      <section class="card"><h2>Conversations</h2>
+        <div class="meta" style="margin-bottom:6px">Start one: <select id="newTenant"><option value="">— choose a tenant —</option></select></div>
+        <div id="threads"></div></section>
+      <section class="card" id="threadCard"><p class="meta">Choose a conversation.</p></section>
+    </div>
+  </div>
+</main>
+<script type="module">
+import { client, $, esc, fmtDate, signIn, signOut, errorText } from "/assets/portal/portal.js";
+let inbox = { threads: [], contact_changes: [], tenants: [] }, current = null;
+const flush = () => client.functions.invoke("outbox-flush", { body: {} }).catch(() => {});
+const ts = (d) => new Date(d).toLocaleString("en-US", { month: "numeric", day: "numeric", hour: "numeric", minute: "2-digit" });
+
+function render() {
+  $("ccCard").hidden = !inbox.contact_changes.length;
+  $("cc").innerHTML = inbox.contact_changes.map((c) => `<div class="cc"><div><b>${esc(c.name || c.requested_by)}</b>: ${c.field === "phone" ? "mobile number" : "email"}
+      <b>${esc(c.old_value || "—")}</b> → <b>${esc(c.new_value)}</b><div class="meta">Asked ${ts(c.requested_at)}. Call the tenant at a number you already have before approving.</div></div>
+    <div><button class="btn primary" type="button" data-cc="${c.id}" data-ok="1">Confirmed, change it</button> <button class="btn" type="button" data-cc="${c.id}" data-ok="0">Decline</button></div></div>`).join("");
+  $("threads").innerHTML = inbox.threads.map((t) => `<button class="th" type="button" data-t="${t.tenant_id}" aria-current="${t.tenant_id === current}">
+      ${t.unread ? `<span class="u">${t.unread}</span>` : ""}<b>${esc(t.name)}</b><div class="meta">${esc(t.unit || "")} · ${ts(t.last_at)}</div>
+      <div class="meta">${esc((t.last || "").slice(0, 80))}</div></button>`).join("") || `<p class="meta">No messages yet.</p>`;
+  $("newTenant").innerHTML = `<option value="">— choose a tenant —</option>` + inbox.tenants.map((t) => `<option value="${t.tenant_id}">${esc(t.name)}</option>`).join("");
+}
+async function load() {
+  const { data, error } = await client.rpc("messages_staff_inbox");
+  if (error) { $("signin").innerHTML = `<div class="banner bad">${esc(await errorText(error))}</div>`; return; }
+  inbox = data; render(); $("app").hidden = false;
+}
+async function openThread(id) {
+  current = id;
+  const { data, error } = await client.rpc("messages_staff_thread", { p_tenant: id });
+  if (error) return;
+  const t = data.tenant || {};
+  $("threadCard").innerHTML = `<h2>${esc(t.name || "")}</h2>
+    <div class="meta">📱 ${esc(t.phone || "—")}${t.alt_phone ? " · ☎ " + esc(t.alt_phone) : ""} · ✉ ${esc(t.email || "—")}
+      · Emergency: ${t.emergency_name ? esc(t.emergency_name) + (t.emergency_relation ? " (" + esc(t.emergency_relation) + ")" : "") + " " + esc(t.emergency_phone || "") : "none on file"}
+      · Info checked ${t.profile_confirmed_at ? fmtDate(t.profile_confirmed_at) : "never"}</div>
+    <div class="chat" id="chat">${data.messages.map((m) => `<div class="b ${m.from_resident ? "" : "staff"}">${esc(m.body)}<span class="meta">${m.from_resident ? esc(t.name || "Tenant") : esc(m.by_email || "Office")} · ${ts(m.created_at)}</span></div>`).join("") || `<p class="meta">No messages yet. Write the first one.</p>`}</div>
+    <textarea id="reply" maxlength="4000" placeholder="Reply (emailed to the tenant)"></textarea>
+    <div class="row"><button class="btn primary" type="button" id="send">Send</button><span class="msg" id="rMsg"></span></div>`;
+  const c = $("chat"); c.scrollTop = c.scrollHeight;
+  $("send").onclick = async () => {
+    const { error } = await client.rpc("messages_staff_reply", { p_tenant: id, p_body: $("reply").value });
+    if (error) { $("rMsg").className = "msg err"; $("rMsg").textContent = await errorText(error); return; }
+    flush(); await load(); openThread(id);
+  };
+  await load();
+}
+$("threads").addEventListener("click", (e) => { const b = e.target.closest("[data-t]"); if (b) openThread(b.dataset.t); });
+$("newTenant").onchange = () => $("newTenant").value && openThread($("newTenant").value);
+$("cc").addEventListener("click", async (e) => {
+  const b = e.target.closest("[data-cc]"); if (!b) return;
+  const ok = b.dataset.ok === "1";
+  const note = ok ? null : prompt("Reason (sent to the tenant, optional):");
+  if (ok && !confirm("You confirmed this change with the tenant by phone?")) return;
+  const { error } = await client.rpc("contact_change_decide", { p_id: b.dataset.cc, p_approve: ok, p_note: note });
+  if (error) return alert(await errorText(error));
+  flush(); load();
+});
+$("signOutBtn").addEventListener("click", signOut);
+const who = await signIn($("signin"), { audience: "staff" });
+$("userBar").hidden = false;
+if (who.role !== "staff") location.replace("/association-owners/roca1/"); else load();
+</script>
+</body>
+</html>

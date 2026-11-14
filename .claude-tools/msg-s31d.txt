@@ -1,0 +1,3 @@
+Human Mirror step 31: security re-check of Phase 9 step 28 (P2-09 deletion run, migration 20261119696000): live equals file, run not callable from outside, audit redaction limited to the run, login coverage complete, no blocking links; one privacy gap logged as P10-01 (deleted person's emails stay in public.email_outbox; 0 rows today, fix before Mirror emails go on); docs
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>

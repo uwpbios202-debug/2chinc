@@ -1,0 +1,23 @@
+{
+  "_about": "Signed lease documents on file (lease/files/leases-occupied-units) mapped to leases, plus documents still to come. Loaded by tools/buildium/rentals_sql.py into lease_files. CONTAINS TENANT NAMES: gitignored.",
+  "folder": "files/leases-occupied-units",
+  "files": [
+    {"rental": "6622 North Bourbon Street_#11", "tenants": "Tamika Moore", "kind": "signed_lease", "file": "6622-11_TamikaMoore_Lease_2024-02-21.pdf", "dated": "2024-02-21"},
+    {"rental": "6622 North Bourbon Street #12", "tenants": "dianne small, Glen Hierrezuelo", "kind": "signed_lease", "file": "6622-12_Small-Hierrezuelo_Lease_2026-07-13.pdf", "dated": "2026-07-13"},
+    {"rental": "6622 North Bourbon St. # Fourteen", "tenants": "Searra Berry", "kind": "signed_lease", "status": "needs_update",
+     "file": "6622-14_SearraBerry_Lease_2026-07-28_(says 6626 Unit 4).pdf", "dated": "2026-07-28",
+     "note": "Signed lease names 6626 N. Bourbon St., Unit 4, which was her intended unit. She switched to Unit 14 (6622 N. Bourbon St.) because it suited her better and lives in Unit 14. The signed lease will be updated to Unit 14 shortly."},
+    {"rental": "6622 North Bourbon St., Unit 16", "tenants": "Keerica Bryson, Roger Willis", "kind": "signed_lease", "file": "6622-16_Bryson-Willis_Lease_2024-01-13.pdf", "dated": "2024-01-13"},
+    {"rental": "6626 North Bourbon Street #2", "tenants": "Andrew Cannon", "kind": "signed_lease", "file": "6626-02_AndrewCannon_Lease-signed-for-6622-12_2026-06-18.pdf", "dated": "2026-06-18",
+     "note": "Signed for 6622 #12 (the Unit 12 lease entered in error); the 7/8/2026 addendum transfers it to 6626 #2."},
+    {"rental": "6626 North Bourbon Street #2", "tenants": "Andrew Cannon", "kind": "addendum", "file": "6626-02_AndrewCannon_Addendum-transfer-to-6626-2_2026-07-08.pdf", "dated": "2026-07-08",
+     "note": "Addendum transferring the lease to 6626 N. Bourbon St., Unit 2."},
+    {"rental": "6626 North Bourbon Street #3", "tenants": "James Pritchard, Zackary Pritchard", "kind": "signed_lease", "file": "6626-03_Pritchard_Lease_2025-05-12.pdf", "dated": "2025-05-12"},
+    {"rental": "6626 North Bourbon Street #3", "tenants": "James Pritchard, Zackary Pritchard", "kind": "addendum", "file": "6626-03_Pritchard_Lease-update_2026-04-24.pdf", "dated": "2026-04-24", "note": "Lease update."},
+    {"rental": "6626 North Bourbon St #4", "tenants": "Ashley Williams", "kind": "signed_lease", "status": "coming_soon",
+     "note": "Signed lease coming soon. Month-to-month from 9/1/2026; work in lieu of rent agreement to be signed with it."},
+    {"rental": "6626 North Bourbon Street #5", "tenants": "Dekoria Marks", "kind": "signed_lease", "file": "6626-05_DekoriaMarks_Lease_2023-10-24.pdf", "dated": "2023-10-24"},
+    {"rental": "6626 North Bourbon Street Unit Eight", "tenants": "Sir Grant", "kind": "signed_lease", "file": "6626-08_SirGrant_Lease_2025-07-15.pdf", "dated": "2025-07-15"},
+    {"rental": "6626 North Bourbon Street Unit Eight", "tenants": "Sir Grant", "kind": "rent_increase", "file": "6626-08_SirGrant_Rent-increase_2026-04-24.pdf", "dated": "2026-04-24"}
+  ]
+}

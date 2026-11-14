@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Research Desk — Investors</title><meta name="robots" content="noindex, nofollow"><link rel="icon" href="/favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;700&family=Public+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#e8ecef;--pan:#fbfcfc;--ink:#10202b;--mut:#51626e;--rule:#bcc7cf;--acc:#0d5c63;--ok:#2b6e45;--warn:#b4501e;--bad:#a1262e}
+@media(prefers-color-scheme:dark){:root{--bg:#0e171d;--pan:#16232b;--ink:#e6edf1;--mut:#9bacb7;--rule:#2c3d48;--acc:#58b8c0;--ok:#6fc38d;--warn:#e69a62;--bad:#f07a82}}
+[hidden]{display:none!important}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 'Public Sans',system-ui,sans-serif}
+h1,h2,h3{font-family:'Familjen Grotesk',sans-serif;margin:0}
+a{color:var(--acc)}button,select,input,textarea{font:inherit;color:inherit}
+.app{display:grid;grid-template-columns:210px minmax(0,1fr) 290px;gap:20px;max-width:1280px;margin:0 auto;padding:20px}
+nav{position:sticky;top:20px;align-self:start}nav h1{font-size:20px;margin-bottom:14px}
+nav button{display:flex;gap:8px;width:100%;text-align:left;background:none;border:0;border-left:3px solid var(--rule);padding:8px 10px;cursor:pointer;color:var(--mut)}
+nav button.on{border-color:var(--acc);color:var(--ink);font-weight:600}nav small{margin-left:auto}
+main section{background:var(--pan);border:1px solid var(--rule);border-radius:6px;padding:20px;margin-bottom:16px}
+h2{font-size:22px;margin-bottom:4px}.lead{color:var(--mut);margin:0 0 16px}
+.g{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+label{display:block;font-size:13px;color:var(--mut)}input,select,textarea{width:100%;padding:7px 8px;border:1px solid var(--rule);border-radius:4px;background:var(--bg);margin-top:3px}
+.chk{border-top:1px solid var(--rule);padding:12px 0;display:grid;grid-template-columns:1fr 130px 100px;gap:8px 12px}
+.chk .w{grid-column:1/-1;font-size:13px;color:var(--mut)}.chk textarea{grid-column:1/-1;height:36px;margin:0}
+.chk a{font-weight:600}.red{color:var(--bad)}
+.btn{background:var(--acc);color:var(--bg);border:0;border-radius:4px;padding:8px 14px;cursor:pointer;font-weight:600}.btn.o{background:none;color:var(--acc);border:1px solid var(--acc)}
+aside{position:sticky;top:20px;align-self:start;background:var(--pan);border:1px solid var(--rule);border-radius:6px;padding:18px}
+#ceil{font:700 38px 'Familjen Grotesk';letter-spacing:-1px}#verd{font-weight:600;margin:4px 0 12px}
+.row{display:flex;justify-content:space-between;font-size:13px;padding:3px 0;border-top:1px solid var(--rule)}
+table{width:100%;border-collapse:collapse;font-size:14px}td,th{padding:6px;border-top:1px solid var(--rule);text-align:right}td:first-child,th:first-child{text-align:left}
+#rep{white-space:pre-wrap;font:13px/1.55 'Public Sans';background:var(--bg);padding:14px;border-radius:4px}
+.banner{background:var(--bad);color:#fff;padding:9px 16px;text-align:center;font-size:14px;font-weight:600}.banner a{color:#fff}.gate{border:2px solid var(--bad);padding:12px;border-radius:6px;margin:14px 0}.gate.ok{border-color:var(--ok)}.gate label{display:flex;gap:8px;color:var(--ink);font-size:14px;margin:6px 0}.gate input{width:auto;margin:3px 0 0}.cfg{border-left:3px solid var(--warn);padding:6px 10px;font-size:13px;color:var(--mut)}
+@media(max-width:900px){.app{grid-template-columns:1fr}nav,aside{position:static}nav{display:flex;overflow:auto}aside{position:sticky;top:auto;bottom:0;padding:10px 14px}#ceil{font-size:26px;display:inline-block;margin-right:12px}#verd{display:inline-block;margin:0}#side,aside .lead{display:none}nav h1{display:none}nav button{border-left:0;border-bottom:3px solid var(--rule);white-space:nowrap}nav button.on{border-color:var(--acc)}.chk{grid-template-columns:1fr}}
+@media print{nav,aside,.noprint{display:none}.app{display:block}}
+</style></head><body>
+<div id="bn"></div>
+<div id="wait" style="padding:40px;text-align:center">Checking your sign-in…</div>
+<div class="app" id="deskApp" hidden>
+<nav id="nav"><h1>Cash Acquisition Desk</h1></nav>
+<main id="main"></main>
+<aside><div class="lead" style="margin:0">Ceiling bid (conservative case)</div><div id="ceil">—</div><div id="verd"></div><div id="side"></div></aside>
+</div>
+<script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
+<script type="module">
+// Only a signed-in investor gets the desk. The deals table is protected by row-level security in the database too.
+import { client, signOut } from "/assets/portal/portal.js";
+const { data: s } = await client.auth.getSession();
+const { data: who } = s.session ? await client.rpc("condo_whoami") : { data: null };
+if (!who || !who.is_investor) { location.replace("/investor/"); }
+else {
+  window.CASH_SB = client;
+  window.deskSignOut = signOut;
+  document.getElementById("wait").hidden = true;
+  document.getElementById("deskApp").hidden = false;
+  // lookup.js first (it only defines functions); desk.js then draws the first screen
+  const lk = document.createElement("script");
+  lk.src = "/investor/desk/lookup.js?v=1793418392";
+  lk.onload = () => { const js = document.createElement("script"); js.src = "/investor/desk/desk.js?v=1793418392"; document.body.appendChild(js); };
+  document.body.appendChild(lk);
+}
+</script>
+</body></html>

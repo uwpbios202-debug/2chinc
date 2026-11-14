@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Payments — 2nd Chance Housing Staff</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+<style>
+  .card2 { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-bottom: 14px; }
+  .card2 h2 { margin: 0 0 8px; font-size: 1.15rem; }
+  table.t { width: 100%; border-collapse: collapse; font-size: 0.93rem; }
+  table.t th, table.t td { padding: 7px 8px; border-top: 1px solid var(--line); text-align: left; vertical-align: top; }
+  table.t th { color: var(--muted); font-size: 0.8rem; border-top: 0; }
+  .num { text-align: right !important; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .pillx { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 0.78rem; font-weight: 700; }
+  .pillx.pending { background: var(--warn-soft); color: var(--warn); } .pillx.verified { background: var(--ok-soft); color: var(--ok); } .pillx.rejected { background: var(--off-soft); color: var(--off); }
+  .meta { color: var(--muted); font-size: 0.86rem; }
+  .drop { border: 2px dashed var(--line); border-radius: 10px; padding: 18px; text-align: center; }
+</style>
+</head>
+<body>
+<div class="appbar" data-nav="staff">
+  <div class="appbar-in">
+    <div class="org">2nd Chance Housing<span>Payments · Staff</span></div>
+    <div class="row" id="userBar" hidden>
+      
+      <button class="linkbtn" type="button" id="signOutBtn">Sign out</button>
+    </div>
+  </div>
+</div>
+<main class="wrap" style="max-width:1200px">
+  <header><h1>Payments</h1><p class="lead">Tenants report Zelle and other payments; the system confirms them against what your bank shows (statement upload or payment-alert emails) and posts them to the ledger. A screenshot is never treated as proof.</p></header>
+  <div id="signin" class="narrow"></div>
+  <div id="app" hidden>
+    <div class="card2"><h2>Upload a bank statement (CSV)</h2>
+      <p class="meta">Download account activity as CSV and choose which account it is. Upload as often as you like; rows already seen are skipped. Only deposits are used.
+        Tenants pay 2nd Chance (Chase), except units 4, 5 and 14 (Yawdcour's Chase) and unit 16 (ROCA1); owners pay ROCA1 (First Citizens). Once an account is connected to Plaid, Plaid is its bank record and a CSV for it only confirms.</p>
+      <div class="formrow" style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end"><label style="display:grid;gap:3px;font-size:.85rem;color:var(--muted)">Account<select id="csvAcct"></select></label>
+        <div class="drop"><input type="file" id="csv" accept=".csv,text/csv"></div></div><div class="msg" id="csvMsg"></div></div>
+    <div class="card2"><h2>Payment reports (tenants and owners)</h2><div id="reports"></div></div>
+    <div class="card2"><h2>Deposits not matched to a report</h2><p class="meta">Money the bank shows that no tenant has reported yet (or that didn't match on its own).</p><div id="receipts"></div></div>
+  </div>
+</main>
+<script type="module">
+import { client, $, esc, fmtDate, money, signIn, signOut, errorText } from "/assets/portal/portal.js";
+let Q = null;
+
+function parseCsv(text) {
+  const rows = []; let row = [], cur = "", q = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (q) { if (ch === '"' && text[i + 1] === '"') { cur += '"'; i++; } else if (ch === '"') q = false; else cur += ch; }
+    else if (ch === '"') q = true; else if (ch === ",") { row.push(cur); cur = ""; }
+    else if (ch === "\n" || ch === "\r") { if (ch === "\r" && text[i + 1] === "\n") i++; row.push(cur); rows.push(row); row = []; cur = ""; }
+    else cur += ch;
+  }
+  if (cur || row.length) { row.push(cur); rows.push(row); }
+  return rows.filter((r) => r.some((c) => c.trim()));
+}
+// Chase business/personal activity CSV: Details, Posting Date, Description, Amount, Type, Balance, Check or Slip #
+function chaseRows(text) {
+  const rows = parseCsv(text), h = rows[0].map((x) => x.trim().toLowerCase());
+  const col = (n) => h.findIndex((x) => x === n || x.startsWith(n));
+  const iDate = col("posting date"), iDesc = col("description"), iAmt = col("amount"), iRef = col("check or slip");
+  if (iDate < 0 || iDesc < 0 || iAmt < 0) throw new Error("This doesn't look like a Chase activity CSV (needs Posting Date, Description, Amount).");
+  return rows.slice(1).map((r) => {
+    const [m, d, y] = (r[iDate] || "").split("/"), desc = (r[iDesc] || "").trim();
+    const payer = /zelle (?:payment )?from ([A-Za-z .'-]+?)(?:\s+(?=[A-Za-z]*\d)[A-Za-z0-9]{8,}|\s+on\s|$)/i.exec(desc)?.[1]
+      || /(?:orig co name|from):?\s*([A-Za-z .'-]{3,40}?)(?:\s{2,}|\s+co entry|$)/i.exec(desc)?.[1] || null;
+    return { account: "Chase", posted_on: `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`, amount: Number(String(r[iAmt]).replace(/[$,]/g, "")),
+      description: desc, payer_name: payer ? payer.trim() : null, reference: iRef >= 0 ? (r[iRef] || "").trim() || null : null };
+  }).filter((x) => x.amount > 0 && /^\d{4}-\d{2}-\d{2}$/.test(x.posted_on));
+}
+
+function render() {
+  const rec = Q.unmatched_receipts;
+  $("reports").innerHTML = Q.reports.length ? `<table class="t"><thead><tr><th>Reported</th><th>Payer</th><th>Paid</th><th>Method</th><th class="num">Amount</th><th>Status</th><th></th></tr></thead><tbody>
+    ${Q.reports.map((r) => {
+      const cands = rec.filter((b) => Number(b.amount) === Number(r.amount) && b.side === r.side);
+      return `<tr data-id="${r.id}"><td>${fmtDate(r.created_at)}</td><td>${esc(r.tenant)}${r.unit ? ` <span class="meta">#${esc(r.unit)}</span>` : ""}<div class="meta">acct ${esc(r.account_number || "—")}</div></td>
+        <td>${fmtDate(r.paid_on)}</td><td>${esc(r.method.replace("_", " "))}${r.confirmation_code ? `<div class="meta">#${esc(r.confirmation_code)}</div>` : ""}${r.payer_name ? `<div class="meta">from ${esc(r.payer_name)}</div>` : ""}
+          ${r.screenshot_path ? `<div><button class="linkbtn" type="button" data-proof="${esc(r.screenshot_path)}">screenshot</button></div>` : ""}</td>
+        <td class="num">${money(r.amount)}</td>
+        <td><span class="pillx ${r.status}">${r.status}</span>${r.verification_source ? `<div class="meta">via ${esc(r.verification_source.replace("_", " "))}${r.verified_by ? " · " + esc(r.verified_by) : ""}</div>` : ""}
+          ${r.receipt ? `<div class="meta">${esc(r.receipt.description || "")}</div>` : ""}${r.reject_reason ? `<div class="meta">${esc(r.reject_reason)}</div>` : ""}</td>
+        <td>${r.status === "verified" && r.ledger_entry_id != null || (r.status === "verified" && r.verification_source === "stripe") ? `<button class="btn" type="button" data-reverse>Reverse…</button>` : ""}${Number(r.reversed_amount) > 0 ? `<div class="meta">reversed ${money(r.reversed_amount)}${r.reversed_reason ? ": " + esc(r.reversed_reason) : ""}</div>` : ""}
+          ${r.bank_alert_seen_at && r.status === "pending" ? `<div class="meta">bank alert seen</div>` : ""}
+          ${r.status === "pending" ? `<select data-receipt><option value="">verify without a bank record</option>${cands.map((b) => `<option value="${b.id}">${fmtDate(b.posted_on)} ${money(b.amount)} — ${esc((b.description || "").slice(0, 50))}</option>`).join("")}</select>
+          <button class="btn primary" type="button" data-verify>Verify</button> <button class="btn" type="button" data-reject>Not received</button>` : ""}</td></tr>`;
+    }).join("")}</tbody></table>` : `<p class="meta">No reports yet.</p>`;
+  $("receipts").innerHTML = rec.length ? `<table class="t"><thead><tr><th>Date</th><th>Source</th><th>Description</th><th class="num">Amount</th></tr></thead><tbody>
+    ${rec.map((b) => `<tr><td>${fmtDate(b.posted_on)}</td><td>${esc(b.source.replace("_", " "))}</td><td>${esc(b.description || "")}</td><td class="num">${money(b.amount)}</td></tr>`).join("")}</tbody></table>` : `<p class="meta">None.</p>`;
+}
+async function load() {
+  const { data, error } = await client.rpc("payments_staff_queue");
+  if (error) { $("signin").innerHTML = `<div class="banner bad">${esc(await errorText(error))}</div>`; return; }
+  Q = data; render(); $("app").hidden = false;
+  if (!$("csvAcct").options.length) $("csvAcct").innerHTML = (Q.accounts || []).map((a) => `<option value="${esc(a.id)}">${esc(a.name)}${a.truth_source === "plaid" ? " (Plaid-linked: confirms only)" : ""}</option>`).join("");
+}
+$("csv").onchange = async () => {
+  const f = $("csv").files[0]; if (!f) return; const m = $("csvMsg");
+  try {
+    const acct = $("csvAcct").value, rows = chaseRows(await f.text()).map((x) => ({ ...x, bank_account_id: acct || null, account: $("csvAcct").selectedOptions[0]?.textContent || x.account }));
+    const { data, error } = await client.rpc("payments_staff_import", { p_source: "chase_csv", p_rows: rows });
+    if (error) throw new Error(await errorText(error));
+    m.className = "msg ok"; m.textContent = `${rows.length} deposit(s) read · ${data.new_receipts} new · ${data.matched} payment(s) verified automatically.`;
+    await load();
+  } catch (e) { m.className = "msg err"; m.textContent = e.message; }
+};
+$("reports").addEventListener("click", async (e) => {
+  const tr = e.target.closest("tr[data-id]"); if (!tr) return;
+  if (e.target.closest("[data-proof]")) { const { data } = await client.storage.from("payment-proofs").createSignedUrl(e.target.closest("[data-proof]").dataset.proof, 300); if (data) window.open(data.signedUrl, "_blank", "noopener"); return; }
+  if (e.target.closest("[data-reverse]")) {
+    const why = prompt("Why is this payment reversed? (bounced / returned by the bank, refunded, chargeback…) The payer is emailed.", "Returned by the bank (NSF)"); if (!why) return;
+    const amt = prompt("Amount to reverse (leave as is for the whole payment)", ""); if (amt === null) return;
+    const returned = confirm("Did this payment come back UNPAID (bounced, NSF, closed account, stop payment, chargeback)?\n\nOK = yes: the lease's returned-payment fee is added.\nCancel = no (a refund or a correction): no fee.");
+    const { data: rv, error } = await client.rpc("payments_staff_reverse", { p_report: tr.dataset.id, p_amount: amt.trim() ? Number(amt) : null, p_reason: why, p_returned: returned });
+    if (error) return alert(await errorText(error));
+    if (returned && rv && rv.return_fee && rv.return_fee.note) alert(rv.return_fee.note);
+    client.functions.invoke("outbox-flush", { body: {} }).catch(() => {}); return load();
+  }
+  const verify = e.target.closest("[data-verify]"), reject = e.target.closest("[data-reject]");
+  if (!verify && !reject) return;
+  let reason = null;
+  if (reject) { reason = prompt("Why? (shown to the tenant)", "We couldn't find this payment in our bank account. Please contact the office."); if (reason === null) return; }
+  const { error } = await client.rpc("payments_staff_decide", { p_report: tr.dataset.id, p_action: verify ? "verify" : "reject", p_receipt: verify ? (tr.querySelector("[data-receipt]").value || null) : null, p_reason: reason });
+  if (error) return alert(await errorText(error));
+  await load();
+});
+$("signOutBtn").addEventListener("click", signOut);
+const who = await signIn($("signin"), { audience: "staff" });
+$("userBar").hidden = false;
+if (who.role !== "staff") location.replace("/association-owners/roca1/"); else load();
+</script>
+</body>
+</html>

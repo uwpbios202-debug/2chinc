@@ -1,0 +1,314 @@
+COL-001 | housing | survival | 1 adult | 770.25 | dollars | monthly |  | 770.25 | Metro | 2026-10-01 | No | Verified - Current | COL-S20; COL-S24
+    Gross rent: rent PLUS tenant-paid utilities. Do not add utility rows on top. HUD single-room occupancy (SRO) rent = 0.75 x efficiency FMR in effect (FY2026, retained) DERIVED
+COL-002 | housing | stability | 1 adult | 1027 | dollars | monthly |  | 1027 | Metro | 2026-10-01 | No | Verified - Current | COL-S20; COL-S24
+    Gross rent: rent PLUS tenant-paid utilities. Do not add utility rows on top. HUD Fair Market Rent IN EFFECT: FY2026, retained for Milwaukee-Waukesha while HUD reevaluates FY2027, efficiency / studio
+COL-003 | housing | stability | 2 adults | 1119 | dollars | monthly |  | 1119 | Metro | 2026-10-01 | No | Verified - Current | COL-S20; COL-S24
+    Gross rent: rent PLUS tenant-paid utilities. Do not add utility rows on top. HUD Fair Market Rent IN EFFECT: FY2026, retained for Milwaukee-Waukesha while HUD reevaluates FY2027, 1 bedroom
+COL-004 | housing | stability | 1 adult + 1 child | 1338 | dollars | monthly |  | 1338 | Metro | 2026-10-01 | No | Verified - Current | COL-S20; COL-S24
+    Gross rent: rent PLUS tenant-paid utilities. Do not add utility rows on top. HUD Fair Market Rent IN EFFECT: FY2026, retained for Milwaukee-Waukesha while HUD reevaluates FY2027, 2 bedroom
+COL-005 | housing | stability | 2 adults + 2 children | 1648 | dollars | monthly |  | 1648 | Metro | 2026-10-01 | No | Verified - Current | COL-S20; COL-S24
+    Gross rent: rent PLUS tenant-paid utilities. Do not add utility rows on top. HUD Fair Market Rent IN EFFECT: FY2026, retained for Milwaukee-Waukesha while HUD reevaluates FY2027, 3 bedroom
+COL-006 | housing | stability | larger households | 1784 | dollars | monthly |  | 1784 | Metro | 2026-10-01 | No | Verified - Current | COL-S20; COL-S24
+    Gross rent: rent PLUS tenant-paid utilities. Do not add utility rows on top. HUD Fair Market Rent IN EFFECT: FY2026, retained for Milwaukee-Waukesha while HUD reevaluates FY2027, 4 bedroom
+COL-007 | housing | stability | 1 adult | 985 | dollars | monthly |  | 985 | Metro | 2026-10-01 | No | Needs Confirmation | COL-S20; COL-S24
+    Gross rent: rent PLUS tenant-paid utilities. Do not add utility rows on top. HUD FY2027 Fair Market Rent as published, NOT in effect for Milwaukee-Waukesha (under reevaluation; do not use in examples), efficiency / studio
+COL-008 | housing | stability | 2 adults | 1060 | dollars | monthly |  | 1060 | Metro | 2026-10-01 | No | Needs Confirmation | COL-S20; COL-S24
+    Gross rent: rent PLUS tenant-paid utilities. Do not add utility rows on top. HUD FY2027 Fair Market Rent as published, NOT in effect for Milwaukee-Waukesha (under reevaluation; do not use in examples), 1 bedroom
+COL-009 | housing | stability | 1 adult + 1 child | 1263 | dollars | monthly |  | 1263 | Metro | 2026-10-01 | No | Needs Confirmation | COL-S20; COL-S24
+    Gross rent: rent PLUS tenant-paid utilities. Do not add utility rows on top. HUD FY2027 Fair Market Rent as published, NOT in effect for Milwaukee-Waukesha (under reevaluation; do not use in examples), 2 bedroom
+COL-010 | housing | stability | 2 adults + 2 children | 1553 | dollars | monthly |  | 1553 | Metro | 2026-10-01 | No | Needs Confirmation | COL-S20; COL-S24
+    Gross rent: rent PLUS tenant-paid utilities. Do not add utility rows on top. HUD FY2027 Fair Market Rent as published, NOT in effect for Milwaukee-Waukesha (under reevaluation; do not use in examples), 3 bedroom
+COL-011 | housing | stability | larger households | 1664 | dollars | monthly |  | 1664 | Metro | 2026-10-01 | No | Needs Confirmation | COL-S20; COL-S24
+    Gross rent: rent PLUS tenant-paid utilities. Do not add utility rows on top. HUD FY2027 Fair Market Rent as published, NOT in effect for Milwaukee-Waukesha (under reevaluation; do not use in examples), 4 bedroom
+COL-012 | housing | stability | all households | 1101 | dollars | monthly |  | 1101 | County | 2020-2024 | No | Verified - Current | COL-S15
+    Median gross rent, all renter households (ACS 5-year)
+COL-013 | housing | stability | 1 adult | 11639 | dollars | yearly |  | 969.916666666667 | County | 2026-02-15 | No | Verified - Current | COL-S01; COL-S19
+    Housing (MIT 'typical expense'; 2 adults = both working)
+COL-014 | housing | stability | 1 adult + 1 child | 15163 | dollars | yearly |  | 1263.58333333333 | County | 2026-02-15 | No | Verified - Current | COL-S01; COL-S19
+    Housing (MIT 'typical expense'; 2 adults = both working)
+COL-015 | housing | stability | 2 adults | 12681 | dollars | yearly |  | 1056.75 | County | 2026-02-15 | No | Verified - Current | COL-S01; COL-S19
+    Housing (MIT 'typical expense'; 2 adults = both working)
+COL-016 | housing | stability | 2 adults + 2 children | 15163 | dollars | yearly |  | 1263.58333333333 | County | 2026-02-15 | No | Verified - Current | COL-S01; COL-S19
+    Housing (MIT 'typical expense'; 2 adults = both working)
+COL-017 | housing | survival | 1 adult |  | dollars | monthly |  |  | City |  | No | Unverified Lead | 
+    Market rent for a room or bed in a shared house (Navigators' own bed rents could fill this). No published Milwaukee figure
+COL-018 | housing | survival | 1 adult | 524 | dollars | monthly |  | 524 | County | 2022 | No | Verified - Limited | COL-S28
+    ALICE Household Survival Budget, Milwaukee County: Rent (2022 costs)
+COL-019 | housing | survival | 2 adults + 2 children (infant, preschooler) | 689 | dollars | monthly |  | 689 | County | 2022 | No | Verified - Limited | COL-S28
+    ALICE Household Survival Budget, Milwaukee County: Rent (2022 costs; 2 adults, 1 infant, 1 preschooler)
+COL-020 | utilities | survival | 1 adult | 163 | dollars | monthly |  | 163 | County | 2022 | No | Verified - Limited | COL-S28
+    ALICE Household Survival Budget, Milwaukee County: Utilities (2022 costs)
+COL-021 | utilities | survival | 2 adults + 2 children (infant, preschooler) | 310 | dollars | monthly |  | 310 | County | 2022 | No | Verified - Limited | COL-S28
+    ALICE Household Survival Budget, Milwaukee County: Utilities (2022 costs; 2 adults, 1 infant, 1 preschooler)
+COL-022 | household | survival | 1 adult | 0 | dollars | monthly |  | 0 | County | 2022 | No | Verified - Limited | COL-S28
+    ALICE Household Survival Budget, Milwaukee County: Child care (2022 costs)
+COL-023 | household | survival | 2 adults + 2 children (infant, preschooler) | 2000 | dollars | monthly |  | 2000 | County | 2022 | No | Verified - Limited | COL-S28
+    ALICE Household Survival Budget, Milwaukee County: Child care (2022 costs; 2 adults, 1 infant, 1 preschooler)
+COL-024 | food | survival | 1 adult | 453 | dollars | monthly |  | 453 | County | 2022 | No | Verified - Limited | COL-S28
+    ALICE Household Survival Budget, Milwaukee County: Food (2022 costs)
+COL-025 | food | survival | 2 adults + 2 children (infant, preschooler) | 1235 | dollars | monthly |  | 1235 | County | 2022 | No | Verified - Limited | COL-S28
+    ALICE Household Survival Budget, Milwaukee County: Food (2022 costs; 2 adults, 1 infant, 1 preschooler)
+COL-026 | transportation | survival | 1 adult | 395 | dollars | monthly |  | 395 | County | 2022 | No | Verified - Limited | COL-S28
+    ALICE Household Survival Budget, Milwaukee County: Transportation (2022 costs)
+COL-027 | transportation | survival | 2 adults + 2 children (infant, preschooler) | 1045 | dollars | monthly |  | 1045 | County | 2022 | No | Verified - Limited | COL-S28
+    ALICE Household Survival Budget, Milwaukee County: Transportation (2022 costs; 2 adults, 1 infant, 1 preschooler)
+COL-028 | healthcare | survival | 1 adult | 182 | dollars | monthly |  | 182 | County | 2022 | No | Verified - Limited | COL-S28
+    ALICE Household Survival Budget, Milwaukee County: Health care (2022 costs)
+COL-029 | healthcare | survival | 2 adults + 2 children (infant, preschooler) | 638 | dollars | monthly |  | 638 | County | 2022 | No | Verified - Limited | COL-S28
+    ALICE Household Survival Budget, Milwaukee County: Health care (2022 costs; 2 adults, 1 infant, 1 preschooler)
+COL-030 | communication | survival | 1 adult | 86 | dollars | monthly |  | 86 | County | 2022 | No | Verified - Limited | COL-S28
+    ALICE Household Survival Budget, Milwaukee County: Technology (2022 costs)
+COL-031 | communication | survival | 2 adults + 2 children (infant, preschooler) | 116 | dollars | monthly |  | 116 | County | 2022 | No | Verified - Limited | COL-S28
+    ALICE Household Survival Budget, Milwaukee County: Technology (2022 costs; 2 adults, 1 infant, 1 preschooler)
+COL-032 | household | survival | 1 adult | 180 | dollars | monthly |  | 180 | County | 2022 | No | Verified - Limited | COL-S28
+    ALICE Household Survival Budget, Milwaukee County: Miscellaneous (2022 costs)
+COL-033 | household | survival | 2 adults + 2 children (infant, preschooler) | 603 | dollars | monthly |  | 603 | County | 2022 | No | Verified - Limited | COL-S28
+    ALICE Household Survival Budget, Milwaukee County: Miscellaneous (2022 costs; 2 adults, 1 infant, 1 preschooler)
+COL-034 | utilities | survival | all households | 0.49315 | dollars per day | daily |  | 14.9999791666667 | Metro | 2026-01-01 | No | Verified - Current | COL-S08
+    We Energies residential electric customer charge (Rg1), fixed
+COL-035 | utilities | survival | all households | 0.19342 | dollars per kWh | per unit |  |  | Metro | 2026-01-01 | No | Verified - Current | COL-S08
+    We Energies residential energy charge (Rg1)
+COL-036 | utilities | survival | all households | 0.00199 | dollars per kWh | per unit |  |  | Metro | 2026-01-01 | No | Verified - Current | COL-S08
+    We Energies fuel cost adjustment
+COL-037 | utilities | survival | all households | 0.00052 | dollars per kWh | per unit |  |  | Metro | 2026-01-01 | No | Verified - Current | COL-S08
+    We Energies environmental control charge
+COL-038 | utilities | survival | all households | 0.01 | share of past-due amount per month | per unit |  |  | Metro | 2026-01-01 | Yes | Verified - Current | COL-S08
+    We Energies late payment charge
+    ALT: Pay by the due date; see the Utilities and Energy database for payment plans and energy assistance
+COL-039 | utilities | stability | 1 adult | 144.313779166667 | dollars | monthly |  | 144.313779166667 | Metro | 2026-01-01 | No | Verified - Current | COL-S08; COL-S21
+    We Energies typical residential electric bill at 660 kWh a month, built from the published 2026 Rg1 rates (customer charge x 365 / 12 + 660 kWh x energy, fuel and environmental charges) DERIVED. Only when the tenant pays electric 
+    ALT: See the Utilities and Energy database for energy assistance
+COL-040 | utilities | stability | all households | 0.33 | dollars per day | daily |  | 10.0375 | Metro | 2026-01-01 | No | Verified - Current | COL-S25
+    Wisconsin Gas LLC residential gas customer charge (Rg-1). Which of the two companies serves a given Milwaukee address is not stated in the brochure
+COL-041 | utilities | stability | all households | 0.4372 | dollars per therm | per unit |  |  | Metro | 2026-01-01 | No | Verified - Current | COL-S25
+    Wisconsin Gas LLC residential gas distribution charge (Rg-1)
+COL-042 | utilities | stability | all households | 0.5114 | dollars per therm | per unit |  |  | Metro | 2026-01-01 | No | Verified - Current | COL-S25
+    Wisconsin Gas LLC residential base gas cost (Rg-1, before monthly gas cost adjustment)
+COL-043 | utilities | stability | all households | 0.33 | dollars per day | daily |  | 10.0375 | Metro | 2026-01-01 | No | Verified - Current | COL-S25
+    Wisconsin Electric gas operations residential gas customer charge (Rg-1). Which of the two companies serves a given Milwaukee address is not stated in the brochure
+COL-044 | utilities | stability | all households | 0.4491 | dollars per therm | per unit |  |  | Metro | 2026-01-01 | No | Verified - Current | COL-S25
+    Wisconsin Electric gas operations residential gas distribution charge (Rg-1)
+COL-045 | utilities | stability | all households | 0.4812 | dollars per therm | per unit |  |  | Metro | 2026-01-01 | No | Verified - Current | COL-S25
+    Wisconsin Electric gas operations residential base gas cost (Rg-1, before monthly gas cost adjustment)
+COL-046 | utilities | survival | all households | 36 | dollars | one-time | 36 |  | Metro | 2026-01-01 | Yes | Verified - Current | COL-S25
+    We Energies gas disconnection or reconnection fee, regular hours ($48 after hours)
+    ALT: Keep the account current; see the Utilities and Energy database
+COL-047 | utilities | survival | all households |  |  | one-time |  |  | Metro |  | Yes | Unverified Lead | 
+    We Energies security deposit for new service. A waiver for lower-income customers was reported by another tool but is not yet confirmed
+COL-048 | utilities | stability | all households | 30.22 | dollars | quarterly |  | 10.0733333333333 | City | 2026-07-08 | No | Verified - Current | COL-S09
+    Milwaukee Water Works fixed water charges (service + fire protection), 5/8 or 3/4 inch meter. Billed to the account holder; many renters pay this through rent
+COL-049 | utilities | stability | all households | 2.53 | dollars per Ccf (748 gallons) | per unit |  |  | City | 2026-07-08 | No | Verified - Current | COL-S09
+    Milwaukee Water Works residential water usage
+COL-050 | utilities | stability | all households | 24.48 | dollars | quarterly |  | 8.16 | City | 2026-07-08 | No | Verified - Current | COL-S09
+    MMSD sewer service (connection) charge
+COL-051 | utilities | stability | all households | 2.34 | dollars per Ccf | per unit |  |  | City | 2026-07-08 | No | Verified - Current | COL-S09
+    MMSD sewer treatment usage charge (winter-quarter usage)
+COL-052 | utilities | stability | all households | 1.85 | dollars per Ccf | per unit |  |  | City | 2026-07-08 | No | Verified - Current | COL-S09
+    Local sewerage charge (winter-quarter usage)
+COL-053 | utilities | stability | all households | 26.89 | dollars | quarterly |  | 8.96333333333333 | City | 2026-07-08 | No | Verified - Current | COL-S09
+    Storm water management charge (1 ERU)
+COL-054 | utilities | stability | all households | 67.95 | dollars | quarterly |  | 22.65 | City | 2026-07-08 | No | Verified - Current | COL-S09
+    Solid waste charge, per residential unit
+COL-055 | utilities | survival | all households | 60 | dollars | one-time | 60 |  | City | 2026-07-08 | Yes | Verified - Current | COL-S09
+    Water turn-on request, weekday (weekend $85)
+    ALT: Keep the account current; see the Utilities and Energy database for water payment help
+COL-056 | utilities | survival | all households | 0.05 | share of unpaid water charges | per unit |  |  | City | 2026-07-08 | Yes | Verified - Current | COL-S09
+    Late payment charge on water charges (3% on other city charges)
+    ALT: Pay by the due date
+COL-057 | food | survival | 1 adult (in 4-person household) | 253.9 | dollars | monthly |  | 253.9 | Wisconsin | 2026-09 | No | Verified - Current | COL-S04
+    USDA Thrifty Food Plan, female 20-50 (person in a 4-person household)
+COL-058 | food | survival | 1 adult (in 4-person household) | 319 | dollars | monthly |  | 319 | Wisconsin | 2026-09 | No | Verified - Current | COL-S04
+    USDA Thrifty Food Plan, male 20-50 (person in a 4-person household)
+COL-059 | food | survival | 1 child | 209.1 | dollars | monthly |  | 209.1 | Wisconsin | 2026-09 | No | Verified - Current | COL-S04
+    USDA Thrifty Food Plan, child 6-8
+COL-060 | food | survival | 1 child | 241.9 | dollars | monthly |  | 241.9 | Wisconsin | 2026-09 | No | Verified - Current | COL-S04
+    USDA Thrifty Food Plan, child 9-11
+COL-061 | food | survival | 2 adults + 2 children | 1024 | dollars | monthly |  | 1024 | Wisconsin | 2026-09 | No | Verified - Current | COL-S04
+    USDA Thrifty Food Plan, reference family of four (adults 20-50, children 6-8 and 9-11)
+COL-062 | food | survival | 1 adult | 304.68 | dollars | monthly |  | 304.68 | Wisconsin | 2026-09 | No | Verified - Current | COL-S04
+    USDA Thrifty Food Plan, female 20-50, living alone (published cost + USDA's 20% one-person adjustment) DERIVED
+COL-063 | food | stability | 1 adult (in 4-person household) | 276.3 | dollars | monthly |  | 276.3 | Wisconsin | 2026-09 | No | Verified - Current | COL-S05
+    USDA Low-Cost Food Plan, female 19-50
+COL-064 | food | stability | 1 adult (in 4-person household) | 317.7 | dollars | monthly |  | 317.7 | Wisconsin | 2026-09 | No | Verified - Current | COL-S05
+    USDA Low-Cost Food Plan, male 19-50
+COL-065 | food | stability | 2 adults + 2 children | 1126.9 | dollars | monthly |  | 1126.9 | Wisconsin | 2026-09 | No | Verified - Current | COL-S05
+    USDA Low-Cost Food Plan, family of four
+COL-066 | food | stability | 1 adult | 331.56 | dollars | monthly |  | 331.56 | Wisconsin | 2026-09 | No | Verified - Current | COL-S05
+    USDA Low-Cost Food Plan, female 19-50, living alone (+20% one-person adjustment) DERIVED
+COL-067 | food | aspirational | 1 adult (in 4-person household) | 336.4 | dollars | monthly |  | 336.4 | Wisconsin | 2026-09 | No | Verified - Current | COL-S05
+    USDA Moderate-Cost Food Plan, female 19-50
+COL-068 | food | aspirational | 1 adult (in 4-person household) | 398.4 | dollars | monthly |  | 398.4 | Wisconsin | 2026-09 | No | Verified - Current | COL-S05
+    USDA Moderate-Cost Food Plan, male 19-50
+COL-069 | food | aspirational | 2 adults + 2 children | 1389.2 | dollars | monthly |  | 1389.2 | Wisconsin | 2026-09 | No | Verified - Current | COL-S05
+    USDA Moderate-Cost Food Plan, family of four
+COL-070 | food | aspirational | 1 adult | 403.68 | dollars | monthly |  | 403.68 | Wisconsin | 2026-09 | No | Verified - Current | COL-S05
+    USDA Moderate-Cost Food Plan, female 19-50, living alone (+20% one-person adjustment) DERIVED
+COL-071 | food | stability | 1 adult | 4393 | dollars | yearly |  | 366.083333333333 | County | 2026-02-15 | No | Verified - Current | COL-S01; COL-S19
+    Food (MIT 'typical expense'; 2 adults = both working)
+COL-072 | food | stability | 1 adult + 1 child | 6445 | dollars | yearly |  | 537.083333333333 | County | 2026-02-15 | No | Verified - Current | COL-S01; COL-S19
+    Food (MIT 'typical expense'; 2 adults = both working)
+COL-073 | food | stability | 2 adults | 8054 | dollars | yearly |  | 671.166666666667 | County | 2026-02-15 | No | Verified - Current | COL-S01; COL-S19
+    Food (MIT 'typical expense'; 2 adults = both working)
+COL-074 | food | stability | 2 adults + 2 children | 12857 | dollars | yearly |  | 1071.41666666667 | County | 2026-02-15 | No | Verified - Current | COL-S01; COL-S19
+    Food (MIT 'typical expense'; 2 adults = both working)
+COL-075 | transportation | survival | 1 adult | 2.75 | dollars per ride | per unit |  |  | County | 2026-01-01 | No | Verified - Current | COL-S06; COL-S07
+    MCTS adult fare, per ride (ages 12-64)
+COL-076 | transportation | survival | 1 adult | 8.25 | dollars, cap per day | per unit |  |  | County | 2026-01-01 | No | Verified - Current | COL-S06; COL-S07
+    MCTS adult daily fare cap (most you pay in one day)
+COL-077 | transportation | survival | 1 adult | 33 | dollars, cap per week | per unit |  |  | County | 2026-01-01 | No | Verified - Current | COL-S06; COL-S07
+    MCTS adult weekly fare cap
+COL-078 | transportation | survival | 1 adult | 99 | dollars | monthly |  | 99 | County | 2026-01-01 | No | Verified - Current | COL-S06; COL-S07
+    MCTS adult monthly fare cap (unlimited riding once reached)
+    ALT: Reduced fare ($49.50 monthly cap) if 65+, 6-11 or with a qualifying disability
+COL-079 | transportation | survival | 1 adult | 1.25 | dollars per ride | per unit |  |  | County | 2026-01-01 | No | Verified - Current | COL-S06; COL-S07
+    MCTS reduced fare, per ride (65+, ages 6-11, qualifying disability; 5 and under free)
+COL-080 | transportation | survival | 1 adult | 4 | dollars, cap per day | per unit |  |  | County | 2026-01-01 | No | Verified - Current | COL-S06; COL-S07
+    MCTS reduced daily fare cap
+COL-081 | transportation | survival | 1 adult | 16.5 | dollars, cap per week | per unit |  |  | County | 2026-01-01 | No | Verified - Current | COL-S06; COL-S07
+    MCTS reduced weekly fare cap
+COL-082 | transportation | survival | 1 adult | 49.5 | dollars | monthly |  | 49.5 | County | 2026-01-01 | No | Verified - Current | COL-S06; COL-S07
+    MCTS reduced monthly fare cap
+COL-083 | transportation | stability | 1 adult | 7295 | dollars | yearly |  | 607.916666666667 | County | 2026-02-15 | No | Verified - Current | COL-S01; COL-S19
+    Transportation (MIT 'typical expense'; 2 adults = both working)
+COL-084 | transportation | stability | 1 adult + 1 child | 8443 | dollars | yearly |  | 703.583333333333 | County | 2026-02-15 | No | Verified - Current | COL-S01; COL-S19
+    Transportation (MIT 'typical expense'; 2 adults = both working)
+COL-085 | transportation | stability | 2 adults | 8443 | dollars | yearly |  | 703.583333333333 | County | 2026-02-15 | No | Verified - Current | COL-S01; COL-S19
+    Transportation (MIT 'typical expense'; 2 adults = both working)
+COL-086 | transportation | stability | 2 adults + 2 children | 12237 | dollars | yearly |  | 1019.75 | County | 2026-02-15 | No | Verified - Current | COL-S01; COL-S19
+    Transportation (MIT 'typical expense'; 2 adults = both working)
+COL-087 | healthcare | survival | 1 adult | 0.5 | dollars per service | per unit |  |  | Wisconsin | 2026-08-13 | No | Verified - Current | COL-S11
+    BadgerCare Plus copay, service costing $10.00 or less (only members with copays; monthly copay limit applies)
+COL-088 | healthcare | survival | 1 adult | 1 | dollars per service | per unit |  |  | Wisconsin | 2026-08-13 | No | Verified - Current | COL-S11
+    BadgerCare Plus copay, service costing $10.01-$25.00 (only members with copays; monthly copay limit applies)
+COL-089 | healthcare | survival | 1 adult | 2 | dollars per service | per unit |  |  | Wisconsin | 2026-08-13 | No | Verified - Current | COL-S11
+    BadgerCare Plus copay, service costing $25.01-$50.00 (only members with copays; monthly copay limit applies)
+COL-090 | healthcare | survival | 1 adult | 3 | dollars per service | per unit |  |  | Wisconsin | 2026-08-13 | No | Verified - Current | COL-S11
+    BadgerCare Plus copay, service costing over $50.00 (only members with copays; monthly copay limit applies)
+COL-091 | healthcare | survival | 1 adult | 8 | dollars per visit | per unit |  |  | Wisconsin | 2026-08-13 | No | Verified - Current | COL-S11
+    BadgerCare Plus copay, emergency room visit that is not an emergency (some adults)
+COL-092 | healthcare | stability | 1 adult | 3760 | dollars | yearly |  | 313.333333333333 | County | 2026-02-15 | No | Verified - Current | COL-S01; COL-S19
+    Medical (MIT 'typical expense'; 2 adults = both working)
+COL-093 | healthcare | stability | 1 adult + 1 child | 9344 | dollars | yearly |  | 778.666666666667 | County | 2026-02-15 | No | Verified - Current | COL-S01; COL-S19
+    Medical (MIT 'typical expense'; 2 adults = both working)
+COL-094 | healthcare | stability | 2 adults | 7441 | dollars | yearly |  | 620.083333333333 | County | 2026-02-15 | No | Verified - Current | COL-S01; COL-S19
+    Medical (MIT 'typical expense'; 2 adults = both working)
+COL-095 | healthcare | stability | 2 adults + 2 children | 10720 | dollars | yearly |  | 893.333333333333 | County | 2026-02-15 | No | Verified - Current | COL-S01; COL-S19
+    Medical (MIT 'typical expense'; 2 adults = both working)
+COL-096 | healthcare | stability | 1 adult |  |  | monthly |  |  | Wisconsin |  | No | Unverified Lead | 
+    BadgerCare Plus monthly premium for adults with income above 100% of poverty. No published dollar amount found
+COL-097 | healthcare | survival | 1 adult |  |  | per unit |  |  | City |  | No | Unverified Lead | 
+    Sliding-scale visit fee at a Milwaukee community health center (uninsured). Fees vary by income; no single published amount
+COL-098 | communication | survival | all households | 15 | dollars | monthly |  | 15 | City | 2026-11 | No | Verified - Current | COL-S22
+    Spectrum Internet Assist, 50 Mbps, for households on NSLP, CEP or SSI (Advanced WiFi +$10/mo)
+    ALT: Lifeline can lower phone or internet cost by up to $9.25 a month
+COL-099 | communication | stability | all households | 25 | dollars | monthly |  | 25 | City | 2026-11 | No | Verified - Current | COL-S22
+    Spectrum Internet Assist, 50 Mbps, other eligible households (Advanced WiFi +$10/mo)
+COL-100 | communication | stability | 1 adult | 1530 | dollars | yearly |  | 127.5 | County | 2026-02-15 | No | Verified - Current | COL-S01; COL-S19; COL-S10
+    Internet and mobile (MIT 'typical expense'; 2 adults = both working)
+    ALT: Lifeline: up to $9.25 a month off phone or internet for eligible households (income at or below 135% of poverty guidelines, or SNAP, Medicaid and othe
+COL-101 | communication | stability | 1 adult + 1 child | 1530 | dollars | yearly |  | 127.5 | County | 2026-02-15 | No | Verified - Current | COL-S01; COL-S19; COL-S10
+    Internet and mobile (MIT 'typical expense'; 2 adults = both working)
+    ALT: Lifeline: up to $9.25 a month off phone or internet for eligible households (income at or below 135% of poverty guidelines, or SNAP, Medicaid and othe
+COL-102 | communication | stability | 2 adults | 2066 | dollars | yearly |  | 172.166666666667 | County | 2026-02-15 | No | Verified - Current | COL-S01; COL-S19; COL-S10
+    Internet and mobile (MIT 'typical expense'; 2 adults = both working)
+    ALT: Lifeline: up to $9.25 a month off phone or internet for eligible households (income at or below 135% of poverty guidelines, or SNAP, Medicaid and othe
+COL-103 | communication | stability | 2 adults + 2 children | 2066 | dollars | yearly |  | 172.166666666667 | County | 2026-02-15 | No | Verified - Current | COL-S01; COL-S19; COL-S10
+    Internet and mobile (MIT 'typical expense'; 2 adults = both working)
+    ALT: Lifeline: up to $9.25 a month off phone or internet for eligible households (income at or below 135% of poverty guidelines, or SNAP, Medicaid and othe
+COL-104 | household | stability | 1 adult | 4549 | dollars | yearly |  | 379.083333333333 | County | 2026-02-15 | No | Verified - Current | COL-S01; COL-S19
+    Other necessities (MIT: household goods, personal care items and other basics) (MIT 'typical expense'; 2 adults = both working)
+COL-105 | household | stability | 1 adult + 1 child | 8272 | dollars | yearly |  | 689.333333333333 | County | 2026-02-15 | No | Verified - Current | COL-S01; COL-S19
+    Other necessities (MIT: household goods, personal care items and other basics) (MIT 'typical expense'; 2 adults = both working)
+COL-106 | household | stability | 2 adults | 8272 | dollars | yearly |  | 689.333333333333 | County | 2026-02-15 | No | Verified - Current | COL-S01; COL-S19
+    Other necessities (MIT: household goods, personal care items and other basics) (MIT 'typical expense'; 2 adults = both working)
+COL-107 | household | stability | 2 adults + 2 children | 9846 | dollars | yearly |  | 820.5 | County | 2026-02-15 | No | Verified - Current | COL-S01; COL-S19
+    Other necessities (MIT: household goods, personal care items and other basics) (MIT 'typical expense'; 2 adults = both working)
+COL-108 | household | stability | 1 adult + 1 child | 15460 | dollars | yearly |  | 1288.33333333333 | County | 2026-02-15 | No | Verified - Current | COL-S01; COL-S19
+    Child care (MIT 'typical expense'; 2 adults = both working)
+COL-109 | household | stability | 2 adults + 2 children | 30920 | dollars | yearly |  | 2576.66666666667 | County | 2026-02-15 | No | Verified - Current | COL-S01; COL-S19
+    Child care (MIT 'typical expense'; 2 adults = both working)
+COL-110 | clothing | stability | 1 adult | 98 | dollars | monthly |  | 98 | National | 2026-06-29 | No | Verified - Current | COL-S26
+    IRS National Standard allowance: Apparel and services (1 person; national, used by IRS for collections)
+COL-111 | clothing | stability | 2 adults | 175 | dollars | monthly |  | 175 | National | 2026-06-29 | No | Verified - Current | COL-S26
+    IRS National Standard allowance: Apparel and services (2 persons; national, used by IRS for collections)
+COL-112 | clothing | stability | 2 adults + 2 children | 249 | dollars | monthly |  | 249 | National | 2026-06-29 | No | Verified - Current | COL-S26
+    IRS National Standard allowance: Apparel and services (4 persons; national, used by IRS for collections)
+COL-113 | personal_care | stability | 1 adult | 54 | dollars | monthly |  | 54 | National | 2026-06-29 | No | Verified - Current | COL-S26
+    IRS National Standard allowance: Personal care products and services (1 person; national, used by IRS for collections)
+COL-114 | personal_care | stability | 2 adults | 90 | dollars | monthly |  | 90 | National | 2026-06-29 | No | Verified - Current | COL-S26
+    IRS National Standard allowance: Personal care products and services (2 persons; national, used by IRS for collections)
+COL-115 | personal_care | stability | 2 adults + 2 children | 118 | dollars | monthly |  | 118 | National | 2026-06-29 | No | Verified - Current | COL-S26
+    IRS National Standard allowance: Personal care products and services (4 persons; national, used by IRS for collections)
+COL-116 | household | stability | 1 adult | 44 | dollars | monthly |  | 44 | National | 2026-06-29 | No | Verified - Current | COL-S26
+    IRS National Standard allowance: Housekeeping supplies (1 person; national, used by IRS for collections)
+COL-117 | household | stability | 2 adults | 85 | dollars | monthly |  | 85 | National | 2026-06-29 | No | Verified - Current | COL-S26
+    IRS National Standard allowance: Housekeeping supplies (2 persons; national, used by IRS for collections)
+COL-118 | household | stability | 2 adults + 2 children | 95 | dollars | monthly |  | 95 | National | 2026-06-29 | No | Verified - Current | COL-S26
+    IRS National Standard allowance: Housekeeping supplies (4 persons; national, used by IRS for collections)
+COL-119 | clothing | aspirational | average household (2.4 persons) | 1933 | dollars | yearly |  | 161.083333333333 | Midwest | 2023-2024 | No | Verified - Limited | COL-S27
+    BLS Consumer Expenditure, Midwest average per consumer unit (2.4 persons): Apparel and services
+COL-120 | personal_care | aspirational | average household (2.4 persons) | 911 | dollars | yearly |  | 75.9166666666667 | Midwest | 2023-2024 | No | Verified - Limited | COL-S27
+    BLS Consumer Expenditure, Midwest average per consumer unit (2.4 persons): Personal care products and services
+COL-121 | household | aspirational | average household (2.4 persons) | 899 | dollars | yearly |  | 74.9166666666667 | Midwest | 2023-2024 | No | Verified - Limited | COL-S27
+    BLS Consumer Expenditure, Midwest average per consumer unit (2.4 persons): Housekeeping supplies
+COL-122 | household | aspirational | average household (2.4 persons) | 2440 | dollars | yearly |  | 203.333333333333 | Midwest | 2023-2024 | No | Verified - Limited | COL-S27
+    BLS Consumer Expenditure, Midwest average per consumer unit (2.4 persons): Household furnishings and equipment
+COL-123 | household | survival | 1 adult |  |  | one-time |  |  | City |  | No | Unverified Lead | 
+    Move-in starter kit (bedding, dishes, cleaning supplies). No published Milwaukee price
+    ALT: See the Household Goods, Furniture and Move-in database
+COL-124 | household | stability | 1 adult |  |  | one-time |  |  | City |  | No | Unverified Lead | 
+    Moving cost (truck or movers). No official published Milwaukee figure
+COL-125 | development | stability | 1 adult | 3347 | dollars | yearly |  | 278.916666666667 | County | 2026-02-15 | No | Verified - Current | COL-S01; COL-S19
+    Civic engagement (MIT 'typical expense'; 2 adults = both working)
+COL-126 | development | stability | 1 adult + 1 child | 5650 | dollars | yearly |  | 470.833333333333 | County | 2026-02-15 | No | Verified - Current | COL-S01; COL-S19
+    Civic engagement (MIT 'typical expense'; 2 adults = both working)
+COL-127 | development | stability | 2 adults | 5650 | dollars | yearly |  | 470.833333333333 | County | 2026-02-15 | No | Verified - Current | COL-S01; COL-S19
+    Civic engagement (MIT 'typical expense'; 2 adults = both working)
+COL-128 | development | stability | 2 adults + 2 children | 8485 | dollars | yearly |  | 707.083333333333 | County | 2026-02-15 | No | Verified - Current | COL-S01; COL-S19
+    Civic engagement (MIT 'typical expense'; 2 adults = both working)
+COL-129 | financial | stability | 1 adult | 28 | dollars | every 8 years |  | 0.291666666666667 | Wisconsin | 2026-11 | No | Verified - Current | COL-S12
+    Wisconsin state ID card, original or renewal (8 years)
+    ALT: Free ID card for voting purposes
+COL-130 | financial | survival | 1 adult | 0 | dollars | one-time | 0 |  | Wisconsin | 2026-11 | No | Verified - Current | COL-S12
+    Wisconsin state ID card for voting purposes
+COL-131 | financial | survival | 1 adult | 16 | dollars | one-time | 16 |  | Wisconsin | 2026-11 | Yes | Verified - Current | COL-S12
+    Wisconsin state ID card, duplicate (lost or stolen)
+COL-132 | financial | aspirational | 1 adult | 42.5 | dollars | every 8 years |  | 0.442708333333333 | Wisconsin | 2026-11 | No | Verified - Current | COL-S12
+    Wisconsin Class D driver license, original or renewal (8 years)
+COL-133 | financial | survival | 1 adult | 60 | dollars | one-time | 60 |  | Wisconsin | 2026-11 | Yes | Verified - Current | COL-S12
+    Wisconsin driver license reinstatement ($200 for OWI-related)
+    ALT: See the Identity Documents and Legal Help database for license recovery help
+COL-134 | financial | survival | 1 adult | 20 | dollars | one-time | 20 |  | Wisconsin | 2023 | No | Verified - Limited | COL-S13
+    Wisconsin birth certificate, first copy ($3 each extra copy at the same time)
+    ALT: See the Identity Documents and Legal Help database for fee waivers
+COL-135 | financial | survival | 1 adult | 2.65 | dollars per money order | per unit |  |  | National | 2026-10-04 | Yes | Verified - Limited | COL-S14
+    USPS domestic money order, $0.01-$500
+    ALT: A Bank On or second-chance checking account (see the Income Supports database)
+COL-136 | financial | survival | 1 adult | 3.75 | dollars per money order | per unit |  |  | National | 2026-10-04 | Yes | Verified - Limited | COL-S14
+    USPS domestic money order, $500.01-$1,000
+    ALT: A Bank On or second-chance checking account (see the Income Supports database)
+COL-137 | financial | survival | 1 adult |  |  | per unit |  |  | Wisconsin |  | Yes | Needs Confirmation | COL-S17
+    Check cashing fee at a licensed currency exchange. No published fee schedule or state fee cap was found
+    ALT: Walmart: $4 a check up to $1,000 (COL rows below); or a Bank On account
+COL-138 | financial | survival | 1 adult | 4 | dollars per check | per unit |  |  | National | 2026 | Yes | Verified - Limited | COL-S23
+    Walmart check cashing, pre-printed check up to $1,000
+    ALT: Free at your own bank or credit union, or with a Bank On account
+COL-139 | financial | survival | 1 adult | 8 | dollars per check | per unit |  |  | National | 2026 | Yes | Verified - Limited | COL-S23
+    Walmart check cashing, pre-printed check over $1,000 (maximum fee)
+    ALT: Free at your own bank or credit union
+COL-140 | financial | survival | 1 adult | 0 | dollars | monthly |  | 0 | City | 2026-11 | No | Verified - Current | COL-S30
+    Bank On Greater Milwaukee account, $0 monthly fee (e.g. Prime Financial CU Clear Access Banking, CIBC Easy Path Access, Horicon Bank, Johnson Financial, Waterstone Bank)
+COL-141 | financial | stability | 1 adult | 5 | dollars | monthly |  | 5 | City | 2026-11 | No | Verified - Current | COL-S30
+    Bank On Greater Milwaukee account, highest listed monthly fee (several banks)
+    ALT: A $0-fee Bank On account
+COL-142 | financial | survival | 1 adult |  |  | monthly |  |  | City |  | Yes | Unverified Lead | 
+    Bank monthly maintenance and overdraft fees. No single published Milwaukee figure
+    ALT: A Bank On certified account (see the Income Supports database)
+COL-143 | financial | survival | 1 adult |  |  | per unit |  |  | Wisconsin |  | Yes | Needs Confirmation | COL-S16
+    Payday loan cost. Wisconsin's payday loan law sets no maximum interest rate (DFI), so no standard figure exists
+    ALT: Credit union small-dollar loans or emergency funds (see the Income Supports database)
+COL-144 | future | stability | 1 adult |  | dollars | one-time |  |  | City |  | No | Unverified Lead | 
+    Starter emergency fund. No published Milwaukee benchmark found
+[{"Workbook":"CORRECTION in v0.3","Milwaukee_Cost_of_Living_Benchmarks_v0.3 (2nd Chance Housing Inc., Human Mirror database #3)":"v0.2 used HUD's FY2027 rents. HUD's reevaluation list shows Milwaukee-Waukesha among areas where FY2026 rents REMAIN in effect, so v0.3 uses FY2026 ($1,027 / $1,119 / $1,338 / $1,648 / $1,784) and keeps FY2027 as reference rows marked Needs Confirmation. The SRO rent and the survival example change with it."},{"Workbook":"New in v0.3","Milwaukee_Cost_of_Living_Benchmarks_v0.3 (2nd Chance Housing Inc., Human Mirror database #3)":"We Energies gas rates for both gas companies and the gas reconnection fee; IRS National Standards for clothing, personal care and housekeeping supplies; BLS Midwest averages (aspirational reference); ALICE Milwaukee County Household Survival Budget (2022 costs); Bank On Milwaukee $0 and $5 accounts; MCTS reduced daily and weekly caps; USPS fee conflict."},{"Workbook":"Changes since v0.1","Milwaukee_Cost_of_Living_Benchmarks_v0.3 (2nd Chance Housing Inc., Human Mirror database #3)":"1. Rents: HUD FY2027 Fair Market Rents (effective Oct 1, 2026), read on HUD USER, replace the FY2026 figures; the old values are in Conflicts_Log. 2. New survival housing row: HUD's single-room occupancy rent (0.75 x efficiency FMR), so the survival example now includes housing. 3. New rows: typical electric bill at 660 kWh (DERIVED from published rates), Spectrum Internet Assist $15 / $25, Walmart check cashing $4 / $8. 4. Named blank rows for gaps: gas, utility deposit, BadgerCare premiums, sliding-scale clinic fees, clothing, personal care, move-in kit, moving cost, bank fees. 5. Warning added on gross rent (below)."},{"Workbook":"DO NOT DOUBLE-COUNT","Milwaukee_Cost_of_Living_Benchmarks_v0.3 (2nd Chance Housing Inc., Human Mirror database #3)":"HUD Fair Market Rents and the SRO rent are GROSS rents: they already include tenant-paid utilities. Never add the utility rows on top of them. Use the utility rows only when a person pays a utility bill that is not in their rent."},{"Workbook":"Research date","Milwaukee_Cost_of_Living_Benchmarks_v0.3 (2nd Chance Housing Inc., Human Mirror database #3)":"2026-11-13"},{"Workbook":"Scope","Milwaukee_Cost_of_Living_Benchmarks_v0.3 (2nd Chance Housing Inc., Human Mirror database #3)":"Published prices behind the Daily Number for Milwaukee, at three levels (survival, stability, aspirational), across the 12 cost categories. Every amount comes from a published source listed on the Sources sheet. Nothing is estimated."},{"Workbook":"How per-day is worked out","Milwaukee_Cost_of_Living_Benchmarks_v0.3 (2nd Chance Housing Inc., Human Mirror database #3)":"Each price is first turned into a yearly figure: daily x 365, weekly x 52, monthly x 12, quarterly x 4, yearly x 1, every 8 years ÷ 8. Then per_month = per_year ÷ 12 and per_day = per_year ÷ 365, the same way the Mirror's Daily Number works (a year of costs ÷ 365). One-time costs go in one_time_amount and are not spread. Prices per unit (a ride, a kWh, a Ccf of water, a copay) are not converted, because they are not a total."},{"Workbook":"Levels","Milwaukee_Cost_of_Living_Benchmarks_v0.3 (2nd Chance Housing Inc., Human Mirror database #3)":"The level on each row is 2nd Chance's classification. USDA Thrifty = survival, Low-Cost = stability, Moderate-Cost = aspirational. MIT Living Wage 'typical expenses' and HUD Fair Market Rents = stability. HUD SRO rent, MCTS fares and fixed utility charges = survival."},{"Workbook":"DERIVED rows","Milwaukee_Cost_of_Living_Benchmarks_v0.3 (2nd Chance Housing Inc., Human Mirror database #3)":"Every DERIVED row applies a rule the source itself publishes: USDA's one-person adjustment (+20%) for the 'living alone' food rows; HUD's SRO rule (0.75 x efficiency FMR); and We Energies' own published rates times its stated typical use of 660 kWh a month for the electric bill. The formula is shown on each row."},{"Workbook":"Counts","Milwaukee_Cost_of_Living_Benchmarks_v0.3 (2nd Chance Ho
+[{"household_size":"1 adult","level":"stability","total_per_year":"36513","total_per_month":"3042.75","total_per_day":"100.035616438356","one_time_costs_listed_separately":"None in the MIT totals. If needed: COL-134 birth certificate $20; COL-131 duplicate ID $16","benchmark_ids_used":"COL-013, COL-071, COL-083, COL-092, COL-100, COL-104, COL-125"},{"household_size":"1 adult + 1 child","level":"stability","total_per_year":"70307","total_per_month":"5858.91666666667","total_per_day":"192.621917808219","one_time_costs_listed_separately":"None in the MIT totals. If needed: COL-134 birth certificate $20; COL-131 duplicate ID $16","benchmark_ids_used":"COL-014, COL-072, COL-084, COL-093, COL-101, COL-105, COL-108, COL-126"},{"household_size":"2 adults","level":"stability","total_per_year":"52607","total_per_month":"4383.91666666667","total_per_day":"144.128767123288","one_time_costs_listed_separately":"None in the MIT totals. If needed: COL-134 birth certificate $20; COL-131 duplicate ID $16","benchmark_ids_used":"COL-015, COL-073, COL-085, COL-094, COL-102, COL-106, COL-127"},{"household_size":"2 adults + 2 children","level":"stability","total_per_year":"102294","total_per_month":"8524.5","total_per_day":"280.257534246575","one_time_costs_listed_separately":"None in the MIT totals. If needed: COL-134 birth certificate $20; COL-131 duplicate ID $16","benchmark_ids_used":"COL-016, COL-074, COL-086, COL-095, COL-103, COL-107, COL-109, COL-128"},{"household_size":"1 adult","level":"survival","total_per_year":"14087.16","total_per_month":"1173.93","total_per_day":"38.5949589041096","one_time_costs_listed_separately":"COL-130 free voting ID; COL-134 birth certificate $20; COL-055 water turn-on $60 if shut off","benchmark_ids_used":"Housing = HUD SRO rent (gross rent, so utilities are already in it; no utility rows added). No healthcare, phone or household items included: COL-001, COL-062, COL-078"}]
+[{"benchmark_id":"COL-002","value_a":"1027","source_a":"COL-S24","value_b":"985","source_b":"COL-S20","note":"FY2026 FMR (COL-002) stays in effect for Milwaukee-Waukesha: HUD received a valid reevaluation request. FY2027 (COL-007) is published but not in effect. Re-check the HUD reevaluation list."},{"benchmark_id":"COL-003","value_a":"1119","source_a":"COL-S24","value_b":"1060","source_b":"COL-S20","note":"FY2026 FMR (COL-003) stays in effect for Milwaukee-Waukesha: HUD received a valid reevaluation request. FY2027 (COL-008) is published but not in effect. Re-check the HUD reevaluation list."},{"benchmark_id":"COL-004","value_a":"1338","source_a":"COL-S24","value_b":"1263","source_b":"COL-S20","note":"FY2026 FMR (COL-004) stays in effect for Milwaukee-Waukesha: HUD received a valid reevaluation request. FY2027 (COL-009) is published but not in effect. Re-check the HUD reevaluation list."},{"benchmark_id":"COL-005","value_a":"1648","source_a":"COL-S24","value_b":"1553","source_b":"COL-S20","note":"FY2026 FMR (COL-005) stays in effect for Milwaukee-Waukesha: HUD received a valid reevaluation request. FY2027 (COL-010) is published but not in effect. Re-check the HUD reevaluation list."},{"benchmark_id":"COL-006","value_a":"1784","source_a":"COL-S24","value_b":"1664","source_b":"COL-S20","note":"FY2026 FMR (COL-006) stays in effect for Milwaukee-Waukesha: HUD received a valid reevaluation request. FY2027 (COL-011) is published but not in effect. Re-check the HUD reevaluation list."},{"benchmark_id":"COL-135","value_a":"2.65","source_a":"COL-S14","value_b":"2.55","source_b":"COL-S29","note":"USPS Notice 123 dated April 26, 2026 lists $2.55 ($3.60 over $500). A later notice effective Oct 4, 2026 is quoted at $2.65 by a third party. Confirm the current fee on pe.usps.com."},{"benchmark_id":"COL-135","value_a":"2.65","source_a":"COL-S14","value_b":"2.35","source_b":"COL-S18","note":"Third-party articles quote several different USPS fees. COL-S14 cites Notice 123 effective Oct 4, 2026. Confirm at a post office or on pe.usps.com."}]

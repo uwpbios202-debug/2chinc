@@ -1,0 +1,79 @@
+# Old URLs -> new structure. Kept so links already sent in emails, saved bookmarks and
+# values stored in the database (e.g. the Zelle QR image path) keep working.
+# 302 (not 301) while the layout settles; switch to 301 once it is final.
+
+/owners  /association-owners/roca1/  302
+/owners/  /association-owners/roca1/  302
+/owners/staff.html  /association-owners/roca1/staff/  302
+/owners/staff  /association-owners/roca1/staff/  302
+/owners/association.html  /association-owners/roca1/dues/  302
+/owners/association  /association-owners/roca1/dues/  302
+/owners/nothing-changed.html  /association-owners/roca1/nothing-changed/  302
+/owners/nothing-changed  /association-owners/roca1/nothing-changed/  302
+/owners/applications.html  /leasing/applications/  302
+/owners/applications  /leasing/applications/  302
+/owners/rentals.html  /leasing/leases/  302
+/owners/rentals  /leasing/leases/  302
+/owners/renewals.html  /leasing/renewals/  302
+/owners/renewals  /leasing/renewals/  302
+/owners/countersign.html  /leasing/countersign/  302
+/owners/countersign  /leasing/countersign/  302
+/owners/maintenance.html  /maintenance/  302
+/owners/maintenance  /maintenance/  302
+/owners/messages.html  /resident/messages/  302
+/owners/messages  /resident/messages/  302
+/owners/letters.html  /documents/letters/  302
+/owners/letters  /documents/letters/  302
+/owners/notices.html  /documents/notices/  302
+/owners/notices  /documents/notices/  302
+/owners/payments.html  /accounting/tenant-side/payments/  302
+/owners/payments  /accounting/tenant-side/payments/  302
+/owners/index.html  /association-owners/roca1/  302
+/owners/portal.css  /assets/portal/portal.css  302
+/owners/portal.js  /assets/portal/portal.js  302
+/owners/config.js  /assets/portal/config.js  302
+/owners/zelle-roca1.png  /accounting/owner-side/zelle-roca1.png  302
+/apply  /leasing/apply/  302
+/apply/  /leasing/apply/  302
+/sign  /leasing/sign/  302
+/sign/  /leasing/sign/  302
+/documents/index.html  /documents/public/  302
+/documents/bed-bug-treatment-preparation.pdf  /documents/public/bed-bug-treatment-preparation.pdf  302
+/documents/bed-bugs-milwaukee-dns.pdf  /documents/public/bed-bugs-milwaukee-dns.pdf  302
+/documents/cockroach-control-preparation.html  /documents/public/cockroach-control-preparation.html  302
+/documents/dog-and-cat-laws-milwaukee-dns.pdf  /documents/public/dog-and-cat-laws-milwaukee-dns.pdf  302
+/documents/lead-in-your-home-epa.pdf  /documents/public/lead-in-your-home-epa.pdf  302
+/documents/milwaukee-ordinance-ch252-general-requirements.pdf  /documents/public/milwaukee-ordinance-ch252-general-requirements.pdf  302
+/documents/milwaukee-ordinance-ch78-animals.pdf  /documents/public/milwaukee-ordinance-ch78-animals.pdf  302
+/documents/rat-control-milwaukee-dns.pdf  /documents/public/rat-control-milwaukee-dns.pdf  302
+/documents/test-your-home-for-radon.pdf  /documents/public/test-your-home-for-radon.pdf  302
+/documents/wisconsin-radon-action-month.pdf  /documents/public/wisconsin-radon-action-month.pdf  302
+/leasing/move-in  /inspections/move-in/  302
+/leasing/move-in/  /inspections/move-in/  302
+/leasing/move-out  /inspections/move-out/  302
+/leasing/move-out/  /inspections/move-out/  302
+/owners/movein.html  /inspections/move-in/  302
+/owners/movein  /inspections/move-in/  302
+/owners/moveout.html  /inspections/move-out/  302
+/owners/moveout  /inspections/move-out/  302
+
+# Emails built page names relative to the portal address (now /association-owners/roca1/).
+# These keep links in emails already sent working.
+/association-owners/roca1/countersign.html  /leasing/countersign/  302
+/association-owners/roca1/notices.html  /documents/notices/  302
+/association-owners/roca1/association.html  /association-owners/roca1/dues/  302
+/association-owners/roca1/applications.html  /leasing/applications/  302
+/countersign.html  /leasing/countersign/  302
+/notices.html  /documents/notices/  302
+/applications.html  /leasing/applications/  302
+
+# Short, memorable addresses for the probate filing help page
+/probate  /probate-help/  302
+/probate/  /probate-help/  302
+/probate-filing-help  /probate-help/  302
+/probate-filing-help/  /probate-help/  302
+/toolkit  /probate-help/  302
+/toolkit/  /probate-help/  302
+# Human Mirror T9.1: a neutral sign-in link for emails to people in safety mode (no "mirror" in the address).
+/account/  /mirror/sign-in/  302
+/account  /mirror/sign-in/  302

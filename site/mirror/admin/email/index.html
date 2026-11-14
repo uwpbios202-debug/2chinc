@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Mirror Emails | The Human Mirror</title>
+<link rel="icon" href="/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Source+Serif+4:opsz,wght@8..60,600&display=swap">
+<link rel="stylesheet" href="/mirror/assets/mirror.css?v=20261113l">
+</head>
+<body data-area="workspace">
+<!-- Phase 9 (T9.1): every Mirror email's exact words, and the hold. A kind reaches the outbox (and is sent) only after the 2nd Chance main
+     admin turns it on here (CLAUDE.md: the first real send of each kind asks Stephen). Platform admins see; only the main admin switches. -->
+<main id="main" class="mm-main">
+  <p class="mm-eyebrow"><a href="/mirror/admin/">Admin</a> · <a href="/mirror/admin/platform/">Platform overview</a></p>
+  <h1>Mirror emails</h1>
+  <p class="mm-lead">Every email the Mirror can send, in its exact words. Each kind is off until the 2nd Chance main admin turns it on.
+    While a kind is off, its emails are recorded as "held" and never sent, and they are not sent later when the kind is turned on.</p>
+  <div id="mmBox"><p role="status">Loading…</p></div>
+</main>
+<script type="module" src="/mirror/assets/mirror-ui.js?v=20261113h"></script>
+<script type="module">
+import { requireArea, rpc } from "/mirror/assets/mirror-client.js?v=20261113p";
+import { esc, notice, toast } from "/mirror/assets/mirror-ui.js?v=20261113h";
+
+await requireArea("workspace");
+const box = /** @type {HTMLElement} */ (document.getElementById("mmBox"));
+/** @type {any} */ let D;
+const msg = (/** @type {unknown} */ e) => (e instanceof Error ? e.message : String(e));
+
+/** An email preview in a sandboxed frame (no scripts, no links followed). @param {any} p @param {string} title */
+const frame = (p, title) => `<p class="mm-small" style="margin:var(--mm-space-3) 0 var(--mm-space-1)"><strong>${esc(title)}</strong> · Subject: ${esc(p.subject)}</p>
+  <iframe sandbox="" title="${esc(title)}: ${esc(p.subject)}" srcdoc="${esc(p.html)}" style="width:100%;min-height:15rem;border:1px solid var(--mm-border);border-radius:6px;background:#fff"></iframe>`;
+
+async function load() {
+  try { D = await rpc("mirror_admin_email_kinds"); } catch (e) { box.innerHTML = notice("caution", `<p>${esc(msg(e))}</p>`); return; }
+  draw();
+}
+
+function draw() {
+  box.innerHTML = `${D.can_switch ? notice("info", "<p>You can turn each kind on or off. Turning a kind on lets the Mirror send it from then on.</p>")
+      : notice("info", "<p>Only the 2nd Chance main admin can turn a kind on or off.</p>")}
+    ${D.kinds.map((/** @type {any} */ k) => `<section class="mm-card" style="margin-bottom:var(--mm-space-4)" data-k="${esc(k.kind)}">
+      <div class="mm-row" style="justify-content:space-between;align-items:center">
+        <h2 style="margin:0">${esc(k.label)}</h2>
+        <span class="mm-tag${k.enabled ? " mm-tag-ok" : ""}">${k.enabled ? "On: sent" : "Off: held, not sent"}</span></div>
+      <p class="mm-small mm-muted" style="margin:var(--mm-space-2) 0 0">Last 30 days: ${esc(k.held)} held · ${esc(k.queued)} sent to the outbox · ${esc(k.skipped)} skipped
+        ${k.choice ? "· people can turn this kind off in their Settings; safety mode stops it" : ""}</p>
+      ${frame(k.preview, "Example")}
+      ${k.preview_safety ? frame(k.preview_safety, "Example for a person in safety mode") : ""}
+      ${D.can_switch ? `<p style="margin-top:var(--mm-space-3)"><button class="mm-btn${k.enabled ? " mm-btn-secondary" : ""}" type="button" data-sw="${k.enabled ? "off" : "on"}">${k.enabled ? "Turn off" : "Turn on"}</button></p>` : ""}
+    </section>`).join("")}`;
+  box.querySelectorAll("[data-sw]").forEach((b) => b.addEventListener("click", async () => {
+    const sec = /** @type {HTMLElement} */ (b.closest("[data-k]"));
+    const on = /** @type {HTMLElement} */ (b).dataset.sw === "on";
+    if (on && /** @type {HTMLElement} */ (b).dataset.sure !== "1") { /** @type {HTMLElement} */ (b).dataset.sure = "1"; b.textContent = "Press again: it will send real emails from now on"; return; }
+    try { D = await rpc("mirror_admin_email_kind_set", { p_kind: sec.dataset.k, p_enabled: on }); toast(on ? "Turned on." : "Turned off."); draw(); } catch (e) { toast(msg(e)); }
+  }));
+}
+
+load();
+</script>
+</body>
+</html>

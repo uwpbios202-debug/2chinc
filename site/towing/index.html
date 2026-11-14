@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<title>Registered Vehicles — 6622-6626 N Bourbon St</title>
+<link rel="icon" href="/favicon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+<style>
+  .tw-top{display:grid;gap:10px;margin-bottom:16px}
+  .tw-rule{border-left:5px solid #b3261e;background:rgba(179,38,30,.07);padding:10px 14px;border-radius:6px}
+  .tw-rule.pre{border-color:#b7791f;background:rgba(183,121,31,.09)}
+  .tw-find{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .tw-find input{font:700 1.25rem ui-monospace,Consolas,monospace;letter-spacing:.08em;text-transform:uppercase;padding:10px 12px;border:2px solid var(--line);border-radius:8px;flex:1;min-width:0;max-width:340px;background:var(--panel);color:var(--fg)}
+  .tw-res{font-size:1.05rem;font-weight:700;padding:10px 14px;border-radius:8px}
+  .tw-res.ok{background:rgba(46,125,31,.12);color:#2e7d1f}.tw-res.bad{background:rgba(179,38,30,.12);color:#b3261e}
+  .tw-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+  .tw-stall{border:1px solid var(--line);border-radius:12px;background:var(--panel);padding:14px;display:grid;gap:8px;align-content:start}
+  .tw-stall h2{margin:0;font-size:1.6rem;display:flex;align-items:center;gap:10px}
+  .tw-stall h2 .lab{display:inline-grid;place-items:center;min-width:52px;height:52px;border-radius:10px;background:#1b2430;color:#fff}
+  .tw-stall.empty{border-style:dashed}
+  .tw-stall.blocked{border:2px solid #b3261e}
+  .tw-veh{border-top:1px solid var(--line);padding-top:8px;display:grid;gap:4px}
+  .tw-plate{font:700 1.2rem ui-monospace,Consolas,monospace;letter-spacing:.06em}
+  .tw-ph{display:grid;grid-template-columns:1fr 1fr;gap:6px}.tw-ph a{display:block}
+  .tw-ph img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:8px;background:#e8ece6;display:block}
+  .tw-tag{display:inline-block;font-size:.8rem;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--head);border:1px solid var(--line)}
+  .tw-tag.red{background:#b3261e;color:#fff;border-color:#b3261e}.tw-tag.amber{background:#b7791f;color:#fff;border-color:#b7791f}
+  .muted{color:var(--muted)}
+  table.tw{width:100%;border-collapse:collapse}table.tw td,table.tw th{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left}
+  .hit{outline:3px solid #2e7d1f;outline-offset:2px}
+  .tw-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:10px 0}
+  .tw-form label{display:grid;gap:3px;font-size:.85rem}.tw-form label.wide{grid-column:1/-1}
+  .tw-form input,.tw-form select{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--fg)}
+  .tw-req{border:2px solid #b3261e;border-radius:12px;padding:12px;display:grid;gap:6px;background:var(--panel)}
+</style>
+</head>
+<body>
+<!-- Always Towing's private page (Stephen, 11/8/2026). The key after #k= is checked by the tow-view edge function; it never reaches page logs
+     because a # part is not sent to the server. Staff make a new link on https://2ndchinc.org/parking/ (the old one stops working). -->
+<div class="appbar"><div class="appbar-in">
+  <div class="org">2nd Chance Housing<span>Registered vehicles · for Always Towing &amp; Recovery</span></div>
+  <div class="row"><button class="linkbtn" type="button" id="refresh">Refresh</button></div>
+</div></div>
+<main class="wrap">
+  <div id="msg" class="panel" hidden></div>
+  <div id="app" hidden>
+    <div class="tw-top">
+      <h1 style="margin:0">6622 &amp; 6626 N Bourbon St, Milwaukee: parking lot</h1>
+      <div id="rule" class="tw-rule"></div>
+      <div class="tw-find"><input id="plate" placeholder="Type a plate" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Plate"><span class="muted" id="asof"></span></div>
+      <div id="res" class="tw-res" hidden></div>
+    </div>
+    <section id="reqBox" class="panel" style="margin-bottom:16px;border:2px solid #b3261e" hidden><h2 style="margin:0">Tow requests from residents (last 24 hours)</h2><div id="reqs" class="tw-grid"></div></section>
+    <div id="stalls" class="tw-grid"></div>
+    <section class="panel" style="margin-top:16px"><h2 style="margin:0">Report a tow</h2>
+      <p class="muted" style="margin:0">Towed a vehicle on patrol? Record it here so the office knows. (For a resident's request, use "Mark towed" on the request above.)</p>
+      <div class="tw-form"><label>Stall<select id="tStall"></select></label><label>Plate<input id="tPlate" maxlength="10" autocapitalize="characters"></label>
+        <label>State<input id="tState" maxlength="2" placeholder="WI" autocapitalize="characters"></label><label>Vehicle<input id="tVeh" maxlength="80" placeholder="Silver Nissan Altima"></label>
+        <label class="wide">Note<input id="tNote" maxlength="300" placeholder="Why it was towed (for example: not registered to this stall)"></label></div>
+      <div><button class="btn primary" type="button" id="tSave">Record the tow</button> <span class="muted" id="tMsg"></span></div>
+      <div id="towsToday"></div></section>
+    <section id="guestsBox" class="panel" style="margin-top:16px" hidden><h2 style="margin:0">Approved guest vehicles today</h2><div id="guests"></div></section>
+    <p class="muted" style="margin-top:16px" id="contact"></p>
+  </div>
+</main>
+<script type="module">
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from "/assets/portal/config.js";
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const day = (iso) => iso ? new Date(iso + "T12:00:00").toLocaleDateString("en-US", { weekday: "short", month: "numeric", day: "numeric", year: "numeric" }) : "";
+const norm = (p) => String(p || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+const KIND = { own: "Resident vehicle", loaner: "Loaner (temporary)", visitor: "Regular visitor" };
+const key = new URLSearchParams(location.hash.slice(1)).get("k") || "";
+let D = null;
+
+function fail(t) { $("app").hidden = true; $("msg").hidden = false; $("msg").innerHTML = `<p>${esc(t)}</p><p class="muted">2nd Chance Housing: info@2ndchinc.org</p>`; }
+
+async function load() {
+  if (!key) return fail("This page needs the private link from 2nd Chance Housing.");
+  try {
+    const r = await fetch(SUPABASE_URL + "/functions/v1/tow-view", { method: "POST", headers: { "Content-Type": "application/json", apikey: SUPABASE_ANON_KEY }, body: JSON.stringify({ key }) });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) return fail(j.error || "This page could not load. Try again.");
+    D = j; draw(); drawTows();
+  } catch { fail("No connection. Try again."); }
+}
+
+function draw() {
+  $("msg").hidden = true; $("app").hidden = false;
+  const live = D.enforce_from && D.date >= D.enforce_from;
+  const snowOn = D.snow ? `<div class="tw-rule" style="border-color:#1b4b8a;background:rgba(27,75,138,.1);margin-bottom:8px"><b>❄ Snow removal in progress.</b> Every vehicle must be out of the lot${D.snow.from ? " from " + new Date(D.snow.from).toLocaleString("en-US", { weekday: "short", hour: "numeric", minute: "2-digit" }) : ""}${D.snow.until ? " until " + new Date(D.snow.until).toLocaleString("en-US", { weekday: "short", hour: "numeric", minute: "2-digit" }) : " until plowing is done"}. The snow contractor reports vehicles left in the lot under Tow requests.</div>` : "";
+  $("rule").className = "tw-rule" + (live ? "" : " pre");
+  $("rule").innerHTML = live
+    ? `<b>Enforcement is on.</b> Each numbered stall belongs to the unit with that number. A vehicle in a numbered stall that is <b>not listed under that stall below</b> (and not an approved guest in it, and not showing a <b>blue GUEST tag</b> listed as allowed in that stall; a unit has two blue GUEST tags, both printed with its number) is unauthorized and may be towed at the owner's expense. A stall marked <b>NO PARKING</b>: any vehicle in it may be towed.${(D.lost_tags || []).length ? `<br><b>Lost or cancelled tags, NOT valid anywhere:</b> ${D.lost_tags.map((t) => t.kind === "guest" ? "GUEST " + esc(t.unit) + " (" + esc(t.code) + ")" : esc(t.code)).join(", ")}.` : ""}`
+    : `<b>Patrol enforcement starts ${esc(day(D.enforce_from))}.</b> Residents are registering their vehicles until ${esc(day(D.register_by))}. Until then, tow only when a resident requests it through dispatch.`;
+  document.querySelectorAll(".tw-snow").forEach((x) => x.remove());
+  if (snowOn) $("rule").insertAdjacentHTML("beforebegin", snowOn.replace('class="tw-rule"', 'class="tw-rule tw-snow"'));
+  $("asof").textContent = "Today " + day(D.date) + " · updated " + new Date(D.generated_at).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+  $("stalls").innerHTML = D.stalls.map((s) => {
+    const vs = s.vehicles || [], swapped = s.used_by && s.used_by !== s.home_unit;
+    const tags = [
+      s.blocked ? `<span class="tw-tag red">NO PARKING</span>` : "",
+      swapped ? `<span class="tw-tag amber">Switched: Unit ${esc(s.used_by)} parks here until ${esc(day(s.swap && s.swap.end_date))}</span>` : "",
+      s.hold ? `<span class="tw-tag amber">Held for ${esc(s.hold.holder_kind)}${s.hold.vehicle ? ": " + esc(s.hold.vehicle) : ""}${s.hold_plate ? " · plate " + esc(s.hold_plate) : ""} until ${esc(day(s.hold.end_date))}</span>` : "",
+    ].join(" ");
+    const body = s.blocked ? `<p><b>No vehicle may park here right now.</b></p>`
+      : vs.length ? vs.map((v) => `<div class="tw-veh" data-plate="${esc(norm(v.plate))}">
+          <div><span class="tw-tag">${esc(KIND[v.kind] || v.kind)}</span>${v.kind === "loaner" && v.loaner_until ? ` <span class="muted">until ${esc(day(v.loaner_until))}</span>` : ""}${v.kind === "visitor" && v.visitor_frequency ? ` <span class="muted">${esc(v.visitor_frequency)}</span>` : ""}</div>
+          ${v.kind !== "visitor" || v.make ? `<div>${esc([v.color, v.year, v.make, v.model].filter(Boolean).join(" "))}</div>` : ""}
+          <div class="tw-plate">${v.plate ? esc(v.plate) + " " + esc(v.plate_state || "") : `<span class="muted" style="font:inherit">plate not given</span>`}</div>
+          ${v.hanger ? `<div><span class="tw-tag">Mirror hanger #${esc(v.hanger)}</span></div>` : ""}${v.vin ? `<div class="muted">VIN ${esc(v.vin)}</div>` : ""}
+          ${v.front_url || v.back_url ? `<div class="tw-ph">${v.front_url ? `<a href="${esc(v.front_url)}" target="_blank" rel="noopener"><img src="${esc(v.front_url)}" alt="Front" loading="lazy"></a>` : "<span></span>"}${v.back_url ? `<a href="${esc(v.back_url)}" target="_blank" rel="noopener"><img src="${esc(v.back_url)}" alt="Back" loading="lazy"></a>` : ""}</div>` : ""}</div>`).join("")
+      : `<p class="muted">${s.no_vehicle ? "The unit says it has no vehicle." : s.kind === "unit" ? "No vehicle registered." : "No hold today."}${s.kind === "unit" ? " Any vehicle here is unauthorized" + (live ? "." : " (from " + esc(day(D.enforce_from)) + ").") : ""}</p>`;
+    const gt = s.blocked ? [] : (s.guest_tags || []), rt = s.resident_tags;
+    const tagLine = s.kind === "unit" && !s.blocked && rt ? (rt.issued
+      ? `<div style="margin-top:6px"><span class="tw-tag" style="background:#b3261e;color:#fff">Red tags issued</span> ${(rt.resident || []).map((c) => `<b>${esc(c)}</b>`).join(", ") || "<span class=muted>(guest tags only)</span>"} <span class="muted">· a resident vehicle here should show one on the mirror</span></div>`
+      : `<div style="margin-top:6px" class="muted">Mirror tags not handed out to this unit yet: check the plate only.</div>`) : "";
+    const guestLine = s.kind === "unit" && gt.length ? `<div style="margin-top:6px"><span class="tw-tag" style="background:#1b4b8a;color:#fff">Blue GUEST tag allowed</span> ${gt.map((g) => `<b>GUEST ${esc(g.unit)}</b>${g.lent_until ? ` <span class="muted">(lent by Unit ${esc(g.unit)} until ${esc(day(g.lent_until))})</span>` : ""}`).join(", ")}</div>` : "";
+    return `<div class="tw-stall ${vs.length || s.hold ? "" : "empty"} ${s.blocked ? "blocked" : ""}" id="st-${esc(s.label)}">
+      <h2><span class="lab">${esc(s.label)}</span><span style="font-size:1rem">${s.kind === "unit" ? "Unit " + esc(s.home_unit) + " stall<br><span class=muted>" + esc(s.building || "") + "</span>" : esc(s.kind) + " stall"}</span></h2>
+      ${tags ? `<div>${tags}</div>` : ""}${body}${tagLine}${guestLine}</div>`;
+  }).join("");
+  const g = D.guests || [];
+  $("guestsBox").hidden = !g.length;
+  $("guests").innerHTML = g.length ? `<table class="tw"><tr><th>Visiting unit</th><th>Vehicle</th><th>Plate</th><th>Decal</th><th>Dates</th></tr>${g.map((x) => `<tr data-plate="${esc(norm(x.plate))}"><td>${esc(x.unit)}</td><td>${esc(x.vehicle)}</td><td class="tw-plate">${esc(x.plate || "")} ${esc(x.plate_state || "")}</td><td>${esc(x.decal || "")}</td><td>${esc(day(x.start_date))} – ${esc(day(x.end_date))}</td></tr>`).join("")}</table>` : "";
+  $("contact").innerHTML = `Questions: 2nd Chance Housing, property manager, ${esc(D.office_phone || "")}, ${esc(D.office_email || "")}. This page shows today's lot; refresh it before acting.`;
+  find();
+}
+
+function find() {
+  document.querySelectorAll(".hit").forEach((e) => e.classList.remove("hit"));
+  const q = norm($("plate").value);
+  if (q.length < 3) { $("res").hidden = true; return; }
+  const hits = [];
+  for (const s of D.stalls) for (const v of s.vehicles || []) if (norm(v.plate).includes(q)) hits.push({ s, v });
+  const gh = (D.guests || []).filter((x) => norm(x.plate).includes(q));
+  $("res").hidden = false;
+  if (hits.length || gh.length) {
+    $("res").className = "tw-res ok";
+    $("res").textContent = [...hits.map((h) => `${h.v.plate} is allowed in stall ${h.s.label}` + (h.s.blocked ? " (but that stall is NO PARKING now)" : "")), ...gh.map((x) => `${x.plate} is an approved guest of Unit ${x.unit}`)].join(" · ");
+    hits.forEach((h) => { const el = document.getElementById("st-" + h.s.label); if (el) el.classList.add("hit"); });
+    if (hits[0]) document.getElementById("st-" + hits[0].s.label)?.scrollIntoView({ behavior: "smooth", block: "center" });
+  } else {
+    $("res").className = "tw-res bad";
+    $("res").textContent = `No registered vehicle or approved guest has a plate matching "${q}". It is still allowed if it hangs a blue GUEST tag listed as allowed in the stall it is in.`;
+  }
+}
+// Tow requests from residents (with their photos) and the "Report a tow" form.
+const tm = (iso) => new Date(iso).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+async function towed(body) {
+  const r = await fetch(SUPABASE_URL + "/functions/v1/tow-view", { method: "POST", headers: { "Content-Type": "application/json", apikey: SUPABASE_ANON_KEY }, body: JSON.stringify({ key, action: "towed", ...body }) });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(j.error || "Could not record the tow. Try again.");
+  return j;
+}
+function drawTows() {
+  const reqs = D.tow_requests || [];
+  $("reqBox").hidden = !reqs.length;
+  $("reqs").innerHTML = reqs.map((a) => `<div class="tw-req"><b style="font-size:1.2rem">Stall ${esc(a.stall)}</b>
+      <div>${a.status === "tow_requested" ? `<span class="tw-tag red">TOW REQUESTED ${esc(tm(a.tow_requested_at))}</span>` : `<span class="tw-tag amber">Alert ${esc(tm(a.alerted_at))}, waiting</span>`}</div>
+      <div>${esc(a.vehicle || "Vehicle not described")}${a.plate ? ` · <span class="tw-plate">${esc(a.plate)} ${esc(a.plate_state || "")}</span>` : ""}</div>
+      ${a.note ? `<div class="muted">${esc(a.note)}</div>` : ""}
+      ${(a.photos || []).length ? `<div class="tw-ph">${a.photos.map((u) => `<a href="${esc(u)}" target="_blank" rel="noopener"><img src="${esc(u)}" alt="Photo" loading="lazy"></a>`).join("")}</div>` : `<div class="muted">No photos.</div>`}
+      <div><button class="btn primary" type="button" data-towed="${esc(a.id)}">Mark towed</button> <span class="muted" data-tmsg="${esc(a.id)}"></span></div></div>`).join("");
+  $("tStall").innerHTML = `<option value="">Choose</option>` + D.stalls.map((s) => `<option value="${esc(s.label)}">${esc(s.label)}${s.kind === "unit" ? "" : " (" + esc(s.kind) + ")"}</option>`).join("");
+  const today = D.tows_today || [];
+  $("towsToday").innerHTML = today.length ? `<p class="muted">Recorded in the last 24 hours: ${today.map((t) => `stall ${esc(t.stall)}${t.plate ? " (" + esc(t.plate) + ")" : ""} at ${esc(tm(t.towed_at))}`).join("; ")}</p>` : "";
+  document.querySelectorAll("[data-towed]").forEach((b) => b.onclick = async () => {
+    const m = document.querySelector(`[data-tmsg="${b.dataset.towed}"]`); b.disabled = true; m.textContent = "Saving…";
+    try { await towed({ alert_id: b.dataset.towed }); m.textContent = "Recorded. The office is notified."; setTimeout(load, 1200); }
+    catch (e) { m.textContent = e.message; b.disabled = false; }
+  });
+}
+$("tSave").onclick = async () => {
+  const b = $("tSave"), m = $("tMsg");
+  if (!$("tStall").value) { m.textContent = "Choose the stall."; return; }
+  b.disabled = true; m.textContent = "Saving…";
+  try {
+    await towed({ stall: $("tStall").value, plate: $("tPlate").value, state: $("tState").value, vehicle: $("tVeh").value, note: $("tNote").value });
+    ["tPlate", "tState", "tVeh", "tNote"].forEach((id) => $(id).value = ""); m.textContent = "Recorded. The office is notified."; load();
+  } catch (e) { m.textContent = e.message; }
+  b.disabled = false;
+};
+$("plate").addEventListener("input", () => D && find());
+$("refresh").onclick = load;
+load();
+</script>
+</body>
+</html>

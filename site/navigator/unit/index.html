@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Unit file — 2nd Chance Housing</title>
+<link rel="icon" href="/favicon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+<style id="navcss"></style>
+<style>
+  .pos{color:var(--ok);font-weight:700} .neg{color:var(--bad);font-weight:700}
+  .rc{display:inline-block;margin-right:6px}
+  td.n,th.n{text-align:right;white-space:nowrap}
+  .bgrp{border:1px solid var(--line);border-radius:6px;padding:8px 10px;margin:6px 0}.bgrp summary{cursor:pointer}
+  .seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden} .seg button{border:0;background:var(--panel);padding:8px 14px;font:inherit;cursor:pointer} .seg button.on{background:var(--accent);color:#fff;font-weight:700}
+</style>
+</head>
+<body>
+<div class="appbar"><div class="appbar-in">
+  <a class="org" href="/" style="color:inherit;text-decoration:none">2nd Chance Housing<span id="tag">Unit file</span></a>
+  <div class="row" id="userBar" hidden><a class="linkbtn" id="backTop" href="/navigator/#housing">← Back</a><button class="linkbtn" type="button" id="signOutBtn">Sign out</button></div>
+</div></div>
+<main class="wrap">
+  <header><h1 id="title">Unit file</h1><p class="lead" id="sub"></p></header>
+  <div id="signin" class="narrow"></div>
+  <div id="app" hidden>
+    <nav class="tabs" id="tabs">
+      <a href="#overview" data-tab="overview">Overview</a><a href="#rooms" data-tab="rooms">Rooms</a><a href="#money" data-tab="money">Money in &amp; out</a><a href="#budget" data-tab="budget">Budget</a><a href="#inspections" data-tab="inspections">Inspections</a><a href="#residents" data-tab="residents">Residents</a>
+    </nav>
+    <div class="msg" id="msg" role="status" style="margin:10px 0"></div>
+    <section data-pane="overview"></section>
+    <section data-pane="rooms" hidden></section>
+    <section data-pane="money" hidden></section>
+    <section data-pane="budget" hidden></section>
+    <section data-pane="inspections" hidden></section>
+    <section data-pane="residents" hidden></section>
+  </div>
+</main>
+<script type="module">
+import { $, client, esc, money, fmtDate, signIn, signOut } from "/assets/portal/portal.js";
+import { rpc, NAV_CSS, formHtml, readForm, STATUS } from "/assets/portal/nav-common.js?v=20261113d";
+$("navcss").textContent = NAV_CSS;
+
+let CATS = [], OUT = {}, IN = {}, CAT = {}, HELP = {};
+const FREQ = { monthly: "monthly", yearly: "yearly", one_time: "one-time", as_needed: "as needed" };
+const groupsOf = (kind, activeOnly) => { const g = {}; CATS.filter((c) => c.kind === kind && (!activeOnly || c.active)).forEach((c) => { (g[c.grp] = g[c.grp] || []).push(c); }); return g; };
+const PURP = { pre_lease: "Before taking the unit", pre_move_in: "Move-in", routine: "Routine / quarterly", pre_move_out: "Move-out", annual: "Annual", follow_up: "Follow-up", complaint: "Complaint", other: "Other" };
+const ROOM_ST = { available: "Available", reserved: "Reserved", occupied: "Occupied", offline: "Offline" };
+
+const unitId = new URLSearchParams(location.search).get("id") || "";
+const pane = (n) => document.querySelector(`[data-pane="${n}"]`);
+const say = (t, bad) => { $("msg").className = "msg " + (bad ? "err" : "ok"); $("msg").textContent = t || ""; };
+const net = (n) => `<span class="${n < 0 ? "neg" : "pos"}">${n < 0 ? "−" + money(-n) : money(n)}</span>`;
+const ym = (s) => new Date(s + "-15T12:00:00").toLocaleDateString("en-US", { month: "short", year: "numeric" });
+let F = null, moneyKind = "expense", monthFilter = "";
+
+$("signOutBtn").onclick = signOut;
+const who = await signIn($("signin"), { audience: "navigator" });
+$("userBar").hidden = false;
+const staff = who.role === "staff";
+const BACK = staff ? "/staff/navigators/#network" : "/navigator/#housing";
+$("backTop").href = BACK;
+if (!staff && !who.is_navigator) { $("signin").hidden = false; $("signin").innerHTML = `<div class="panel"><p>This page is for Housing Navigators and the office. <a href="/">Home</a></p></div>`; }
+else if (!/^[0-9a-f-]{36}$/.test(unitId)) { $("signin").hidden = false; $("signin").innerHTML = `<div class="panel"><p>No unit chosen. <a href="${BACK}">Back</a></p></div>`; }
+else {
+  try { await load(); $("app").hidden = false; show(location.hash.slice(1) || "overview"); }
+  catch (e) { $("signin").hidden = false; $("signin").innerHTML = `<div class="panel"><p class="msg err">${esc(e.message)}</p><p><a href="${BACK}">Back</a></p></div>`; }
+}
+window.addEventListener("hashchange", () => show(location.hash.slice(1)));
+
+async function load() {
+  [F, CATS] = await Promise.all([rpc("nav_unit_file", { p_id: unitId }), CATS.length ? CATS : rpc("nav_categories")]);
+  OUT = {}; IN = {}; HELP = {};
+  CATS.forEach((c) => { (c.kind === "income" ? IN : OUT)[c.key] = c.label; HELP[c.key] = c.help; }); CAT = { ...OUT, ...IN };
+  const u = F.unit;
+  $("title").textContent = u.address + (u.unit_label ? " " + u.unit_label : "");
+  $("sub").textContent = [F.landlord && (F.landlord.business_name || F.landlord.name), u.city, u.operator ? "run by " + u.operator : ""].filter(Boolean).join(" · ");
+  document.title = $("title").textContent + " — Unit file";
+}
+function show(tab) {
+  const name = ["overview", "rooms", "money", "budget", "inspections", "residents"].includes(tab) ? tab : "overview";
+  document.querySelectorAll("[data-pane]").forEach((p) => { p.hidden = p.dataset.pane !== name; });
+  document.querySelectorAll("#tabs a").forEach((a) => a.classList.toggle("on", a.dataset.tab === name));
+  ({ overview, rooms, moneyTab, budget, inspections, residents })[name === "money" ? "moneyTab" : name]();
+}
+const ro = () => F.can_write ? "" : '<div class="banner warn">View only. Changes open once your partner and confidentiality agreements are signed.</div>';
+async function act(btn, fn, ok) { if (btn) btn.disabled = true; say("Saving ..."); try { await fn(); await load(); say(ok || "Saved."); show(location.hash.slice(1) || "overview"); } catch (e) { say(e.message, true); if (btn) btn.disabled = false; } }
+
+// ---------------------------------------------------------------- overview
+function overview() {
+  const u = F.unit, t = F.totals, m0 = F.months[0] || { income: 0, expense: 0 };
+  const rows = F.months.map((m) => `<tr><td>${ym(m.month)}</td><td class="n">${money(m.income)}</td><td class="n">${money(m.expense)}</td><td class="n">${net(m.income - m.expense)}</td></tr>`).join("");
+  pane("overview").innerHTML = `${ro()}
+    <div class="stats">
+      <div><span>Rooms filled</span><b>${t.rooms_occupied} / ${t.rooms}</b></div>
+      <div><span>Rent if every room is filled</span><b>${t.potential_rent == null ? "—" : money(t.potential_rent)}</b><span>per month</span></div>
+      <div><span>Rent from filled rooms</span><b>${t.occupied_rent == null ? "—" : money(t.occupied_rent)}</b><span>per month</span></div>
+      <div><span>This month</span><b>${net(m0.income - m0.expense)}</b><span>${money(m0.income)} in · ${money(m0.expense)} out</span></div>
+      <div><span>Since the start</span><b>${net(t.income - t.expense)}</b><span>${money(t.income)} in · ${money(t.expense)} out</span></div>
+      <div><span>Start-up spent</span><b>${money(t.startup)}</b><span>furniture, appliances, deposit</span></div>
+    </div>
+    <div class="panel"><h2 style="margin:0">The unit</h2>
+      <div class="kv">
+        <div><span>Landlord</span><b>${esc(F.landlord ? F.landlord.business_name || F.landlord.name : "—")}</b><span>${esc([F.landlord?.phone, F.landlord?.email].filter(Boolean).join(" · "))}</span></div>
+        <div><span>Rent to landlord</span><b>${u.lease_rent ? money(u.lease_rent) : (u.rent ? money(u.rent) : "—")}</b><span>${u.lease_start ? "lease " + fmtDate(u.lease_start) + (u.lease_end ? " to " + fmtDate(u.lease_end) : "") : "no lease dates yet"}</span></div>
+        <div><span>Bedrooms / baths</span><b>${esc(u.bedrooms ?? "—")} / ${esc(u.bathrooms ?? "—")}</b></div>
+        <div><span>Run by</span><b>${esc(u.operator || "—")}</b></div>
+        <div><span>Last inspection</span><b>${esc({ not_inspected: "Not inspected", scheduled: "Scheduled", passed: "Passed", failed: "Needs repairs" }[u.inspection_status] || "—")}</b><span>${u.inspected_on ? fmtDate(u.inspected_on) : ""}</span></div>
+      </div>
+      ${F.can_write ? '<div class="row"><button class="btn small" id="editUnit">Edit unit and lease</button></div><div id="unitEd"></div>' : ""}
+    </div>
+    <div class="panel"><h2 style="margin:0">Last 12 months</h2><div class="table-wrap"><table class="t"><thead><tr><th>Month</th><th class="n">Money in</th><th class="n">Money out</th><th class="n">Net</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+  if ($("editUnit")) $("editUnit").onclick = () => {
+    const fields = ["Lease with the landlord", ["lease_rent", "Monthly rent you pay the landlord ($)", "num"], ["lease_start", "Lease starts", "date"], ["lease_end", "Lease ends", "date"],
+      ...(staff ? [["operated_by_navigator", "Run by (Navigator)", "select", { "": "Nobody / the landlord", ...Object.fromEntries((F.navigators || []).map((n) => [n.id, n.name])) }]]
+               : [["operated", "I lease and run this unit (rent rooms to residents)", "check"]]),
+      "The unit", ["address", "Street address", "text"], ["unit_label", "Unit", "text"], ["city", "City", "text"], ["zip", "ZIP", "text"], ["bedrooms", "Bedrooms", "num"], ["bathrooms", "Bathrooms", "num"],
+      ["utilities_included", "Utilities included", "text"], ["accessibility", "Accessibility", "text"], ["notes", "Notes", "area"]];
+    $("unitEd").innerHTML = `<div class="panel">${formHtml(fields, { ...u, operated: u.operated_by_me, operated_by_navigator: F.operated_by_navigator || "" })}<div class="row"><button class="btn primary" id="unitSave">Save</button></div></div>`;
+    $("unitSave").onclick = () => act($("unitSave"), () => rpc("nav_unit_save", { p: { ...u, ...readForm($("unitEd")), id: unitId } }));
+  };
+}
+
+// ---------------------------------------------------------------- rooms
+function rooms(editId) {
+  const list = F.rooms.map((r) => `<tr><td><b>${esc(r.label)}</b>${r.furnished ? '<div class="sub">furnished</div>' : ""}${r.notes ? `<div class="sub">${esc(r.notes)}</div>` : ""}</td><td class="n">${r.monthly_rate ? money(r.monthly_rate) : "—"}</td><td class="n">${r.deposit ? money(r.deposit) : "—"}</td>
+    <td><span class="pill ${r.status === "available" ? "ok" : r.status === "offline" ? "off" : "warn"}">${esc(ROOM_ST[r.status])}</span>${r.occupant ? `<div class="sub">${esc(r.occupant.label)} · ${esc(r.occupant.name)}${r.occupant.move_in_on ? " · in " + fmtDate(r.occupant.move_in_on) : ""}</div>` : ""}</td>
+    <td>${F.can_write ? `<button class="linkbtn" data-room="${esc(r.id)}">Edit</button>` : ""}</td></tr>`).join("");
+  const r = F.rooms.find((x) => x.id === editId) || (editId === "new" ? { furnished: true, status: "available" } : null);
+  pane("rooms").innerHTML = `${ro()}<p class="sub">Each room (or bed) you rent to a resident, with its monthly rate. Referrals are matched to a room, and the room shows who lives there.</p>
+    ${F.can_write ? '<div class="row"><button class="btn primary" data-room="new">Add a room</button></div>' : ""}
+    ${r ? `<div class="panel" id="roomEd">${formHtml([["label", "Room name (Room 1, Front bedroom ...)", "text"], ["monthly_rate", "Monthly rate ($)", "num"], ["deposit", "Deposit ($)", "num"], ["furnished", "Furnished", "check"],
+        ["status", "Status", "select", r.status === "reserved" || r.status === "occupied" ? { [r.status]: ROOM_ST[r.status] } : { available: "Available", offline: "Offline (not for rent)" }], ["sort", "Order (1, 2, 3 ...)", "num"], ["notes", "Notes", "area"]], r)}
+      <div class="row"><button class="btn primary" id="roomSave">Save room</button>${r.id && !r.occupant ? '<button class="linkbtn" id="roomDel">Remove room</button>' : ""}<button class="linkbtn" data-room="">Cancel</button></div></div>` : ""}
+    ${list ? `<div class="table-wrap"><table class="t"><thead><tr><th>Room</th><th class="n">Monthly</th><th class="n">Deposit</th><th>Status</th><th></th></tr></thead><tbody>${list}</tbody></table></div>` : '<p class="sub">No rooms yet.</p>'}`;
+  pane("rooms").querySelectorAll("[data-room]").forEach((b) => b.onclick = () => rooms(b.dataset.room || null));
+  if ($("roomSave")) $("roomSave").onclick = () => act($("roomSave"), () => rpc("nav_room_save", { p: { ...readForm($("roomEd")), id: r.id || "", unit_id: unitId } }), "Room saved.");
+  if ($("roomDel")) $("roomDel").onclick = () => { if (confirm("Remove this room?")) act($("roomDel"), () => rpc("nav_room_delete", { p_id: r.id }), "Room removed."); };
+}
+
+// ---------------------------------------------------------------- money
+function moneyTab() {
+  const today = new Date().toLocaleDateString("en-CA", { timeZone: "America/Chicago" });
+  const shown = F.money.filter((m) => !monthFilter || m.entry_date.slice(0, 7) === monthFilter);
+  const live = shown.filter((m) => !m.voided), tin = live.filter((m) => m.kind === "income").reduce((s, m) => s + Number(m.amount), 0), tout = live.filter((m) => m.kind === "expense").reduce((s, m) => s + Number(m.amount), 0);
+  const rows = shown.map((m) => `<tr${m.voided ? ' style="opacity:.5;text-decoration:line-through"' : ""}><td>${fmtDate(m.entry_date)}</td><td>${esc(CAT[m.category] || m.category)}${m.room ? ` · ${esc(m.room)}` : ""}${m.referral ? ` · ${esc(m.referral)}` : ""}<div class="sub">${esc([m.party, m.description].filter(Boolean).join(" · "))}</div>${m.voided ? `<div class="sub">Removed: ${esc(m.void_reason || "")}</div>` : ""}</td>
+    <td class="n">${m.kind === "income" ? `<span class="pos">+${money(m.amount)}</span>` : `−${money(m.amount)}`}</td>
+    <td>${(m.receipts || []).map((p, i) => `<button class="linkbtn rc" data-rc="${esc(p)}">Receipt${m.receipts.length > 1 ? " " + (i + 1) : ""}</button>`).join("")}</td>
+    <td>${F.can_write && !m.voided ? `<button class="linkbtn" data-void="${esc(m.id)}">Remove</button>` : ""}</td></tr>`).join("");
+  pane("money").innerHTML = `${ro()}
+    ${F.can_write ? `<div class="panel" id="mForm"><h2 style="margin:0">Add an entry</h2>
+      <div class="seg"><button data-kind="expense" class="${moneyKind === "expense" ? "on" : ""}">Money out (I paid)</button><button data-kind="income" class="${moneyKind === "income" ? "on" : ""}">Money in (I received)</button></div>
+      <div class="nform">
+        <label class="nf">What for<select class="field" id="mCat">${Object.entries(groupsOf(moneyKind, true)).map(([g, cs]) => `<optgroup label="${esc(g)}">${cs.map((c) => `<option value="${c.key}">${esc(c.label)}</option>`).join("")}</optgroup>`).join("")}</select><span class="sub" id="mHelp"></span></label>
+        <label class="nf">Amount ($)<input class="field" id="mAmt" inputmode="decimal"></label>
+        <label class="nf">Date<input class="field" type="date" id="mDate" value="${today}"></label>
+        <label class="nf">${moneyKind === "income" ? "Received from" : "Paid to (store, company, person)"}<input class="field" id="mParty"></label>
+        ${F.rooms.length ? `<label class="nf">Room (optional)<select class="field" id="mRoom"><option value="">—</option>${F.rooms.map((r) => `<option value="${esc(r.id)}">${esc(r.label)}</option>`).join("")}</select></label>` : ""}
+        ${moneyKind === "income" && F.residents.length ? `<label class="nf">Resident (optional)<select class="field" id="mRef"><option value="">—</option>${F.residents.map((x) => `<option value="${esc(x.id)}">${esc(x.label)} · ${esc(x.name)}</option>`).join("")}</select></label>` : ""}
+        <label class="nf wide">Description (optional)<input class="field" id="mDesc" placeholder="e.g. twin bed + mattress, Room 2"></label>
+        <label class="nf wide">Receipt photos or PDF (optional)<input class="field" type="file" id="mFiles" accept="image/*,application/pdf" multiple></label>
+      </div>
+      <div class="row"><button class="btn primary" id="mSave">Save entry</button></div></div>` : ""}
+    <div class="panel"><div class="row" style="justify-content:space-between"><h2 style="margin:0">Entries</h2>
+      <label class="chk">Month <select class="field" id="mMonth" style="width:auto"><option value="">All</option>${F.months.map((m) => `<option value="${m.month}"${m.month === monthFilter ? " selected" : ""}>${ym(m.month)}</option>`).join("")}</select></label></div>
+      <div class="sub">Shown: ${money(tin)} in · ${money(tout)} out · net ${net(tin - tout)}</div>
+      ${rows ? `<div class="table-wrap"><table class="t"><thead><tr><th>Date</th><th>What</th><th class="n">Amount</th><th>Receipts</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>` : '<p class="sub">Nothing recorded yet.</p>'}</div>`;
+  if ($("mCat")) { const h = () => { $("mHelp").textContent = HELP[$("mCat").value] || ""; }; $("mCat").onchange = h; h(); }
+  pane("money").querySelectorAll("[data-kind]").forEach((b) => b.onclick = () => { moneyKind = b.dataset.kind; moneyTab(); });
+  $("mMonth").onchange = () => { monthFilter = $("mMonth").value; moneyTab(); };
+  pane("money").querySelectorAll("[data-rc]").forEach((b) => b.onclick = async () => {
+    const { data, error } = await client.storage.from("nav-receipts").createSignedUrl(b.dataset.rc, 300);
+    if (error) return say(error.message, true); window.open(data.signedUrl, "_blank", "noopener");
+  });
+  pane("money").querySelectorAll("[data-void]").forEach((b) => b.onclick = () => {
+    const why = prompt("Why remove this entry? (it stays in the history, crossed out)"); if (!why) return;
+    act(b, () => rpc("nav_money_void", { p_id: b.dataset.void, p_reason: why }), "Removed.");
+  });
+  if ($("mSave")) $("mSave").onclick = () => act($("mSave"), async () => {
+    const files = [...$("mFiles").files], paths = [];
+    for (const f of files) {
+      if (f.size > 10 * 1024 * 1024) throw new Error(`${f.name} is over 10 MB.`);
+      const path = `${unitId}/${crypto.randomUUID()}-${f.name.replace(/[^A-Za-z0-9._-]+/g, "_").slice(-60)}`;
+      const { error } = await client.storage.from("nav-receipts").upload(path, f, { contentType: f.type || "application/octet-stream" });
+      if (error) throw new Error("Receipt upload failed: " + error.message);
+      paths.push(path);
+    }
+    await rpc("nav_money_save", { p: { unit_id: unitId, category: $("mCat").value, amount: $("mAmt").value.replace(/[^0-9.]/g, ""), entry_date: $("mDate").value,
+      party: $("mParty").value, description: $("mDesc").value, room_id: $("mRoom")?.value || "", referral_id: $("mRef")?.value || "", receipts: paths } });
+  }, "Entry saved.");
+}
+
+// ---------------------------------------------------------------- budget
+function budget() {
+  const b = (cat, fr) => (F.budget.find((x) => x.category === cat && x.frequency === fr) || {}).amount || "";
+  const mo = (F.months[0] || {}).month;
+  const actualMonth = (cat) => F.money.filter((m) => !m.voided && m.category === cat && m.entry_date.slice(0, 7) === mo).reduce((t, m) => t + Number(m.amount), 0);
+  const actualAll = (cat) => F.money.filter((m) => !m.voided && m.category === cat).reduce((t, m) => t + Number(m.amount), 0);
+  const perMonth = (cat) => (Number(b(cat, "monthly")) || 0) + (Number(b(cat, "yearly")) || 0) / 12;
+  const inp = (cat, fr) => F.can_write ? `<input class="field" data-fr="${fr}" inputmode="decimal" value="${esc(b(cat, fr))}" style="width:6rem">` : money(Number(b(cat, fr)) || 0);
+  const row = (c) => {
+    const am = actualMonth(c.key), pm = perMonth(c.key), isIn = c.kind === "income";
+    const flag = pm && (isIn ? am < pm : am > pm);
+    return `<tr data-cat="${c.key}"><td>${esc(c.label)}<div class="sub">usually ${FREQ[c.freq]}${c.startup ? " · start-up" : ""}${c.help ? " · " + esc(c.help) : ""}</div></td>
+      <td class="n">${inp(c.key, "monthly")}</td><td class="n">${inp(c.key, "yearly")}</td><td class="n">${inp(c.key, "one_time")}</td>
+      <td class="n"${flag ? ' style="color:var(--bad);font-weight:700"' : ""}>${money(am)}</td><td class="n">${money(actualAll(c.key))}</td></tr>`;
+  };
+  const used = (c) => c.active || b(c.key, "monthly") || b(c.key, "yearly") || b(c.key, "one_time") || actualAll(c.key);
+  const section = (kind) => Object.entries(groupsOf(kind, false)).map(([g, cs]) => {
+    cs = cs.filter(used); if (!cs.length) return "";
+    const gm = cs.reduce((t, c) => t + perMonth(c.key), 0), go = cs.reduce((t, c) => t + (Number(b(c.key, "one_time")) || 0), 0);
+    const filled = cs.some((c) => b(c.key, "monthly") || b(c.key, "yearly") || b(c.key, "one_time"));
+    return `<details class="bgrp"${filled ? " open" : ""}><summary><b>${esc(g)}</b> <span class="sub">${money(gm)} a month${go ? " · " + money(go) + " start-up" : ""}${filled ? "" : " · nothing planned yet"}</span></summary>
+      <div class="table-wrap"><table class="t"><thead><tr><th></th><th class="n">Monthly</th><th class="n">Yearly</th><th class="n">One-time</th><th class="n">This month</th><th class="n">To date</th></tr></thead><tbody>${cs.map(row).join("")}</tbody></table></div></details>`;
+  }).join("");
+  const sum = (kind, fn) => CATS.filter((c) => c.kind === kind).reduce((t, c) => t + fn(c.key), 0);
+  const outM = sum("expense", perMonth), inM = sum("income", perMonth), startup = sum("expense", (k) => Number(b(k, "one_time")) || 0);
+  const netM = inM - outM, taxM = netM > 0 ? netM * 0.3 : 0;
+  pane("budget").innerHTML = `${ro()}<div class="panel"><h2 style="margin:0">Budget for this unit</h2>
+    <p class="sub">Every cost a shared-living unit can have, grouped. Fill <b>Monthly</b> for bills that come every month, <b>Yearly</b> for once-a-year costs (insurance, licenses, the furnace tune-up; counted as 1/12 each month), and <b>One-time</b> for start-up. Red means this month is over budget (money out) or short (money in). A closed group says "nothing planned yet" until you fill it in: open each one so nothing is missed.</p>
+    <div class="stats">
+      <div><span>Planned money in</span><b>${money(inM)}</b><span>a month</span></div>
+      <div><span>Planned money out</span><b>${money(outM)}</b><span>a month, yearly costs included</span></div>
+      <div><span>Planned profit</span><b>${net(netM)}</b><span>a month, before taxes</span></div>
+      <div><span>Set aside for taxes</span><b>${money(taxM)}</b><span>about 30% of profit for income and self-employment tax (ask a tax preparer)</span></div>
+      <div><span>Profit after the tax set-aside</span><b>${net(netM - taxM)}</b><span>a month</span></div>
+      <div><span>Start-up planned</span><b>${money(startup)}</b></div>
+    </div>
+    <h3 class="nsec">Money out</h3>${section("expense")}
+    <h3 class="nsec">Money in</h3>${section("income")}
+    ${F.totals.potential_rent ? `<p class="sub">All rooms full would bring ${money(F.totals.potential_rent)} a month.</p>` : ""}
+    ${F.can_write ? '<div class="row"><button class="btn primary" id="bSave">Save budget</button></div>' : ""}</div>`;
+  if ($("bSave")) $("bSave").onclick = () => {
+    const lines = [];
+    pane("budget").querySelectorAll("tr[data-cat]").forEach((tr) => tr.querySelectorAll("input[data-fr]").forEach((i) => {
+      const v = i.value.replace(/[^0-9.]/g, ""); if (v && Number(v) > 0) lines.push({ category: tr.dataset.cat, frequency: i.dataset.fr, amount: v });
+    }));
+    act($("bSave"), () => rpc("nav_budget_save", { p_unit: unitId, p_lines: lines }), "Budget saved.");
+  };
+}
+
+// ---------------------------------------------------------------- inspections
+function inspections() {
+  const go = (p) => `/inspections/unit/?p=nav&u=${encodeURIComponent(unitId)}&purpose=${p}`;
+  const rows = F.inspections.map((i) => `<tr><td><a href="/inspections/unit/?p=nav&u=${encodeURIComponent(unitId)}&id=${esc(i.id)}">${fmtDate(i.inspected_on)}</a></td><td>${esc(PURP[i.purpose] || i.purpose)}</td>
+    <td>${i.status === "submitted" ? '<span class="pill ok">Submitted</span>' : '<span class="pill warn">Draft</span>'}</td><td>${i.needs_repair ? `<span class="neg">${i.needs_repair} need repair</span>` : "All OK"}</td></tr>`).join("");
+  pane("inspections").innerHTML = `${ro()}<div class="panel"><h2 style="margin:0">Start an inspection</h2>
+    <p class="sub">The same room-by-room checklist your office uses, with photos stamped with the date and time. Do one before you take the unit, at each move-in and move-out, and every 3 months while residents live there.</p>
+    ${F.can_write ? `<div class="row">${["pre_lease", "pre_move_in", "routine", "pre_move_out"].map((p) => `<a class="btn${p === "pre_lease" ? " primary" : ""}" href="${go(p)}">${esc(PURP[p])}</a>`).join("")}</div>` : ""}</div>
+    <div class="panel"><h2 style="margin:0">Inspections of this unit</h2>${rows ? `<div class="table-wrap"><table class="t"><thead><tr><th>Date</th><th>Type</th><th>Status</th><th>Result</th></tr></thead><tbody>${rows}</tbody></table></div>` : '<p class="sub">None yet.</p>'}</div>`;
+}
+
+// ---------------------------------------------------------------- residents
+function residents() {
+  const link = (x) => staff ? `/staff/navigators/#referrals/${x.id}` : `/navigator/#people/${x.id}`;
+  pane("residents").innerHTML = F.residents.length ? `<div class="table-wrap"><table class="t"><thead><tr><th>Referral</th><th>Room</th><th>Status</th><th class="n">Monthly rent</th><th>Moved in</th></tr></thead><tbody>${
+    F.residents.map((x) => `<tr><td><a href="${link(x)}">${esc(x.label)} · ${esc(x.name)}</a></td><td>${esc(x.room || "—")}</td><td>${esc(STATUS[x.status] || x.status)}</td><td class="n">${x.unit_rent ? money(x.unit_rent) : "—"}</td><td>${x.move_in_on ? fmtDate(x.move_in_on) : "—"}</td></tr>`).join("")}</tbody></table></div>`
+    : '<p class="sub">No residents matched to this unit yet. Match a person to a room from their referral (People tab, Match a unit).</p>';
+}
+</script>
+</body>
+</html>

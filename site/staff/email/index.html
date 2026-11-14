@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Email a unit — 2nd Chance Housing Staff</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+<style>
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-bottom: 12px; max-width: 760px; }
+  .meta { color: var(--muted); font-size: 0.9rem; }
+  .form { display: grid; gap: 12px; }
+  .form label { display: grid; gap: 4px; font-size: 0.9rem; color: var(--muted); }
+  .form input, .form select, .form textarea { font: inherit; padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); color: inherit; width: 100%; box-sizing: border-box; }
+  .who label { display: flex; gap: 8px; align-items: center; color: inherit; font-size: 1rem; }
+  .who input { width: auto; }
+  .tools { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tools button { font: inherit; padding: 4px 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); color: inherit; cursor: pointer; }
+  .files { display: grid; gap: 4px; }
+  .files .f { display: flex; gap: 8px; align-items: center; justify-content: space-between; border: 1px solid var(--line); border-radius: 6px; padding: 4px 10px; }
+  .files button { font: inherit; border: 0; background: none; color: var(--bad); cursor: pointer; }
+</style>
+</head>
+<body>
+<div class="appbar" data-nav="staff">
+  <div class="appbar-in">
+    <div class="org">2nd Chance Housing<span>Email a unit · Staff</span></div>
+    <div class="row" id="userBar" hidden>
+      <button class="linkbtn" type="button" id="signOutBtn">Sign out</button>
+    </div>
+  </div>
+</div>
+<main class="wrap">
+  <header><h1>Email a unit</h1><p class="lead">Write to a unit's owner, its tenants, or both. It goes out from the office address, replies come to the office, and it is saved in the person's Communications history. You can format the text and attach files.</p></header>
+  <div id="signin" class="narrow"></div>
+  <div id="app" hidden>
+    <div class="card"><div class="form">
+      <label>Unit<select id="unit"></select></label>
+      <div class="who" id="who"></div>
+      <label>Subject<input id="subject" maxlength="150"></label>
+      <label>Message
+        <div class="tools" role="toolbar" aria-label="Formatting">
+          <button type="button" data-fmt="bold" title="Bold: **text**"><b>B</b></button>
+          <button type="button" data-fmt="italic" title="Italic: *text*"><i>I</i></button>
+          <button type="button" data-fmt="bullet" title="Bullet list: lines starting with -">• List</button>
+          <button type="button" data-fmt="link" title="Link: [text](https://address)">Link</button>
+        </div>
+        <textarea id="message" rows="9" maxlength="8000"></textarea>
+      </label>
+      <div class="meta">Formatting: <b>**bold**</b>, <i>*italic*</i>, a line starting with <code>- </code> for a bullet, <code>[text](https://address)</code> for a link. Web addresses become links by themselves.</div>
+      <div><label>Attach files (up to 5, 4 MB in all: PDF, pictures, Word, Excel, CSV, text)<input id="files" type="file" multiple accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.xls,.xlsx,.csv,.txt"></label>
+        <div class="files" id="fileList"></div></div>
+      <div><button class="btn primary" type="button" id="send">Send email</button></div>
+      <div class="meta" id="msg" role="status"></div>
+    </div></div>
+  </div>
+</main>
+<script type="module">
+import { client, $, esc, signIn, signOut, errorText } from "/assets/portal/portal.js";
+let U = [];
+const say = (t, bad) => { $("msg").textContent = t; $("msg").style.color = bad ? "var(--bad)" : ""; };
+const cur = () => U.find((u) => u.unit === $("unit").value);
+function drawWho() {
+  const u = cur(); if (!u) return;
+  const opts = [["owner", "Owner", u.owners], ["tenant", "Tenant" + (u.tenants.length > 1 ? "s" : ""), u.tenants], ["both", "Owner and tenant", [].concat(u.owners, u.tenants)]]
+    .filter(([k, , n]) => n.length && !(k === "both" && (!u.owners.length || !u.tenants.length)));
+  $("who").innerHTML = opts.length ? opts.map(([k, l, n], i) => `<label><input type="radio" name="who" value="${k}" ${i === 0 ? "checked" : ""}> ${esc(l)} <span class="meta">(${esc(n.join(", "))})</span></label>`).join("")
+    : `<p class="meta">Nobody with an email address is on file for this unit.</p>`;
+}
+async function load() {
+  const { data, error } = await client.rpc("staff_mail_targets");
+  if (error) { say(await errorText(error), true); return; }
+  U = data;
+  $("unit").innerHTML = U.map((u) => `<option value="${esc(u.unit)}">Unit ${esc(u.unit)} · ${esc(u.address || "")}</option>`).join("");
+  const q = new URLSearchParams(location.search).get("unit"); if (q && U.some((u) => u.unit === q)) $("unit").value = q;
+  drawWho();
+}
+$("unit").addEventListener("change", drawWho);
+// Formatting buttons wrap the selected text (or insert a placeholder).
+document.querySelectorAll("[data-fmt]").forEach((b) => b.addEventListener("click", () => {
+  const t = $("message"), a = t.selectionStart, z = t.selectionEnd, sel = t.value.slice(a, z), k = b.dataset.fmt;
+  let ins;
+  if (k === "bold") ins = "**" + (sel || "bold text") + "**";
+  else if (k === "italic") ins = "*" + (sel || "italic text") + "*";
+  else if (k === "bullet") ins = (sel || "item").split("\n").map((l) => "- " + l.replace(/^\s*-\s+/, "")).join("\n");
+  else { const u = prompt("Web address (https://…)", "https://"); if (!u) return; ins = "[" + (sel || "link text") + "](" + u.trim() + ")"; }
+  t.setRangeText(ins, a, z, "select"); t.focus();
+}));
+// Attachments: kept in memory as base64 until the email is sent.
+let files = [];
+const MAX_TOTAL = 4 * 1024 * 1024;
+const kb = (n) => (n >= 1048576 ? (n / 1048576).toFixed(1) + " MB" : Math.max(1, Math.round(n / 1024)) + " KB");
+const toB64 = (file) => new Promise((ok, no) => { const r = new FileReader(); r.onload = () => ok(String(r.result).split(",")[1]); r.onerror = () => no(new Error("Could not read " + file.name)); r.readAsDataURL(file); });
+function drawFiles() {
+  $("fileList").innerHTML = files.map((f, i) => `<div class="f"><span>${esc(f.name)} <span class="meta">(${kb(f.size)})</span></span><button type="button" data-rm="${i}" aria-label="Remove ${esc(f.name)}">Remove</button></div>`).join("");
+  $("fileList").querySelectorAll("[data-rm]").forEach((b) => b.addEventListener("click", () => { files.splice(+b.dataset.rm, 1); drawFiles(); }));
+}
+$("files").addEventListener("change", () => {
+  const add = [...$("files").files]; $("files").value = "";
+  for (const f of add) {
+    if (files.length >= 5) { say("Attach at most 5 files.", true); break; }
+    if (!/\.(pdf|png|jpe?g|docx?|xlsx?|csv|txt)$/i.test(f.name)) { say(f.name + ": that file type is not allowed.", true); continue; }
+    if (files.reduce((n, x) => n + x.size, f.size) > MAX_TOTAL) { say("Too big: the files together must stay under 4 MB.", true); continue; }
+    files.push(f); say("");
+  }
+  drawFiles();
+});
+$("send").addEventListener("click", async () => {
+  const who = document.querySelector('input[name="who"]:checked');
+  if (!who) { say("Choose who gets it.", true); return; }
+  $("send").disabled = true; say("Sending…");
+  try {
+    const att = await Promise.all(files.map(async (f) => ({ filename: f.name, content: await toB64(f) })));
+    const { data, error } = await client.rpc("staff_email_unit", { p_unit: $("unit").value, p_who: who.value, p_subject: $("subject").value, p_message: $("message").value, p_attachments: att.length ? att : null });
+    if (error) throw new Error(await errorText(error));
+    await client.functions.invoke("outbox-flush", { body: {} }).catch(() => {});
+    say(`Sent to ${data.names.join(", ")}.`); $("subject").value = ""; $("message").value = ""; files = []; drawFiles();
+  } catch (err) { say(err.message, true); }
+  $("send").disabled = false;
+});
+$("signOutBtn").addEventListener("click", signOut);
+const who = await signIn($("signin"), { audience: "staff" });
+$("userBar").hidden = false;
+if (who.role !== "staff") location.replace("/association-owners/roca1/"); else { $("app").hidden = false; load(); }
+</script>
+</body>
+</html>

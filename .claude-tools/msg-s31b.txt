@@ -1,0 +1,3 @@
+Human Mirror step 31 docs fix: restore the step 35 status entry and roadmap note that 500e1a5 dropped (an old staged copy was used), and add the step 31 security review entry
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>

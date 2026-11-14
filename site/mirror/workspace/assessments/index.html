@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Questions Together | The Human Mirror</title>
+<link rel="icon" href="/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Source+Serif+4:opsz,wght@8..60,600&display=swap">
+<link rel="stylesheet" href="/mirror/assets/mirror.css?v=20261113l">
+</head>
+<body data-area="workspace">
+<main id="main" class="mm-main">
+  <p class="mm-eyebrow"><a href="/mirror/workspace/">Workspace</a></p>
+  <h1>Questions with the people you work with</h1>
+  <p class="mm-lead">Which questions you have gone over with each person, and when. To go over questions with someone, open their Mirror
+    and choose a set of questions under "Their Mirror". Read each question to them and save their own words.</p>
+  <div id="mmAs"><p role="status">Loading…</p></div>
+</main>
+<script type="module" src="/mirror/assets/mirror-ui.js?v=20261113h"></script>
+<script type="module">
+// Phase 8 T8.3 (11/13/2026): assessments with the person, the review. Counts and dates only, from mirror_assessments_review:
+// never answer words, never earlier answers (those are the person's own), nothing counted in a topic the person keeps private.
+import { requireArea, rpc } from "/mirror/assets/mirror-client.js?v=20261113p";
+import { esc, notice } from "/mirror/assets/mirror-ui.js?v=20261113h";
+
+const day = (d) => (d ? new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "");
+const w = await requireArea("workspace");
+const orgs = w.memberships.filter((m) => m.role === "org_admin" || m.role === "coordinator");
+const box = document.getElementById("mmAs");
+const asked = new URLSearchParams(location.search).get("org");
+let org = (orgs.find((o) => o.organization_id === asked) || orgs[0] || {}).organization_id;
+
+if (!orgs.length) box.innerHTML = notice("info", "<p>Volunteers don't go over questions with people. Ask your organization's coordinator.</p>");
+else draw();
+
+async function draw() {
+  let R;
+  try { R = await rpc("mirror_assessments_review", { p_org: org }); }
+  catch (e) { box.innerHTML = notice("urgent", `<p>${esc(e.message)}</p>`); return; }
+  const people = [...R.people].sort((a, b) => String(a.name).localeCompare(String(b.name)));
+  const num = (/** @type {any} */ v) => `<td class="mm-num" data-label="${esc(v[1])}">${Number(v[0]) || 0}</td>`;
+  box.innerHTML = `
+    ${orgs.length > 1 ? `<div class="mm-field" style="max-width:24rem"><label for="mmOrg">Organization</label>
+      <select class="mm-select" id="mmOrg">${orgs.map((o) => `<option value="${esc(o.organization_id)}"${o.organization_id === org ? " selected" : ""}>${esc(o.organization)}</option>`).join("")}</select></div>` : ""}
+    <div class="mm-read">${notice("info", `<p>These are counts, not a score. You see only questions in the parts of life each person shares with you,
+      and only their answers as they are now. Their earlier answers stay theirs.</p>`)}</div>
+    ${people.length ? `<div class="mm-table-wrap mm-stack"><table class="mm-table">
+      <caption class="mm-sr">Questions gone over with each person</caption>
+      <thead><tr><th scope="col">Name</th><th scope="col" class="mm-num">Sets started</th><th scope="col" class="mm-num">Answers</th>
+        <th scope="col" class="mm-num">Saved with you</th><th scope="col" class="mm-num">Asked for help</th><th scope="col">Last time together</th>
+        <th scope="col" class="mm-num">They changed or added since</th><th scope="col"><span class="mm-sr">Actions</span></th></tr></thead>
+      <tbody>${people.map((p) => `<tr>
+        <td data-label="Name"><strong>${esc(p.name)}</strong>${p.safety_sensitive ? ' <span class="mm-tag mm-tag-urgent">Safety mode</span>' : ""}</td>
+        ${p.shared ? [[p.sets_started, "Sets started"], [p.answered, "Answers"], [p.with_you, "Saved with you"], [p.help, "Asked for help"]].map(num).join("")
+          + `<td data-label="Last time together">${p.last_together ? esc(day(p.last_together)) : '<span class="mm-muted">Not yet</span>'}</td>`
+          + (p.last_together ? num([p.since_together, "They changed or added since"]) : '<td class="mm-num" data-label="They changed or added since"></td>')
+          : `<td colspan="6" data-label="Answers"><span class="mm-muted">They don't share any questions with you yet.</span></td>`}
+        <td data-label=""><a class="mm-btn mm-btn-quiet" href="/mirror/workspace/person/?id=${encodeURIComponent(p.id)}&org=${encodeURIComponent(org)}#oMirror">Open their questions</a></td>
+      </tr>`).join("")}</tbody></table></div>` : notice("info", `<p>Nobody yet. People show here once they work with your organization (<a href="/mirror/workspace/people/">People</a>).</p>`)}
+    <p class="mm-small mm-muted mm-read">"Saved with you" counts answers someone from your organization saved with them that are still their answer today.
+      "They changed or added since" counts answers they saved on their own after your last time together. Each person sees which answers were saved by a coordinator.</p>`;
+  box.querySelector("#mmOrg")?.addEventListener("change", (e) => { org = /** @type {HTMLSelectElement} */ (e.target).value; draw(); });
+}
+</script>
+</body>
+</html>

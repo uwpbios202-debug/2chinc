@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>My Documents | The Human Mirror</title>
+<link rel="icon" href="/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Source+Serif+4:opsz,wght@8..60,600&display=swap">
+<link rel="stylesheet" href="/mirror/assets/mirror.css?v=20261113l">
+</head>
+<body data-area="my">
+<!-- Phase 7 (T7.4): the person's documents, kept in a private store; each one opens through a link that works for 5 minutes. -->
+<main id="main" class="mm-main">
+  <div class="mm-read">
+    <p class="mm-eyebrow"><a href="/mirror/my-mirror/">My Mirror</a></p>
+    <h1>My documents</h1>
+    <p class="mm-lead">Keep a copy of your important papers here, so you have them when a program or a landlord asks: your ID, birth certificate,
+      Social Security card, insurance card, benefit letters, proof of income, your lease.</p>
+    <p class="mm-small mm-muted">Only you see them. An organization you work with sees them only if you share Documents with them in
+      <a href="/mirror/my-mirror/settings/">Settings</a>, and every time someone else opens one, it shows in your record of who looked.</p>
+  </div>
+  <div id="mmBox" class="mm-read"><p role="status">Loading…</p></div>
+</main>
+<script type="module" src="/mirror/assets/mirror-ui.js?v=20261113h"></script>
+<script type="module">
+import { requireArea } from "/mirror/assets/mirror-client.js?v=20261113p";
+import { docsBox } from "/mirror/assets/mirror-docs.js?v=20261113a";
+
+await requireArea("my");
+docsBox(/** @type {HTMLElement} */ (document.getElementById("mmBox")), null);
+</script>
+</body>
+</html>

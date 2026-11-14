@@ -1,0 +1,3 @@
+Human Mirror P10-01: the deletion run also removes the person's Mirror emails from public.email_outbox (sent or waiting, also to an earlier address, found through mirror.notifications.outbox_id); the deletion confirmation stays until sent, later runs remove it once sent or 7 days old; other site emails untouched; returns outbox_removed (migration 20261119697000, check p1001 5/5 incl. with the security kind on, p209 still 6/6)
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>

@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Rentals — 2nd Chance Housing Staff</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+<style>
+  .units { display: grid; gap: 14px; }
+  .unit { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .unit-head { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: baseline; padding: 12px 16px; background: var(--head); border-bottom: 1px solid var(--line); }
+  .unit-head h2 { margin: 0; font-size: 1.15rem; }
+  .meta { color: var(--muted); font-size: 0.9rem; }
+  .tag { display: inline-block; padding: 1px 9px; border-radius: 999px; font-size: 0.78rem; font-weight: 700; }
+  .tag.active { background: var(--ok-soft); color: var(--ok); }
+  .tag.past { background: var(--off-soft); color: var(--off); }
+  .tag.future { background: var(--accent-soft); color: var(--accent); }
+  .tag.vacant { background: var(--warn-soft); color: var(--warn); }
+  .tag.flag { background: var(--bad-soft); color: var(--bad); }
+  table.leases { width: 100%; border-collapse: collapse; }
+  table.leases td, table.leases th { padding: 8px 16px; border-top: 1px solid var(--line); text-align: left; font-size: 0.94rem; vertical-align: top; }
+  table.leases th { font-size: 0.8rem; color: var(--muted); font-weight: 600; border-top: 0; }
+  table.leases tr[data-lease] { cursor: pointer; }
+  table.leases tr[data-lease]:hover { background: var(--accent-soft); }
+  .num { text-align: right !important; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .owes { color: var(--bad); font-weight: 700; }
+  .credit { color: var(--ok); font-weight: 700; }
+  .strip { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+  .stat { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; min-width: 150px; }
+  .stat b { display: block; font-size: 1.35rem; }
+  .stat span { color: var(--muted); font-size: 0.85rem; }
+  .ledger-wrap { padding: 0 16px 14px; }
+  .ledger { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+  .ledger th, .ledger td { padding: 6px 8px; border-top: 1px solid var(--line); text-align: left; }
+  .ledger th { color: var(--muted); font-weight: 600; font-size: 0.8rem; }
+  .ledger .gl { color: var(--muted); }
+  .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+  .filters button[aria-pressed="true"] { background: var(--accent); color: #fff; }
+  .people { margin: 0; padding: 0; list-style: none; }
+  .people li { white-space: nowrap; }
+  .people .c { color: var(--muted); font-size: 0.85rem; }
+  .note { background: var(--warn-soft); color: var(--warn); border-radius: 8px; padding: 8px 12px; margin: 8px 16px; font-size: 0.88rem; }
+  .ledger .why { color: var(--warn); font-size: 0.82rem; }
+  .tag.inkind { background: var(--accent-soft); color: var(--accent); }
+  .work { padding: 6px 0 12px; }
+  .work h3 { font-size: 0.95rem; margin: 8px 0 4px; }
+  .corr { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 16px; margin-bottom: 10px; }
+  .corr b { display: block; }
+  .units > .unit { cursor: pointer; } body.one .units > .unit { cursor: auto; }
+  .units > .unit:hover { box-shadow: 0 0 0 2px var(--accent); } body.one .units > .unit:hover { box-shadow: none; }
+  body.one .units { grid-template-columns: 1fr; } body.one main.wrap { max-width: none; }
+  .onebar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+  .entry-tools .card-form { background: var(--head); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; margin-top: 10px; }
+  .entry-tools .formrow { display: flex; gap: 10px; flex-wrap: wrap; margin: 8px 0; }
+  .entry-tools label { display: grid; gap: 3px; font-size: .85rem; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="appbar" data-nav="staff">
+  <div class="appbar-in">
+    <div class="org">2nd Chance Housing<span>Rentals · Staff</span></div>
+    <div class="row" id="userBar" hidden>
+      
+      
+      
+      
+      
+      
+      <button class="linkbtn" type="button" id="signOutBtn">Sign out</button>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+  <header>
+    <h1>Rentals</h1>
+    <p class="lead">Every unit, its leases and tenants, and each lease's full ledger. Balances are recomputed from the ledger lines.</p>
+  </header>
+
+  <div id="signin" class="narrow"></div>
+
+  <div id="app" hidden>
+    <div id="moveins"></div>
+    <div class="strip" id="strip"></div>
+    <div class="filters" id="filters"></div>
+    <div class="units" id="units"></div>
+    <h2 style="margin-top:28px">Land contracts</h2>
+    <p class="sub">Buyers paying toward ownership. Not tenancies, so they're kept apart from leases.</p>
+    <div class="units" id="contracts"></div>
+    <h2 style="margin-top:28px">Ledger corrections</h2>
+    <div id="corrections"></div>
+  </div>
+</main>
+
+<script type="module">
+import { client, $, esc, fmtDate, money, signIn, signOut, errorText } from "/assets/portal/portal.js";
+import { balAmt } from "/assets/portal/balance.js";
+
+let units = [], filter = "all";
+// ?unit=<id>: this tab shows one unit at full width with its ledgers open (opened from a card click on the full list).
+const ONE = new URLSearchParams(location.search).get("unit");
+if (ONE) document.body.classList.add("one");
+const openLedgers = new Set();
+
+const bal = (n) => n == null ? "—" : balAmt(n);
+const activeLeases = (u) => u.leases.filter((l) => l.status === "active");
+const unitName = (u) => u.unit_number ? `Unit ${u.unit_number}` : u.property;
+
+function render() {
+  const active = units.flatMap(activeLeases);
+  const owed = active.reduce((s, l) => s + Math.max(0, Number(l.balance) || 0), 0);
+  const rentRoll = active.reduce((s, l) => s + (Number(l.rent) || 0), 0);
+  const doubled = units.filter((u) => activeLeases(u).length > 1);
+  $("strip").innerHTML = `
+    <div class="stat"><b>${units.filter((u) => activeLeases(u).length).length} / ${units.length}</b><span>units with an active lease</span></div>
+    <div class="stat"><b>${money(rentRoll)}</b><span>monthly rent, active leases</span></div>
+    <div class="stat"><b>${money(owed)}</b><span>owed on active leases</span></div>
+    ${doubled.length ? `<div class="stat"><b class="owes">${doubled.length}</b><span>unit(s) with 2 active leases: ${doubled.map(unitName).join(", ")}</span></div>` : ""}`;
+
+  const counts = { all: units.length, leased: units.filter((u) => activeLeases(u).length).length, vacant: units.filter((u) => !activeLeases(u).length && u.managed_by !== "owner").length,
+    owing: units.filter((u) => activeLeases(u).some((l) => l.balance > 0)).length };
+  $("filters").innerHTML = Object.entries({ all: "All units", leased: "Leased", vacant: "No active lease", owing: "Owing" })
+    .map(([k, v]) => `<button class="btn" type="button" data-f="${k}" aria-pressed="${k === filter}">${v} (${counts[k]})</button>`).join("");
+
+  const shown = ONE ? units.filter((u) => u.id === ONE) : units.filter((u) => filter === "all" ? true : filter === "leased" ? activeLeases(u).length : filter === "vacant" ? (!activeLeases(u).length && u.managed_by !== "owner") : activeLeases(u).some((l) => l.balance > 0));
+  $("units").innerHTML = shown.map((u) => {
+    const act = activeLeases(u);
+    const facts = [u.bedrooms, u.bathrooms, u.size_sqft ? u.size_sqft + " sq ft" : ""].filter(Boolean).join(" · ");
+    const headTag = u.managed_by === "owner" ? `<span class="tag past">owner-managed</span>`
+      : act.length > 1 ? `<span class="tag flag">2 active leases</span>` : act.length ? `<span class="tag active">leased</span>` : `<span class="tag vacant">no active lease</span>`;
+    const condoNote = u.managed_by === "owner" ? "" : u.condo_occupancy === "owner" ? " · owner-occupied (association record)" : u.condo_occupancy === "tenant" && !act.length ? " · association record says tenant-occupied" : "";
+    return `<section class="unit" data-unit-id="${esc(u.id)}" title="${ONE ? "" : "Open in a new tab"}">
+      <div class="unit-head"><h2>${esc(unitName(u))} ${headTag}</h2>
+        <span class="meta">${esc(u.address || u.property)}${facts ? " · " + esc(facts) : ""}${esc(condoNote)}</span></div>
+      ${u.management_note ? `<div class="note">${esc(u.management_note)}</div>` : ""}
+      ${u.leases.length ? `<table class="leases"><thead><tr><th>Status</th><th>Tenants</th><th>Term</th><th class="num">Rent</th><th class="num">Deposit held</th><th class="num">Balance</th><th class="num">Lines</th></tr></thead><tbody>
+        ${u.leases.map((l) => `<tr data-lease="${l.id}" tabindex="0" aria-expanded="${openLedgers.has(l.id)}">
+          <td><span class="tag ${l.status}">${l.status}</span>${l.correction_note ? ` <span class="tag flag" title="${esc(l.correction_note)}">corrected</span>` : ""}${l.work_agreements ? ` <span class="tag inkind">work in lieu</span>` : ""}</td>
+          <td><ul class="people">${(l.tenants || []).map((t) => `<li>${esc(t.name)} <span class="c">${esc([t.phone, t.email].filter(Boolean).join(" · "))}</span></li>`).join("") || esc(l.tenants_label)}</ul></td>
+          <td>${fmtDate(l.start_date)} – ${l.end_date ? fmtDate(l.end_date) : (l.lease_type === "at_will" ? "month-to-month" : "—")}</td>
+          <td class="num">${money(l.rent)}</td>
+          <td class="num">${l.deposit_held == null ? "—" : money(l.deposit_held)}</td>
+          <td class="num">${bal(Number(l.balance))}</td>
+          <td class="num">${l.entries}</td></tr>
+          ${openLedgers.has(l.id) ? `<tr><td colspan="7" class="ledger-wrap" id="ledger-${l.id}"><span class="sub">Loading ledger…</span></td></tr>` : ""}`).join("")}
+      </tbody></table>` : u.managed_by === "owner" ? "" : `<p class="sub" style="padding:10px 16px">No leases on record.</p>`}
+    </section>`;
+  }).join("");
+  openLedgers.forEach(loadLedger);
+}
+
+async function loadLedger(id) {
+  const cell = $("ledger-" + id); if (!cell) return;
+  const lease = units.flatMap((u) => u.leases).find((l) => l.id === id);
+  const [{ data, error }, work, files] = await Promise.all([
+    client.rpc("rentals_staff_ledger", { p_lease_id: id }),
+    lease && lease.work_agreements ? client.rpc("rentals_staff_work", { p_lease_id: id }) : Promise.resolve({ data: null }),
+    client.rpc("rentals_staff_lease_files", { p_lease_id: id }),
+  ]);
+  const { data: rules } = await client.rpc("lease_staff_notice_rules", { p_lease: id });
+  const FILE_TAG = { on_file: ["active", "on file"], needs_update: ["flag", "needs update"], coming_soon: ["future", "coming soon"] };
+  const KIND = { signed_lease: "Signed lease", addendum: "Addendum", rent_increase: "Rent increase", other: "Document" };
+  const docs = (files.data || []).length ? `<div class="work"><h3>Lease documents</h3><ul class="people">${files.data.map((f) => `<li style="white-space:normal;margin-bottom:4px">
+      <span class="tag ${FILE_TAG[f.status][0]}">${FILE_TAG[f.status][1]}</span> ${esc(KIND[f.kind] || f.kind)}${f.dated ? ", " + fmtDate(f.dated) : ""}
+      ${f.file_path ? `<span class="c">${esc(f.file_path.split("/").pop())}</span>` : ""}${f.note ? `<div class="why">${esc(f.note)}</div>` : ""}</li>`).join("")}</ul></div>` : "";
+  if (error) { cell.innerHTML = `<span class="msg err">${esc(await errorText(error))}</span>`; return; }
+  let run = 0; const seen = new Set();
+  const w = work.data;
+  // Notice rules follow this lease (not the unit): a voucher tenancy gets 30-day nonpayment notices.
+  const notices = rules ? `<div class="work"><h3>Notices for this lease</h3>
+      <div class="formrow"><label>Federal program<select data-fed="${id}">
+        <option value="" ${!rules.federal_program ? "selected" : ""}>None</option>
+        <option value="section8" ${rules.federal_program === "section8" ? "selected" : ""}>Section 8 (Housing Choice Voucher)</option>
+        <option value="other_federal" ${rules.federal_program === "other_federal" ? "selected" : ""}>Other federally covered tenancy</option></select></label>
+        <label style="flex:1">Note<input data-fednote="${id}" value="${esc(rules.federal_program_note || "")}" maxlength="200" placeholder="e.g. HACM voucher, HAP contract date"></label>
+        <button class="btn small" type="button" data-fedsave="${id}">Save</button></div>
+      <div class="meta">Nonpayment notice: <b>${rules.nonpayment_days} days</b>: ${esc(rules.nonpayment_basis)}. Breach: ${rules.breach_cure_days} days to fix it.${rules.termination_28_day ? " Month-to-month: 28 days' notice to end the tenancy at the end of a month." : ""}</div>
+      <div class="meta" data-fedmsg="${id}"></div></div>` : "";
+  cell.innerHTML = `${lease && lease.correction_note ? `<div class="note" style="margin:8px 0">${esc(lease.correction_note)}</div>` : ""}${notices}${docs}
+    ${w ? `<div class="work">${w.agreements.map((g) => `<h3>${esc(g.title)} <span class="tag ${g.status === "active" ? "active" : "future"}">${esc(g.status)}</span></h3>
+        <div class="meta">${esc(g.scope)}</div><div class="meta">In-kind credit: ${money(g.monthly_credit)} / month. ${esc(g.equipment_terms || "")}</div>`).join("")}
+      <h3>Work log</h3>${w.logs.length ? `<table class="ledger"><thead><tr><th>Date</th><th>Work</th><th class="num">Credit</th></tr></thead><tbody>
+        ${w.logs.map((g) => `<tr><td>${fmtDate(g.work_date)}</td><td>${esc(g.description)}</td><td class="num">${money(g.value)}</td></tr>`).join("")}</tbody></table>` : `<p class="sub">No work logged yet.</p>`}</div>` : ""}
+    ${entryTools(id)}
+    <table class="ledger"><thead><tr><th>Date</th><th>Account</th><th>Type</th><th>Description</th><th class="num">Amount</th><th class="num">Balance</th><th></th></tr></thead><tbody>
+    ${data.map((e) => { run += Number(e.amount); return `<tr><td>${fmtDate(e.date)}</td><td class="gl">${esc(e.gl)}</td>
+      <td>${e.kind === "in_kind" ? `<span class="tag inkind">work in lieu</span>` : esc(e.type)}</td>
+      <td>${esc(e.description)}${e.note ? `<div class="why">${esc(e.note)}</div>` : ""}</td>
+      <td class="num">${money(e.amount)}</td><td class="num">${bal(Math.round(run * 100) / 100)}</td>
+      <td>${reverseBtn(e, id, seen)}</td></tr>`; }).reverse().join("")}
+  </tbody></table>`;
+}
+
+// Reverse: a staff-entered charge (reversal line), or a posted payment (once per payment, on its first line).
+function reverseBtn(e, lease, seen) {
+  if (e.source === "staff" && e.kind === "charge") return e.reversed ? `<span class="meta">reversed</span>` : `<button class="linkbtn" type="button" data-revcharge="${e.id}" data-lease-id="${lease}">Reverse…</button>`;
+  if (e.report && Number(e.report_left) > 0 && e.kind === "payment" && !seen.has(e.report)) { seen.add(e.report); return `<button class="linkbtn" type="button" data-revpay="${e.report}" data-lease-id="${lease}">Reverse…</button>`; }
+  return "";
+}
+
+// The two staff buttons on every ledger, and their forms.
+const today = () => new Date().toLocaleDateString("en-CA");
+function entryTools(id) {
+  return `<div class="work entry-tools">
+    <button class="btn primary" type="button" data-open-pay="${id}">Record payment</button>
+    <button class="btn" type="button" data-open-charge="${id}">Add charge</button>
+    <button class="btn" type="button" data-open-credit="${id}">Credit fee</button>
+    <button class="btn" type="button" data-open-credit="${id}" style="border-color:#b3261e;color:#b3261e">Delete fee</button>
+    <button class="btn" type="button" data-open-stmt="${id}">Email statement</button>
+    <button class="btn" type="button" data-print-stmt="${id}">Print statement</button>
+    <div data-stmtform="${id}" hidden class="card-form">
+      <h3>Email this tenant's statement</h3>
+      <p class="meta">Sends every ledger line with a running balance and the current balance to the one address you enter. Only send it to the tenant or someone they have authorized (for example their caseworker). Each send is logged.</p>
+      <div class="formrow"><label style="flex:1;min-width:220px">Email to<input type="email" data-stmt-to="${id}" maxlength="120" placeholder="name@example.com"></label></div>
+      <label class="meta" style="display:block;margin-top:8px">Message (optional, shown above the statement)<textarea data-stmt-msg="${id}" maxlength="1500" rows="3" style="width:100%;box-sizing:border-box;font:inherit;padding:6px 8px"></textarea></label>
+      <div style="margin-top:8px"><button class="btn primary" type="button" data-stmt-send="${id}">Send statement</button> <button class="btn" type="button" data-stmt-close="${id}">Close</button></div>
+      <div class="meta" data-stmt-say="${id}" role="status"></div>
+    </div>
+    <div data-payform="${id}" hidden class="card-form">
+      <h3>Record a payment</h3>
+      <p class="meta">For a check, money order or cash the office received (or a payment not reported online). It goes to any unpaid security deposit first, then rent, then late fees; the tenant is emailed a receipt.
+        When the deposit later shows on the Bank page, do not assign it to the tenant again.</p>
+      <div class="formrow">
+        <label>Amount<input type="number" step="0.01" min="0.01" data-p="amount"></label>
+        <label>Paid on<input type="date" data-p="date" value="${today()}" max="${today()}"></label>
+        <label>How<select data-p="method"><option value="check">Check</option><option value="money_order">Money order</option><option value="cash">Cash</option>
+          <option value="zelle">Zelle</option><option value="bank_transfer">Bank transfer</option><option value="other">Other</option></select></label>
+        <label>Check / reference #<input data-p="ref" maxlength="60"></label>
+        <label>Paid by (if not the tenant)<input data-p="payer" maxlength="80"></label>
+        <label style="flex:1">Note<input data-p="note" maxlength="200"></label>
+      </div>
+      <button class="btn primary" type="button" data-save-pay="${id}">Save payment</button> <button class="btn" type="button" data-close="${id}">Cancel</button>
+      <span class="msg" data-pmsg="${id}"></span>
+    </div>
+    <div data-creditform="${id}" hidden class="card-form">
+      <h3>Credit or delete a fee</h3>
+      <p class="meta"><b>Credit</b> adds a credit line and keeps the fee on the ledger. <b>Delete</b> removes an unpaid fee posted since 10/10/2026 as if it was never charged (a copy is kept in the deletion log) and the late-fee job will not post it again that month. Never rent or the deposit.</p>
+      <div class="formrow">
+        <label>Fee<select data-f="line"></select></label>
+        <label>Amount<input type="number" step="0.01" min="0.01" data-f="amount"></label>
+        <label style="flex:1">Why (required)<input data-f="why" maxlength="300" placeholder="e.g. goodwill, posted in error"></label>
+      </div>
+      <button class="btn primary" type="button" data-save-credit="${id}">Credit</button>
+      <button class="btn" type="button" data-delete-fee="${id}" style="border-color:#b3261e;color:#b3261e">Delete this fee</button>
+      <button class="btn" type="button" data-close="${id}">Cancel</button>
+      <span class="msg" data-fmsg="${id}"></span>
+    </div>
+    <div data-chargeform="${id}" hidden class="card-form">
+      <h3>Add a charge</h3>
+      <div class="formrow">
+        <label>Type<select data-c="type"><option value="rent">Rent</option><option value="late_fee">Late fee</option><option value="deposit">Security deposit</option>
+          <option value="repairs">Repairs / damage</option><option value="cleaning">Cleaning</option><option value="door_unlocked">Basement door left unlocked, 6626 only ($215)</option><option value="other">Other</option></select></label>
+        <label>Amount<input type="number" step="0.01" min="0.01" data-c="amount"></label>
+        <label>Date<input type="date" data-c="date" value="${today()}"></label>
+        <label style="flex:1">Description (shown on the ledger)<input data-c="desc" maxlength="120" placeholder="e.g. Broken window, 11/2"></label>
+        <label style="flex:1">Note (staff only)<input data-c="note" maxlength="200"></label>
+      </div>
+      <button class="btn primary" type="button" data-save-charge="${id}">Save charge</button> <button class="btn" type="button" data-close="${id}">Cancel</button>
+      <span class="msg" data-cmsg="${id}"></span>
+    </div>
+  </div>`;
+}
+
+// Print the tenant's statement (oldest first, running balance), from the same ledger the page shows.
+async function printStatement(id) {
+  const unit = units.find((u) => u.leases.some((l) => l.id === id)), lease = unit && unit.leases.find((l) => l.id === id);
+  const w = window.open("", "_blank"); if (!w) { alert("Allow pop-ups for this site to print."); return; }
+  const { data, error } = await client.rpc("rentals_staff_ledger", { p_lease_id: id });
+  if (error) { w.close(); alert(await errorText(error)); return; }
+  let run = 0;
+  const rows = data.map((e) => { run += Number(e.amount); return `<tr><td>${fmtDate(e.date)}</td><td>${esc(e.kind === "in_kind" ? "Work in lieu of rent" : e.type)}<div class="m">${esc(e.description || "")}</div></td><td class="n">${money(e.amount)}</td><td class="n">${money(Math.round(run * 100) / 100)}</td></tr>`; }).join("");
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Account statement</title><style>@page{size:letter;margin:.6in}body{font:10.5pt/1.4 Arial,sans-serif;color:#111}table{width:100%;border-collapse:collapse}th,td{border:1px solid #bbb;padding:5px;text-align:left;vertical-align:top}.n{text-align:right;white-space:nowrap}.m{font-size:9pt;color:#555}tr{page-break-inside:avoid}</style></head><body>
+    <h2 style="margin:0 0 4px">Account statement</h2><p>${esc([unit ? unitName(unit) : "", unit ? unit.address || "" : "", lease && lease.account_number ? "Account " + lease.account_number : "", lease ? lease.tenants_label || "" : ""].filter(Boolean).join(" · "))}<br>Printed ${new Date().toLocaleDateString("en-US")}</p>
+    <table><thead><tr><th>Date</th><th>Memo</th><th class="n">Amount</th><th class="n">Balance</th></tr></thead><tbody>${rows || '<tr><td colspan="4">No ledger lines yet.</td></tr>'}</tbody></table>
+    <p><b>Current balance: ${money(Math.round(run * 100) / 100)}</b></p><p>2nd Chance Housing</p></body></html>`);
+  w.document.close(); w.focus(); setTimeout(() => w.print(), 300);
+}
+
+async function entryClick(e) {
+  const t = e.target, q = (sel) => document.querySelector(sel);
+  const show = (id, which) => { q(`[data-payform="${id}"]`).hidden = which !== "pay"; q(`[data-chargeform="${id}"]`).hidden = which !== "charge"; q(`[data-creditform="${id}"]`).hidden = which !== "credit"; };
+  const after = async () => { await reloadOverview(); };
+  if (t.dataset.openPay) { show(t.dataset.openPay, "pay"); return true; }
+  if (t.dataset.openStmt) { q(`[data-stmtform="${t.dataset.openStmt}"]`).hidden = false; q(`[data-stmt-to="${t.dataset.openStmt}"]`).focus(); return true; }
+  if (t.dataset.stmtClose) { q(`[data-stmtform="${t.dataset.stmtClose}"]`).hidden = true; return true; }
+  if (t.dataset.printStmt) { printStatement(t.dataset.printStmt); return true; }
+  if (t.dataset.stmtSend) {
+    const id = t.dataset.stmtSend, say = q(`[data-stmt-say="${id}"]`), to = q(`[data-stmt-to="${id}"]`).value.trim();
+    if (!to) { say.textContent = "Enter an email address."; return true; }
+    if (!confirm(`Email this tenant's full statement to ${to}?`)) return true;
+    t.disabled = true; say.textContent = "Sending…";
+    const { error } = await client.rpc("lease_statement_email", { p_lease: id, p_to: to, p_message: q(`[data-stmt-msg="${id}"]`).value });
+    t.disabled = false;
+    if (error) { say.textContent = await errorText(error); return true; }
+    client.functions.invoke("outbox-flush", { body: {} }).catch(() => {});
+    say.textContent = `Sent to ${to}.`; q(`[data-stmt-to="${id}"]`).value = ""; q(`[data-stmt-msg="${id}"]`).value = "";
+    return true;
+  }
+  if (t.dataset.openCharge) { show(t.dataset.openCharge, "charge"); return true; }
+  if (t.dataset.close) { show(t.dataset.close, null); return true; }
+  if (t.dataset.openCredit) {
+    const id = t.dataset.openCredit, f = q(`[data-creditform="${id}"]`), msg = q(`[data-fmsg="${id}"]`);
+    show(id, "credit"); msg.textContent = "";
+    const { data, error } = await client.rpc("lease_staff_open_fees", { p_lease: id });
+    if (error) { msg.className = "msg err"; msg.textContent = await errorText(error); return true; }
+    const sel = f.querySelector('[data-f="line"]'), amt = f.querySelector('[data-f="amount"]');
+    if (!data.length) { sel.innerHTML = ""; msg.className = "msg err"; msg.textContent = "No open fees on this lease."; return true; }
+    sel.innerHTML = data.map((x) => `<option value="${x.id}" data-open="${x.open}">${fmtDate(x.date)} · ${esc(x.description || x.gl)} · ${money(x.amount)}${Number(x.open) !== Number(x.amount) ? " (open " + money(x.open) + ")" : ""}</option>`).join("");
+    sel.onchange = () => { amt.value = sel.selectedOptions[0].dataset.open; }; sel.onchange();
+    return true;
+  }
+  if (t.dataset.deleteFee) {
+    const id = t.dataset.deleteFee, f = q(`[data-creditform="${id}"]`), msg = q(`[data-fmsg="${id}"]`), sel = f.querySelector('[data-f="line"]');
+    const why = f.querySelector('[data-f="why"]').value;
+    if (!sel.value) return true;
+    if (!why.trim()) { msg.className = "msg err"; msg.textContent = "Say why (in the Why box)."; return true; }
+    if (!confirm(`DELETE this fee from the ledger?
+
+${sel.selectedOptions[0].text}
+
+It will not be posted again this month.`)) return true;
+    const { error } = await client.rpc("lease_staff_delete_fee", { p_entry: Number(sel.value), p_reason: why });
+    if (error) { msg.className = "msg err"; msg.textContent = await errorText(error); return true; }
+    await after(); return true;
+  }
+  if (t.dataset.saveCredit) {
+    const id = t.dataset.saveCredit, f = q(`[data-creditform="${id}"]`), msg = q(`[data-fmsg="${id}"]`), sel = f.querySelector('[data-f="line"]');
+    const amt = Number(f.querySelector('[data-f="amount"]').value), why = f.querySelector('[data-f="why"]').value;
+    if (!sel.value) return true;
+    if (!(amt > 0)) { msg.className = "msg err"; msg.textContent = "Enter the amount."; return true; }
+    if (!why.trim()) { msg.className = "msg err"; msg.textContent = "Say why."; return true; }
+    if (!confirm(`Credit ${money(amt)}: ${sel.selectedOptions[0].text}?`)) return true;
+    const { error } = await client.rpc("lease_staff_credit_fee", { p_entry: Number(sel.value), p_amount: amt, p_reason: why });
+    if (error) { msg.className = "msg err"; msg.textContent = await errorText(error); return true; }
+    await after(); return true;
+  }
+  if (t.dataset.savePay) {
+    const id = t.dataset.savePay, f = q(`[data-payform="${id}"]`), v = (k) => f.querySelector(`[data-p="${k}"]`).value, msg = q(`[data-pmsg="${id}"]`);
+    const amt = Number(v("amount"));
+    if (!(amt > 0)) { msg.className = "msg err"; msg.textContent = "Enter the amount."; return true; }
+    if (!confirm(`Record a ${f.querySelector('[data-p="method"]').selectedOptions[0].text.toLowerCase()} payment of ${money(amt)} paid ${fmtDate(v("date"))}? The tenant is emailed a receipt.`)) return true;
+    t.disabled = true;
+    const { error } = await client.rpc("lease_staff_record_payment", { p_lease: id, p_method: v("method"), p_amount: amt, p_paid_on: v("date"), p_reference: v("ref"), p_payer: v("payer"), p_note: v("note") });
+    t.disabled = false;
+    if (error) { msg.className = "msg err"; msg.textContent = await errorText(error); return true; }
+    client.functions.invoke("outbox-flush", { body: {} }).catch(() => {});
+    await after(); return true;
+  }
+  if (t.dataset.saveCharge) {
+    // Basement door rule (11/10/2026): $215 per occurrence; the note must say when and how we know who left it unlocked.
+    { const f0 = q(`[data-chargeform="${t.dataset.saveCharge}"]`), m0 = q(`[data-cmsg="${t.dataset.saveCharge}"]`);
+      if (f0.querySelector('[data-c="type"]').value === "door_unlocked" && !f0.querySelector('[data-c="note"]').value.trim()) { m0.className = "msg err"; m0.textContent = "Note: say when the door was found unlocked and how you know who left it."; return true; } }
+    const id = t.dataset.saveCharge, f = q(`[data-chargeform="${id}"]`), v = (k) => f.querySelector(`[data-c="${k}"]`).value, msg = q(`[data-cmsg="${id}"]`);
+    const amt = Number(v("amount"));
+    if (!(amt > 0)) { msg.className = "msg err"; msg.textContent = "Enter the amount."; return true; }
+    if (!confirm(`Add a ${f.querySelector('[data-c="type"]').selectedOptions[0].text.toLowerCase()} charge of ${money(amt)} dated ${fmtDate(v("date"))}?`)) return true;
+    t.disabled = true;
+    const { error } = await client.rpc("lease_staff_post_charge", { p_lease: id, p_type: v("type"), p_amount: amt, p_date: v("date"), p_description: v("desc"), p_note: v("note") });
+    t.disabled = false;
+    if (error) { msg.className = "msg err"; msg.textContent = await errorText(error); return true; }
+    await after(); return true;
+  }
+  if (t.dataset.revcharge) {
+    const why = prompt("Why is this charge reversed? (e.g. entered by mistake, wrong amount)"); if (!why) return true;
+    const { error } = await client.rpc("lease_staff_reverse_charge", { p_entry: Number(t.dataset.revcharge), p_reason: why });
+    if (error) alert(await errorText(error)); else await after();
+    return true;
+  }
+  if (t.dataset.revpay) {
+    const why = prompt("Why is this payment reversed? (bounced / returned by the bank, refunded, entered by mistake…) The tenant is emailed.", "Entered by mistake"); if (!why) return true;
+    const amt = prompt("Amount to reverse (leave empty for the whole payment)", ""); if (amt === null) return true;
+    const returned = confirm("Did this payment come back UNPAID (bounced, NSF, closed account, stop payment)?\n\nOK = yes: the lease's returned-payment fee is added.\nCancel = no (a refund or a mistake): no fee.");
+    const { data: rv, error } = await client.rpc("payments_staff_reverse", { p_report: t.dataset.revpay, p_amount: amt.trim() ? Number(amt) : null, p_reason: why, p_returned: returned });
+    if (error) { alert(await errorText(error)); return true; }
+    if (returned && rv && rv.return_fee && rv.return_fee.note) alert(rv.return_fee.note);
+    client.functions.invoke("outbox-flush", { body: {} }).catch(() => {});
+    await after(); return true;
+  }
+  return false;
+}
+async function reloadOverview() {
+  const { data, error } = await client.rpc("rentals_staff_overview");
+  if (error) return alert(await errorText(error));
+  units = data.units || []; render();
+}
+
+let contracts = [];
+const openContracts = new Set();
+const openSchedules = new Set();
+function renderContracts() {
+  $("contracts").innerHTML = contracts.length ? contracts.map((c) => `<section class="unit">
+    <div class="unit-head"><h2>${esc(c.property)} <span class="tag ${c.status === "active" ? "active" : "past"}">land contract · ${esc(c.status)}</span></h2>
+      <span class="meta">${esc(c.street || "")} · since ${fmtDate(c.contract_date)}</span></div>
+    ${c.terms_confirmed ? `<div class="work" style="padding:8px 16px">
+        <div class="strip" style="margin:4px 0 8px">
+          <div class="stat"><b>${money(c.principal_now)}</b><span>principal owed (after installment ${c.installments_due} of ${c.term_months})</span></div>
+          <div class="stat"><b>${money(c.purchase_price)}</b><span>price · ${money(c.down_payment)} down</span></div>
+          <div class="stat"><b>${(Number(c.interest_rate) * 100).toFixed(2)}%</b><span>interest · ${c.term_months} months</span></div>
+          <div class="stat"><b>${fmtDate(c.maturity_date)}</b><span>maturity (paid in full by)</span></div>
+        </div>
+        <div class="meta">Seller: ${esc(c.seller || "")} · payments to ${esc(c.vendor_payment_address || "")} · recorded ${fmtDate(c.recorded_on)}, ${esc(c.recorded_document || "")} · parcel ${esc(c.parcel_pin || "")}</div>
+        <div class="meta">Default: ${c.grace_days} days after the due date (or after written notice for other obligations); default interest ${(Number(c.default_interest_rate) * 100).toFixed(1)}%. ${esc(c.prepayment_terms || "")} ${esc(c.taxes_insurance || "")}</div>
+        ${c.interest_by_year ? `<div class="meta">Interest paid by year (schedule): ${Object.entries(c.interest_by_year).map(([y, i]) => `${y} ${money(i)}`).join(" · ")}</div>` : ""}
+        <button class="btn" type="button" data-schedule="${c.id}" style="margin-top:8px">${openSchedules.has(c.id) ? "Hide" : "Show"} amortization schedule</button>
+        ${openSchedules.has(c.id) ? `<div id="schedule-${c.id}" style="margin-top:8px"><span class="sub">Loading…</span></div>` : ""}
+      </div>` : `<div class="note">Contract terms (price, down payment, interest rate, term) aren't entered yet.</div>`}
+    <table class="leases"><thead><tr><th>Buyers</th><th class="num">Monthly payment</th><th class="num">Paid to date</th><th class="num">Amount due</th><th class="num">Lines</th></tr></thead><tbody>
+      <tr data-contract="${c.id}" tabindex="0"><td><ul class="people">${(c.buyers || []).map((t) => `<li>${esc(t.name)} <span class="c">${esc([t.phone, t.email].filter(Boolean).join(" · "))}</span></li>`).join("")}</ul></td>
+        <td class="num">${money(c.monthly_payment)}</td><td class="num">${money(c.paid_total)}</td><td class="num">${bal(Number(c.balance))}</td><td class="num">${c.entries}</td></tr>
+      ${openContracts.has(c.id) ? `<tr><td colspan="5" class="ledger-wrap" id="contract-${c.id}"><span class="sub">Loading…</span></td></tr>` : ""}
+    </tbody></table></section>`).join("") : `<p class="sub">None.</p>`;
+  openSchedules.forEach(async (id) => {
+    const box = $("schedule-" + id); if (!box) return;
+    const { data, error } = await client.rpc("land_contracts_staff_schedule", { p_contract_id: id });
+    if (error) { box.innerHTML = `<span class="msg err">${esc(await errorText(error))}</span>`; return; }
+    const today = new Date().toISOString().slice(0, 10);
+    box.innerHTML = `<table class="ledger"><thead><tr><th>#</th><th>Due</th><th class="num">Payment</th><th class="num">Extra</th><th class="num">Principal</th><th class="num">Interest</th><th class="num">Balance</th></tr></thead><tbody>
+      ${data.map((s) => `<tr${s.due_date <= today ? "" : ' style="color:var(--muted)"'}><td>${s.n}</td><td>${fmtDate(s.due_date)}</td><td class="num">${money(s.scheduled_payment)}</td>
+        <td class="num">${Number(s.extra_payment) ? money(s.extra_payment) : ""}</td><td class="num">${money(s.principal)}</td><td class="num">${money(s.interest)}</td><td class="num">${money(s.ending_balance)}</td></tr>`).join("")}
+    </tbody></table>`;
+  });
+  openContracts.forEach(async (id) => {
+    const cell = $("contract-" + id); if (!cell) return;
+    const { data, error } = await client.rpc("land_contracts_staff_ledger", { p_contract_id: id });
+    if (error) { cell.innerHTML = `<span class="msg err">${esc(await errorText(error))}</span>`; return; }
+    let run = 0;
+    cell.innerHTML = `<table class="ledger"><thead><tr><th>Date</th><th>Kind</th><th>Description</th><th class="num">Amount</th><th class="num">Due</th></tr></thead><tbody>
+      ${data.map((e) => { run += Number(e.amount); return `<tr><td>${fmtDate(e.date)}</td><td>${esc(e.kind.replace("_", " "))}</td><td>${esc(e.description || e.type)}</td><td class="num">${money(e.amount)}</td><td class="num">${bal(Math.round(run * 100) / 100)}</td></tr>`; }).reverse().join("")}
+    </tbody></table>`;
+  });
+}
+
+// New leases signed online: point to the Move-ins page when something needs staff.
+async function loadMoveIns() {
+  const { data } = await client.rpc("move_in_staff_list");
+  const n = (data || []).filter((m) => (m.keys_ready_at && !m.keys_released_at) || m.checklist_status === "submitted").length;
+  $("moveins").innerHTML = n ? `<div class="banner warn" style="margin-bottom:14px"><b>${n} move-in${n > 1 ? "s" : ""} need${n > 1 ? "" : "s"} you</b> (keys or checklist). <a href="/inspections/move-in/">Open Move-ins</a></div>` : "";
+}
+
+async function load() {
+  loadMoveIns();
+  const { data, error } = await client.rpc("rentals_staff_overview");
+  if (error) { $("signin").innerHTML = `<div class="banner bad">${esc(await errorText(error))}</div>`; return; }
+  units = data.units || [];
+  if (ONE) {
+    const u = units.find((x) => x.id === ONE);
+    if (u) { u.leases.forEach((l) => { if (l.status !== "past" || u.leases.length === 1) openLedgers.add(l.id); }); document.title = unitName(u) + " — Rentals"; }
+    for (const id of ["strip", "filters", "moveins"]) $(id).hidden = true;
+    $("filters").insertAdjacentHTML("beforebegin", `<div class="onebar"><a class="btn" href="/leasing/leases/">← All units</a>
+      <button class="btn" type="button" id="fullBtn">Full screen</button><span class="meta">Click a lease row to show or hide its ledger.</span></div>`);
+    $("fullBtn").onclick = () => document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen().catch(() => {});
+    document.querySelectorAll("#app > h2, #app > p.sub, #contracts, #corrections").forEach((x) => x.hidden = true);
+    render(); $("app").hidden = false; return;
+  }
+  render();
+  const [lc, corr] = await Promise.all([client.rpc("land_contracts_staff_overview"), client.rpc("staff_corrections")]);
+  contracts = lc.data || [];
+  renderContracts();
+  $("corrections").innerHTML = (corr.data || []).map((c) => `<div class="corr"><b>${esc(c.subject)}</b>
+    <span class="meta">${fmtDate(c.decided_on)} · decided by ${esc(c.decided_by)}</span><p style="margin:6px 0 0">${esc(c.reason)}</p></div>`).join("") || `<p class="sub">None.</p>`;
+  $("app").hidden = false;
+}
+
+$("filters").addEventListener("click", (e) => { const b = e.target.closest("[data-f]"); if (b) { filter = b.dataset.f; render(); } });
+const toggle = (tr) => { const id = tr.dataset.lease; openLedgers.has(id) ? openLedgers.delete(id) : openLedgers.add(id); render(); };
+$("units").addEventListener("click", async (e) => {
+  if (!ONE) { const card = e.target.closest("section.unit[data-unit-id]"); if (card) { window.open("/leasing/leases/?unit=" + encodeURIComponent(card.dataset.unitId), "_blank"); return; } }
+  if (e.target.closest(".entry-tools, [data-revcharge], [data-revpay]")) { try { await entryClick(e); } catch (err) { alert(err.message); } return; }
+  const save = e.target.closest("[data-fedsave]");
+  if (save) {
+    const id = save.dataset.fedsave, msg = document.querySelector(`[data-fedmsg="${id}"]`);
+    const { error } = await client.rpc("lease_staff_set_federal_program", { p_lease: id, p_program: document.querySelector(`[data-fed="${id}"]`).value,
+      p_note: document.querySelector(`[data-fednote="${id}"]`).value });
+    if (error) { msg.className = "msg err"; msg.textContent = await errorText(error); } else loadLedger(id);
+    return;
+  }
+  const tr = e.target.closest("tr[data-lease]"); if (tr) toggle(tr);
+});
+$("units").addEventListener("keydown", (e) => { const tr = e.target.closest("tr[data-lease]"); if (tr && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); toggle(tr); } });
+$("contracts").addEventListener("click", (e) => { const sb = e.target.closest("[data-schedule]"); if (sb) { const id = sb.dataset.schedule; openSchedules.has(id) ? openSchedules.delete(id) : openSchedules.add(id); renderContracts(); return; } const tr = e.target.closest("tr[data-contract]"); if (!tr) return; const id = tr.dataset.contract; openContracts.has(id) ? openContracts.delete(id) : openContracts.add(id); renderContracts(); });
+$("signOutBtn").addEventListener("click", signOut);
+
+const who = await signIn($("signin"), { audience: "staff" });
+$("userBar").hidden = false;
+if (who.role !== "staff") location.replace("/association-owners/roca1/");
+else load();
+</script>
+<script>
+// Basement door rule: choosing "Basement door left unlocked" fills in $215 (https://2ndchinc.org/documents/basement-door/).
+document.addEventListener("change", (e) => {
+  const sel = e.target.closest && e.target.closest('[data-c="type"]'); if (!sel || sel.value !== "door_unlocked") return;
+  const f = sel.closest("[data-chargeform]"); if (!f) return;
+  f.querySelector('[data-c="amount"]').value = "215.00";
+  const d = f.querySelector('[data-c="desc"]'); if (!d.value) d.value = "Basement door left unlocked";
+});
+</script>
+</body>
+</html>

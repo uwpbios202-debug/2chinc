@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>My strengths list | The Human Mirror</title>
+<link rel="icon" href="/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Source+Serif+4:opsz,wght@8..60,600&display=swap">
+<link rel="stylesheet" href="/mirror/assets/mirror.css?v=20261113l">
+</head>
+<body data-area="my">
+<!-- Phase 6 (T6.2): strengths inventory beside the needs. Builds on the "What do I have within me?" reflection: suggestions come from
+     answers already given, and nothing is added until the person (or a coordinator they let change things) says so. -->
+<main id="main" class="mm-main">
+  <div class="mm-read">
+    <p class="mm-eyebrow"><a href="/mirror/my-mirror/">My Mirror</a></p>
+    <h1>My strengths list</h1>
+    <p class="mm-lead">What you can do, what you know, what you have lived and who is in your corner. Everyone has strengths; this is where yours are written down.</p>
+    <p class="mm-small">This is your list. The questions to think it through are in <a href="/mirror/my-mirror/strengths/">What do I have within me?</a></p>
+  </div>
+  <div id="mmBox"><p role="status">Loading…</p></div>
+</main>
+<script type="module" src="/mirror/assets/mirror-ui.js?v=20261113h"></script>
+<script type="module">
+import { requireArea, rpc } from "/mirror/assets/mirror-client.js?v=20261113p";
+import { esc, notice, toast } from "/mirror/assets/mirror-ui.js?v=20261113h";
+import { voiceAll } from "/mirror/assets/mirror-voice.js?v=20261113c";
+import { DIMENSIONS } from "/mirror/assets/dimensions.js?v=20261113a";
+
+/** The seven kinds, in the order the list shows them. */
+const KINDS = [
+  ["skill", "Skills", "Things you know how to do"],
+  ["talent", "Talents", "What comes naturally to you"],
+  ["experience", "Experience", "What you have lived through and done"],
+  ["credential", "Papers and training", "Diplomas, licenses, certificates, training"],
+  ["language", "Languages", "Languages you speak, read or sign"],
+  ["interest", "Interests", "What you enjoy or want to learn more about"],
+  ["relationship", "People in my corner", "People who help you or believe in you"],
+];
+const KIND = Object.fromEntries(KINDS.map(([k, l]) => [k, l]));
+const PRIVATE_AREAS = { physical_health: 1, mental_health: 1, identity_legal: 1, finances: 1, safety: 1 };
+const msg = (e) => (e instanceof Error ? e.message : String(e));
+
+await requireArea("my");
+const box = /** @type {HTMLElement} */ (document.getElementById("mmBox"));
+/** @type {any[]} */ let list = [];
+/** @type {any[]} */ let sugg = [];
+
+async function load(note = "") {
+  try {
+    const [l, s] = await Promise.all([rpc("mirror_strengths"), rpc("mirror_strength_suggestions")]);
+    list = l.strengths; sugg = s;
+  } catch (e) { box.innerHTML = notice("urgent", `<p>${esc(msg(e))}</p>`); return; }
+  draw(note);
+}
+
+function form(s, pre) {
+  const v = s || pre || { kind: "", title: "", detail: "", dimension: "" };
+  const id = s ? s.id : "new";
+  return `<form class="mm-card" data-form="${esc(id)}" novalidate style="margin-bottom:var(--mm-space-4)">
+    <div class="mm-field"><label for="ti-${id}">Your strength, in a few words</label>
+      <span class="mm-hint" id="tih-${id}">For example "I can fix most cars", "Spanish" or "my aunt Rosa".</span>
+      <input class="mm-input" id="ti-${id}" maxlength="120" value="${esc(v.title)}" aria-describedby="tih-${id}"></div>
+    <fieldset class="mm-choices"><legend class="mm-legend">What kind is it?</legend>
+      ${KINDS.map(([k, l, h]) => `<label class="mm-choice"><input type="radio" name="ki-${id}" value="${k}"${k === v.kind ? " checked" : ""}> ${esc(l)} <span class="mm-muted mm-small">${esc(h)}</span></label>`).join("")}</fieldset>
+    <div class="mm-field"><label for="de-${id}">More about it <span class="mm-muted">(optional)</span></label>
+      <textarea class="mm-textarea" id="de-${id}" rows="3" maxlength="1000">${esc(v.detail || "")}</textarea></div>
+    <div class="mm-field"><label for="di-${id}">Part of life it belongs to <span class="mm-muted">(optional)</span></label>
+      <span class="mm-hint" id="dih-${id}">Leave it empty if it belongs to all of life. Private parts of life are shared only if you share that topic.</span>
+      <select class="mm-select" id="di-${id}" aria-describedby="dih-${id}"><option value="">All of life</option>
+        ${DIMENSIONS.map((d) => `<option value="${d.key}"${d.key === v.dimension ? " selected" : ""}>${esc(d.title)}${PRIVATE_AREAS[d.key] ? " (private)" : ""}</option>`).join("")}</select></div>
+    <div data-err aria-live="assertive"></div>
+    <div class="mm-row"><button class="mm-btn" type="submit">${s ? "Save changes" : "Add this strength"}</button>
+      ${s || pre ? '<button class="mm-btn mm-btn-quiet" type="button" data-cancel>Cancel</button>' : ""}</div>
+  </form>`;
+}
+
+function item(s) {
+  return `<li class="mm-card" style="margin-bottom:var(--mm-space-3);list-style:none" data-str="${esc(s.id)}">
+    <strong>${esc(s.title)}</strong>${s.private ? ' <span class="mm-tag mm-tag-info">Private</span>' : ""}
+    ${s.dimension_title ? `<span class="mm-muted mm-small"> · ${esc(s.dimension_title)}</span>` : ""}
+    ${s.detail ? `<p style="margin:var(--mm-space-2) 0 0">${esc(s.detail)}</p>` : ""}
+    <p class="mm-small" style="margin:var(--mm-space-2) 0 0">${s.source === "coordinator" ? '<span class="mm-muted">Added by your coordinator.</span> ' : ""}
+      <button class="mm-btn mm-btn-quiet mm-small" type="button" data-edit style="min-height:auto;padding:0">Change</button>
+      · <button class="mm-btn mm-btn-quiet mm-small" type="button" data-del style="min-height:auto;padding:0">Remove</button></p>
+    <div data-more></div>
+  </li>`;
+}
+
+function suggestions() {
+  if (!sugg.length) return "";
+  return `<section class="mm-card" style="margin-bottom:var(--mm-space-5)" aria-labelledby="sgH">
+    <h2 id="sgH" style="margin-top:0">From your answers (${sugg.length})</h2>
+    <p class="mm-hint">You already told your Mirror these things. Add the ones that are strengths of yours; "Not mine" hides one for good.</p>
+    <ul style="padding:0;margin:0">${sugg.map((g, i) => `<li style="list-style:none;padding:var(--mm-space-3) 0;border-top:1px solid var(--mm-border)" data-sg="${i}">
+      <strong>${esc(g.title)}</strong> <span class="mm-tag">${esc(KIND[g.kind])}</span>
+      <span class="mm-muted mm-small" style="display:block">You answered: ${esc(g.question)}</span>
+      <span class="mm-row" style="gap:var(--mm-space-2);margin-top:var(--mm-space-2)">
+        <button class="mm-btn mm-btn-secondary" type="button" data-sg-add>Add</button>
+        <button class="mm-btn mm-btn-quiet" type="button" data-sg-edit>Change, then add</button>
+        <button class="mm-btn mm-btn-quiet" type="button" data-sg-no>Not mine</button></span>
+      <div data-sg-more></div></li>`).join("")}</ul>
+  </section>`;
+}
+
+function draw(note) {
+  const groups = KINDS.map(([k, l]) => [k, l, list.filter((s) => s.kind === k)]).filter(([, , xs]) => xs.length);
+  box.innerHTML = `${note}
+    <div class="mm-read">
+      ${notice("info", `<p>Nobody is told when you add a strength. Organizations you work with can see strengths that belong to all of life
+        or to everyday parts of it; strengths you put under a private part of life (health, how you feel, ID and legal, money, safety) only if you
+        share that topic in <a href="/mirror/my-mirror/settings/">Settings</a>. Your needs are on <a href="/mirror/my-mirror/my-needs/">My needs</a>.</p>`)}
+      ${suggestions()}
+      <h2>Add a strength</h2>
+      ${form(null, null)}
+      <h2>My list (${list.length})</h2>
+      ${groups.length ? groups.map(([, l, xs]) => `<h3>${esc(l)} (${xs.length})</h3><ul style="padding:0">${xs.map(item).join("")}</ul>`).join("")
+        : `<p class="mm-muted">Nothing here yet. Answering <a href="/mirror/my-mirror/strengths/">What do I have within me?</a> brings suggestions here.</p>`}
+    </div>`;
+  voiceAll(box);
+  wire();
+}
+
+/** @param {HTMLFormElement} f @param {any} s existing strength or null @param {string|null} src suggestion key @param {string} [fid] form id */
+async function submitForm(f, s, src, fid) {
+  const id = fid || (s ? s.id : "new");
+  const err = /** @type {HTMLElement} */ (f.querySelector("[data-err]"));
+  const val = (/** @type {string} */ k) => /** @type {HTMLInputElement} */ (f.querySelector("#" + k + "-" + id)).value;
+  const ki = /** @type {HTMLInputElement|null} */ (f.querySelector(`input[name="ki-${id}"]:checked`));
+  if (!val("ti").trim()) { err.innerHTML = notice("caution", "<p>Say the strength in a few words.</p>"); return; }
+  if (!ki) { err.innerHTML = notice("caution", "<p>Choose what kind of strength it is.</p>"); return; }
+  try {
+    await rpc("mirror_strength_save", { p_id: s ? s.id : null, p_kind: ki.value, p_title: val("ti"), p_detail: val("de"), p_dimension: val("di") || null, p_source_key: src });
+    toast(s ? "Saved." : "Added.");
+    load();
+  } catch (e) { err.innerHTML = notice("urgent", `<p>${esc(msg(e))}</p>`); }
+}
+
+function wire() {
+  const add = /** @type {HTMLFormElement} */ (box.querySelector('[data-form="new"]'));
+  add.addEventListener("submit", (e) => { e.preventDefault(); submitForm(add, null, null); });
+
+  box.querySelectorAll("[data-sg]").forEach((el) => {
+    const g = sugg[Number(/** @type {HTMLElement} */ (el).dataset.sg)];
+    const more = /** @type {HTMLElement} */ (el.querySelector("[data-sg-more]"));
+    el.querySelector("[data-sg-add]")?.addEventListener("click", async (e) => {
+      /** @type {HTMLButtonElement} */ (e.currentTarget).disabled = true;
+      try { await rpc("mirror_strength_save", { p_id: null, p_kind: g.kind, p_title: g.title, p_detail: g.detail, p_dimension: null, p_source_key: g.source_key }); toast("Added."); load(); }
+      catch (err) { /** @type {HTMLButtonElement} */ (e.currentTarget).disabled = false; toast(msg(err)); }
+    });
+    el.querySelector("[data-sg-no]")?.addEventListener("click", async (e) => {
+      /** @type {HTMLButtonElement} */ (e.currentTarget).disabled = true;
+      try { await rpc("mirror_strength_dismiss", { p_source_key: g.source_key }); toast("Hidden."); load(); }
+      catch (err) { /** @type {HTMLButtonElement} */ (e.currentTarget).disabled = false; toast(msg(err)); }
+    });
+    el.querySelector("[data-sg-edit]")?.addEventListener("click", () => {
+      more.innerHTML = form(null, { kind: g.kind, title: g.title, detail: g.detail || "", dimension: "" });
+      const f = /** @type {HTMLFormElement} */ (more.querySelector("form"));
+      // the inline form shares ids with the main add form; give it its own
+      f.querySelectorAll("[id]").forEach((x) => { x.id = x.id.replace(/-new$/, "-sg"); });
+      f.querySelectorAll("[for]").forEach((x) => { x.setAttribute("for", x.getAttribute("for").replace(/-new$/, "-sg")); });
+      f.querySelectorAll("[aria-describedby]").forEach((x) => { x.setAttribute("aria-describedby", x.getAttribute("aria-describedby").replace(/-new$/, "-sg")); });
+      f.querySelectorAll('input[name="ki-new"]').forEach((x) => { /** @type {HTMLInputElement} */ (x).name = "ki-sg"; });
+      f.dataset.form = "sg";
+      voiceAll(f);
+      f.addEventListener("submit", (e) => { e.preventDefault(); submitForm(f, null, g.source_key, "sg"); });
+      f.querySelector("[data-cancel]")?.addEventListener("click", () => { more.innerHTML = ""; });
+      /** @type {HTMLElement} */ (f.querySelector("input")).focus();
+    });
+  });
+
+  box.querySelectorAll("[data-str]").forEach((el) => {
+    const s = list.find((x) => x.id === /** @type {HTMLElement} */ (el).dataset.str);
+    const more = /** @type {HTMLElement} */ (el.querySelector("[data-more]"));
+    el.querySelector("[data-edit]")?.addEventListener("click", () => {
+      more.innerHTML = form(s, null);
+      const f = /** @type {HTMLFormElement} */ (more.querySelector("form"));
+      voiceAll(f);
+      f.addEventListener("submit", (e) => { e.preventDefault(); submitForm(f, s, null); });
+      f.querySelector("[data-cancel]")?.addEventListener("click", () => { more.innerHTML = ""; });
+    });
+    el.querySelector("[data-del]")?.addEventListener("click", () => {
+      more.innerHTML = `<p class="mm-small" style="margin-top:var(--mm-space-2)">Remove "${esc(s.title)}" from your list?
+        <button class="mm-btn mm-btn-secondary" type="button" data-yes>Yes, remove</button>
+        <button class="mm-btn mm-btn-quiet" type="button" data-no>Keep it</button></p>`;
+      more.querySelector("[data-no]")?.addEventListener("click", () => { more.innerHTML = ""; });
+      more.querySelector("[data-yes]")?.addEventListener("click", async () => {
+        try { await rpc("mirror_strength_delete", { p_id: s.id }); toast("Removed."); load(); }
+        catch (err) { toast(msg(err)); }
+      });
+    });
+  });
+}
+
+load();
+</script>
+</body>
+</html>

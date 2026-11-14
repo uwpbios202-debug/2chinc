@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Owner Portal Staff — 2nd Chance Housing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+</head>
+<body>
+<div class="appbar" data-nav="staff">
+  <div class="appbar-in">
+    <div class="org">2nd Chance Housing<span>Owner Portal · Staff</span></div>
+    <div class="row" id="userBar" hidden>
+      
+      
+      <a class="linkbtn" id="ownerLink" href="/association-owners/roca1/" hidden>My owner page</a>
+      
+      
+      
+      <button class="linkbtn" type="button" id="signOutBtn">Sign out</button>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+  <header>
+    <h1>Royal Orleans Condominium – Addition One</h1>
+    <p class="lead">Owner contact records and 6-month confirmations</p>
+  </header>
+
+  <div id="signin" class="narrow"></div>
+
+  <div id="app" hidden style="display:grid;gap:18px">
+    <div class="strip" id="strip"></div>
+
+    <section>
+      <h2>Owners</h2>
+      <p class="sub">Reminders go out automatically 6 months after an owner's last confirmation, with one follow-up 14 days later. Click an owner to edit their record.</p>
+      <div class="table-wrap" style="margin-top:8px"><table>
+        <thead><tr><th>Owner</th><th>Units</th><th>Email</th><th>Mobile</th><th>Status</th><th>Last confirmed</th><th>Reminders</th></tr></thead>
+        <tbody id="ownerRows"></tbody>
+      </table></div>
+    </section>
+
+    <section>
+      <h2>Recent activity</h2>
+      <div class="table-wrap" style="margin-top:8px"><table>
+        <thead><tr><th>When</th><th>Owner</th><th>What</th><th>Changes</th></tr></thead>
+        <tbody id="updateRows"></tbody>
+      </table></div>
+    </section>
+
+    <section>
+      <h2>Units</h2>
+      <div class="table-wrap" style="margin-top:8px"><table>
+        <thead><tr><th>Unit</th><th>Address</th><th>Account # (PIN)</th><th>Current owner</th><th>Occupancy</th><th>Board seat</th></tr></thead>
+        <tbody id="unitRows"></tbody>
+      </table></div>
+    </section>
+  </div>
+</main>
+
+<div class="scrim" id="scrim" hidden></div>
+<aside class="sheet" id="sheet" hidden aria-labelledby="sheetTitle"></aside>
+
+<script type="module">
+import { client, $, esc, fmtDate, signIn, signOut, errorText, notifyStaff } from "/assets/portal/portal.js";
+
+const SIX_MONTHS_MS = 182 * 24 * 60 * 60 * 1000;
+const OCC = { owner: "Owner-occupied", tenant: "Tenant-occupied", vacant: "Vacant", under_contract: "Under contract" };
+const FIELDS = [
+  ["Owner", [["name", "Name"], ["email", "Sign-in email (changing it moves their sign-in)"]]],
+  ["Phone and email", [["phone_mobile", "Mobile (sign-in texts)"], ["phone_home", "Home phone"], ["phone_work", "Work phone"], ["alt_email", "Alternate email"]]],
+  ["Mailing address", [["mailing_line1", "Street"], ["mailing_line2", "Line 2"], ["mailing_city", "City"], ["mailing_state", "State"], ["mailing_zip", "ZIP"]]],
+  ["Second address", [["alt_line1", "Street"], ["alt_line2", "Line 2"], ["alt_city", "City"], ["alt_state", "State"], ["alt_zip", "ZIP"]]],
+  ["Emergency contact", [["emergency_name", "Name"], ["emergency_phone", "Phone"]]],
+];
+let data = null, editing = null;
+
+function status(o) {
+  if (!o.is_current) return `<span class="pill off">Former owner</span>`;
+  if (!o.last_confirmed_at) return `<span class="pill bad">Never confirmed</span>`;
+  if (Date.now() - new Date(o.last_confirmed_at).getTime() > SIX_MONTHS_MS) return `<span class="pill warn">Due</span>`;
+  return `<span class="pill ok">Up to date</span>`;
+}
+
+function render() {
+  const cur = data.owners.filter((o) => o.is_current);
+  const upToDate = cur.filter((o) => o.last_confirmed_at && Date.now() - new Date(o.last_confirmed_at).getTime() <= SIX_MONTHS_MS).length;
+  const never = cur.filter((o) => !o.last_confirmed_at).length;
+  const noPhone = cur.filter((o) => (o.phone_mobile || "").replace(/\D/g, "").length < 10).length;
+  $("strip").innerHTML = [["Current owners", cur.length], ["Up to date", upToDate], ["Due", cur.length - upToDate - never], ["Never confirmed", never], ["No mobile on file", noPhone]]
+    .map(([k, v]) => `<div class="stat"><div class="k">${esc(k)}</div><div class="v">${esc(v)}</div></div>`).join("");
+
+  const owners = data.owners.slice().sort((a, b) => (b.is_current - a.is_current) || a.name.localeCompare(b.name));
+  $("ownerRows").innerHTML = owners.map((o) => `
+    <tr class="clickable" data-id="${esc(o.id)}" tabindex="0">
+      <td><strong>${esc(o.name)}</strong> <a class="sub" href="/association-owners/roca1/owner/?id=${encodeURIComponent(o.id)}" onclick="event.stopPropagation()">profile</a></td>
+      <td>${esc(o.units || "—")}</td>
+      <td>${esc(o.email || "—")}</td>
+      <td style="white-space:nowrap">${esc(o.phone_mobile || "—")}</td>
+      <td>${status(o)}</td>
+      <td style="white-space:nowrap">${fmtDate(o.last_confirmed_at)}${o.last_confirmed_how ? `<div class="sub">${o.last_confirmed_how === "updated" ? "Updated" : "Nothing changed"}</div>` : ""}</td>
+      <td>${o.reminders_sent_in_cycle || 0}${o.last_reminded_at ? `<div class="sub">Last ${fmtDate(o.last_reminded_at)}</div>` : ""}</td>
+    </tr>`).join("");
+
+  const kindText = { updated: "Owner updated", nothing_changed: "Nothing changed", staff_edit: "Staff edit" };
+  $("updateRows").innerHTML = data.updates.length ? data.updates.map((u) => `
+    <tr><td style="white-space:nowrap">${fmtDate(u.created_at)}</td>
+      <td>${esc(u.owner_name)}${u.unit_label ? `<div class="sub">${esc(u.unit_label)}</div>` : ""}</td>
+      <td>${esc(kindText[u.kind] || u.kind)}<div class="sub">${u.via === "email_link" ? "Email button" : u.via === "staff" ? "Staff view" : "Portal"}</div></td>
+      <td>${(u.changes || []).map((c) => `<div><strong>${esc(c.label)}:</strong> <span class="sub">${esc(c.old ?? "—")}</span> → ${esc(c.new ?? "—")}</div>`).join("") || "—"}</td></tr>`).join("")
+    : `<tr><td colspan="4" class="sub">No activity yet.</td></tr>`;
+
+  $("unitRows").innerHTML = data.units.map((u) => `
+    <tr><td><strong>#${esc(u.unit_number)}</strong></td><td>${esc(u.address || "—")}</td><td>${esc(u.pin || "—")}</td>
+      <td>${(u.current || []).map((c) => esc(c.owner_name)).join(", ") || `<span class="pill warn">No owner</span>`}</td>
+      <td>${esc(OCC[u.occupancy] || "—")}</td>
+      <td>${(u.current || []).map((c) => c.board_position).filter(Boolean).map((p) => `<span class="pill ok">${esc(p)}</span>`).join(" ")}</td></tr>`).join("");
+}
+
+function openOwner(id) {
+  const o = data.owners.find((x) => x.id === id);
+  if (!o) return;
+  editing = o;
+  $("sheet").innerHTML = `
+    <div class="row" style="justify-content:space-between"><h2 id="sheetTitle">${esc(o.name)}</h2><button class="btn small" type="button" id="closeBtn">Close</button></div>
+    <p class="sub">${esc(o.units || "No current units")} · ${status(o)}</p>
+    <p><a class="btn small" href="/association-owners/roca1/owner/?id=${encodeURIComponent(o.id)}">Open full profile</a></p>
+    <form id="ownerForm" style="display:grid;gap:16px" novalidate>
+      ${FIELDS.map(([legend, fields]) => `<fieldset><legend>${esc(legend)}</legend><div class="grid2">
+        ${fields.map(([k, label]) => `<label class="f">${esc(label)}<input class="field" data-k="${k}" value="${esc(o[k] || "")}"></label>`).join("")}
+      </div></fieldset>`).join("")}
+      <label class="f">Notices by<select class="field" data-k="communications_preference">
+        ${["Mailing", "Email"].map((p) => `<option ${p === o.communications_preference ? "selected" : ""}>${p}</option>`).join("")}</select></label>
+      <label class="f">Staff notes (never shown to the owner)<textarea class="field" data-k="staff_notes" rows="4">${esc(o.staff_notes || "")}</textarea></label>
+      <div class="actions"><button class="btn primary" type="submit">Save</button><span class="msg" id="sheetMsg" role="status"></span></div>
+    </form>`;
+  $("sheet").hidden = false; $("scrim").hidden = false;
+  $("closeBtn").addEventListener("click", closeOwner);
+  $("ownerForm").addEventListener("submit", saveOwner);
+  showPublishedTenant(o);
+}
+
+// Owner-direct units (Unit 6): staff see the owner's tenant information ONLY if the owner chose to publish it. Otherwise nothing is shown or fetched.
+async function showPublishedTenant(o) {
+  for (const u of new Set((o.units || "").match(/d+/g) || [])) {
+    const { data: t } = await client.rpc("owner_direct_published", { p_unit: u });
+    if (!t || editing !== o) continue;
+    const row = (l, v) => v ? `<tr><td class="sub">${l}</td><td>${esc(v)}</td></tr>` : "";
+    const card = document.createElement("section");
+    card.className = "panel";
+    card.innerHTML = `<h3 style="margin:0">Tenant of Unit ${esc(t.unit)} (published by the owner)</h3><p class="sub">The owner chose to share this. They can make it private again at any time.</p>
+      <table>${row("Tenant(s)", t.tenant_names)}${row("Phone", t.phone)}${row("Email", t.email)}${row("Moved in", t.move_in && fmtDate(t.move_in))}${row("Lease starts", t.lease_start && fmtDate(t.lease_start))}
+      ${row("Lease ends", t.lease_end && fmtDate(t.lease_end))}${row("Monthly rent", t.monthly_rent != null && "$" + Number(t.monthly_rent).toFixed(2))}${row("Security deposit", t.security_deposit != null && "$" + Number(t.security_deposit).toFixed(2))}</table>
+      ${t.notes ? `<p style="white-space:pre-wrap">${esc(t.notes)}</p>` : ""}`;
+    $("ownerForm").before(card);
+  }
+}
+
+function closeOwner() { editing = null; $("sheet").hidden = true; $("scrim").hidden = true; }
+
+async function saveOwner(e) {
+  e.preventDefault();
+  const changes = {};
+  $("sheet").querySelectorAll("[data-k]").forEach((el) => {
+    if (el.value.trim() !== (editing[el.dataset.k] || "").trim()) changes[el.dataset.k] = el.value.trim();
+  });
+  if (!Object.keys(changes).length) return closeOwner();
+  $("sheetMsg").className = "msg"; $("sheetMsg").textContent = "Saving…";
+  const { error } = await client.rpc("condo_staff_update_owner", { p_owner_id: editing.id, p_changes: changes });
+  if (error) { $("sheetMsg").className = "msg err"; $("sheetMsg").textContent = await errorText(error); return; }
+  notifyStaff();
+  closeOwner();
+  await load();
+}
+
+async function load() {
+  const { data: d, error } = await client.rpc("condo_staff_overview");
+  if (error) { $("signin").innerHTML = `<div class="banner bad">${esc(await errorText(error))}</div>`; return; }
+  data = d;
+  render();
+  $("app").hidden = false;
+}
+
+$("signOutBtn").addEventListener("click", signOut);
+$("scrim").addEventListener("click", closeOwner);
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && editing) closeOwner();
+  if (e.key === "Enter" && e.target.matches && e.target.matches("tr[data-id]")) openOwner(e.target.dataset.id);
+});
+$("ownerRows").addEventListener("click", (e) => { const tr = e.target.closest("tr[data-id]"); if (tr) openOwner(tr.dataset.id); });
+
+const who = await signIn($("signin"), { audience: "staff" });
+$("userBar").hidden = false;
+$("ownerLink").hidden = !who.is_owner;
+if (who.role !== "staff") location.replace("/association-owners/roca1/");
+else load();
+</script>
+</body>
+</html>

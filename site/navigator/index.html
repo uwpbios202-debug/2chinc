@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Housing Navigator Portal — 2nd Chance Housing</title>
+<link rel="icon" href="/favicon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+<style id="navcss"></style>
+</head>
+<body>
+<div class="appbar"><div class="appbar-in">
+  <a class="org" href="/" style="color:inherit;text-decoration:none">2nd Chance Housing<span id="tag">Housing Navigator</span></a>
+  <div class="row" id="userBar" hidden><button class="linkbtn" type="button" id="signOutBtn">Sign out</button></div>
+</div></div>
+<main class="wrap">
+  <header><h1>Community Housing Partnership</h1><p class="lead">Your own housing business, with 2nd Chance Housing's tools and resource directory behind it. The people you help, your landlords and your units are yours: other Navigators never see them. The 2nd Chance office can see them so it can support you. The resource directory is shared by everyone.</p></header>
+  <div id="signin" class="narrow"></div>
+  <div id="app" hidden>
+    <nav class="tabs" id="tabs">
+      <a href="#home" data-tab="home">Home</a><a href="#people" data-tab="people">People</a><a href="#housing" data-tab="housing">Housing</a><a href="#resources" data-tab="resources">Resources</a><a href="#profile" data-tab="profile">Profile</a>
+    </nav>
+    <div class="msg" id="msg" role="status" style="margin:10px 0"></div>
+    <section data-pane="home"></section>
+    <section data-pane="people" hidden></section>
+    <section data-pane="housing" hidden></section>
+    <section data-pane="resources" hidden></section>
+    <section data-pane="profile" hidden></section>
+  </div>
+</main>
+<script type="module">
+import { $, esc, money, fmtDate, signIn, signOut } from "/assets/portal/portal.js";
+import { rpc, NAV_CSS, refList, refDetail, wireRef, refFields, formHtml, readForm, consentHtml, networkHtml, wireNetwork, MARKS, pill, flush } from "/assets/portal/nav-common.js?v=20261113d";
+$("navcss").textContent = NAV_CSS;
+
+const pane = (n) => document.querySelector(`[data-pane="${n}"]`);
+const say = (t, bad) => { $("msg").className = "msg " + (bad ? "err" : "ok"); $("msg").textContent = t || ""; };
+let H = null, NET = [], MY = [];
+
+const who = await signIn($("signin"), { audience: "navigator" });
+$("userBar").hidden = false; $("signOutBtn").onclick = signOut;
+if (!who.is_navigator && who.role === "staff") {
+  $("signin").hidden = false;
+  $("signin").className = "";
+  $("signin").innerHTML = `<div class="panel" style="max-width:720px"><h2 style="margin:0">You are signed in as office staff</h2>
+    <p>This is the page Housing Navigators use. The office side is <a href="https://2ndchinc.org/staff/navigators/">https://2ndchinc.org/staff/navigators/</a>: add a Navigator, the getting-started checklist, and every Navigator's people, landlords and units.</p>
+    <p class="sub">To see exactly what a Navigator sees, open <a href="https://2ndchinc.org/staff/view-as/">https://2ndchinc.org/staff/view-as/</a> and choose them under <b>Housing Navigators</b>.</p>
+    <p><a class="btn primary" href="/staff/navigators/">Open the office page</a></p></div>`;
+} else if (!who.is_navigator) {
+  $("signin").hidden = false;
+  $("signin").innerHTML = `<div class="panel"><p>This area is for Housing Navigators of 2nd Chance Housing. <a href="/">Back to the home page</a></p></div>`;
+} else {
+  if (who.first_name) $("tag").textContent = "Housing Navigator · Hi " + who.first_name;
+  $("app").hidden = false;
+  wireNetwork(pane("housing"), { role: "navigator", list: () => NET, say, refresh: loadNet });
+  await loadHome();
+  show(location.hash.slice(1) || "home");
+}
+window.addEventListener("hashchange", () => show(location.hash.slice(1)));
+
+function show(tab) {
+  const [t, id] = tab.split("/");
+  const name = ["home", "people", "housing", "resources", "profile"].includes(t) ? t : "home";
+  document.querySelectorAll("[data-pane]").forEach((p) => { p.hidden = p.dataset.pane !== name; });
+  document.querySelectorAll("#tabs a").forEach((a) => a.classList.toggle("on", a.dataset.tab === name));
+  if (name === "people") id === "new" ? newRef() : id ? openRef(id) : renderPeople();
+  if (name === "housing") loadNet();
+  if (name === "resources") openResources(tab.slice("resources".length).replace(/^\//, ""));
+  if (name === "profile") renderProfile();
+}
+
+// Housing resource directory (CHPMS, 11/12/2026): the same directory the office uses at https://2ndchinc.org/staff/resources/ .
+let DIR = null;
+async function openResources(path) {
+  if (!who.is_navigator) return;
+  if (!DIR) { const { mountChpms } = await import("/assets/portal/chpms.js?v=20261113a"); DIR = mountChpms(pane("resources"), { prefix: "resources", say }); }
+  DIR.route(path);
+}
+
+const STATUS_TXT = { preview: "Getting started", pilot: "Active", active: "Active", prospect: "Prospect", paused: "Paused", ended: "Ended" };
+async function renderProfile() {
+  let P;
+  try { P = await rpc("nav_profile"); } catch (e) { return say(e.message, true); }
+  // [field, item, what happens / who does it]. The office marks each item done; nothing here is a button.
+  const chk = [["chk_meeting", "Partnership meeting", "The office sets this up with you."],
+    ["chk_agreement", "Housing Navigator Agreement signed", "The office sends it to you to sign. Once it and the Confidentiality Agreement are signed, you can add the people you help."],
+    ["chk_confidentiality", "Confidentiality Agreement signed", "Comes with the Housing Navigator Agreement; you sign both together."],
+    ["chk_insurance", "Business insurance certificate", "Only if the office asks for it."],
+    ["chk_business_good_standing", "Business in good standing with Wisconsin DFI", "Only if you work under your LLC. A dissolved LLC can be reinstated at https://dfi.wi.gov ; until then you work as an individual."]];
+  pane("profile").innerHTML = `<div class="panel"><h2 style="margin:0">${esc(P.name)}</h2>
+      <div class="kv">
+        <div><span>Sign-in email</span><b style="font-size:.95rem;word-break:break-all">${esc(P.email)}</b><span>To change it, email info@2ndchinc.org</span></div>
+        <div><span>Status</span><b>${esc(P.chk_agreement && P.chk_confidentiality && P.status === "preview" ? "Active" : STATUS_TXT[P.status] || P.status)}</b></div>
+        <div><span>Partner since</span><b>${fmtDate(P.created_at)}</b>${P.invited_at ? `<span>sign-in steps sent ${fmtDate(P.invited_at)}</span>` : ""}</div>
+        <div><span>People referred / housed</span><b>${P.referrals_total} / ${P.housed_total}</b>${P.has_sample ? "<span>not counting SAMPLE people</span>" : ""}</div>
+        <div><span>Units you run / landlords you added</span><b>${P.units_run} / ${P.landlords_added}</b></div>
+      </div></div>
+    <div class="panel"><h2 style="margin:0">Your business</h2>
+      <div class="kv">
+        <div><span>Business name</span><b>${esc(P.business_name || "—")}</b></div>
+        <div><span>Wisconsin DFI entity ID</span><b>${esc(P.dfi_entity_id || "—")}</b></div>
+        <div><span>DFI status</span><b>${esc(P.dfi_status || "—")}</b>${P.dfi_checked_on ? `<span>checked ${fmtDate(P.dfi_checked_on)}</span>` : ""}</div>
+      </div>
+      ${/dissolved/i.test(P.dfi_status || "") ? '<p class="sub">Wisconsin lets a dissolved LLC be reinstated; the steps and fee are on the DFI website, https://dfi.wi.gov . Until then 2nd Chance Housing works with you as an individual.</p>' : ""}</div>
+    <div class="panel"><h2 style="margin:0">Getting started checklist</h2>
+      <p class="sub">This list shows where you are. You don't click anything here: the office marks each item done. Questions: info@2ndchinc.org</p>
+      <div class="table-wrap"><table class="t"><tbody>${chk.map(([k, t, why]) => `<tr><td>${P[k] ? '<span class="pill ok">Done</span>' : '<span class="pill warn">Not yet</span>'}</td><td><b>${esc(t)}</b>${!P[k] && why ? `<div class="sub">${esc(why)}</div>` : ""}</td><td>${P[k] ? fmtDate(P[k]) : ""}</td></tr>`).join("")}</tbody></table></div></div>
+    <div class="panel" id="profEd"><h2 style="margin:0">Your contact details</h2>
+      ${formHtml([["phone", "Phone", "tel"], ["mailing_address", "Mailing address", "text"], ["business_name", "Business name", "text"]], P)}
+      <div class="row"><button class="btn primary" id="profSave">Save</button></div></div>`;
+  $("profSave").onclick = async () => {
+    $("profSave").disabled = true; say("Saving ...");
+    try { await rpc("nav_profile_save", { p: readForm($("profEd")) }); say("Saved."); renderProfile(); } catch (e) { say(e.message, true); $("profSave").disabled = false; }
+  };
+}
+
+async function loadHome() {
+  [H, MY] = await Promise.all([rpc("nav_home"), rpc("nav_my_units")]);
+  const m = H.me;
+  const due = H.followups_due.map((f) => `<li><a href="#people/${esc(f.referral_id)}">${esc(f.label)} · ${esc(f.name)}</a>: ${esc(MARKS[f.mark])} check-in ${f.overdue ? `<b style="color:var(--bad)">overdue since ${fmtDate(f.due_on)}</b>` : `due ${fmtDate(f.due_on)}`}</li>`).join("");
+  pane("home").innerHTML = `
+    ${m.people_open ? "" : '<div class="banner warn"><b>Getting started:</b> set up your landlords and the units you lease now (Housing tab), with rooms, budget, money in and out, receipts and inspections. Adding the <b>people</b> you help opens once you sign the Housing Navigator Agreement and the Confidentiality Agreement; the office sends them to you. See <a href="#profile">Profile</a> for your checklist.</div>'}
+    <div class="stats">
+      <div><span>People you are helping</span><b>${H.referrals.filter((r) => r.status !== "closed" && !r.is_sample).length}</b></div>
+      <div><span>Housed</span><b>${H.referrals.filter((r) => r.moved_in_at).length}</b></div>
+      <div><span>Check-ins due</span><b>${H.followups_due.length}</b></div>
+      <div><span>Units you run</span><b>${MY.length}</b></div>
+    </div>
+    <div class="panel"><h2 style="margin:0">My units</h2>${MY.length ? `<div class="table-wrap"><table class="t"><thead><tr><th>Unit</th><th>Rooms filled</th><th>This month in</th><th>This month out</th><th>Inspection</th></tr></thead><tbody>${MY.map((u) => `<tr><td><a href="/navigator/unit/?id=${esc(u.id)}">${esc(u.address)}${u.unit_label ? " " + esc(u.unit_label) : ""}</a><div class="sub">${esc(u.landlord || "")}</div></td><td>${u.rooms_occupied} / ${u.rooms}</td><td>${money(u.income_month)}</td><td>${money(u.expense_month)}</td><td>${esc({ not_inspected: "Not inspected", scheduled: "Scheduled", passed: "Passed", failed: "Needs repairs" }[u.inspection_status] || "")}${u.inspected_on ? " · " + fmtDate(u.inspected_on) : ""}</td></tr>`).join("")}</tbody></table></div>` : `<p class="sub">Add the units you lease on the <b>Housing</b> tab (tick "I lease and run this unit"). Each unit gets a unit file: rooms, every dollar in and out with receipts, a budget, and inspections.</p>`}</div>
+    <div class="panel"><h2 style="margin:0">Check-ins this week</h2>${due ? `<ul>${due}</ul>` : '<p class="sub">None due. Thank you for staying in touch with the people you housed.</p>'}</div>
+    <div class="panel"><h2 style="margin:0">How it works</h2><ol class="sub" style="margin:0 0 0 1.2rem;display:grid;gap:4px">
+      <li><b>People:</b> add the person you are helping. They read the consent on your screen and type their own name. Then tap <b>Start the housing search</b>.</li>
+      <li>Pick an available unit or room from your <b>Housing</b> tab and tap <b>Match a unit</b>.</li>
+      <li>Check that the rent is covered (income, what they can pay, confirmed assistance), then tap <b>Confirm the placement</b>. If they are short, write how the gap is covered.</li>
+      <li>On move-in day, tap <b>Record the move-in</b>. Set a check-in plan that fits the person (daily at first, then weekly, every 2 weeks or monthly as they settle in) and change it any time; each check-in you record schedules the next, and we email you when one is due. A 90-day and a 12-month stability review stay fixed.</li>
+      <li><b>Unit files:</b> for each unit you lease, record the rooms and their rates, everything you pay (rent to the landlord, utilities, furniture, appliances, repairs, supplies) and everything you receive, with receipt photos; set a budget; and inspect it before you take it, at each move-in and move-out, and every 3 months.</li>
+      <li><b>Resources:</b> search Milwaukee programs that pay rent, deposits and utilities or help in other ways, by who the person is and what they need. Call the program first, tap <b>Log a check</b> to share what you learned, then <b>Refer someone</b> with their permission; you send it from your own email or phone.</li>
+      <li><b>Housing:</b> add your landlords and their units. They are private: other Navigators never see them; the 2nd Chance office can. Never promise a unit, a rent amount or money on behalf of 2nd Chance Housing.</li></ol></div>`;
+}
+
+function renderPeople() {
+  pane("people").innerHTML = `<div class="row">${H.me.people_open ? '<a class="btn primary" href="#people/new">Add a person</a>' : '<span class="sub">Adding people opens once your Housing Navigator Agreement and Confidentiality Agreement are signed (see <a href="#profile">Profile</a>).</span>'}</div>${refList(H.referrals, false)}`;
+  pane("people").querySelectorAll("[data-open]").forEach((el) => el.addEventListener("click", (e) => { e.preventDefault(); location.hash = "people/" + el.dataset.open; }));
+}
+
+function newRef() {
+  pane("people").innerHTML = `<div class="panel"><h2 style="margin:0">Add a person</h2><p class="sub">Collect only what is needed to find and keep housing. You can save and finish later. Other Navigators never see it; the 2nd Chance office can.</p>
+    ${formHtml(refFields("navigator"), { pathway: "other" })}${consentHtml(H.consent_text)}
+    <div class="row"><button class="btn primary" id="saveNew">Save</button><a class="linkbtn" href="#people">Cancel</a></div></div>`;
+  $("saveNew").onclick = async () => {
+    $("saveNew").disabled = true; say("Saving ...");
+    try { const id = await rpc("nav_referral_save", { p: readForm(pane("people")) }); await loadHome(); say("Saved. When it is complete, tap Start the housing search."); location.hash = "people/" + id; }
+    catch (e) { say(e.message, true); $("saveNew").disabled = false; }
+  };
+}
+
+async function openRef(id) {
+  try {
+    const r = await rpc("nav_referral_get", { p_id: id });
+    pane("people").innerHTML = `<p><a href="#people">← All people</a></p>` + refDetail(r, { role: "navigator" });
+    wireRef(r, { role: "navigator", root: pane("people"), say, consentText: H.consent_text,
+      network: async () => (NET = await rpc("nav_network")),
+      refresh: async (rid) => { await loadHome(); await openRef(rid); } });
+  } catch (e) { say(e.message, true); }
+}
+
+async function loadNet() {
+  try { NET = await rpc("nav_network"); pane("housing").innerHTML = `<p class="sub">Your landlords and units. They are private to you (and the 2nd Chance office); other Navigators never see them. For 2nd Chance Housing's own units see <a href="https://2ndchinc.org/properties/">https://2ndchinc.org/properties/</a>.</p>` + networkHtml(NET, "navigator"); }
+  catch (e) { say(e.message, true); }
+}
+</script>
+</body>
+</html>

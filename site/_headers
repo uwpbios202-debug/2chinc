@@ -1,0 +1,22 @@
+# Portal scripts are checked with the server on every load (cheap: unchanged files answer 304), so a change to the staff menu
+# or the portal shows up at once instead of after the browser's 4-hour cache (Stephen, 11/3/2026).
+/assets/portal/*
+  Cache-Control: no-cache
+
+# Human Mirror scripts and styles: same rule, so a fix reaches people at once (Stephen, 11/13/2026).
+/mirror/assets/*
+  Cache-Control: no-cache
+
+# Phone alerts: the service worker must always be fresh.
+/sw.js
+  Cache-Control: no-cache
+
+# Security headers on every page (Stephen, 11/5/2026, "most safe and secure"):
+#  HSTS: browsers always use the secure (https) connection for a year; no includeSubDomains (send.2ndchinc.org is mail only).
+#  Framing: no other site may show our pages inside a frame (stops look-alike pages that overlay ours); our own pages still can.
+#  Camera and microphone only for our own pages (photos, VIN by voice); location is never used.
+/*
+  Strict-Transport-Security: max-age=31536000
+  X-Frame-Options: SAMEORIGIN
+  Content-Security-Policy: frame-ancestors 'self'
+  Permissions-Policy: camera=(self), microphone=(self), geolocation=()

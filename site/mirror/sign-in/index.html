@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<title>Sign In | The Human Mirror</title>
+<meta name="description" content="Sign in to the Human Mirror with a 6-digit code sent to your email. By invitation through a coordinator or Housing Navigator.">
+<link rel="icon" href="/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Source+Serif+4:opsz,wght@8..60,600&display=swap">
+<link rel="stylesheet" href="/mirror/assets/mirror.css?v=20261113l">
+</head>
+<body data-area="public">
+<main id="main" class="mm-main">
+  <div class="mm-read">
+    <p class="mm-eyebrow">Sign in</p>
+    <h1>Welcome back</h1>
+    <p class="mm-lead">The Mirror is by invitation. Use the email address your coordinator or Housing Navigator has for you.</p>
+    <div id="mmSignIn" aria-live="polite"><p role="status">Loading…</p></div>
+    <p class="mm-muted" style="margin-top:var(--mm-space-5)">Not invited yet? Ask your coordinator, or call 2nd Chance Housing at <a href="tel:+12622365443">(262)&nbsp;236&#8209;5443</a>.
+      Trouble signing in? See <a href="/mirror/forgot-password/">Can't sign in?</a></p>
+  </div>
+</main>
+<script type="module" src="/mirror/assets/mirror-ui.js?v=20261113h"></script>
+<script type="module">
+import { signInBox } from "/mirror/assets/mirror-client.js?v=20261113p";
+signInBox(/** @type {HTMLElement} */ (document.getElementById("mmSignIn")));
+</script>
+</body>
+</html>

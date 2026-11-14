@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Help I Could Get | The Human Mirror</title>
+<link rel="icon" href="/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Source+Serif+4:opsz,wght@8..60,600&display=swap">
+<link rel="stylesheet" href="/mirror/assets/mirror.css?v=20261113l">
+</head>
+<body data-area="my">
+<!-- Phase 7 (T7.2, follow-up 11/13/2026: ranked best fit first with no limit, Top 1 / 3 / 5 / All; place and groups shared only by
+     the person's choice): programs from the housing resource directory (CHPMS) suggested for the person's open needs. Every program is
+     labeled "Suggested" until someone from an organization the person works with confirms eligibility with the program (Part 11).
+     The directory's open/closed text is never shown. -->
+<main id="main" class="mm-main">
+  <div class="mm-read">
+    <p class="mm-eyebrow"><a href="/mirror/my-mirror/">My Mirror</a></p>
+    <h1>Help I could get</h1>
+    <p class="mm-lead">Programs that may help with the needs on your list. They are suggestions: check with the program that you qualify and that it is taking people.</p>
+  </div>
+  <div id="mmBox"><p role="status">Loading…</p></div>
+</main>
+<script type="module" src="/mirror/assets/mirror-ui.js?v=20261113h"></script>
+<script type="module">
+import { requireArea, rpc } from "/mirror/assets/mirror-client.js?v=20261113p";
+import { esc, notice, toast } from "/mirror/assets/mirror-ui.js?v=20261113h";
+import { voiceAll } from "/mirror/assets/mirror-voice.js?v=20261113c";
+
+const PLACES = [
+  ["milwaukee_city", "The city of Milwaukee"],
+  ["milwaukee_county", "Elsewhere in Milwaukee County (for example West Allis, Wauwatosa, Greenfield)"],
+  ["nearby_county", "Waukesha, Ozaukee or Washington County"],
+  ["wisconsin", "Elsewhere in Wisconsin"],
+  ["outside", "Outside Wisconsin"],
+];
+const GROUPS = [
+  ["Veterans", "I am a veteran"],
+  ["Seniors", "I am 62 or older"],
+  ["Families with children", "Children live with me"],
+  ["Disabilities", "I have a disability"],
+  ["Returning citizens", "I am coming home from prison or jail"],
+  ["Experiencing homelessness", "I have no home right now"],
+  ["At risk of eviction", "I may lose my home soon"],
+  ["Fixed income (SS/SSI/SSDI/VA)", "I live on SS, SSI, SSDI or VA payments"],
+  ["Low-income working", "I work but money is tight"],
+  ["No current income", "I have no income right now"],
+];
+const STATUS = {
+  suggested: "Suggested",
+  eligibility_confirmed: "Eligibility confirmed",
+  applied: "Applied",
+  enrolled: "Enrolled",
+  declined: "Not for me",
+};
+const VIEWS = [["1", "Top 1"], ["3", "Top 3"], ["5", "Top 5"], ["all", "All"]];
+/** How many matches to show per need: a per-browser convenience; works without storage. */
+let view = "3";
+try { const v = localStorage.getItem("mm-resources-view"); if (v && VIEWS.some(([k]) => k === v)) view = v; } catch { /* no storage */ }
+const msg = (e) => (e instanceof Error ? e.message : String(e));
+const day = (d) => (d ? new Date(d.length === 10 ? d + "T12:00:00" : d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "");
+
+await requireArea("my");
+const box = /** @type {HTMLElement} */ (document.getElementById("mmBox"));
+/** @type {any} */ let data = null;
+/** @type {any} */ let refs = { organizations: [], referrals: [] };   // T7.3: organizations I work with, open referrals
+
+async function load(note = "") {
+  try { [data, refs] = await Promise.all([rpc("mirror_resources"), rpc("mirror_referrals")]); }
+  catch (e) { box.innerHTML = notice("urgent", `<p>${esc(msg(e))}</p>`); return; }
+  draw(note);
+}
+
+/** The program's facts from the directory. No open/closed claims (Part 11). @param {any} p */
+function facts(p) {
+  if (!p) return '<p class="mm-muted mm-small">This program is no longer in the directory.</p>';
+  const link = p.link && /^https?:\/\//i.test(p.link) ? `<a href="${esc(p.link)}" target="_blank" rel="noopener">Their website</a>` : "";
+  const tel = p.phone ? `<a href="tel:${esc(String(p.phone).replace(/[^0-9+]/g, ""))}">${esc(p.phone)}</a>` : "";
+  return `<dl class="mm-small" style="margin:var(--mm-space-2) 0 0">
+    ${p.help && p.help.length ? `<dt><strong>Helps with</strong></dt><dd>${esc(p.help.join(", "))}</dd>` : ""}
+    ${p.for && p.for.length ? `<dt><strong>Written for</strong></dt><dd>${esc(p.for.join(", "))}</dd>` : ""}
+    ${p.who_qualifies ? `<dt><strong>Who qualifies (from the directory)</strong></dt><dd>${esc(p.who_qualifies)}</dd>` : ""}
+    ${p.how_to_apply ? `<dt><strong>How to apply</strong></dt><dd>${esc(p.how_to_apply)}</dd>` : ""}
+    ${p.referral ? `<dt><strong>Referral</strong></dt><dd>${esc(p.referral)}</dd>` : ""}
+    ${p.serves ? `<dt><strong>Serves</strong></dt><dd>${esc(p.serves)}</dd>` : ""}
+    ${tel || link ? `<dt><strong>Contact</strong></dt><dd>${[tel, link].filter(Boolean).join(" · ")}</dd>` : ""}
+    ${p.checked_on ? `<dt><strong>Directory last checked</strong></dt><dd>${esc(day(p.checked_on))}</dd>` : ""}
+  </dl>`;
+}
+
+/** @param {any} p @param {string} needId */
+function matchItem(p, needId) {
+  const why = (p.why || []).map((w) => `<li>${esc(w.reason)}${w.points ? ` <span class="mm-muted">(${w.points > 0 ? "+" : ""}${w.points})</span>` : ""}</li>`).join("");
+  return `<li style="list-style:none;padding:var(--mm-space-3) 0;border-top:1px solid var(--mm-border)">
+    <span class="mm-muted mm-small">Best fit #${esc(p.rank)}</span><br>
+    <strong>${esc(p.program_name)}</strong> <span class="mm-tag mm-tag-suggested">Suggested</span>
+    ${why ? `<details style="margin-top:var(--mm-space-2)"><summary class="mm-small">Why it is here</summary><ul class="mm-small" style="margin:var(--mm-space-2) 0 0">${why}</ul></details>` : ""}
+    <span class="mm-muted mm-small" style="display:block">${esc(p.org_name || "")}</span>
+    <details style="margin-top:var(--mm-space-2)"><summary class="mm-small">About this program</summary>${facts(p)}</details>
+    <p style="margin:var(--mm-space-2) 0 0"><button class="mm-btn mm-btn-secondary" type="button" data-save="${esc(p.program_id)}" data-need="${esc(needId)}">Save to my list</button></p>
+  </li>`;
+}
+
+/** @param {any} s */
+function listItem(s) {
+  const choices = ["suggested", "applied", "enrolled", "declined"].filter((k) => k !== s.status);
+  return `<li class="mm-card" style="margin-bottom:var(--mm-space-3);list-style:none" data-sug="${esc(s.id)}">
+    <strong>${esc(s.program_name)}</strong>
+    ${s.suggested_label ? ' <span class="mm-tag mm-tag-suggested">Suggested</span>' : ""}
+    ${s.status !== "suggested" ? ` <span class="mm-tag${s.status === "enrolled" || s.status === "eligibility_confirmed" ? " mm-tag-ok" : ""}">${esc(STATUS[s.status])}</span>` : ""}
+    ${s.private ? ' <span class="mm-tag mm-tag-info">Private</span>' : ""}
+    <span class="mm-muted mm-small" style="display:block">${esc(s.org_name || "")}${s.need_title ? ` · for "${esc(s.need_title)}"` : ""}</span>
+    ${s.confirmed_at ? `<p class="mm-small" style="margin:var(--mm-space-2) 0 0">Eligibility confirmed by your ${esc(s.confirmed_by_role || "coordinator")} on ${esc(day(s.confirmed_at))}${s.status === "eligibility_confirmed" && s.status_note ? `: ${esc(s.status_note)}` : "."}</p>`
+      : s.status === "suggested" || s.status === "applied" ? '<p class="mm-small mm-muted" style="margin:var(--mm-space-2) 0 0">Not checked yet: whether you qualify is up to the program.</p>' : ""}
+    ${s.status_note && s.status !== "eligibility_confirmed" ? `<p class="mm-small" style="margin:var(--mm-space-2) 0 0">Your note: ${esc(s.status_note)}</p>` : ""}
+    ${s.source === "coordinator" ? '<p class="mm-small mm-muted" style="margin:var(--mm-space-2) 0 0">Added by your coordinator.</p>' : ""}
+    <details style="margin-top:var(--mm-space-2)"><summary class="mm-small">About this program</summary>${facts(s.program)}</details>
+    <div class="mm-row" style="gap:var(--mm-space-2);margin-top:var(--mm-space-3)">
+      <label class="mm-small" for="st-${esc(s.id)}">Change to</label>
+      <select class="mm-select" id="st-${esc(s.id)}" style="width:auto">${choices.map((k) => `<option value="${k}">${esc(STATUS[k])}</option>`).join("")}</select>
+      <input class="mm-input" id="nt-${esc(s.id)}" maxlength="1000" placeholder="Note (optional)" aria-label="Note (optional)" style="width:auto;flex:1 1 12rem">
+      <button class="mm-btn mm-btn-secondary" type="button" data-st>Save</button>
+      <button class="mm-btn mm-btn-quiet" type="button" data-del>Remove</button>
+    </div>
+    ${askBox(s)}
+    <div data-more></div>
+  </li>`;
+}
+
+/** T7.3: ask an organization I work with to refer me to this program. @param {any} s */
+function askBox(s) {
+  if (!data.self || !s.program_id || s.status === "declined") return "";
+  const open = refs.referrals.find((x) => x.program_id === s.program_id && (x.status === "awaiting_consent" || x.status === "consented" || x.status === "referred"));
+  if (open) return `<p class="mm-small" style="margin:var(--mm-space-2) 0 0"><a href="/mirror/my-mirror/referrals/">Referral: ${open.status === "referred" ? "made" : open.status === "consented" ? "you agreed" : "waiting for your answer"}</a></p>`;
+  const orgs = refs.organizations || [];
+  if (!orgs.length) return "";
+  const helps = (s.program && s.program.help) || [];
+  return `<details style="margin-top:var(--mm-space-2)"><summary class="mm-small">Ask for a referral</summary>
+    <form data-ask novalidate style="margin-top:var(--mm-space-2)">
+      <div class="mm-field"><label for="ao-${esc(s.id)}">Who should make the referral?</label>
+        <select class="mm-select" id="ao-${esc(s.id)}">${orgs.map((o) => `<option value="${esc(o.id)}">${esc(o.name)}</option>`).join("")}</select></div>
+      ${helps.length ? `<fieldset class="mm-choices"><legend class="mm-legend">What help do you need from them? <span class="mm-muted mm-small">(optional)</span></legend>
+        ${helps.map((h) => `<label class="mm-choice"><input type="checkbox" name="ah" value="${esc(h)}"> ${esc(h)}</label>`).join("")}</fieldset>` : ""}
+      <div class="mm-field"><label for="an-${esc(s.id)}">Anything the program should know <span class="mm-muted">(optional)</span></label>
+        <textarea class="mm-textarea" id="an-${esc(s.id)}" rows="2" maxlength="2000"></textarea></div>
+      <p class="mm-hint">Next you will see exactly what would be shared and agree by typing your name. Nothing is shared before that.</p>
+      <button class="mm-btn mm-btn-secondary" type="submit">Continue</button>
+    </form></details>`;
+}
+
+function profileForm() {
+  const p = data.profile || { place: null, groups: [] };
+  const fromHome = data.household_groups || [];
+  return `<details class="mm-card" style="margin-bottom:var(--mm-space-5)"${p.place || p.groups_answered ? "" : " open"}>
+    <summary><strong>Where you live and who you are</strong> <span class="mm-muted mm-small">(optional, only you see this)</span></summary>
+    <form data-prof novalidate style="margin-top:var(--mm-space-3)">
+      <p class="mm-hint">This changes which programs are suggested and their order. Unless you share it below, nobody else sees it.</p>
+      <fieldset class="mm-choices"><legend class="mm-legend">Where do you live?</legend>
+        <label class="mm-choice"><input type="radio" name="pl" value=""${p.place ? "" : " checked"}> I'd rather not say</label>
+        ${PLACES.map(([k, l]) => `<label class="mm-choice"><input type="radio" name="pl" value="${k}"${p.place === k ? " checked" : ""}> ${esc(l)}</label>`).join("")}</fieldset>
+      <fieldset class="mm-choices"><legend class="mm-legend">Which of these fit you? <span class="mm-muted mm-small">(choose any)</span></legend>
+        <span class="mm-hint">Programs written only for a group you did not choose are left out. Choosing nothing is fine.</span>
+        ${GROUPS.map(([k, l]) => `<label class="mm-choice"><input type="checkbox" name="gr" value="${esc(k)}"${(p.groups || []).includes(k) ? " checked" : ""}> ${esc(l)}</label>`).join("")}</fieldset>
+      ${fromHome.length ? `<p class="mm-small mm-muted">From your household and birth year we also count: ${esc(fromHome.join(", "))}.</p>` : ""}
+      <label class="mm-choice"><input type="checkbox" name="sh"${p.shared ? " checked" : ""}> Share where I live and these groups with organizations I work with</label>
+      <span class="mm-hint">They see it, cannot change it, and their suggestions for you then use it. Some groups (disability, coming home from prison) are private; share only if you want to. You can take it back any time.</span>
+      <div data-err aria-live="assertive"></div>
+      <button class="mm-btn" type="submit">Save</button>
+    </form>
+  </details>`;
+}
+
+function draw(note) {
+  const m = data.matches || [];
+  const withPrograms = m.filter((x) => x.programs.length);
+  const without = m.filter((x) => !x.programs.length);
+  box.innerHTML = `${note}
+    <div class="mm-read">
+      ${notice("info", `<p><strong>Suggested</strong> means the directory lists this program for that part of life. It does not mean you qualify or that the
+        program has room. Call or visit the program to check. When someone from an organization you work with checks with the program,
+        they can mark it "eligibility confirmed". Suggestions come from your <a href="/mirror/my-mirror/my-needs/">needs</a>.</p>`)}
+      ${data.self ? profileForm() : ""}
+      <h2>My list (${data.list.length})</h2>
+      ${data.list.length ? `<ul style="padding:0">${data.list.map(listItem).join("")}</ul>` : '<p class="mm-muted">Nothing saved yet. Save a program below to keep track of it.</p>'}
+      <h2>Suggested for my needs</h2>
+      ${withPrograms.length ? `<p class="mm-hint">Best fit first, from what you have told your Mirror and how well the directory knows the program. It is still a suggestion, not a promise that you qualify.</p>
+        <div class="mm-row" style="gap:var(--mm-space-2);margin-bottom:var(--mm-space-4)"><label for="mmView">Show for each need</label>
+          <select class="mm-select" id="mmView" style="width:auto">${VIEWS.map(([k, l]) => `<option value="${k}"${k === view ? " selected" : ""}>${l}</option>`).join("")}</select></div>` : ""}
+      ${withPrograms.length ? withPrograms.map((x) => {
+          const shown = view === "all" ? x.programs : x.programs.slice(0, Number(view));
+          const more = x.programs.length - shown.length;
+          return `<section class="mm-card" style="margin-bottom:var(--mm-space-4)" aria-label="${esc(x.need_title)}">
+          <h3 style="margin-top:0">${esc(x.need_title)}${x.private ? ' <span class="mm-tag mm-tag-info">Private</span>' : ""}</h3>
+          <p class="mm-muted mm-small" style="margin:0">${esc(x.dimension_title || "")} · ${x.programs.length} program${x.programs.length === 1 ? "" : "s"} in the directory</p>
+          <ul style="padding:0;margin:0">${shown.map((p) => matchItem(p, x.need_id)).join("")}</ul>
+          ${more ? `<p style="margin:var(--mm-space-3) 0 0"><button class="mm-btn mm-btn-quiet" type="button" data-all>Show all ${x.programs.length}</button></p>` : ""}</section>`;
+        }).join("")
+        : m.length ? "" : '<p class="mm-muted">No open needs with a part of life yet. Add one on <a href="/mirror/my-mirror/my-needs/">My needs</a>.</p>'}
+      ${without.length ? `<p class="mm-small mm-muted">No programs in the directory yet for: ${without.map((x) => esc(x.need_title)).join(", ")}. The directory covers housing help today; more kinds of help are being added.</p>` : ""}
+    </div>`;
+  voiceAll(box);
+  wire();
+}
+
+/** @param {string} v */
+function setView(v) {
+  view = v;
+  try { localStorage.setItem("mm-resources-view", v); } catch { /* no storage */ }
+  draw("");
+}
+
+function wire() {
+  box.querySelector("#mmView")?.addEventListener("change", (e) => setView(/** @type {HTMLSelectElement} */ (e.currentTarget).value));
+  box.querySelectorAll("[data-all]").forEach((b) => b.addEventListener("click", () => setView("all")));
+  const pf = /** @type {HTMLFormElement|null} */ (box.querySelector("[data-prof]"));
+  pf?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const place = /** @type {HTMLInputElement|null} */ (pf.querySelector('input[name="pl"]:checked'))?.value || null;
+    const groups = [...pf.querySelectorAll('input[name="gr"]:checked')].map((x) => /** @type {HTMLInputElement} */ (x).value);
+    const shared = /** @type {HTMLInputElement} */ (pf.querySelector('input[name="sh"]')).checked;
+    try { await rpc("mirror_resource_profile_save", { p_place: place, p_groups: groups, p_shared: shared }); toast("Saved."); load(); }
+    catch (err) { /** @type {HTMLElement} */ (pf.querySelector("[data-err]")).innerHTML = notice("urgent", `<p>${esc(msg(err))}</p>`); }
+  });
+
+  box.querySelectorAll("[data-save]").forEach((b) => b.addEventListener("click", async (e) => {
+    const btn = /** @type {HTMLButtonElement} */ (e.currentTarget);
+    btn.disabled = true;
+    try { await rpc("mirror_resource_save", { p_program: btn.dataset.save, p_need: btn.dataset.need || null }); toast("Saved to your list."); load(); }
+    catch (err) { btn.disabled = false; toast(msg(err)); }
+  }));
+
+  box.querySelectorAll("[data-ask]").forEach((fa) => fa.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const f = /** @type {HTMLFormElement} */ (fa);
+    const sid = /** @type {HTMLElement} */ (f.closest("[data-sug]")).dataset.sug || "";
+    const orgSel = /** @type {HTMLSelectElement} */ (f.querySelector("select"));
+    const help = [...f.querySelectorAll('input[name="ah"]:checked')].map((x) => /** @type {HTMLInputElement} */ (x).value);
+    const note = /** @type {HTMLTextAreaElement} */ (f.querySelector("textarea")).value;
+    try { await rpc("mirror_referral_propose", { p_suggestion: sid, p_org: orgSel.value, p_help: help, p_note: note || null }); location.href = "/mirror/my-mirror/referrals/"; }
+    catch (err) { toast(msg(err)); }
+  }));
+
+  box.querySelectorAll("[data-sug]").forEach((el) => {
+    const id = /** @type {HTMLElement} */ (el).dataset.sug || "";
+    const s = data.list.find((x) => x.id === id);
+    const more = /** @type {HTMLElement} */ (el.querySelector("[data-more]"));
+    el.querySelector("[data-st]")?.addEventListener("click", async (e) => {
+      const btn = /** @type {HTMLButtonElement} */ (e.currentTarget);
+      const st = /** @type {HTMLSelectElement} */ (el.querySelector("#st-" + CSS.escape(id))).value;
+      const nt = /** @type {HTMLInputElement} */ (el.querySelector("#nt-" + CSS.escape(id))).value;
+      btn.disabled = true;
+      try { await rpc("mirror_resource_status", { p_id: id, p_status: st, p_note: nt || null }); toast("Saved."); load(); }
+      catch (err) { btn.disabled = false; toast(msg(err)); }
+    });
+    el.querySelector("[data-del]")?.addEventListener("click", () => {
+      more.innerHTML = `<p class="mm-small" style="margin-top:var(--mm-space-2)">Remove "${esc(s.program_name)}" and its history from your list?
+        <button class="mm-btn mm-btn-secondary" type="button" data-yes>Yes, remove</button>
+        <button class="mm-btn mm-btn-quiet" type="button" data-no>Keep it</button></p>`;
+      more.querySelector("[data-no]")?.addEventListener("click", () => { more.innerHTML = ""; });
+      more.querySelector("[data-yes]")?.addEventListener("click", async () => {
+        try { await rpc("mirror_resource_delete", { p_id: id }); toast("Removed."); load(); }
+        catch (err) { toast(msg(err)); }
+      });
+    });
+  });
+}
+
+load();
+</script>
+</body>
+</html>

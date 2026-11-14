@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Referrals | The Human Mirror</title>
+<link rel="icon" href="/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Source+Serif+4:opsz,wght@8..60,600&display=swap">
+<link rel="stylesheet" href="/mirror/assets/mirror.css?v=20261113l">
+</head>
+<body data-area="workspace">
+<!-- Phase 7 (T7.3): a coordinator proposes a referral to a program on the person's list; the person agrees on their own page by typing
+     their name; then office staff, field staff or an active Navigator of this organization makes it through the directory (CHPMS). -->
+<main id="main" class="mm-main">
+  <p class="mm-eyebrow"><a href="/mirror/workspace/people/">People</a> · <a id="mmBack" href="/mirror/workspace/people/">This person</a></p>
+  <div id="mmBox"><p role="status">Loading…</p></div>
+</main>
+<script type="module" src="/mirror/assets/mirror-ui.js?v=20261113h"></script>
+<script type="module">
+import { requireArea, rpc } from "/mirror/assets/mirror-client.js?v=20261113p";
+import { esc, notice, toast } from "/mirror/assets/mirror-ui.js?v=20261113h";
+
+const STATUS = {
+  awaiting_consent: "Waiting for the person's answer",
+  consented: "The person agreed: ready to refer",
+  referred: "Referred",
+  declined: "The person said no",
+  withdrawn: "The person took consent back",
+};
+const DIRECTORY = { new: "recorded, not sent yet", sent: "sent to the program", in_process: "in process", approved: "approved", denied: "denied", closed: "closed", withdrawn: "withdrawn" };
+const msg = (e) => (e instanceof Error ? e.message : String(e));
+const day = (d) => (d ? new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "");
+
+const w = await requireArea("workspace");
+const q = new URLSearchParams(location.search);
+const id = q.get("id") || "", org = q.get("org") || (w.memberships[0] && w.memberships[0].organization_id);
+/** @type {HTMLAnchorElement} */ (document.getElementById("mmBack")).href = `/mirror/workspace/person/?id=${encodeURIComponent(id)}&org=${encodeURIComponent(org)}`;
+const box = /** @type {HTMLElement} */ (document.getElementById("mmBox"));
+/** @type {any} */ let person, refs, res;
+
+async function load(note = "") {
+  try {
+    const people = await rpc("mirror_people", { p_org: org });
+    person = people.find((p) => p.id === id);
+    if (!person) throw new Error("This person is not on your organization's list.");
+    [refs, res] = await Promise.all([rpc("mirror_referrals", { p_individual: id }), rpc("mirror_resources", { p_individual: id })]);
+  } catch (e) { box.innerHTML = notice("caution", `<p>${esc(msg(e))}</p>`); return; }
+  draw(note);
+}
+
+/** @param {any} x */
+function refItem(x) {
+  return `<li class="mm-card" style="margin-bottom:var(--mm-space-3);list-style:none" data-ref="${esc(x.id)}">
+    <strong>${esc(x.org_name)}</strong>${x.program_name ? ` <span class="mm-muted">(${esc(x.program_name)})</span>` : ""}
+    ${x.private ? ' <span class="mm-tag mm-tag-info">Private</span>' : ""}
+    <p class="mm-small" style="margin:var(--mm-space-2) 0 0"><span class="mm-tag${x.status === "consented" || x.status === "referred" ? " mm-tag-ok" : ""}">${esc(STATUS[x.status] || x.status)}</span>
+      ${x.status === "referred" ? ` · directory #${esc(x.ref_no || "")}: ${esc(DIRECTORY[x.directory_status] || x.directory_status || "")} · <a href="/staff/resources/#referrals">open in the directory</a>` : ""}</p>
+    ${x.consent_at ? `<p class="mm-small" style="margin:var(--mm-space-2) 0 0">Agreed ${esc(day(x.consent_at))}, typed "${esc(x.consent_name)}": ${esc(x.consent_text)}</p>` : ""}
+    ${x.status === "consented" && refs.can_send ? `<p style="margin:var(--mm-space-3) 0 0"><button class="mm-btn" type="button" data-send>Make the referral</button>
+      <span class="mm-hint">It is recorded in the resource directory with only what the person agreed to share. Then send it to the program from the directory.</span></p>` : ""}
+    ${x.status === "consented" && !refs.can_send ? '<p class="mm-small mm-muted" style="margin:var(--mm-space-2) 0 0">Office staff, field staff or an active Housing Navigator makes the referral.</p>' : ""}
+  </li>`;
+}
+
+/** @param {any} s */
+function proposeItem(s) {
+  const p = s.program || {};
+  const helps = (p.help || []);
+  return `<li style="list-style:none;padding:var(--mm-space-3) 0;border-top:1px solid var(--mm-border)" data-sug="${esc(s.id)}">
+    <strong>${esc(s.program_name)}</strong> ${s.suggested_label ? '<span class="mm-tag mm-tag-suggested">Suggested</span>' : ""}
+    <span class="mm-muted mm-small" style="display:block">${esc(s.org_name || "")}${s.need_title ? ` · for "${esc(s.need_title)}"` : ""}</span>
+    <details style="margin-top:var(--mm-space-2)"><summary class="mm-small">Propose a referral</summary>
+      <form data-prop novalidate style="margin-top:var(--mm-space-2)">
+        ${helps.length ? `<fieldset class="mm-choices"><legend class="mm-legend">Help they need from this program</legend>
+          ${helps.map((h) => `<label class="mm-choice"><input type="checkbox" name="hp" value="${esc(h)}"> ${esc(h)}</label>`).join("")}</fieldset>` : ""}
+        <div class="mm-field"><label for="nt-${esc(s.id)}">Note to the program <span class="mm-muted">(optional; the person sees it before agreeing)</span></label>
+          <textarea class="mm-textarea" id="nt-${esc(s.id)}" rows="2" maxlength="2000"></textarea></div>
+        <button class="mm-btn mm-btn-secondary" type="submit">Ask ${esc(person.preferred_name)} to agree</button>
+      </form></details>
+  </li>`;
+}
+
+function draw(note) {
+  const open = new Set(refs.referrals.filter((x) => x.status === "awaiting_consent" || x.status === "consented").map((x) => x.program_id));
+  const can = res.list.filter((s) => s.program_id && !open.has(s.program_id) && s.status !== "declined");
+  box.innerHTML = `${note}
+    <h1>Referrals for ${esc(person.preferred_name)}</h1>
+    <p class="mm-lead">Nothing is shared with a program until ${esc(person.preferred_name)} agrees on their own page by typing their name.</p>
+    <h2>Referrals</h2>
+    ${refs.referrals.length ? `<ul style="padding:0">${refs.referrals.map(refItem).join("")}</ul>` : '<p class="mm-muted">None yet.</p>'}
+    <h2>Programs on their list</h2>
+    ${can.length ? `<ul style="padding:0;margin:0">${can.map(proposeItem).join("")}</ul>`
+      : `<p class="mm-muted">No program on their list to refer to. They save programs on their "Help I could get" page; with their "see and change" you can save one for them.</p>`}`;
+  wire();
+}
+
+function wire() {
+  box.querySelectorAll("[data-ref]").forEach((el) => {
+    el.querySelector("[data-send]")?.addEventListener("click", async (e) => {
+      const b = /** @type {HTMLButtonElement} */ (e.currentTarget); b.disabled = true;
+      try { const r = await rpc("mirror_referral_send", { p_id: /** @type {HTMLElement} */ (el).dataset.ref }); toast(`Referral #${r.ref_no} recorded.`); load(); }
+      catch (err) { b.disabled = false; toast(msg(err)); }
+    });
+  });
+  box.querySelectorAll("[data-sug]").forEach((el) => {
+    const f = /** @type {HTMLFormElement} */ (el.querySelector("[data-prop]"));
+    f.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const sid = /** @type {HTMLElement} */ (el).dataset.sug || "";
+      const help = [...f.querySelectorAll('input[name="hp"]:checked')].map((x) => /** @type {HTMLInputElement} */ (x).value);
+      const note = /** @type {HTMLTextAreaElement} */ (f.querySelector("textarea")).value;
+      try { await rpc("mirror_referral_propose", { p_suggestion: sid, p_org: org, p_help: help, p_note: note || null }); toast("Proposed. It waits for their answer."); load(); }
+      catch (err) { toast(msg(err)); }
+    });
+  });
+}
+
+load();
+</script>
+</body>
+</html>

@@ -1,0 +1,3 @@
+Human Mirror P2-12 (Phase 9 step 26): end dates for sharing set by the person (Settings) or recorded by a coordinator, kept through changes, shown on both sides, reminder email a week before (new kind mirror_sharing, off until Stephen turns it on), the share stops after; register page phone on one line (migration 20261119690000, check p212 5/5); t91 check counts 7 kinds; docs
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>

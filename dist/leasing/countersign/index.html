@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Countersign Leases — 2nd Chance Housing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+<style>
+  .docs { display: grid; gap: 12px; }
+  .doc { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+  .doc h2 { margin: 0 0 4px; font-size: 1.15rem; }
+  .meta { color: var(--muted); font-size: 0.92rem; }
+  .pillx { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 0.8rem; font-weight: 700; background: var(--warn-soft); color: var(--warn); }
+  .pillx.done { background: var(--ok-soft); color: var(--ok); }
+  iframe.lease { width: 100%; height: 65vh; border: 1px solid var(--line); border-radius: 8px; background: #fff; margin-top: 10px; }
+  .confirm { display: flex; gap: 10px; align-items: flex-start; margin-top: 12px; }
+  .confirm input { margin-top: 4px; width: 18px; height: 18px; }
+  .signers { margin: 8px 0 0; padding-left: 18px; }
+</style>
+</head>
+<body>
+<div class="appbar" data-nav="staff">
+  <div class="appbar-in">
+    <div class="org">2nd Chance Housing<span>Countersign leases</span></div>
+    <div class="row" id="userBar" hidden><button class="linkbtn" type="button" id="signOutBtn">Sign out</button></div>
+  </div>
+</div>
+
+<main class="wrap">
+  <header>
+    <h1>Countersign leases</h1>
+    <p class="lead">Leases every tenant has signed, waiting for your countersignature as agent for the landlord. Your signature on file is applied only when you confirm here.</p>
+  </header>
+  <div id="signin" class="narrow"></div>
+  <div id="app" hidden><div class="docs" id="docs"></div><div id="detail"></div></div>
+</main>
+
+<script type="module">
+import { client, $, esc, fmtDate, signIn, signOut, errorText } from "/assets/portal/portal.js";
+
+async function list() {
+  $("detail").innerHTML = "";
+  const { data, error } = await client.rpc("lease_agent_queue");
+  if (error) { $("docs").innerHTML = `<div class="banner bad">${esc(await errorText(error))}</div>`; return; }
+  $("docs").innerHTML = (data || []).map((d) => `<article class="doc">
+      <h2>${esc(d.unit_label)} <span class="pillx ${d.status === "signed" ? "done" : ""}">${d.status === "signed" ? "countersigned " + fmtDate(d.agent_signed_at) : "waiting for you"}</span></h2>
+      <div class="meta">${esc(d.title)} · sent ${fmtDate(d.created_at)} · tenants: ${(d.signers || []).map((s) => esc(s.name) + (s.signed_at ? " ✓" : "")).join(", ")}</div>
+      ${d.status === "awaiting_agent" ? `<div class="row2" style="margin-top:8px"><button class="btn primary" type="button" data-open="${d.id}">Review and countersign</button></div>` : ""}
+    </article>`).join("") || `<p class="sub">Nothing waiting for your countersignature.</p>`;
+}
+
+async function open(id) {
+  const { data: d, error } = await client.rpc("lease_agent_doc", { p_doc: id });
+  if (error) { $("detail").innerHTML = `<div class="banner bad">${esc(await errorText(error))}</div>`; return; }
+  $("docs").innerHTML = "";
+  $("detail").innerHTML = `<article class="doc">
+      <h2>${esc(d.unit_label)}</h2>
+      <div class="meta">${esc(d.title)} · fingerprint <code style="word-break:break-all">${esc(d.fingerprint)}</code></div>
+      <ul class="signers">${d.signers.map((s) => `<li>${esc(s.name)} (${esc(s.email)}) — signed ${fmtDate(s.signed_at)} as "${esc(s.typed_name)}"</li>`).join("")}</ul>
+      <iframe class="lease" sandbox="" title="Lease"></iframe>
+      <label class="confirm"><input type="checkbox" id="ok"><span>I have reviewed this lease, signed by the tenant(s) above, and countersign it as agent for the Landlord. Apply my signature on file.</span></label>
+      <div class="row2" style="margin-top:10px"><button class="btn" type="button" id="back">Back</button>
+        <button class="btn primary" type="button" id="go" disabled>Countersign</button><span class="msg" id="msg"></span></div>
+    </article>`;
+  $("detail").querySelector("iframe").srcdoc = d.html;
+  $("ok").onchange = () => { $("go").disabled = !$("ok").checked; };
+  $("back").onclick = list;
+  $("go").onclick = async () => {
+    $("go").disabled = true; $("msg").className = "msg"; $("msg").textContent = "Applying your signature and sending the signed lease…";
+    const { error } = await client.functions.invoke("lease-signing", { body: { action: "countersign", doc_id: id, consent: true } });
+    if (error) { let m = error.message; try { m = (await error.context.json()).error || m; } catch {} $("msg").className = "msg err"; $("msg").textContent = m; $("go").disabled = false; return; }
+    $("msg").className = "msg ok"; $("msg").textContent = "Countersigned. The signed lease has been emailed to the tenant(s) and staff.";
+    setTimeout(list, 1800);
+  };
+}
+
+$("docs").addEventListener("click", (e) => { const b = e.target.closest("[data-open]"); if (b) open(b.dataset.open); });
+$("signOutBtn").addEventListener("click", signOut);
+
+const who = await signIn($("signin"), { audience: "agent" });
+$("userBar").hidden = false;
+if (!who.is_agent) { $("signin").innerHTML = `<div class="banner bad">This sign-in isn't set up as a lease agent.</div>`; $("signin").hidden = false; }
+else { $("app").hidden = false; list(); }
+</script>
+</body>
+</html>

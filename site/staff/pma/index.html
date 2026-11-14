@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Management agreements — 2nd Chance Housing Staff</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+<style>
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-bottom: 14px; }
+</style>
+</head>
+<body>
+<div class="appbar" data-nav="staff">
+  <div class="appbar-in">
+    <div class="org">2nd Chance Housing<span>Management agreements · Staff</span></div>
+    <div class="row" id="userBar" hidden>
+      <button class="linkbtn" type="button" id="signOutBtn">Sign out</button>
+    </div>
+  </div>
+</div>
+<main class="wrap">
+  <header><h1>Management agreements</h1><p class="lead">Property Management Agreements between a unit's owner and ROCA1 (with 2nd Chance Housing Inc), reviewed and signed online.
+    The owner and the President suggest changes section by section; the office accepts or declines each one and everyone is emailed. When nothing is open, press <b>Ready to sign</b>.
+    Once both have signed, the signed PDF is filed in the owner's Documents.</p></header>
+  <div id="signin" class="narrow"></div>
+  <div id="app" hidden></div>
+</main>
+<script type="module">
+import { client, $, signIn, signOut } from "/assets/portal/portal.js";
+import { mountPma } from "/assets/portal/pma.js?v=20261111b";
+
+$("signOutBtn").addEventListener("click", signOut);
+const who = await signIn($("signin"), { audience: "staff" });
+$("userBar").hidden = false;
+if (who.role !== "staff") { $("signin").hidden = false; $("signin").innerHTML = `<div class="panel"><p>This page is for office staff. <a href="/staff/">Go to My units</a></p></div>`; }
+else { $("app").hidden = false; mountPma($("app"), "staff"); }
+</script>
+</body>
+</html>

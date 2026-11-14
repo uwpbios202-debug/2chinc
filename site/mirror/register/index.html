@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Accept an Invitation | The Human Mirror</title>
+<meta name="description" content="You were invited to the Human Mirror. Sign in with the email you were invited at, then choose to accept or say no.">
+<link rel="icon" href="/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Source+Serif+4:opsz,wght@8..60,600&display=swap">
+<link rel="stylesheet" href="/mirror/assets/mirror.css?v=20261113l">
+</head>
+<body data-area="public">
+<!-- Phase 9 (T2.6 second half): where an invited person starts. They sign in with the email they were invited at (emailed 6-digit code),
+     then accept or say no on My Mirror (mirror_my_invitation_answer). Nothing is shared with the organization until they accept. -->
+<main id="main" class="mm-main">
+  <div class="mm-read">
+    <h1>You were invited to the Human Mirror</h1>
+    <p class="mm-lead">The Human Mirror is a private place for your whole life: your needs, your strengths and the plan you choose.</p>
+    <h2>How to accept</h2>
+    <ol>
+      <li>Sign in with the email address the invitation went to. We send you a 6-digit code; there is no password.</li>
+      <li>On your Mirror, you see who invited you. Choose <strong>Accept</strong> or <strong>Decline</strong>.</li>
+      <li>Nothing about you is shared with that organization until you accept, and you choose what they may see.</li>
+    </ol>
+    <div id="mmGo"><p><a class="mm-btn" href="/mirror/sign-in/">Sign in to accept</a></p></div>
+    <p class="mm-small mm-muted">Can't sign in or didn't get the code? See <a href="/mirror/forgot-password/">Can't sign in</a>, or call 2nd Chance Housing at
+      <a href="tel:+12622365443">(262)&nbsp;236&#8209;5443</a>. Read how your information is kept: <a href="/mirror/privacy/">Privacy</a>.</p>
+  </div>
+</main>
+<script type="module" src="/mirror/assets/mirror-ui.js?v=20261113h"></script>
+<script type="module">
+import { whoami } from "/mirror/assets/mirror-client.js?v=20261113p";
+// Already signed in as the person: go straight to the answer on My Mirror.
+try {
+  const w = await whoami();
+  if (w.signed_in && w.person) {
+    /** @type {HTMLElement} */ (document.getElementById("mmGo")).innerHTML = `<p><a class="mm-btn" href="/mirror/my-mirror/">Go to My Mirror to answer</a></p>`;
+  }
+} catch (e) { /* the sign-in button stays */ }
+</script>
+</body>
+</html>

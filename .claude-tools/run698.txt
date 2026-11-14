@@ -1,0 +1,69 @@
+RESULTS lrd-landlord-db-check-part1.sql  results=0 passed=0 failed=0 info=0
+ERROR   lrd-landlord-db-check.sql  {"message":"Failed to run sql query: ERROR:  42P01: relation \"lrd_chk\" does not exist\nQUERY:  select array_agg(line order by n)        from lrd_chk\nCONTEXT:  PL/pgSQL function inline_code_block line 4 at SQL statement\n"}
+RESULTS p2-c-session-limits-check.sql  results=8 passed=8 failed=0 info=0
+RESULTS p2-e-platform-admins-list-check.sql  results=7 passed=7 failed=0 info=0
+ERROR   p2-fix01-invitation-check.sql  {"message":"Failed to run sql query: ERROR:  57014: canceling statement due to statement timeout\nCONTEXT:  SQL expression \"p_individual is null or not exists (select 1 from mirror.individuals where id = p_individual)\"\nPL/pgSQL function audit_refusal_write(text,uuid,uuid,text,text,text,text,text)
+ERROR   p2-fix02-recorded-consent-check.sql  {"message":"Failed to run sql query: ERROR:  57014: canceling statement due to statement timeout\nCONTEXT:  SQL expression \"p_individual is null or not exists (select 1 from mirror.individuals where id = p_individual)\"\nPL/pgSQL function audit_refusal_write(text,uuid,uuid,text,text,text,text,text)
+RESULTS p2-fix03-link-needs-yes-check.sql  results=6 passed=6 failed=0 info=0
+RESULTS p2-fix04-platform-admin-visible-check.sql  results=5 passed=5 failed=0 info=0
+RESULTS p2-fix05-session-fresh-check.sql  results=5 passed=5 failed=0 info=0
+RESULTS p2-fix14-audit-no-truncate-check.sql  results=4 passed=4 failed=0 info=0
+RESULTS p208-platform-admin-pages-check.sql  results=4 passed=4 failed=0 info=0
+RESULTS p211-authenticator-reset-check.sql  results=6 passed=6 failed=0 info=0
+RESULTS p213-one-place-rules-check.sql  results=4 passed=4 failed=0 info=0
+RESULTS p215-rate-limits-check.sql  results=5 passed=5 failed=0 info=0
+RESULTS p3-fix05-notification-choices-check.sql  results=6 passed=6 failed=0 info=0
+RESULTS p3-fix06-question-versions-check.sql  results=6 passed=6 failed=0 info=0
+RESULTS p3-fix06b-reworded-check.sql  results=4 passed=4 failed=0 info=0
+ERROR   p3-fix07-save-counts-check.sql  {"message":"Failed to run sql query: ERROR:  57014: canceling statement due to statement timeout\nCONTEXT:  SQL expression \"p_individual is null or not exists (select 1 from mirror.individuals where id = p_individual)\"\nPL/pgSQL function audit_refusal_write(text,uuid,uuid,text,text,text,text,text)
+RESULTS p3-fix08-answers-no-truncate-check.sql  results=4 passed=4 failed=0 info=0
+ERROR   p3-fix11-refusals-kept-check.sql  {"message":"Failed to run sql query: ERROR:  57014: canceling statement due to statement timeout\nCONTEXT:  SQL expression \"p_individual is null or not exists (select 1 from mirror.individuals where id = p_individual)\"\nPL/pgSQL function audit_refusal_write(text,uuid,uuid,text,text,text,text,text)
+ERROR   p3-fix11b-refusals-pooler-check.sql  {"message":"Failed to run sql query: ERROR:  57014: canceling statement due to statement timeout\nCONTEXT:  SQL expression \"p_individual is null or not exists (select 1 from mirror.individuals where id = p_individual)\"\nPL/pgSQL function audit_refusal_write(text,uuid,uuid,text,text,text,text,text)
+ERROR   t16-conversations-check.sql  {"message":"Failed to run sql query: ERROR:  57014: canceling statement due to statement timeout\nCONTEXT:  SQL expression \"p_individual is null or not exists (select 1 from mirror.individuals where id = p_individual)\"\nPL/pgSQL function audit_refusal_write(text,uuid,uuid,text,text,text,text,text)
+ERROR   t2-identity-check.sql  {"message":"Failed to run sql query: ERROR:  57014: canceling statement due to statement timeout\nCONTEXT:  SQL expression \"p_individual is null or not exists (select 1 from mirror.individuals where id = p_individual)\"\nPL/pgSQL function audit_refusal_write(text,uuid,uuid,text,text,text,text,text)
+RESULTS t24-signin-check.sql  results=6 passed=5 failed=0 info=1
+  info 4 switch on: existing emails answering differently (must be 0): 0
+RESULTS t25-admin-people-check.sql  results=6 passed=6 failed=0 info=0
+ERROR   t31-assessment-engine-check.sql  {"message":"Failed to run sql query: ERROR:  57014: canceling statement due to statement timeout\nCONTEXT:  SQL expression \"p_individual is null or not exists (select 1 from mirror.individuals where id = p_individual)\"\nPL/pgSQL function audit_refusal_write(text,uuid,uuid,text,text,text,text,text)
+RESULTS t33-reflection-questions-check.sql  results=5 passed=3 failed=0 info=2
+  info 2 per reflection: identity 14, history 13, vision 13, assets 12, needs 11, function 12, preferences 10, contribution 9
+  info 3 private questions: afraid=mental_health, money_now=financial, feeling_now=mental_health, health_now=health, health=health, income=financial, cost=financial, have=health, condition=health, mis
+ERROR   t35-dimension-questions-check.sql  {"message":"Failed to run sql query: ERROR:  57014: canceling statement due to statement timeout\nCONTEXT:  SQL expression \"p_individual is null or not exists (select 1 from mirror.individuals where id = p_individual)\"\nPL/pgSQL function audit_refusal_write(text,uuid,uuid,text,text,text,text,text)
+ERROR   t36-privacy-settings-check.sql  {"message":"Failed to run sql query: ERROR:  57014: canceling statement due to statement timeout\nCONTEXT:  SQL expression \"p_individual is null or not exists (select 1 from mirror.individuals where id = p_individual)\"\nPL/pgSQL function audit_refusal_write(text,uuid,uuid,text,text,text,text,text)
+ERROR   t42-daily-number-check.sql  {"message":"Failed to run sql query: ERROR:  57014: canceling statement due to statement timeout\nCONTEXT:  SQL expression \"p_individual is null or not exists (select 1 from mirror.individuals where id = p_individual)\"\nPL/pgSQL function audit_refusal_write(text,uuid,uuid,text,text,text,text,text)
+ERROR   t43-daily-number-usable-check.sql  {"message":"Failed to run sql query: ERROR:  57014: canceling statement due to statement timeout\nCONTEXT:  SQL expression \"p_individual is null or not exists (select 1 from mirror.individuals where id = p_individual)\"\nPL/pgSQL function audit_refusal_write(text,uuid,uuid,text,text,text,text,text)
+ERROR   t44-daily-number-plan-check.sql  {"message":"Failed to run sql query: ERROR:  57014: canceling statement due to statement timeout\nCONTEXT:  SQL expression \"p_individual is null or not exists (select 1 from mirror.individuals where id = p_individual)\"\nPL/pgSQL function audit_refusal_write(text,uuid,uuid,text,text,text,text,text)
+RESULTS t45-dn-change-log-check.sql  results=6 passed=5 failed=0 info=1
+  info 1 the person's own 3 edits: 0 lines logged (0)
+ERROR   t5-functional-housing-check.sql  {"message":"Failed to run sql query: ERROR:  57014: canceling statement due to statement timeout\nCONTEXT:  SQL expression \"p_individual is null or not exists (select 1 from mirror.individuals where id = p_individual)\"\nPL/pgSQL function audit_refusal_write(text,uuid,uuid,text,text,text,text,text)
+ERROR   t61-needs-check.sql  {"message":"Failed to run sql query: ERROR:  57014: canceling statement due to statement timeout\nCONTEXT:  SQL expression \"p_individual is null or not exists (select 1 from mirror.individuals where id = p_individual)\"\nPL/pgSQL function audit_refusal_write(text,uuid,uuid,text,text,text,text,text)
+RESULTS t61b-need-suggestions-check.sql  results=5 passed=5 failed=0 info=0
+RESULTS t61c-need-remove-check.sql  results=3 passed=3 failed=0 info=0
+ERROR   t62-strengths-check.sql  {"message":"Failed to run sql query: ERROR:  57014: canceling statement due to statement timeout\nCONTEXT:  SQL expression \"p_individual is null or not exists (select 1 from mirror.individuals where id = p_individual)\"\nPL/pgSQL function audit_refusal_write(text,uuid,uuid,text,text,text,text,text)
+ERROR   t63-goals-plan-check.sql  {"message":"Failed to run sql query: ERROR:  57014: canceling statement due to statement timeout\nCONTEXT:  SQL expression \"p_individual is null or not exists (select 1 from mirror.individuals where id = p_individual)\"\nPL/pgSQL function audit_refusal_write(text,uuid,uuid,text,text,text,text,text)
+RESULTS t63b-goal-suggestions-check.sql  results=4 passed=4 failed=0 info=0
+RESULTS t64-progress-check.sql  results=5 passed=5 failed=0 info=0
+RESULTS t71-resource-categories-check.sql  results=6 passed=5 failed=0 info=1
+  info 3 CHPMS allows 20 help types, map covers 20; allowed types without a map row: none
+ERROR   t72-resource-suggestions-check.sql  {"message":"Failed to run sql query: ERROR:  57014: canceling statement due to statement timeout\nCONTEXT:  SQL expression \"p_individual is null or not exists (select 1 from mirror.individuals where id = p_individual)\"\nPL/pgSQL function audit_refusal_write(text,uuid,uuid,text,text,text,text,text)
+RESULTS t72b-resource-rank-share-check.sql  results=4 passed=4 failed=0 info=0
+ERROR   t73-referrals-check.sql  {"message":"Failed to run sql query: ERROR:  57014: canceling statement due to statement timeout\nCONTEXT:  SQL expression \"p_individual is null or not exists (select 1 from mirror.individuals where id = p_individual)\"\nPL/pgSQL function audit_refusal_write(text,uuid,uuid,text,text,text,text,text)
+ERROR   t74-documents-check.sql  {"message":"Failed to run sql query: ERROR:  57014: canceling statement due to statement timeout\nCONTEXT:  SQL expression \"p_individual is null or not exists (select 1 from mirror.individuals where id = p_individual)\"\nPL/pgSQL function audit_refusal_write(text,uuid,uuid,text,text,text,text,text)
+RESULTS t74b-document-removals-check.sql  results=4 passed=4 failed=0 info=0
+RESULTS t81-workspace-dashboard-check.sql  results=6 passed=6 failed=0 info=0
+RESULTS t82-person-overview-check.sql  results=5 passed=5 failed=0 info=0
+RESULTS t83-assessments-review-check.sql  results=6 passed=6 failed=0 info=0
+ERROR   t84-services-check.sql  {"message":"Failed to run sql query: ERROR:  57014: canceling statement due to statement timeout\nCONTEXT:  SQL expression \"p_individual is null or not exists (select 1 from mirror.individuals where id = p_individual)\"\nPL/pgSQL function audit_refusal_write(text,uuid,uuid,text,text,text,text,text)
+ERROR   t85-appointments-notes-check.sql  {"message":"Failed to run sql query: ERROR:  57014: canceling statement due to statement timeout\nCONTEXT:  SQL expression \"p_individual is null or not exists (select 1 from mirror.individuals where id = p_individual)\"\nPL/pgSQL function audit_refusal_write(text,uuid,uuid,text,text,text,text,text)
+ERROR   t86-benefits-check.sql  {"message":"Failed to run sql query: ERROR:  57014: canceling statement due to statement timeout\nCONTEXT:  SQL expression \"p_individual is null or not exists (select 1 from mirror.individuals where id = p_individual)\"\nPL/pgSQL function audit_refusal_write(text,uuid,uuid,text,text,text,text,text)
+ERROR   t87-inventory-check.sql  {"message":"Failed to run sql query: ERROR:  57014: canceling statement due to statement timeout\nCONTEXT:  SQL expression \"p_individual is null or not exists (select 1 from mirror.individuals where id = p_individual)\"\nPL/pgSQL function audit_refusal_write(text,uuid,uuid,text,text,text,text,text)
+RESULTS t88-reports-check.sql  results=5 passed=5 failed=0 info=0
+RESULTS t91-email-templates-check.sql  results=5 passed=5 failed=0 info=0
+RESULTS tn1-nav-whole-consent-check.sql  results=6 passed=6 failed=0 info=0
+RESULTS tn2-nav-person-mirror-check.sql  results=6 passed=6 failed=0 info=0
+RESULTS tn3-directory-life-areas-check.sql  results=5 passed=5 failed=0 info=0
+RESULTS tn4-nav-own-room-check.sql  results=6 passed=6 failed=0 info=0
+ERROR   tn5-nav-checkins-check.sql  {"message":"Failed to run sql query: ERROR:  57014: canceling statement due to statement timeout\nCONTEXT:  SQL expression \"p_individual is null or not exists (select 1 from mirror.individuals where id = p_individual)\"\nPL/pgSQL function audit_refusal_write(text,uuid,uuid,text,text,text,text,text)
+RESULTS p210-change-email-check.sql  results=6 passed=6 failed=0 info=0
+RESULTS p209-deletion-run-check.sql  results=6 passed=6 failed=0 info=0
+RESULTS p10pp-privacy-promises-check.sql  results=6 passed=6 failed=0 info=0

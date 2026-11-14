@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Working With a Person | The Human Mirror</title>
+<link rel="icon" href="/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Source+Serif+4:opsz,wght@8..60,600&display=swap">
+<link rel="stylesheet" href="/mirror/assets/mirror.css?v=20261113l">
+</head>
+<body data-area="workspace">
+<main id="main" class="mm-main">
+  <p class="mm-eyebrow"><a href="/mirror/workspace/people/">People</a></p>
+  <div id="mmPerson"><p role="status">Loading…</p></div>
+</main>
+<script type="module" src="/mirror/assets/mirror-ui.js?v=20261113h"></script>
+<script type="module">
+// Phase 2 fix 2 (11/13/2026): a coordinator works on a person's Mirror with them. For a person without email, the coordinator first
+// records the sharing choice the person gave on paper or out loud. Everything here goes through the same database gate as the person's own pages.
+import { requireArea, rpc } from "/mirror/assets/mirror-client.js?v=20261113p";
+import { esc, notice, countBar, toast } from "/mirror/assets/mirror-ui.js?v=20261113h";
+import { runSet } from "/mirror/assets/assessment-engine.js?v=20261113p";
+import { activitiesBox } from "/mirror/assets/functional-page.js?v=20261113p";
+import { housingBox } from "/mirror/assets/housing-page.js?v=20261113p";
+import { clothingBox } from "/mirror/assets/clothing-page.js?v=20261114a";   // T11.1
+// Phase 8 T8.2 (11/13/2026): the one-person overview: safety note (P2-06), needs, strengths, plan, progress
+// T8.4 (11/13/2026): services and enrollments
+// T8.5 (11/13/2026): appointments and contact notes
+// T8.6 (11/13/2026): benefits applications
+// T8.7 (11/13/2026): donated goods given
+import { safetyBanner, needsBox, strengthsBox, planBox, progressBox, servicesBox, appointmentsBox, notesBox, benefitsBox, receivedBox } from "/mirror/assets/workspace-person.js?v=20261113e";
+
+const TOPICS = [["general", "Answers in general"], ["health", "Physical health"], ["mental_health", "How they feel inside"], ["safety", "Safety"],
+  ["legal", "ID, papers and legal matters"], ["immigration", "Immigration"], ["financial", "Money and the Daily Number"], ["documents", "Documents"]];
+const ACCESS = { view: "can see", edit: "can see and change" };
+const HOW = { paper: "on paper", spoken: "out loud", online: "online, by them" };
+
+const w = await requireArea("workspace");
+const q = new URLSearchParams(location.search);
+const id = q.get("id") || "", org = q.get("org") || (w.memberships[0] && w.memberships[0].organization_id);
+const box = document.getElementById("mmPerson");
+let person, rec;
+
+async function load(note = "") {
+  try {
+    const people = await rpc("mirror_people", { p_org: org });
+    person = people.find((p) => p.id === id);
+    if (!person) throw new Error("This person is not on your organization's list.");
+    if (person.status !== "active") throw new Error(person.status === "invited" ? "This person hasn't accepted your invitation yet. Their Mirror opens to you once they do." : "Your organization no longer works with this person.");
+    rec = await rpc("mirror_consents_recorded", { p_individual: id, p_org: org });
+  } catch (e) { box.innerHTML = notice("caution", `<p>${esc(e.message)}</p>`); return; }
+  draw(note);
+}
+
+function draw(note) {
+  const S = rec.sharing;
+  const canEdit = S.general && S.general.access === "edit";
+  box.innerHTML = `${note}
+    <h1>${esc(person.preferred_name)}</h1>
+    <p class="mm-lead">${canEdit ? "You can fill in their Mirror together." : "You can see their answers in general."} Private topics open only as they choose.</p>
+    ${person.safety_sensitive ? safetyBanner(person.preferred_name) : ""}
+    <nav aria-label="On this page" class="mm-small mm-row" style="gap:var(--mm-space-3);margin-bottom:var(--mm-space-4)">
+      <a href="#oNeeds">Needs</a><a href="#oAppts">Appointments</a><a href="#oNotes">Notes</a><a href="#oPlan">Plan</a><a href="#oServices">Services</a><a href="#oGiven">Things given</a><a href="#oBenefits">Benefits</a><a href="#oStrengths">Strengths</a><a href="#oProgress">Progress</a><a href="#oShare">What they share</a><a href="#oMirror">Their answers</a></nav>
+    <section id="oNeeds"><h2>Needs</h2><div id="mmNeeds"><p role="status">Loading…</p></div></section>
+    <section id="oPlan"><h2>Plan</h2><div id="mmPlan"><p role="status">Loading…</p></div></section>
+    <section id="oAppts"><h2>Appointments with your organization</h2><div id="mmAppts"><p role="status">Loading…</p></div></section>
+    <section id="oNotes"><h2>Contact notes</h2><p class="mm-small mm-muted">Visits, calls and messages with them. They see every note.</p><div id="mmNotes"><p role="status">Loading…</p></div></section>
+    <section id="oServices"><h2>Services from your organization</h2><div id="mmServices"><p role="status">Loading…</p></div></section>
+    <section id="oGiven"><h2>Things given</h2><div id="mmGiven"><p role="status">Loading…</p></div></section>
+    <section id="oBenefits"><h2>Benefits and applications</h2><p class="mm-small mm-muted">Private (Money): shown only if they share it with you.</p><div id="mmBenefits"><p role="status">Loading…</p></div></section>
+    <section id="oStrengths"><h2>Strengths</h2><div id="mmStrengths"><p role="status">Loading…</p></div></section>
+    <section id="oProgress"><h2>Progress</h2><p class="mm-small mm-muted">Counts only, never a score, and only for the parts of life they share with you.</p><div id="mmProgress"><p role="status">Loading…</p></div></section>
+    <p class="mm-row"><a class="mm-btn mm-btn-secondary" href="/mirror/workspace/conversation/?id=${encodeURIComponent(id)}&org=${encodeURIComponent(org)}">Conversation plan</a>
+      <a class="mm-btn mm-btn-secondary" href="/mirror/workspace/referrals/?id=${encodeURIComponent(id)}&org=${encodeURIComponent(org)}">Referrals</a>
+      <a class="mm-btn mm-btn-secondary" href="/mirror/workspace/documents/?id=${encodeURIComponent(id)}&org=${encodeURIComponent(org)}">Documents</a></p>
+    <section class="mm-card mm-read" style="margin-bottom:var(--mm-space-5)" id="oShare">
+      <h2 style="margin-top:0">What ${esc(person.preferred_name)} shares with you</h2>
+      <ul>${TOPICS.map(([k, l]) => `<li><strong>${esc(l)}:</strong> ${S[k] ? `${esc(ACCESS[S[k].access] || S[k].access)} <span class="mm-muted mm-small">(${esc(HOW[S[k].method] || S[k].method)}, recorded by ${esc(S[k].by)}, ${esc(new Date(S[k].at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }))})</span>${S[k].until ? ` <span class="mm-tag">until ${esc(new Date(String(S[k].until) + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }))}</span>` : ""}`
+        : (k === "general" ? "can see while you work together" : "private")}</li>`).join("")}</ul>
+      ${rec.can_record ? recordForm() : `<p class="mm-muted mm-small">${esc(person.preferred_name)} can sign in, so they make these choices themselves in their own Settings.</p>`}
+    </section>
+    <section id="oMirror"><h2>Their Mirror</h2><div id="mmSets"><p role="status">Loading…</p></div></section>
+    <div id="mmRun"></div>`;
+  if (rec.can_record) wireRecord();
+  needsBox(box.querySelector("#mmNeeds"), id, person.preferred_name);
+  planBox(box.querySelector("#mmPlan"), id);
+  appointmentsBox(box.querySelector("#mmAppts"), id, org, person.preferred_name);
+  notesBox(box.querySelector("#mmNotes"), id, org, person.preferred_name);
+  servicesBox(box.querySelector("#mmServices"), id, org, person.preferred_name);
+  receivedBox(box.querySelector("#mmGiven"), id, org, person.preferred_name);
+  benefitsBox(box.querySelector("#mmBenefits"), id, org, person.preferred_name);
+  strengthsBox(box.querySelector("#mmStrengths"), id);
+  progressBox(box.querySelector("#mmProgress"), id);
+  sets();
+}
+
+function recordForm() {
+  return `<form id="mmRec" novalidate style="margin-top:var(--mm-space-4)">
+    <h3 style="margin-top:0">Record a choice ${esc(person.preferred_name)} gave you</h3>
+    <p class="mm-hint">${esc(person.preferred_name)} has no sign-in, so you record what they told you or signed. Read the choice back to them first.
+      If they get a sign-in later, they will see each choice you recorded, with your name, and can change it.</p>
+    <div class="mm-row">
+      <div class="mm-field" style="min-width:14rem"><label for="rTopic">Topic</label><select class="mm-select" id="rTopic">${TOPICS.map(([k, l]) => `<option value="${k}">${esc(l)}</option>`).join("")}</select></div>
+      <div class="mm-field" style="min-width:14rem"><label for="rAccess">Their choice</label><select class="mm-select" id="rAccess">
+        <option value="edit">You can see and change</option><option value="view">You can see</option><option value="none">Stop sharing (private)</option></select></div>
+      <div class="mm-field" style="min-width:12rem"><label for="rHow">How they agreed</label><select class="mm-select" id="rHow"><option value="paper">On paper</option><option value="spoken">Out loud</option></select></div></div>
+    <div class="mm-field"><label for="rNote">Note</label><span class="mm-hint" id="rNoteHint">For example: signed form in the paper file; or: said yes on the phone, her sister was there.</span>
+      <input class="mm-input" id="rNote" maxlength="500" aria-describedby="rNoteHint"></div>
+    <div class="mm-field"><label for="rUntil">Until <span class="mm-muted">(optional: the last day they agreed to share)</span></label>
+      <input class="mm-input" id="rUntil" type="date" style="max-width:12rem"></div>
+    <label class="mm-choice" style="margin-bottom:var(--mm-space-3)"><input type="checkbox" id="rConfirm"> I read this choice back to ${esc(person.preferred_name)} and they agreed.</label>
+    <div id="rMsg" aria-live="assertive"></div>
+    <button class="mm-btn" type="submit">Record their choice</button>
+  </form>`;
+}
+
+function wireRecord() {
+  const f = box.querySelector("#mmRec");
+  f.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const val = (x) => f.querySelector("#" + x).value;
+    if (!f.querySelector("#rConfirm").checked) { f.querySelector("#rMsg").innerHTML = notice("urgent", "<p>Read the choice back to them first, then tick the box.</p>"); return; }
+    try {
+      rec = await rpc("mirror_consent_record", { p_individual: id, p_org: org, p_category: val("rTopic"), p_access: val("rAccess"), p_method: val("rHow"), p_note: val("rNote") });
+      // P2-12: an end date the person gave (only for a topic they share)
+      if (val("rUntil") && val("rAccess") !== "none") rec = await rpc("mirror_consent_record_until", { p_individual: id, p_org: org, p_category: val("rTopic"), p_until: val("rUntil") });
+      draw(notice("ok", "<p>Recorded, with your name and today's date. It's in their record of who looked and what changed.</p>"));
+    } catch (err) { f.querySelector("#rMsg").innerHTML = notice("urgent", `<p>${esc(err.message)}</p>`); }
+  });
+}
+
+async function sets() {
+  const el = box.querySelector("#mmSets");
+  let list = [];
+  try {
+    const all = await Promise.all(["reflection", "dimension", "functional"].map((k) => rpc("mirror_sets", { p_kind: k, p_individual: id })));
+    list = all.flat();
+  } catch (e) { el.innerHTML = notice("caution", `<p>${esc(e.message)}</p>`); return; }
+  // T8.3: when you last went over each set with them, and what they changed on their own since (counts and dates only)
+  let rv = {};
+  try { rv = Object.fromEntries(((await rpc("mirror_assessments_review", { p_org: org, p_individual: id })).sets || []).map((s) => [s.key, s])); } catch { rv = {}; }
+  const day = (d) => new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  const together = (k) => {
+    const r = rv[k];
+    if (!r) return "";
+    const bits = [r.last_together ? `Last together ${esc(day(r.last_together))}` : "Not gone over together yet"];
+    if (r.last_together && Number(r.since_together)) bits.push(`${Number(r.since_together)} changed or added by them since`);
+    if (Number(r.help)) bits.push(`${Number(r.help)} asked for help`);
+    if (r.private_unshared) bits.push("some questions are private to them");
+    return `<span class="mm-small mm-muted" style="display:block;margin-top:var(--mm-space-2)">${bits.join(" · ")}</span>`;
+  };
+  const group = (kind, title) => `<h3>${esc(title)}</h3><div class="mm-grid">${list.filter((s) => s.kind === kind).map((s) => `
+    <button type="button" class="mm-card" data-set="${esc(s.key)}" style="text-align:left;font:inherit;cursor:pointer">
+      <strong>${esc(s.title)}</strong>${countBar(s.answered, s.questions, "answered")}${together(s.key)}</button>`).join("")}</div>`;
+  el.innerHTML = group("reflection", "Eight reflections") + group("dimension", "Fifteen areas of life")
+    + `<h3>Abilities and living</h3><p class="mm-hint">Their own view, never a diagnosis. Everyday activities are private health information; you see them only if they share Physical health.</p>
+      <div class="mm-row"><button type="button" class="mm-btn mm-btn-secondary" data-p5="activities">Everyday activities</button>
+        <button type="button" class="mm-btn mm-btn-secondary" data-p5="housing">Where they live</button>
+        <button type="button" class="mm-btn mm-btn-secondary" data-p5="clothing">Clothes and laundry</button></div>`
+    + group("functional", "Eleven more functional areas")
+    + `<p class="mm-muted mm-small">Only questions they share with you are counted. Their Daily Number with you comes with the full workspace.
+      Going over questions together: read each question to them and save their own words; they can skip any question. All of your organization's people: <a href="/mirror/workspace/assessments/?org=${encodeURIComponent(org)}">Questions together</a>.</p>`;
+  el.querySelectorAll("[data-p5]").forEach((b) => b.addEventListener("click", () => {
+    const run = box.querySelector("#mmRun");
+    run.innerHTML = `<h2>${esc(b.textContent)}</h2><div id="mmRunSet"></div>`;
+    (b.dataset.p5 === "activities" ? activitiesBox : b.dataset.p5 === "clothing" ? clothingBox : housingBox)(run.querySelector("#mmRunSet"), id);
+    run.scrollIntoView({ block: "start" });
+  }));
+  el.querySelectorAll("[data-set]").forEach((b) => b.addEventListener("click", () => {
+    const run = box.querySelector("#mmRun");
+    run.innerHTML = `<h2>${esc(b.querySelector("strong").textContent)}</h2><div id="mmRunSet"></div>`;
+    runSet(run.querySelector("#mmRunSet"), b.dataset.set, { individual: id, nextLink: { href: location.pathname + location.search, label: `Back to ${person.preferred_name}` } });
+    run.scrollIntoView({ block: "start" });
+  }));
+}
+
+load();
+</script>
+</body>
+</html>

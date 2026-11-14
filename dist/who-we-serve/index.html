@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Who We Serve — 2nd Chance Housing Inc.</title>
+  <meta name="description" content="If every other landlord has said no, we say yes. Returning citizens, past evictions, bad credit, vouchers, homelessness, first-time renters, families, veterans and more — in Chicago and Milwaukee." />
+  <link rel="icon" href="/favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/site.css" />
+  <style>
+    /* Images: save each as /who-we-serve/images/<slug>.jpg (slugs listed in
+       the P array below). Until a file exists, the card shows a branded
+       green panel with the title instead. */
+    .people { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.4rem; margin-top: 2rem; }
+    .person { background: var(--white); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s; }
+    .person:hover, .person:focus-within { transform: translateY(-3px); box-shadow: 0 10px 26px rgba(19,32,26,0.14); border-color: var(--green); }
+    .thumb { aspect-ratio: 16 / 9; position: relative; overflow: hidden; background: linear-gradient(135deg, var(--green-dk), var(--green-lt)); display: flex; align-items: flex-end; }
+    .thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .thumb .ph { position: relative; padding: 1rem 1.1rem; color: rgba(255,255,255,0.92); font-family: var(--serif); font-size: 1.35rem; line-height: 1.2; }
+    .thumb .ph::before { content: ""; position: absolute; right: 14px; top: -120px; width: 90px; height: 90px; background: url(/logo-192.png) center / contain no-repeat; opacity: 0.18; border-radius: 50%; }
+    .thumb.has-img .ph { display: none; }
+    .zoom { position: absolute; right: 10px; bottom: 10px; background: rgba(19,32,26,0.82); color: #fff; font: 600 0.75rem var(--sans); padding: 0.3rem 0.7rem; border-radius: 20px; border: 0; cursor: zoom-in; z-index: 1; }
+    .thumb:not(.has-img) .zoom { display: none; }
+    .person .body { padding: 1rem 1.15rem 1.25rem; display: flex; flex-direction: column; flex: 1; }
+    .person h2 { font-family: var(--serif); font-weight: 400; font-size: 1.3rem; margin-bottom: 0.3rem; }
+    .person h2 a { color: var(--text); text-decoration: none; }
+    .person h2 a::after { content: ""; position: absolute; inset: 0; }
+    .person { position: relative; }
+    .person .zoom { z-index: 2; }
+    .person p { font-size: 0.9rem; color: var(--gray); margin-bottom: 0.75rem; flex: 1; }
+    .person .more { color: var(--green); font-weight: 600; font-size: 0.88rem; }
+
+    #detail { max-width: 860px; margin: 0 auto; }
+    #detail[hidden], #list[hidden] { display: none; }
+    .back { display: inline-block; margin-bottom: 1.25rem; color: var(--green); font: 600 0.95rem var(--sans); text-decoration: none; }
+    .d-hero { aspect-ratio: 16 / 9; border-radius: 12px; overflow: hidden; margin-bottom: 1.75rem; position: relative; background: linear-gradient(135deg, var(--green-dk), var(--green-lt)); display: flex; align-items: flex-end; }
+    .d-hero img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .d-hero.has-img { cursor: zoom-in; }
+    .d-hero .ph { position: relative; padding: 1.5rem; color: rgba(255,255,255,0.92); font-family: var(--serif); font-size: 2rem; }
+    .d-hero.has-img .ph { display: none; }
+    #detail h1 { font-family: var(--serif); font-weight: 400; font-size: clamp(1.9rem, 4vw, 2.4rem); margin-bottom: 0.75rem; }
+    #detail .lead { font-size: 1.2rem; line-height: 1.6; }
+    #detail h3 { font-family: var(--serif); font-weight: 400; font-size: 1.35rem; margin: 2rem 0 0.75rem; }
+    #detail blockquote { margin: 0.5rem 0; padding: 0.6rem 1rem; border-left: 4px solid var(--green-lt); background: var(--white); font-style: italic; border-radius: 0 6px 6px 0; }
+    .yes { background: var(--ink); color: #fff; padding: 1.6rem 1.8rem; border-radius: 12px; margin-top: 2rem; }
+    .yes h3 { color: var(--green-lt) !important; margin-top: 0 !important; }
+    .yes p { margin-bottom: 0.75rem; line-height: 1.65; }
+    .yes .btn { margin-top: 0.5rem; }
+    .pager { display: flex; justify-content: space-between; gap: 1rem; margin-top: 2rem; font-weight: 600; font-size: 0.95rem; }
+    .pager a { color: var(--green); text-decoration: none; }
+
+    #lb { position: fixed; inset: 0; background: rgba(8,16,11,0.94); z-index: 50; display: none; align-items: center; justify-content: center; flex-direction: column; padding: 20px; }
+    #lb.open { display: flex; }
+    #lb img { max-width: 94vw; max-height: 76vh; border-radius: 8px; box-shadow: 0 10px 50px #000; }
+    #lb .cap { color: #fff; max-width: 820px; text-align: center; margin-top: 1rem; line-height: 1.55; }
+    #lb .cap b { color: var(--green-lt); font-family: var(--serif); font-weight: 400; font-size: 1.4rem; display: block; }
+    #lb .close { position: absolute; top: 16px; right: 18px; background: rgba(255,255,255,0.12); color: #fff; border: 0; border-radius: 50%; width: 44px; height: 44px; font-size: 1.5rem; cursor: pointer; }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="inner">
+    <a href="/" class="brand">
+      <img src="/logo-192.png" alt="" width="56" height="56" />
+      <div><strong>2nd Chance Housing</strong><span>501(c)(3) Nonprofit · Chicago &amp; Milwaukee</span></div>
+    </a>
+    <nav class="site-nav" aria-label="Main">
+      <a href="/#units">Available Units</a>
+      <a href="/who-we-serve/" aria-current="page">Who We Serve</a>
+      <a href="/rent-help/">Rent Help</a>
+      <a href="/documents/public/">Documents</a>
+      <a href="/contact/">Contact</a>
+      <a href="/investor/">Investor</a>
+      <a href="/waitlist/" class="waitlist">Waitlist</a>
+      <a href="/leasing/apply/" class="apply">Apply</a>
+      <a href="/#signin" class="signin">Sign In</a>
+    </nav>
+  </div>
+</header>
+
+<div class="hero" id="intro">
+  <div class="inner">
+    <div class="eyebrow">Chicago &amp; Milwaukee</div>
+    <h1>Who We <em>Serve</em></h1>
+    <p class="desc">If every other landlord has said no, we say yes. Find yourself below.</p>
+  </div>
+</div>
+
+<main>
+  <div id="list">
+    <div class="policy">
+      <strong>One conversation:</strong> What is your plan to keep rent on track, and what will you do if something changes? No background checks. No credit checks. No judgment.
+      The only limit: <strong>no pets</strong>. Service animals and emotional support animals are always welcome, with no fees.
+    </div>
+    <div class="people" id="grid"></div>
+  </div>
+  <article id="detail" hidden></article>
+</main>
+
+<div id="lb" role="dialog" aria-modal="true" aria-label="Enlarged photo">
+  <button class="close" type="button" aria-label="Close">×</button>
+  <div id="lb-body"></div>
+</div>
+
+<footer class="site-footer">
+  <p class="tagline">Safe Homes · Stronger Lives</p>
+  <p><strong>2nd Chance Housing Inc.</strong> · Chicago &amp; Milwaukee · 6626 N Bourbon St, Milwaukee, WI 53224 · EIN 47-5387503 · 501(c)(3) Public Charity</p>
+  <p><a href="tel:2622365443">(262) 236-5443</a> · <a href="mailto:info@2ndchinc.org">info@2ndchinc.org</a> · <a href="/documents/public/">Resident documents</a> &middot; <a href="/privacy/">Privacy</a></p>
+</footer>
+
+<noscript><p style="max-width:860px;margin:1rem auto;padding:0 1rem">This page needs JavaScript to show each group. Email <a href="mailto:info@2ndchinc.org">info@2ndchinc.org</a> and we'll help directly.</p></noscript>
+
+<script>
+// s = slug (image file /who-we-serve/images/<s>.jpg and link #/<s>), t = title,
+// d = card summary, l = lead, h = what you may have heard, y = our answer.
+const P = [
+{s:"returning-citizens",t:"Returning Citizens",d:"Convictions, probation, parole, pending charges.",
+ l:"You paid your debt. You came home ready to build a life, and the first thing standing in your way is a box on an application.",
+ h:["We don't rent to felons.","Your background check came back.","Sorry, we can't make an exception."],
+ y:"We never run the check. We don't ask what happened or when. A conviction does not decide whether you have a roof. Your commitment to paying rent does, and we pair your home with mentoring and career support."},
+{s:"past-evictions",t:"Past Evictions",d:"Old, dismissed, or disputed. We start from today.",
+ l:"One bad season, one bad landlord, one missed month, and an eviction followed you for years.",
+ h:["We see an eviction on your record.","We can't approve you with a judgment.","No exceptions."],
+ y:"The past does not get a vote. Our Rent Well program teaches you your rights, how to talk with a landlord, and how to protect your record from here forward."},
+{s:"divorced-and-ordered-out",t:"Divorced & Ordered Out",d:"Divorce, separation, or a judge's order to leave the home.",
+ l:"A judge signed an order, and you had to leave the home you shared, sometimes the same day, with whatever you could carry. So where do you go?",
+ h:["Your name is still on the mortgage.","We need a reference from your current landlord.","Come back when the divorce is final."],
+ y:"You come to us. A divorce or a court order to leave your home is a turning point, not a mark against you. We don't ask about the case. We ask for your plan: how you will keep rent on track, and what you will do if something changes. A stable address gets you steady while the rest gets sorted out, and gives your children a place to visit."},
+{s:"credit-and-debt",t:"Bad Credit & Debt",d:"Collections, judgments, bankruptcy, no credit at all.",
+ l:"Your credit score tells a story about a hard stretch, not about who you are.",
+ h:["Your score is below our minimum.","We found collections.","We can't accept a bankruptcy."],
+ y:"We don't pull your credit. Our financial coaches help you build a budget, reduce debt, and rebuild credit while you live in a home you can count on."},
+{s:"low-or-irregular-income",t:"Low or Irregular Income",d:"Gig work, cash work, seasonal work, between jobs.",
+ l:"You work hard, but your pay doesn't fit a landlord's formula.",
+ h:["You must earn 3x the rent.","We need pay stubs.","No proof of income, no lease."],
+ y:"We don't require proof of employment before move-in. We meet you where you are, and our career readiness team helps you move toward steady, living-wage work."},
+{s:"vouchers-and-benefits",t:"Vouchers & Benefits",d:"Section 8, SSI/SSDI, TANF, rental assistance.",
+ l:"Your income is real, and it is legal. Too many landlords treat it as a reason to refuse.",
+ h:["We don't take vouchers.","Benefits don't count as income.","We're not accepting assistance."],
+ y:"Assistance is income here. We welcome voucher holders and benefit recipients, and we treat you like any other neighbor."},
+{s:"experiencing-homelessness",t:"Experiencing Homelessness",d:"Shelters, cars, couches, the street.",
+ l:"You can't prove an address when you don't have one, and that is the trap.",
+ h:["We need a current address.","No rental history.","We need a reference."],
+ y:"You need a home, and that is where we begin. No address required. No references required. A stable home is the first step toward everything else."},
+{s:"first-time-renters",t:"First-Time Renters",d:"No rental history, aging out of foster care, starting over.",
+ l:"Everyone has to rent for the first time. Many landlords won't let you.",
+ h:["We need landlord references.","No history, no approval.","Do you have a co-signer?"],
+ y:"No history is not bad history. You don't need a co-signer or a reference. Rent Well teaches you the rights and responsibilities that make your first lease a strong one."},
+{s:"families",t:"Families of Every Shape",d:"Single parents, large families, multigenerational homes.",
+ l:"You aren't a risk. You're a family, and you deserve a stable place to raise your children.",
+ h:["Too many people for the unit.","We prefer no children.","Only immediate family."],
+ y:"We open our doors to children, grandparents, and everyone who makes up your household. Stable housing helps kids do better in school and helps families stay together."},
+{s:"survivors-of-domestic-violence",t:"Survivors of Violence",d:"Leaving an abuser, starting over safely.",
+ l:"Leaving took everything you had. Now you need a safe place, and your paperwork may not be in order.",
+ h:["We need joint references.","Your name isn't on the old lease.","Police calls count against you."],
+ y:"You will not be punished for what was done to you. We ask about your commitment to rent, not your history of survival, and we connect you to the faith and civic groups that surround a neighborhood with care."},
+{s:"recovery-and-health",t:"Recovery & Health",d:"Mental health, substance use recovery, chronic illness, MAT.",
+ l:"Getting well is hard work. Housing should support it, not punish it.",
+ h:["We don't accept people in treatment.","Medication-assisted? No.","We can't take that risk."],
+ y:"Recovery needs stability. We welcome people in recovery, on medication, or managing a health condition. Our mentors help you build healthy routines, one day at a time."},
+{s:"disabilities-and-assistance-animals",t:"Disabilities & Assistance Animals",d:"Accessibility needs, service dogs, emotional support animals.",
+ l:"You have a right to a home, and your service or support animal is a medical necessity, not a pet.",
+ h:["No dogs, no exceptions.","We charge a pet deposit.","That breed isn't allowed."],
+ y:"Service animals and emotional support animals are welcome with no pet fees, no deposits, and no breed limits. We will work with you on reasonable accommodations."},
+{s:"immigrants-and-newcomers",t:"Immigrants & Newcomers",d:"New to the country, no SSN, limited English.",
+ l:"You came here to build something, and a missing number should not keep you from a front door.",
+ h:["We need a Social Security number.","We can't verify your documents.","Your English isn't strong enough."],
+ y:"We don't ask for a Social Security number or a credit file. One conversation applies to everyone: what is your plan to keep rent on track?"},
+{s:"veterans",t:"Veterans",d:"Including other-than-honorable discharges.",
+ l:"You served. Coming home shouldn't mean sleeping on a couch because a landlord won't look past your paperwork.",
+ h:["Your discharge status concerns us.","We can't verify your income.","VA benefits aren't enough."],
+ y:"Whatever your discharge, you are welcome. We connect you to mentors, career coaching, and the community support that helps you settle into civilian life."},
+{s:"every-age-every-identity",t:"Every Age. Every Identity.",d:"Young adults, seniors, LGBTQ+ neighbors, every race and faith.",
+ l:"Sometimes the real reason for a 'no' is never said out loud. It is about who you are.",
+ h:["We just filled the unit.","It's not a good fit.","We'll call you back."],
+ y:"You belong here. We welcome people of every age, race, religion, orientation, and gender identity. Our commitment is to radical inclusion, unit by unit and family by family."}
+];
+
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const src = (p) => `/who-we-serve/images/${p.s}.jpg`;
+const applyHref = () => "/leasing/apply/";
+
+// An <img> that marks its frame "has-img" once it loads and removes itself if the file is missing.
+const pic = (p, eager) => `<img src="${src(p)}" alt="" ${eager ? "" : 'loading="lazy"'} onload="this.parentNode.classList.add('has-img')" onerror="this.remove()">`;
+
+$("grid").innerHTML = P.map((p) => `
+  <div class="person">
+    <div class="thumb">${pic(p)}<span class="ph">${esc(p.t)}</span>
+      <button class="zoom" type="button" data-zoom="${p.s}" aria-label="Enlarge photo: ${esc(p.t)}">Enlarge</button></div>
+    <div class="body">
+      <h2><a href="#/${p.s}">${esc(p.t)}</a></h2>
+      <p>${esc(p.d)}</p>
+      <span class="more" aria-hidden="true">Read more →</span>
+    </div>
+  </div>`).join("");
+
+// Lightbox
+const lb = $("lb"); let lastFocus = null;
+function zoom(s) {
+  const p = P.find((x) => x.s === s); if (!p) return;
+  lastFocus = document.activeElement;
+  $("lb-body").innerHTML = `<img src="${src(p)}" alt="${esc(p.t)}"><div class="cap"><b>${esc(p.t)}</b>${esc(p.l)}</div>`;
+  lb.classList.add("open"); lb.querySelector(".close").focus();
+}
+function closeLb() { lb.classList.remove("open"); if (lastFocus) lastFocus.focus(); }
+lb.addEventListener("click", (e) => { if (e.target === lb || e.target.closest(".close") || e.target.tagName === "IMG") closeLb(); });
+document.addEventListener("keydown", (e) => { if (e.key === "Escape" && lb.classList.contains("open")) closeLb(); });
+document.addEventListener("click", (e) => {
+  const z = e.target.closest("[data-zoom]"); if (!z) return;
+  if (z.classList.contains("d-hero") && !z.classList.contains("has-img")) return; // no photo yet
+  e.preventDefault(); e.stopPropagation(); zoom(z.dataset.zoom);
+});
+
+// Detail view via #/<slug>, so each group has its own shareable link.
+let listScroll = 0;
+function show() {
+  const s = location.hash.replace(/^#\/?/, ""), i = P.findIndex((x) => x.s === s);
+  if (i < 0) {
+    $("detail").hidden = true; $("list").hidden = false; $("intro").hidden = false;
+    document.title = "Who We Serve — 2nd Chance Housing Inc.";
+    window.scrollTo(0, listScroll); return;
+  }
+  if (!$("list").hidden) listScroll = window.scrollY;
+  const p = P[i], pv = P[(i + P.length - 1) % P.length], nx = P[(i + 1) % P.length];
+  $("list").hidden = true; $("intro").hidden = true; $("detail").hidden = false;
+  document.title = `${p.t} — Who We Serve — 2nd Chance Housing Inc.`;
+  $("detail").innerHTML = `
+    <a class="back" href="#">← All who we serve</a>
+    <div class="d-hero" data-zoom="${p.s}">${pic(p, true)}<span class="ph">${esc(p.t)}</span></div>
+    <h1>${esc(p.t)}</h1>
+    <p class="lead">${esc(p.l)}</p>
+    <h3>Maybe you've heard…</h3>
+    ${p.h.map((x) => `<blockquote>“${esc(x)}”</blockquote>`).join("")}
+    <div class="yes">
+      <h3>Here, the answer is yes.</h3>
+      <p>${esc(p.y)}</p>
+      <p>Every resident also receives mentoring, financial coaching, career readiness support, and our Rent Well tenant education program.</p>
+      <a class="btn green inline" href="${applyHref(p)}">Apply Today</a>
+    </div>
+    <nav class="pager" aria-label="More groups">
+      <a href="#/${pv.s}">← ${esc(pv.t)}</a><a href="#/${nx.s}">${esc(nx.t)} →</a>
+    </nav>`;
+  window.scrollTo(0, 0);
+  $("detail").querySelector("h1").setAttribute("tabindex", "-1");
+  $("detail").querySelector("h1").focus({ preventScroll: true });
+}
+window.addEventListener("hashchange", show);
+show();
+</script>
+</body>
+</html>

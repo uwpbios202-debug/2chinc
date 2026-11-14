@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Opening view — 2nd Chance Housing</title>
+<link rel="icon" href="/favicon.png">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+</head>
+<body>
+<main class="wrap"><div class="panel narrow"><h1>Opening the view…</h1><p class="msg err" id="msg" role="alert"></p></div></main>
+<script type="module">
+// Lands here from /staff/view-as/ with a one-time sign-in token in the address fragment (never sent to a server).
+const h = new URLSearchParams(location.hash.slice(1));
+const t = h.get("t"), email = h.get("e"), name = h.get("n"), path = h.get("p") || "/staff/";
+history.replaceState(null, "", location.pathname);
+const fail = (m) => { document.getElementById("msg").textContent = m; };
+if (!t || !email || !path.startsWith("/") || path.startsWith("//")) fail("This link is no longer valid. Go back to View as and choose the person again.");
+else {
+  // Set the tab-only flag BEFORE portal.js loads so its client keeps this session in this tab only.
+  sessionStorage.setItem("sch-view-as", JSON.stringify({ email, name }));
+  const { client } = await import("/assets/portal/portal.js");
+  const { error } = await client.auth.verifyOtp({ token_hash: t, type: "magiclink" });
+  if (error) { sessionStorage.removeItem("sch-view-as"); fail("That view link expired or was already used. Choose the person again."); }
+  else {
+    const { error: e2 } = await client.functions.invoke("admin-view-as", { body: { action: "bind" } });
+    if (e2) { await client.auth.signOut({ scope: "local" }); sessionStorage.removeItem("sch-view-as"); fail("Couldn't finish opening the view. Choose the person again."); }
+    else location.replace(path);
+  }
+}
+</script>
+</body>
+</html>

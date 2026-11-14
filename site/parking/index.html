@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Parking and Vehicles — 2nd Chance Housing Staff</title>
+<link rel="icon" href="/favicon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+<style>
+.card2{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px;margin-top:10px}
+.photos2{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0}
+.photos2 img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:8px;background:#e8ece6;display:block}
+.meta{color:var(--muted);font-size:.9rem}.pill3{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;border-radius:20px;padding:.12rem .55rem;background:var(--accent-soft);color:var(--accent)}
+.pill3.warn{background:#fff3cd;color:#7a5200}.pill3.off{background:#e8e8e8;color:#444}
+.formrow{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-top:8px}
+.formrow label{display:grid;gap:3px;font-size:.85rem;color:var(--muted)}
+.formrow input,.formrow select{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:6px;color:var(--fg);background:var(--panel)}
+</style>
+</head>
+<body>
+<div class="appbar" data-nav="staff"><div class="appbar-in">
+  <div class="org">2nd Chance Housing<span>Parking and vehicles · Staff</span></div>
+  <div class="row" id="userBar" hidden>
+    
+    <button class="linkbtn" type="button" id="signOutBtn">Sign out</button>
+  </div>
+</div></div>
+<main class="wrap">
+  <header><h1>Parking, vehicles and guests</h1><p class="lead">One stall per unit. Tenants, owners who live in their unit or own a vacant one, and Unit 6's occupant register a vehicle, a loaner, or a regular visitor. You get an email each time something is registered or changed.</p></header>
+  <div id="signin" class="narrow"></div>
+  <div id="app" hidden style="display:grid;gap:18px">
+    <section id="alerts"><h2>Parking alerts and tow requests</h2>
+      <p class="meta">A resident pressed "Someone is parked in my stall": everyone who lives here was emailed. After 60 seconds the resident may request a tow (the tow company and the office are emailed). Last 60 days.</p>
+      <p class="meta" id="pushSum"></p>
+      <div class="table-wrap"><table><thead><tr><th>When</th><th>Stall</th><th>Unit</th><th>Vehicle</th><th>Status</th><th>Emailed</th><th>Reported by</th></tr></thead><tbody id="paRows"></tbody></table></div></section>
+    <section id="lot"><h2>Parking lot</h2>
+      <p class="meta">Stalls 1–8 and 11–18 belong to the unit with the same number. Click a stall to see who parks there that day. Yellow = switched for a while; striped = held for a guest or contractor.</p>
+      <div class="formrow"><label>Show the lot on<input type="date" id="lDate"></label></div>
+      <div id="lMap"></div><div id="lDetail"></div>
+      <div class="grid2">
+        <div class="card2"><b>Record a switch</b><p class="meta">Two units agreed (in person or by phone) to trade stalls. Takes effect at once; both units are emailed. Occupants can also ask each other in their portals.</p>
+          <div class="formrow"><label>Unit<input id="lsA" style="width:60px"></label><label>with unit<input id="lsB" style="width:60px"></label>
+            <label>First day<input type="date" id="lsS"></label><label>Last day<input type="date" id="lsE"></label><label>Note<input id="lsN"></label>
+            <button class="btn primary small" type="button" id="lsAdd">Record switch</button></div><span class="msg" id="lsMsg"></span></div>
+        <div class="card2"><b>Hold a guest or contractor stall</b>
+          <div class="formrow"><label>Stall<select id="lhStall"></select></label>
+            <label>For<select id="lhKind"><option value="guest">Guest (approved request)</option><option value="contractor">Contractor</option><option value="other">Other</option></select></label></div>
+          <div class="formrow" id="lhGuestRow"><label>Approved guest parking<select id="lhGuest"></select></label></div>
+          <div class="formrow" id="lhOtherRow" hidden><label>Name<input id="lhName"></label><label>Company<input id="lhCo"></label><label>Working in unit<input id="lhUnit" style="width:60px"></label>
+            <label>Vehicle<input id="lhVeh" placeholder="White Ford van"></label><label>Plate<input id="lhPlate" style="width:90px"></label><label>State<input id="lhSt" style="width:50px" maxlength="2"></label></div>
+          <div class="formrow"><label>First day<input type="date" id="lhS"></label><label>Last day<input type="date" id="lhE"></label><label>Note<input id="lhNote"></label>
+            <button class="btn primary small" type="button" id="lhAdd">Hold stall</button></div><span class="msg" id="lhMsg"></span></div>
+      </div>
+      <div class="grid2">
+        <div class="card2"><b>Switches</b><div id="lSwaps"></div></div>
+        <div class="card2"><b>Current and upcoming holds</b><div id="lHolds"></div></div>
+      </div>
+      <details style="margin-top:12px"><summary><b>Stalls on the map</b> (add, label, move guest and contractor stalls)</summary>
+        <p class="meta">Row and position place a stall on the map (row 1 = top, position 1 = left). Unit stalls keep their number; you can only move them. A guest or contractor stall taken off the map keeps its history.</p>
+        <div class="table-wrap"><table><thead><tr><th>Label</th><th>Kind</th><th>Row</th><th>Position</th><th>Note</th><th>On map</th><th></th></tr></thead><tbody id="lStalls"></tbody></table></div>
+        <div class="formrow"><label>New stall label<input id="lnL" style="width:80px" placeholder="G1"></label><label>Kind<select id="lnK"><option value="guest">Guest</option><option value="contractor">Contractor</option></select></label>
+          <label>Row<input id="lnR" type="number" min="1" max="20" value="3" style="width:60px"></label><label>Position<input id="lnP" type="number" min="1" max="60" value="1" style="width:60px"></label>
+          <label>Note<input id="lnN"></label><button class="btn primary small" type="button" id="lnAdd">Add stall</button><span class="msg" id="lnMsg"></span></div>
+      </details>
+    </section>
+    <section id="guests"><h2>Guest requests</h2>
+      <p class="meta">Overnight guests and guest parking, from the tenant and owner portals. Every request needs your decision; the requester is emailed. For parking, hand over a decal and record its number here. The lease allows a guest 13 overnight nights in 12 months; approving past that is the landlord's written consent.</p>
+      <div class="formrow"><label>Show<select id="gShow"><option value="open">Waiting and current</option><option value="all">All</option></select></label></div>
+      <div id="gList" class="grid2"></div>
+      <details style="margin-top:12px"><summary><b>Enter a request for someone</b> (phone call or walk-in)</summary>
+        <div class="formrow">
+          <label>Unit<input id="gU" style="width:70px"></label><label>Requester<input id="gR" placeholder="Tenant or owner name"></label><label>Their email (for the decision)<input id="gE" type="email"></label>
+          <label>Guest's full name<input id="gN"></label><label>Guest phone<input id="gP"></label>
+          <label><span><input type="checkbox" id="gO"> Overnight</span></label><label><span><input type="checkbox" id="gK"> Parking</span></label>
+          <label>Arriving<input id="gS" type="date"></label><label>Leaving<input id="gL" type="date"></label>
+          <label>Make<input id="gMk" style="width:90px"></label><label>Model<input id="gMd" style="width:90px"></label><label>Color<input id="gC" style="width:80px"></label>
+          <label>Plate<input id="gPl" style="width:90px"></label><label>State<input id="gSt" style="width:50px" maxlength="2"></label>
+          <label>Note<input id="gNo" style="min-width:200px"></label>
+          <button class="btn primary" type="button" id="gAdd">Add request</button><span class="msg" id="gMsg"></span></div>
+      </details>
+    </section>
+    <section id="revoke"><h2>Parking revoked (unpaid balance)</h2>
+      <p class="meta">Rule 20. NO PARKING only when the system has proof that no payment was attempted: Revoke appears only then, and NO PARKING lifts by itself the moment a payment is started, reported, received or clearing (the office is emailed). Tenant units: the tenant's unpaid rent only (no late fees or fines; never the owner's dues), and not before 9 days after the rent was charged (the 10th). Units without a tenant: the owner's dues of $215 or more. Unmatched bank deposits and a bank feed that is not current also block it.</p>
+      <div class="table-wrap"><table><thead><tr><th>Stall</th><th>Owed</th><th>Payment activity (blocks NO PARKING)</th><th>Parking</th><th></th></tr></thead><tbody id="revRows"></tbody></table></div></section>
+    <section id="stock"><h2>Stock-take</h2>
+      <p class="meta" id="stockSum"></p>
+      <div class="table-wrap"><table><thead><tr><th>Stall</th><th>Lives there</th><th>People</th><th>Vehicle</th><th>Hanger</th><th>Rules signed</th></tr></thead><tbody id="stockRows"></tbody></table></div></section>
+    <section id="tows"><h2>Tows</h2>
+      <p class="meta">Tows Always Towing recorded on its page (patrol tows and resident requests). When the plate is registered to another unit, start that unit's $35 fine here; the notice and hearing steps follow on the Violations page.</p>
+      <div class="table-wrap"><table><thead><tr><th>When</th><th>Stall</th><th>Vehicle</th><th>Plate belongs to</th><th>Status</th><th></th></tr></thead><tbody id="towRows"></tbody></table></div></section>
+    <section id="tow"><h2>Always Towing</h2>
+      <p class="meta" id="towDates"></p>
+      <p class="meta">Always Towing sees today's lot on a private page: each stall, the vehicles allowed in it (plates, VIN and photos), switches, holds and approved guests. No names, emails or phones. Only the newest link works.</p>
+      <p class="meta" id="towState"></p>
+      <div class="formrow"><button class="btn" type="button" id="towNew">Make a new link</button><span class="msg" id="towMsg"></span></div>
+      <p id="towLink" hidden style="word-break:break-all;font-family:ui-monospace,Consolas,monospace;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px 10px"></p></section>
+    <section id="acks"><h2>Signed parking rules</h2>
+      <p class="meta">Each person initials every rule and fine and records the statement out loud; they get an email copy. When a rule or fine changes, everyone signs again.</p>
+      <p class="meta" id="ackMissing"></p>
+      <div class="table-wrap"><table><thead><tr><th>Stall</th><th>Who</th><th>Initials</th><th>Signed</th><th>Version</th><th>Recording</th></tr></thead><tbody id="ackRows"></tbody></table></div></section>
+    <section id="hangers"><h2>Parking hangers to issue</h2>
+      <p class="meta">Every registered vehicle without a hanger number. Type the number on the hanger you hand over, then Save all.</p>
+      <div class="table-wrap"><table><thead><tr><th>Stall</th><th>Vehicle</th><th>Hanger #</th></tr></thead><tbody id="hangRows"></tbody></table></div>
+      <div class="formrow"><button class="btn primary" type="button" id="hangSave">Save all</button><span class="msg" id="hangMsg"></span></div></section>
+    <section id="ptags"><h2>Parking tags (mirror hang tags)</h2>
+      <p class="meta">Each unit has 2 red resident tags (12A, 12B; the letter is only for inventory) and 2 blue guest tags (codes G12 and G12B, both printed "GUEST 12"). A blue tag is the guest pass; a unit can lend one to another unit for up to 14 days, recorded on their Parking tab. A tag counts only once it is <b>handed out</b>: until then Always Towing's page says the unit has no tags yet and checks the plate only. After you hand them out, the tenant or owner taps "I received my tags" on their Parking tab. A tag marked <b>lost</b> or <b>retired</b> shows on Always Towing's page as not valid; when you mark one lost you can charge the <b>$25</b> replacement fee (tenant ledger, or the owner's association account if there is no lease). To replace a lost tag, print a new one (e.g. 12C), add it below and hand it over. At move-out the unit's tags show <b>Collect</b>.</p>
+      <div class="panel" style="margin:8px 0"><b>Hand out tags</b>
+        <div class="formrow" style="flex-wrap:wrap;gap:8px;margin-top:6px"><label>Unit<input id="hoUnit" style="width:60px"></label><button class="btn" type="button" id="hoShow">Show its tags</button></div>
+        <div id="hoBox"></div></div>
+      <p class="meta" id="ptSum"></p>
+      <div class="table-wrap"><table><thead><tr><th>Unit</th><th>Tag</th><th>Status</th><th>Handed out</th><th>Where it is</th><th>Change</th></tr></thead><tbody id="ptRows"></tbody></table></div>
+      <details style="margin-top:8px"><summary><b>Add a replacement tag</b></summary>
+        <div class="formrow" style="flex-wrap:wrap;gap:8px;margin-top:8px"><label>Unit<input id="ptUnit" style="width:60px"></label>
+          <label>Kind<select id="ptKind"><option value="resident">Red resident tag</option><option value="guest">Blue guest tag</option></select></label>
+          <label>Code printed on it<input id="ptCode" maxlength="8" style="width:90px;text-transform:uppercase" placeholder="12C"></label>
+          <button class="btn primary" type="button" id="ptAdd">Add tag</button><span class="msg" id="ptMsg"></span></div></details></section>
+    <section id="office"><h2>Office entry (for residents who cannot do it themselves)</h2>
+      <details><summary><b>Add a vehicle for a unit</b></summary>
+        <div class="formrow" style="flex-wrap:wrap;gap:8px;margin-top:8px">
+          <label>Stall<input id="aUnit" style="width:60px"></label>
+          <label>Kind<select id="aKind"><option value="own">Own vehicle</option><option value="loaner">Loaner</option><option value="visitor">Regular visitor</option></select></label>
+          <label>Make<input id="aMake" style="width:110px"></label><label>Model<input id="aModel" style="width:110px"></label><label>Color<input id="aColor" style="width:90px"></label>
+          <label>Year<input id="aYear" type="number" style="width:80px"></label><label>Plate<input id="aPlate" style="width:90px"></label><label>State<input id="aState" maxlength="2" style="width:50px"></label>
+          <label>VIN<input id="aVin" maxlength="17" style="width:190px"></label><label>Loaner return by<input id="aUntil" type="date"></label>
+          <label>Visitor name<input id="aVName" style="width:140px"></label><label>Visitor how often<input id="aVFreq" style="width:140px"></label>
+          <label>Hanger #<input id="aHanger" style="width:70px"></label><label>Note<input id="aNote" style="width:200px"></label>
+          <label>Photo front<input id="aFront" type="file" accept="image/*"></label><label>Photo back<input id="aBack" type="file" accept="image/*"></label>
+        </div>
+        <div class="formrow"><button class="btn primary" type="button" id="aSave">Add vehicle</button><span class="msg" id="aMsg"></span></div></details>
+      <details style="margin-top:10px"><summary><b>Record a paper signature of the parking rules</b></summary>
+        <p class="meta">Print the rules (Print on any signed copy, or https://2ndchinc.org/documents/parking/ ), have the person initial every rule and fine and sign, then photograph or scan it.</p>
+        <div class="formrow" style="flex-wrap:wrap;gap:8px">
+          <label>Stall<input id="pUnit" style="width:60px"></label><button class="btn small" type="button" id="pLoad">Who parks there?</button>
+          <label>Signed by<select id="pWho"><option value="">Enter the stall first</option></select></label>
+          <label>Initials on the paper<input id="pIni" maxlength="6" style="width:80px;text-transform:uppercase"></label>
+          <label>Date on the paper<input id="pDate" type="date"></label>
+          <label>Photo or PDF of the signed paper<input id="pScan" type="file" accept="image/*,application/pdf"></label>
+        </div>
+        <div class="formrow"><button class="btn primary" type="button" id="pSave">Save paper signature</button><span class="msg" id="pMsg"></span></div></details>
+    </section>
+    <section><h2>Units with nothing registered</h2><p class="meta" id="without"></p></section>
+    <section>
+      <div class="formrow"><label>Unit contains<input id="fUnit" style="min-width:110px" placeholder="e.g. 8"></label>
+        <label>Show<select id="fShow"><option value="active">Active</option><option value="all">Including removed</option></select></label>
+        <label>Kind<select id="fKind"><option value="">All</option><option value="own">Own vehicle</option><option value="loaner">Loaner</option><option value="visitor">Regular visitor</option></select></label></div>
+      <div id="grid" class="grid2"></div>
+    </section>
+    <section><h2>Tenants with no vehicle</h2><div class="table-wrap"><table><thead><tr><th>Unit</th><th>Tenant</th><th>Regular visitor?</th><th>Note</th><th>When</th></tr></thead><tbody id="decl"></tbody></table></div></section>
+  </div>
+</main>
+<script type="module">
+import { client, $, esc, fmtDate, signIn, signOut, errorText } from "/assets/portal/portal.js";
+import { ensureLotCss, lotHtml, stallDetailHtml } from "/assets/portal/stalls.js?v=20261103b";
+import { printAckCopy } from "/assets/portal/parking-status.js?v=20261109a";
+let D = null;
+const KIND = { own: "Own vehicle", loaner: "Loaner", visitor: "Regular visitor" };
+function render() {
+  const u = $("fUnit").value.trim().toLowerCase(), show = $("fShow").value, kind = $("fKind").value;
+  const rows = D.vehicles.filter((v) => (show === "all" || v.status === "active") && (!u || String(v.unit_number).toLowerCase().includes(u)) && (!kind || v.kind === kind));
+  $("grid").innerHTML = rows.map((v) => `<div class="card2"><div style="display:flex;justify-content:space-between;gap:8px"><b>Unit ${esc(v.unit_number)}</b>
+      <span class="pill3 ${v.status === "ended" ? "off" : v.kind === "loaner" ? "warn" : ""}">${esc(v.status === "ended" ? "removed" : KIND[v.kind])}</span></div>
+    <div>${esc(v.summary)}</div>
+    <div class="meta">${esc(v.tenant || "")} · ${esc(v.registered_by || "")} · ${fmtDate(v.created_at)}${v.kind === "loaner" && v.loaner_until ? " · return by " + fmtDate(v.loaner_until) : ""}</div>
+    ${v.notes ? `<div class="meta">${esc(v.notes)}</div>` : ""}
+    ${v.front_path || v.back_path ? `<div class="photos2"><img data-pk="${esc(v.front_path || "")}" alt="Front"><img data-pk="${esc(v.back_path || "")}" alt="Back"></div>` : ""}
+    ${v.status === "active" && v.kind !== "visitor" ? `<div class="formrow"><label>Mirror hanger #<input data-hanger="${esc(v.id)}" value="${esc(v.hanger_number || "")}" maxlength="20" style="width:90px"></label><button class="btn small" type="button" data-hsave="${esc(v.id)}">Save</button></div>` : ""}
+    ${v.status === "active" ? `<button class="btn small" type="button" data-end="${esc(v.id)}">Mark removed</button>` : ""}</div>`).join("") || `<p class="meta">Nothing registered yet.</p>`;
+  $("without").textContent = D.units_without.length ? "Stalls " + D.units_without.join(", ") + " have no vehicle registered and no \"no vehicle\" answer." : "Every stall has answered.";
+  $("towDates").textContent = (D.register_by ? "Register by " + fmtDate(D.register_by) + ". " : "") + (D.enforce_from ? "Always Towing patrols from " + fmtDate(D.enforce_from) + ": a vehicle in a numbered stall that is not registered to the unit using it that day may be towed." : "");
+  $("towState").textContent = (D.tow_link_set ? "A link is set." : "No link yet.") + " " + (D.tow_views.length ? "Opened: " + D.tow_views.map((t) => new Date(t.at).toLocaleString("en-US", { timeZone: "America/Chicago", month: "numeric", day: "numeric", hour: "numeric", minute: "2-digit" })).join(", ") + "." : "Not opened yet.");
+  $("decl").innerHTML = D.declarations.filter((d) => d.no_vehicle).map((d) => `<tr><td><b>${esc(d.unit_number)}</b></td><td>${esc(d.tenant || "")}</td><td>${d.has_regular_visitors ? "Yes" : "No"}</td><td>${esc(d.visitors_note || "")}</td><td>${fmtDate(d.declared_at)}</td></tr>`).join("") || `<tr><td colspan="5" class="meta">None.</td></tr>`;
+  paint();
+  renderHangers();
+}
+function renderHangers() {
+  const need = D.vehicles.filter((v) => v.status === "active" && v.kind !== "visitor" && !v.hanger_number);
+  $("hangRows").innerHTML = need.map((v) => `<tr><td><b>${esc(v.unit_number)}</b></td><td>${esc(v.summary)}</td><td><input data-hang="${esc(v.id)}" maxlength="20" style="width:90px"></td></tr>`).join("")
+    || `<tr><td colspan="3" class="meta">Every registered vehicle has a hanger number.</td></tr>`;
+  $("hangSave").hidden = !need.length;
+}
+$("hangSave").onclick = async () => {
+  const rows = [...document.querySelectorAll("[data-hang]")].filter((i) => i.value.trim());
+  if (!rows.length) { $("hangMsg").textContent = "Type at least one hanger number."; return; }
+  $("hangSave").disabled = true; let ok = 0, bad = [];
+  for (const i of rows) { const { error: e } = await client.rpc("vehicles_staff_set_hanger", { p_id: i.dataset.hang, p_number: i.value }); if (e) bad.push(await errorText(e)); else ok++; }
+  $("hangMsg").textContent = `Saved ${ok}.${bad.length ? " Not saved: " + bad.join("; ") : ""}`; $("hangSave").disabled = false; load();
+};
+async function shrinkPhoto(file, max = 1600) {
+  try { const bmp = await createImageBitmap(file), k = Math.min(1, max / Math.max(bmp.width, bmp.height)), c = document.createElement("canvas");
+    c.width = Math.round(bmp.width * k); c.height = Math.round(bmp.height * k); c.getContext("2d").drawImage(bmp, 0, 0, c.width, c.height);
+    return await new Promise((res) => c.toBlob(res, "image/jpeg", 0.82)); } catch { return file; }
+}
+$("aSave").onclick = async () => {
+  const v = (id) => $(id).value.trim(), unit = v("aUnit"), m = $("aMsg"), b = $("aSave");
+  if (!unit) { m.textContent = "Enter the stall."; return; }
+  b.disabled = true; m.textContent = "Saving…";
+  try {
+    const id = crypto.randomUUID(); let front = null, back = null;
+    for (const [inp, name] of [["aFront", "front"], ["aBack", "back"]]) {
+      const f = $(inp).files[0]; if (!f) continue;
+      const path = `${unit}/${id}/${name}.jpg`, up = await client.storage.from("vehicles").upload(path, await shrinkPhoto(f), { contentType: "image/jpeg", upsert: true });
+      if (up.error) throw new Error("A photo didn't upload.");
+      if (name === "front") front = path; else back = path;
+    }
+    const { error: e } = await client.rpc("vehicles_staff_add", { p_unit: unit, p_kind: v("aKind"), p_make: v("aMake"), p_model: v("aModel"), p_color: v("aColor"),
+      p_year: v("aYear") ? Number(v("aYear")) : null, p_plate: v("aPlate"), p_plate_state: v("aState"), p_vin: v("aVin"), p_loaner_until: v("aUntil") || null,
+      p_visitor_name: v("aVName"), p_visitor_frequency: v("aVFreq"), p_notes: v("aNote"), p_front: front, p_back: back, p_hanger: v("aHanger") });
+    if (e) throw new Error(await errorText(e));
+    ["aMake", "aModel", "aColor", "aYear", "aPlate", "aState", "aVin", "aUntil", "aVName", "aVFreq", "aHanger", "aNote", "aFront", "aBack"].forEach((x) => $(x).value = "");
+    m.textContent = "Added."; flush(); load();
+  } catch (err) { m.textContent = err.message; }
+  b.disabled = false;
+};
+$("pLoad").onclick = async () => {
+  const { data, error: e } = await client.rpc("parking_paper_people", { p_unit: $("pUnit").value.trim() });
+  if (e) { $("pMsg").textContent = await errorText(e); return; }
+  $("pWho").innerHTML = (data || []).length ? data.map((x) => `<option value="${esc(x.key)}">${esc(x.label)}</option>`).join("") : `<option value="">Nobody parks in that stall</option>`;
+};
+$("pSave").onclick = async () => {
+  const m = $("pMsg"), b = $("pSave"), f = $("pScan").files[0];
+  if (!$("pWho").value) { m.textContent = "Press Who parks there? and choose the person."; return; }
+  if (!f) { m.textContent = "Add the photo or PDF of the signed paper."; return; }
+  b.disabled = true; m.textContent = "Saving…";
+  try {
+    const pdf = f.type === "application/pdf", path = `paper/${crypto.randomUUID()}.${pdf ? "pdf" : "jpg"}`;
+    const up = await client.storage.from("parking-acks").upload(path, pdf ? f : await shrinkPhoto(f, 2400), { contentType: pdf ? "application/pdf" : "image/jpeg" });
+    if (up.error) throw new Error("The scan didn't upload.");
+    const { error: e } = await client.rpc("parking_ack_staff_paper", { p_unit: $("pUnit").value.trim(), p_key: $("pWho").value, p_initials: $("pIni").value, p_signed_on: $("pDate").value || null, p_scan_path: path });
+    if (e) throw new Error(await errorText(e));
+    m.textContent = "Saved."; ["pIni", "pDate", "pScan"].forEach((x) => $(x).value = ""); loadAcks(); loadStock();
+  } catch (err) { m.textContent = err.message; }
+  b.disabled = false;
+};
+async function paint() {
+  const imgs = [...document.querySelectorAll("img[data-pk]")].filter((i) => i.dataset.pk);
+  if (!imgs.length) return;
+  const { data } = await client.storage.from("vehicles").createSignedUrls(imgs.map((i) => i.dataset.pk), 3600);
+  const by = Object.fromEntries((data || []).map((x) => [x.path, x.signedUrl]));
+  imgs.forEach((i) => { if (by[i.dataset.pk]) i.src = by[i.dataset.pk]; });
+}
+// ---- Guest requests --------------------------------------------------------
+const GWHAT = (r) => r.overnight && r.parking ? "Overnight + parking" : r.overnight ? "Overnight" : "Parking";
+const flush = () => client.functions.invoke("outbox-flush", { body: {} }).catch(() => {});
+async function loadGuests() {
+  const { data, error } = await client.rpc("guest_requests_staff_list", { p_all: $("gShow").value === "all" });
+  if (error) { $("gList").innerHTML = `<p class="msg err">${esc(await errorText(error))}</p>`; return; }
+  $("gList").innerHTML = (data || []).map((r) => {
+    const over = r.overnight && r.nights_12mo > 13, needDecal = r.status === "approved" && r.parking && !r.decal_given_at;
+    return `<div class="card2"><div style="display:flex;justify-content:space-between;gap:8px"><b>Unit ${esc(r.unit_number)} · ${esc(r.guest_name)}</b>
+        <span class="pill3 ${r.status === "pending" || needDecal ? "warn" : r.status === "approved" ? "" : "off"}">${needDecal ? "approved: hand over decal" : esc(r.status)}</span></div>
+      <div>${GWHAT(r)} · ${fmtDate(r.start_date)} to ${fmtDate(r.end_date)}${r.overnight ? ` · ${r.nights} night${r.nights === 1 ? "" : "s"}` : ""}</div>
+      ${r.overnight ? `<div class="meta" ${over ? 'style="color:#8a1c1c;font-weight:700"' : ""}>This guest: ${r.nights_12mo} overnight nights in 12 months, counting this request (limit 13${over ? "; approving is written consent" : ""})</div>` : ""}
+      ${r.parking ? `<div class="meta">Vehicle: ${esc([r.vehicle_color, r.vehicle_make, r.vehicle_model].filter(Boolean).join(" "))} · plate ${esc(r.plate || "")} ${esc(r.plate_state || "")}</div>` : ""}
+      <div class="meta">Asked by ${esc(r.requester_name || "")} (${esc(r.requester_kind)})${r.requester_email ? " · " + esc(r.requester_email) : ""} · ${fmtDate(r.created_at)}${r.guest_phone ? " · guest phone " + esc(r.guest_phone) : ""}</div>
+      ${r.note ? `<div class="meta">“${esc(r.note)}”</div>` : ""}
+      ${r.staff_note ? `<div class="meta">Office note: ${esc(r.staff_note)}</div>` : ""}
+      ${r.decided_at ? `<div class="meta">${esc(r.status)} by ${esc(r.decided_by || "")} ${fmtDate(r.decided_at)}</div>` : ""}
+      ${r.decal_given_at ? `<div class="meta">Decal ${esc(r.decal_number)} handed over by ${esc(r.decal_given_by || "")} ${fmtDate(r.decal_given_at)}</div>` : ""}
+      ${r.status === "pending" ? `<div class="formrow"><button class="btn primary small" type="button" data-gok="${esc(r.id)}">Approve</button><button class="btn small" type="button" data-gno="${esc(r.id)}">Decline</button></div>` : ""}
+      ${needDecal ? `<div class="formrow"><label>Decal number<input data-gdecalno="${esc(r.id)}" style="width:110px"></label><button class="btn primary small" type="button" data-gdecal="${esc(r.id)}">Decal handed over</button></div>` : ""}
+    </div>`;
+  }).join("") || `<p class="meta">No guest requests waiting.</p>`;
+}
+$("gShow").onchange = loadGuests;
+$("gList").addEventListener("click", async (e) => {
+  const ok = e.target.closest("[data-gok]"), no = e.target.closest("[data-gno]"), dc = e.target.closest("[data-gdecal]");
+  let error;
+  if (ok) {
+    const note = prompt("Approve. Add a note for the requester? (optional)", ""); if (note === null) return;
+    ({ error } = await client.rpc("guest_request_decide", { p_id: ok.dataset.gok, p_approve: true, p_note: note }));
+  } else if (no) {
+    const note = prompt("Why is it declined? The requester sees this.", ""); if (note === null) return;
+    ({ error } = await client.rpc("guest_request_decide", { p_id: no.dataset.gno, p_approve: false, p_note: note }));
+  } else if (dc) {
+    const n = document.querySelector(`[data-gdecalno="${dc.dataset.gdecal}"]`).value;
+    ({ error } = await client.rpc("guest_request_decal", { p_id: dc.dataset.gdecal, p_decal: n }));
+  } else return;
+  if (error) return alert(await errorText(error));
+  flush(); loadGuests();
+});
+$("gAdd").onclick = async () => {
+  const g = (id) => $(id).value.trim();
+  const { error } = await client.rpc("guest_request_staff_create", { p_unit: g("gU"), p_requester: g("gR"), p_email: g("gE"), p_guest: g("gN"), p_guest_phone: g("gP"),
+    p_overnight: $("gO").checked, p_parking: $("gK").checked, p_start: g("gS") || null, p_end: g("gL") || null, p_make: g("gMk"), p_model: g("gMd"), p_color: g("gC"),
+    p_plate: g("gPl"), p_plate_state: g("gSt"), p_note: g("gNo") });
+  $("gMsg").className = error ? "msg err" : "msg ok"; $("gMsg").textContent = error ? await errorText(error) : "Added. Approve it above.";
+  if (!error) loadGuests();
+};
+
+// ---- Parking lot (map, switches, guest and contractor holds, stalls) -------
+let L = null, lSel = null;
+const lToday = () => new Date().toLocaleDateString("en-CA");
+const lFlush = () => client.functions.invoke("outbox-flush", { body: {} }).catch(() => {});
+async function loadLot() {
+  ensureLotCss();
+  if (!$("lDate").value) $("lDate").value = lToday();
+  const { data, error } = await client.rpc("parking_lot_staff", { p_date: $("lDate").value });
+  if (error) { $("lMap").innerHTML = `<p class="msg err">${esc(await errorText(error))}</p>`; return; }
+  L = data; L.blocked = (await client.rpc("parking_blocked_units")).data || []; renderLot();
+}
+function renderLot() {
+  $("lMap").innerHTML = lotHtml(L, { sel: lSel });
+  const s = (L.stalls || []).find((x) => x.id === lSel);
+  $("lDetail").innerHTML = s ? stallDetailHtml(s, L) + `<div class="formrow">${s.swap ? `<button class="btn small" type="button" data-lswend="${esc(s.swap.id)}">End this switch</button>` : ""}
+    ${s.hold && s.hold.status === "active" ? `<button class="btn small" type="button" data-lhend="${esc(s.hold.id)}">End this hold</button>` : ""}
+    ${s.kind !== "unit" && !s.hold ? `<button class="btn small" type="button" data-lhpick="${esc(s.id)}">Hold this stall…</button>` : ""}</div>` : "";
+  const t = lToday();
+  $("lSwaps").innerHTML = (L.swaps || []).map((w) => `<div style="border-top:1px solid var(--line);padding:6px 0"><b>Unit ${esc(w.unit_a)} ⇄ Unit ${esc(w.unit_b)}</b>
+      <span class="pill3 ${w.status === "pending" ? "warn" : w.status === "accepted" ? "" : "off"}">${esc(w.status)}</span>
+      <div class="meta">${fmtDate(w.start_date)} to ${fmtDate(w.end_date)} · asked by ${esc(w.requested_name || w.requested_by || "")} (${esc(w.requested_kind)})${w.note ? " · “" + esc(w.note) + "”" : ""}${w.decision_note ? " · reply “" + esc(w.decision_note) + "”" : ""}${w.end_note ? " · ended: " + esc(w.end_note) : ""}</div>
+      ${(w.status === "pending" || (w.status === "accepted" && w.end_date >= t)) ? `<button class="btn small" type="button" data-lswend="${esc(w.id)}">${w.status === "pending" || w.start_date > t ? "Cancel" : "End today"}</button>` : ""}</div>`).join("") || `<p class="meta">No switches in the last 30 days.</p>`;
+  $("lHolds").innerHTML = (L.holds || []).map((h) => `<div style="border-top:1px solid var(--line);padding:6px 0"><b>Stall ${esc(h.stall)}</b> · ${esc(h.holder_kind)}: ${esc([h.holder_name, h.company].filter(Boolean).join(", "))}${h.for_unit ? " (Unit " + esc(h.for_unit) + ")" : ""}
+      <div class="meta">${fmtDate(h.start_date)} to ${fmtDate(h.end_date)}${h.vehicle ? " · " + esc(h.vehicle) : ""}${h.plate ? " · plate " + esc(h.plate) + " " + esc(h.plate_state || "") : ""}${h.note ? " · " + esc(h.note) : ""}</div>
+      <button class="btn small" type="button" data-lhend="${esc(h.id)}">${h.start_date > t ? "Cancel" : "End today"}</button></div>`).join("") || `<p class="meta">No guest or contractor stall is held.</p>`;
+  const open = (L.all_stalls || []).filter((x) => x.active && x.kind !== "unit");
+  $("lhStall").innerHTML = open.length ? open.map((x) => `<option value="${esc(x.id)}">${esc(x.label)} (${esc(x.kind)})</option>`).join("") : `<option value="">Add a guest or contractor stall first</option>`;
+  $("lhGuest").innerHTML = (L.guest_requests || []).map((g) => `<option value="${esc(g.id)}">Unit ${esc(g.unit)} · ${esc(g.guest_name)} · ${fmtDate(g.start_date)}–${fmtDate(g.end_date)}${g.plate ? " · " + esc(g.plate) : ""}</option>`).join("") || `<option value="">No approved guest parking waiting for a stall</option>`;
+  $("lStalls").innerHTML = (L.all_stalls || []).map((x) => `<tr data-lrow="${esc(x.id)}">
+      <td>${x.kind === "unit" ? `<b>${esc(x.label)}</b>` : `<input data-f="label" value="${esc(x.label)}" style="width:70px">`}</td>
+      <td>${x.kind === "unit" ? "unit" : `<select data-f="kind"><option value="guest"${x.kind === "guest" ? " selected" : ""}>guest</option><option value="contractor"${x.kind === "contractor" ? " selected" : ""}>contractor</option></select>`}</td>
+      <td><input data-f="row" type="number" min="1" max="20" value="${x.map_row}" style="width:56px"></td><td><input data-f="pos" type="number" min="1" max="60" value="${x.map_pos}" style="width:56px"></td>
+      <td><input data-f="note" value="${esc(x.note || "")}"></td>
+      <td>${x.kind === "unit" ? "yes" : `<input data-f="active" type="checkbox"${x.active ? " checked" : ""}>`}</td>
+      <td><button class="btn small" type="button" data-lsave="${esc(x.id)}">Save</button></td></tr>`).join("");
+}
+$("lDate").onchange = loadLot;
+$("lhKind").onchange = () => { const g = $("lhKind").value === "guest"; $("lhGuestRow").hidden = !g; $("lhOtherRow").hidden = g; };
+$("lsAdd").onclick = async () => {
+  const { error } = await client.rpc("parking_swap_staff_record", { p_a: $("lsA").value.trim(), p_b: $("lsB").value.trim(), p_start: $("lsS").value || null, p_end: $("lsE").value || null, p_note: $("lsN").value.trim() });
+  $("lsMsg").className = error ? "msg err" : "msg ok"; $("lsMsg").textContent = error ? await errorText(error) : "Recorded. Both units are emailed.";
+  if (!error) { lFlush(); loadLot(); }
+};
+$("lhAdd").onclick = async () => {
+  const g = $("lhKind").value === "guest", v = (id) => $(id).value.trim();
+  const { error } = await client.rpc("parking_hold_create", { p_stall: v("lhStall") || null, p_kind: $("lhKind").value, p_guest_request: g ? v("lhGuest") || null : null,
+    p_name: g ? null : v("lhName"), p_company: g ? null : v("lhCo"), p_for_unit: g ? null : v("lhUnit"), p_vehicle: g ? null : v("lhVeh"),
+    p_plate: g ? null : v("lhPlate"), p_plate_state: g ? null : v("lhSt"), p_start: v("lhS") || null, p_end: v("lhE") || null, p_note: v("lhNote") });
+  $("lhMsg").className = error ? "msg err" : "msg ok"; $("lhMsg").textContent = error ? await errorText(error) : g ? "Held. The tenant or owner is emailed the stall number." : "Held.";
+  if (!error) { lFlush(); loadLot(); }
+};
+$("lnAdd").onclick = async () => {
+  const { error } = await client.rpc("parking_stall_save", { p_id: null, p_label: $("lnL").value.trim(), p_kind: $("lnK").value, p_row: +$("lnR").value, p_pos: +$("lnP").value, p_note: $("lnN").value.trim(), p_active: true });
+  $("lnMsg").className = error ? "msg err" : "msg ok"; $("lnMsg").textContent = error ? await errorText(error) : "Added.";
+  if (!error) { $("lnL").value = ""; loadLot(); }
+};
+$("lot").addEventListener("click", async (e) => {
+  const st = e.target.closest("[data-stall]"), se = e.target.closest("[data-lswend]"), he = e.target.closest("[data-lhend]"), pk = e.target.closest("[data-lhpick]"), sv = e.target.closest("[data-lsave]");
+  let error;
+  if (st) { lSel = st.dataset.stall; renderLot(); return; }
+  if (pk) { $("lhStall").value = pk.dataset.lhpick; $("lhStall").scrollIntoView({ behavior: "smooth", block: "center" }); return; }
+  if (se) { const note = prompt("End or cancel this switch. Note for both units? (optional)", ""); if (note === null) return; ({ error } = await client.rpc("parking_swap_end", { p_id: se.dataset.lswend, p_note: note })); }
+  else if (he) { if (!confirm("End this hold?")) return; ({ error } = await client.rpc("parking_hold_end", { p_id: he.dataset.lhend })); }
+  else if (sv) {
+    const tr = sv.closest("tr"), f = (k) => tr.querySelector(`[data-f="${k}"]`), x = (L.all_stalls || []).find((y) => y.id === sv.dataset.lsave);
+    ({ error } = await client.rpc("parking_stall_save", { p_id: x.id, p_label: f("label") ? f("label").value.trim() : x.label, p_kind: f("kind") ? f("kind").value : x.kind,
+      p_row: +f("row").value, p_pos: +f("pos").value, p_note: f("note").value.trim(), p_active: f("active") ? f("active").checked : true }));
+  } else return;
+  if (error) return alert(await errorText(error));
+  lFlush(); loadLot();
+});
+
+async function loadAlerts() {
+  client.rpc("push_staff_summary").then(({ data }) => { if (!data) return; const on = data.reduce((a, u) => a + u.on, 0), all = data.reduce((a, u) => a + u.people, 0);
+    $("pushSum").innerHTML = `<b>Phone alerts on:</b> ${on} of ${all} residents. ` + data.map((u) => `Unit ${esc(u.unit)} ${u.on}/${u.people}`).join(" · "); });
+  const { data, error } = await client.rpc("parking_alerts_staff");
+  if (error) { $("paRows").innerHTML = `<tr><td colspan="7">${esc(await errorText(error))}</td></tr>`; return; }
+  const when = (t) => t ? new Date(t).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "";
+  $("paRows").innerHTML = (data || []).length ? data.map((a) => `<tr><td>${when(a.alerted_at)}</td><td>${esc(a.stall)}</td><td>${esc(a.unit)}</td>
+    <td>${esc([a.vehicle, a.plate ? a.plate + (a.plate_state ? " " + a.plate_state : "") : ""].filter(Boolean).join(", "))}${a.matched_unit ? " <b>(registered to Unit " + esc(a.matched_unit) + ")</b>" : ""}${(a.photos || []).length ? `<div class="photos2">${a.photos.map((x) => `<img data-pa-img="${esc(x)}" alt="Photo">`).join("")}</div>` : ""}${a.note ? "<br><span class=meta>" + esc(a.note) + "</span>" : ""}</td>
+    <td>${esc(a.status.replace("_", " "))}${a.tow_requested_at ? "<br><span class=meta>tow ${when(a.tow_requested_at)}</span>" : ""}${a.resolved_at ? "<br><span class=meta>closed " + when(a.resolved_at) + "</span>" : ""}</td>
+    <td>${a.recipients}</td><td>${esc(a.reporter || "")}</td></tr>`).join("") : `<tr><td colspan="7" class="meta">No alerts yet.</td></tr>`;
+  signImgs("parking-alerts", "data-pa-img");
+}
+// Sign private photos (bucket) for every <img data-attr="path"> on the page.
+async function signImgs(bucket, attr) {
+  const imgs = [...document.querySelectorAll(`img[${attr}]`)]; if (!imgs.length) return;
+  const { data } = await client.storage.from(bucket).createSignedUrls(imgs.map((i) => i.getAttribute(attr)), 3600);
+  const by = Object.fromEntries((data || []).map((x) => [x.path, x.signedUrl]));
+  imgs.forEach((i) => { const u = by[i.getAttribute(attr)]; if (u) { i.src = u; i.style.cursor = "zoom-in"; i.onclick = () => window.open(u, "_blank", "noopener"); } });
+}
+const ctWhen = (t) => new Date(t).toLocaleString("en-US", { timeZone: "America/Chicago", month: "numeric", day: "numeric", hour: "numeric", minute: "2-digit" });
+async function loadTows() {
+  const { data, error } = await client.rpc("parking_tows_staff");
+  if (error) { $("towRows").innerHTML = `<tr><td colspan="6" class="meta">${esc(await errorText(error))}</td></tr>`; return; }
+  $("towRows").innerHTML = (data || []).map((t) => `<tr><td>${ctWhen(t.towed_at)}</td><td><b>${esc(t.stall_label)}</b><br><span class="meta">used by Unit ${esc(t.stall_unit || "")}</span></td>
+    <td>${esc([t.vehicle, t.plate ? t.plate + (t.plate_state ? " " + t.plate_state : "") : ""].filter(Boolean).join(", ") || "not described")}${t.note ? "<br><span class=meta>" + esc(t.note) + "</span>" : ""}
+      ${(t.alert_photos || []).length ? `<div class="photos2">${t.alert_photos.map((x) => `<img data-pa-img="${esc(x)}" alt="Photo">`).join("")}</div>` : ""}</td>
+    <td>${t.matched_unit ? "Registered to <b>Unit " + esc(t.matched_unit) + "</b>" : "<span class=meta>not a registered plate</span>"}</td>
+    <td>${t.violation_id ? "Violation #" + esc(t.violation_id) + " (" + esc(t.violation_status || "") + ")" : t.dismissed_at ? "No fine" + (t.staff_note ? ": " + esc(t.staff_note) : "") : t.alert_id ? "From a resident request" : "Patrol tow"}</td>
+    <td>${!t.violation_id && !t.dismissed_at ? `${t.matched_unit ? `<button class="btn small primary" type="button" data-tfine="${esc(t.id)}">Start $35 fine for Unit ${esc(t.matched_unit)}</button> ` : ""}<button class="btn small" type="button" data-tdis="${esc(t.id)}">No fine</button>` : ""}</td></tr>`).join("")
+    || `<tr><td colspan="6" class="meta">No tows recorded yet.</td></tr>`;
+  signImgs("parking-alerts", "data-pa-img");
+  document.querySelectorAll("[data-tfine]").forEach((b) => b.onclick = async () => {
+    if (!confirm("Start the $35 violation (Parking in another unit's stall) for this unit? The notice and 14-day hearing steps follow on the Violations page.")) return;
+    const { data: v, error: e } = await client.rpc("parking_tow_start_fine", { p_id: b.dataset.tfine });
+    if (e) return alert(await errorText(e));
+    alert("Violation #" + v.id + " started. Send the fine notice from the Violations page."); loadTows();
+  });
+  document.querySelectorAll("[data-tdis]").forEach((b) => b.onclick = async () => {
+    const note = prompt("Why no fine? (optional)"); if (note === null) return;
+    const { error: e } = await client.rpc("parking_tow_dismiss", { p_id: b.dataset.tdis, p_note: note });
+    if (e) return alert(await errorText(e)); loadTows();
+  });
+}
+async function loadRevocations() {
+  const { data, error } = await client.rpc("parking_revocations_staff");
+  if (error) { $("revRows").innerHTML = `<tr><td colspan="5" class="meta">${esc(await errorText(error))}</td></tr>`; return; }
+  const m = (n) => `$${Number(n || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const d = (iso) => iso ? new Date(iso + "T12:00:00").toLocaleDateString("en-US", { month: "numeric", day: "numeric" }) : "";
+  $("revRows").innerHTML = data.map((u) => {
+    const rv = u.revocation, ev = u.evidence || [], owes = u.basis === "rent" ? Number(u.owed) > 0.004 : Number(u.owed) >= Number(u.threshold || 0);
+    const owed = u.basis === "rent" ? (Number(u.owed) > 0.004 ? `<b>${m(u.owed)}</b> rent${u.oldest_unpaid ? " since " + d(u.oldest_unpaid) : ""}` : "No rent owed")
+      : (Number(u.owed) > 0.004 ? `<b>${m(u.owed)}</b> owner dues${owes ? "" : ` <span class="meta">(under ${m(u.threshold)})</span>`}` : "No dues owed");
+    const why = !owes ? "<span class=meta>Nothing to revoke for.</span>"
+      : ev.length ? `<ul style="margin:0;padding-left:18px">${ev.map((x) => `<li>${esc(x.text)}</li>`).join("")}</ul>` : `<b style="color:#b3261e">No payment attempt found.</b>`;
+    const status = rv ? (u.can_revoke ? `<b style="color:#b3261e">NO PARKING</b> since ${ctWhen(rv.revoked_at)}<br><span class="meta">${esc(rv.reason)}</span>`
+        : `<b>Suspended</b>: payment activity, lifting now<br><span class="meta">${esc(rv.reason)}</span>`)
+      : "Allowed" + (u.last_restore ? `<br><span class="meta">Last restored ${ctWhen(u.last_restore.at)}${u.last_restore.by === "system" ? " automatically" : ""}</span>` : "");
+    return `<tr><td><b>${esc(u.unit)}</b></td><td>${owed}</td><td>${why}</td><td>${status}${u.history ? ` <span class="meta">· revoked ${u.history}× before</span>` : ""}</td>
+      <td>${rv ? `<button class="btn small" type="button" data-restore="${esc(u.unit)}">Restore parking</button>` : u.can_revoke ? `<button class="btn small" type="button" data-revoke="${esc(u.unit)}">Revoke parking</button>` : ""}</td></tr>`;
+  }).join("");
+  document.querySelectorAll("[data-revoke]").forEach((b) => b.onclick = async () => {
+    const unit = b.dataset.revoke, reason = prompt(`Revoke parking for Unit ${unit}. The system found no payment attempt. Your reason (what you checked, for example: called 11/10, no answer):`);
+    if (!reason) return;
+    const notify = confirm(`Email the people of Unit ${unit} (and its owner) that parking is revoked?\nOK = email them, Cancel = do not email.`);
+    const { data: res, error: e } = await client.rpc("parking_revoke", { p_unit: unit, p_reason: reason, p_notify: notify });
+    if (e) return alert(await errorText(e));
+    if (res.emailed) flush();
+    loadRevocations(); loadStock(); loadLot();
+  });
+  document.querySelectorAll("[data-restore]").forEach((b) => b.onclick = async () => {
+    const unit = b.dataset.restore, note = prompt(`Restore parking for Unit ${unit}. Note (optional, for example: paid in full 11/12):`);
+    if (note === null) return;
+    const notify = confirm(`Email the people of Unit ${unit} (and its owner) that parking is restored?\nOK = email them, Cancel = do not email.`);
+    const { data: res, error: e } = await client.rpc("parking_restore", { p_unit: unit, p_note: note, p_notify: notify });
+    if (e) return alert(await errorText(e));
+    if (res.emailed) flush();
+    loadRevocations(); loadStock(); loadLot();
+  });
+}
+async function loadStock() {
+  const { data, error } = await client.rpc("parking_stocktake_staff");
+  if (error) { $("stockRows").innerHTML = `<tr><td colspan="6" class="meta">${esc(await errorText(error))}</td></tr>`; return; }
+  const S = data.stalls;
+  const reg = S.filter((x) => x.vehicles || x.no_vehicle).length, signed = S.filter((x) => x.signed).length, hang = S.reduce((n, x) => n + x.hangers_missing, 0);
+  $("stockSum").innerHTML = `<b>${reg} of ${S.length}</b> stalls registered or answered "no vehicle" · <b>${signed} of ${S.length}</b> stalls with a current rules signature · <b>${hang}</b> vehicles waiting for a hanger. Register by ${esc(data.register_by)}, patrols from ${esc(data.enforce_from)}.`;
+  const yes = (b, t) => b ? `<span style="color:#2e7d1f;font-weight:700">${t || "✓"}</span>` : `<span style="color:#b3261e;font-weight:700">✗</span>`;
+  $("stockRows").innerHTML = S.map((x) => `<tr><td><b>${esc(x.stall)}</b>${x.blocked ? " <span class=meta>NO PARKING</span>" : ""}</td><td>${esc(x.occupied_by)}</td><td>${x.people}</td>
+    <td>${x.vehicles ? yes(true, x.vehicles + " vehicle" + (x.vehicles > 1 ? "s" : "")) : x.no_vehicle ? yes(true, "no vehicle") : yes(false)}${x.visitors ? ` <span class="meta">+${x.visitors} visitor</span>` : ""}</td>
+    <td>${x.vehicles ? (x.hangers_missing ? `<span class="meta">${x.hangers_missing} to issue</span>` : yes(true)) : "<span class=meta>-</span>"}</td>
+    <td>${x.signed ? yes(true, x.signed + " of " + x.people) : x.people ? yes(false) : "<span class=meta>nobody</span>"}</td></tr>`).join("");
+}
+async function loadAcks() {
+  const { data, error } = await client.rpc("parking_acks_staff");
+  if (error) { $("ackRows").innerHTML = `<tr><td colspan="6" class="meta">${esc(await errorText(error))}</td></tr>`; return; }
+  $("ackMissing").textContent = data.stalls_unsigned.length ? "No current signature yet for stalls " + data.stalls_unsigned.join(", ") + "." : "Every stall has a current signature.";
+  $("ackRows").innerHTML = data.acks.map((a) => `<tr><td><b>${esc(a.unit)}</b></td><td>${esc(a.name || "")} <span class="meta">(${esc(a.kind)})</span></td><td>${esc(a.initials)}</td>
+    <td>${new Date(a.signed_at).toLocaleString("en-US", { timeZone: "America/Chicago", month: "numeric", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" })}</td>
+    <td>${a.current ? "current" : "<b>old: must sign again</b>"}</td><td>${a.method === "paper" ? `<button class="btn small" type="button" data-scan="${esc(a.scan_path)}">View paper</button>` : `<button class="btn small" type="button" data-aud="${esc(a.audio_path)}">Play (${esc(a.audio_seconds || "")} s)</button>`} <button class="btn small" type="button" data-aprint="${esc(a.id)}">Print</button></td></tr>`).join("") || `<tr><td colspan="6" class="meta">Nobody has signed yet.</td></tr>`;
+  $("ackRows").querySelectorAll("[data-scan]").forEach((b) => b.onclick = async () => {
+    const { data: u } = await client.storage.from("parking-acks").createSignedUrl(b.dataset.scan, 3600);
+    if (u) window.open(u.signedUrl, "_blank", "noopener");
+  });
+  $("ackRows").querySelectorAll("[data-aprint]").forEach((b) => b.onclick = async () => {
+    const { data: a, error: e } = await client.rpc("parking_ack_staff_get", { p_id: b.dataset.aprint });
+    if (e) return alert(await errorText(e)); printAckCopy(a);
+  });
+  $("ackRows").querySelectorAll("[data-aud]").forEach((b) => b.onclick = async () => {
+    const { data: u } = await client.storage.from("parking-acks").createSignedUrl(b.dataset.aud, 3600);
+    if (u) b.outerHTML = `<audio controls autoplay src="${u.signedUrl}" style="max-width:240px"></audio>`;
+  });
+}
+const ptName = (c) => { const m = /^G(.+?)(B)?$/.exec(c); return m ? "Guest " + m[1] + (m[2] ? " (2nd)" : "") : c; };
+let TAGS = [];
+function handoutHtml() {
+  const unit = $("hoUnit").value.trim(); if (!unit) return "";
+  const mine = TAGS.filter((t) => t.home_unit === unit && t.status === "active" && !t.issued_at);
+  if (!TAGS.some((t) => t.home_unit === unit)) return `<p class="meta">No tags for Unit ${esc(unit)}.</p>`;
+  if (!mine.length) return `<p class="meta">Every active tag of Unit ${esc(unit)} is already handed out.</p>`;
+  const cars = ((D && D.vehicles) || []).filter((v) => v.status === "active" && v.kind !== "visitor" && String(v.unit_number) === unit && !v.hanger_number);
+  let ci = 0;
+  return `<table style="margin-top:6px"><tbody>${mine.map((t) => {
+    const car = t.kind === "resident" ? cars[ci++] : null;
+    const sel = t.kind === "resident" ? `<select data-hocar="${esc(t.code)}"><option value="">Spare (no vehicle yet)</option>${cars.map((v) => `<option value="${esc(v.id)}" ${car && car.id === v.id ? "selected" : ""}>${esc(v.summary)}</option>`).join("")}</select>` : `<span class="meta">guest pass</span>`;
+    return `<tr><td><label><input type="checkbox" data-hotag="${esc(t.code)}" checked> <span class="pill3 ${t.kind === "guest" ? "" : "warn"}">${t.kind === "guest" ? "blue" : "red"}</span> <b>${esc(ptName(t.code))}</b></label></td><td>${sel}</td></tr>`;
+  }).join("")}</tbody></table>
+  <div class="formrow"><button class="btn primary" type="button" id="hoGo">Mark handed out</button><span class="msg" id="hoMsg"></span></div>`;
+}
+function wireHandout() {
+  $("hoBox").innerHTML = handoutHtml();
+  if (!$("hoGo")) return;
+  $("hoGo").onclick = async () => {
+    const codes = [...document.querySelectorAll("[data-hotag]")].filter((c) => c.checked).map((c) => c.dataset.hotag);
+    if (!codes.length) { $("hoMsg").textContent = "Tick at least one tag."; return; }
+    const picked = codes.map((c) => document.querySelector(`[data-hocar="${c}"]`)).filter((x) => x && x.value).map((x) => x.value);
+    if (new Set(picked).size !== picked.length) { $("hoMsg").className = "msg err"; $("hoMsg").textContent = "Each vehicle gets one red tag."; return; }
+    $("hoGo").disabled = true; $("hoMsg").className = "msg"; $("hoMsg").textContent = "Saving…";
+    const { error } = await client.rpc("parking_tags_staff_issue", { p_codes: codes, p_undo: false, p_back: false });
+    if (error) { $("hoMsg").className = "msg err"; $("hoMsg").textContent = await errorText(error); $("hoGo").disabled = false; return; }
+    for (const c of codes) {
+      const s = document.querySelector(`[data-hocar="${c}"]`);
+      if (s && s.value) { const { error: e } = await client.rpc("vehicles_staff_set_hanger", { p_id: s.value, p_number: c }); if (e) { $("hoMsg").className = "msg err"; $("hoMsg").textContent = await errorText(e); return; }
+        const v = D && D.vehicles.find((x) => x.id === s.value); if (v) v.hanger_number = c; }
+    }
+    await loadTags(); if (D) renderHangers();
+    $("hoBox").innerHTML = `<p class="msg ok">Handed out: ${codes.map(ptName).map(esc).join(", ")}. The unit confirms on its Parking tab ("I received my tags").</p>`;
+  };
+}
+$("hoShow").onclick = wireHandout;
+$("hoUnit").addEventListener("keydown", (e) => { if (e.key === "Enter") wireHandout(); });
+async function loadTags() {
+  const { data, error } = await client.rpc("parking_tags_staff_list");
+  if (error) { $("ptRows").innerHTML = `<tr><td colspan="6" class="meta">${esc(await errorText(error))}</td></tr>`; return; }
+  TAGS = data;
+  const bad = data.filter((t) => t.status !== "active").length, lent = data.filter((t) => t.loan).length;
+  const out = data.filter((t) => t.issued_at), units = new Set(out.map((t) => t.home_unit)), wait = out.filter((t) => !t.received_at && !t.collect_since).length, col = data.filter((t) => t.collect_since).length;
+  $("ptSum").textContent = `${data.length} tags · handed out to ${units.size} unit${units.size === 1 ? "" : "s"} (${out.length} tags, ${wait} not yet confirmed by the unit) · ${col} to collect after move-out · ${lent} guest tag${lent === 1 ? "" : "s"} lent out · ${bad} lost or retired.`;
+  $("ptRows").innerHTML = data.map((t) => `<tr><td><b>${esc(t.home_unit)}</b></td>
+    <td><span class="pill3 ${t.kind === "guest" ? "" : "warn"}">${t.kind === "guest" ? "blue" : "red"}</span> <b>${esc(ptName(t.code))}</b></td>
+    <td>${t.status === "active" ? "active" : `<b class="msg err">${esc(t.status)}</b>${t.status_at ? " " + fmtDate(t.status_at) : ""}`}${t.notes ? `<br><span class="meta">${esc(t.notes)}</span>` : ""}</td>
+    <td>${t.collect_since ? `<b class="msg err">Collect</b> <span class="meta">(moved out ${fmtDate(t.collect_since)})</span><br><button class="btn small" type="button" data-ptback="${esc(t.code)}">Back in the office</button>`
+      : t.issued_at ? `${fmtDate(t.issued_at)}<br>${t.received_at ? `<span class="msg ok">✓ unit confirmed ${fmtDate(t.received_at)}</span>` : `<span class="meta">unit has not confirmed yet</span>`} <button class="btn small" type="button" data-ptundo="${esc(t.code)}" title="Clicked by mistake">Undo</button>`
+      : t.status === "active" ? `<span class="meta">not yet</span>` : ""}${t.fee_entry ? `<br><span class="meta">$25 fee charged</span>` : ""}</td>
+    <td class="meta">${t.loan ? `Lent to Unit ${esc(t.loan.to_unit)} until ${fmtDate(t.loan.lent_until)}` : t.on_vehicle ? "On " + esc(t.on_vehicle) : !t.issued_at ? "In the office" : t.kind === "resident" ? "Spare (not on a registered vehicle)" : "With the unit"}</td>
+    <td><select data-pts="${esc(t.code)}"><option value="active" ${t.status === "active" ? "selected" : ""}>active</option><option value="lost" ${t.status === "lost" ? "selected" : ""}>lost</option><option value="retired" ${t.status === "retired" ? "selected" : ""}>retired</option></select>
+      <button class="btn small" type="button" data-ptsave="${esc(t.code)}">Save</button></td></tr>`).join("");
+  document.querySelectorAll("[data-ptsave]").forEach((b) => b.onclick = async () => {
+    const c = b.dataset.ptsave, st = document.querySelector(`[data-pts="${c}"]`).value;
+    if (st !== "active" && !confirm(`Mark ${ptName(c)} ${st}? Always Towing will see it as not valid${st !== "active" ? " and any loan of it ends" : ""}.`)) return;
+    const t = TAGS.find((x) => x.code === c), charge = st === "lost" && t && t.issued_at && !t.fee_entry && confirm(`Charge the $25 replacement fee for ${ptName(c)}? (Tenant ledger, or the owner's association account if Unit ${t.home_unit} has no lease.)`);
+    b.disabled = true; const { data: m, error: e } = await client.rpc("parking_tags_staff_set", { p_code: c, p_status: st, p_notes: null, p_charge: !!charge });
+    if (e) { alert(await errorText(e)); b.disabled = false; return; } await loadTags(); $("ptSum").textContent = (m || "Saved.") + " " + $("ptSum").textContent;
+  });
+  const undo = (sel, back) => document.querySelectorAll(sel).forEach((b) => b.onclick = async () => {
+    const c = b.dataset[back ? "ptback" : "ptundo"];
+    if (!confirm(back ? `${ptName(c)} is back in the office?` : `Undo "handed out" for ${ptName(c)}? (Also takes it off the vehicle.)`)) return;
+    b.disabled = true; const { error: e } = await client.rpc("parking_tags_staff_issue", { p_codes: [c], p_undo: !back, p_back: back });
+    if (e) { alert(await errorText(e)); b.disabled = false; return; } await loadTags(); if (D) { const v = D.vehicles.find((x) => x.hanger_number === c); if (v) v.hanger_number = null; renderHangers(); }
+  });
+  undo("[data-ptundo]", false); undo("[data-ptback]", true);
+}
+$("ptAdd").onclick = async () => {
+  const { error: e } = await client.rpc("parking_tags_staff_add", { p_code: $("ptCode").value, p_kind: $("ptKind").value, p_unit: $("ptUnit").value.trim() });
+  $("ptMsg").textContent = e ? await errorText(e) : "Added."; if (!e) { $("ptCode").value = ""; loadTags(); }
+};
+async function load() {
+  loadTags();
+  loadGuests();
+  loadAcks();
+  loadTows();
+  loadStock();
+  loadRevocations();
+  loadAlerts();
+  loadLot();
+  const { data, error } = await client.rpc("vehicles_staff_list");
+  if (error) { $("signin").hidden = false; $("signin").innerHTML = `<div class="panel">${esc(await errorText(error))}</div>`; return; }
+  D = data; $("signin").hidden = true; $("app").hidden = false; render();
+}
+$("grid").addEventListener("click", async (e) => {
+  const hs = e.target.closest("[data-hsave]");
+  if (hs) {
+    const inp = document.querySelector(`[data-hanger="${hs.dataset.hsave}"]`);
+    const { error } = await client.rpc("vehicles_staff_set_hanger", { p_id: hs.dataset.hsave, p_number: inp.value });
+    if (error) return alert(await errorText(error));
+    hs.textContent = "Saved"; const v = D.vehicles.find((x) => x.id === hs.dataset.hsave); if (v) v.hanger_number = inp.value.trim().toUpperCase() || null;
+    return;
+  }
+  const b = e.target.closest("[data-end]"); if (!b || !confirm("Mark this vehicle as removed?")) return;
+  const { error } = await client.rpc("vehicles_staff_end", { p_id: b.dataset.end });
+  if (error) return alert(await errorText(error));
+  load();
+});
+$("towNew").onclick = async () => {
+  if (D && D.tow_link_set && !confirm("Make a new link? The link Always Towing has now will stop working.")) return;
+  const { data, error } = await client.rpc("tow_link_new");
+  if (error) { $("towMsg").className = "msg err"; $("towMsg").textContent = await errorText(error); return; }
+  const url = location.origin + "/towing/#k=" + data;
+  $("towLink").hidden = false; $("towLink").textContent = url;
+  $("towMsg").className = "msg ok"; $("towMsg").textContent = "Copy it now and email it to Always Towing; it is shown only once.";
+  try { await navigator.clipboard.writeText(url); $("towMsg").textContent += " (Copied.)"; } catch {}
+};
+["fUnit", "fShow", "fKind"].forEach((id) => $(id).addEventListener("input", () => D && render()));
+$("signOutBtn").onclick = signOut;
+const who = await signIn($("signin"), { audience: "staff" });
+$("userBar").hidden = false;
+if (who.role !== "staff") { $("signin").hidden = false; $("signin").innerHTML = `<div class="panel"><p>This page is for office staff. The vehicles for your assigned units are on each unit's page. <a href="/staff/">Go to My units</a></p></div>`; }
+else await load();
+</script>
+</body>
+</html>

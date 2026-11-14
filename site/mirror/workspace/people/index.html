@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>People | The Human Mirror</title>
+<link rel="icon" href="/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Source+Serif+4:opsz,wght@8..60,600&display=swap">
+<link rel="stylesheet" href="/mirror/assets/mirror.css?v=20261113l">
+</head>
+<body data-area="workspace">
+<main id="main" class="mm-main">
+  <p class="mm-eyebrow">Workspace</p>
+  <h1>People</h1>
+  <p class="mm-lead">The people your organization works with. You see only your own organization's people. The counts include only what each person shares with you.</p>
+  <div id="mmPeople"><p role="status">Loading…</p></div>
+</main>
+<script type="module" src="/mirror/assets/mirror-ui.js?v=20261113h"></script>
+<script type="module">
+import { requireArea, rpc } from "/mirror/assets/mirror-client.js?v=20261113p";
+import { esc, notice, toast } from "/mirror/assets/mirror-ui.js?v=20261113h";
+import { voiceAll } from "/mirror/assets/mirror-voice.js?v=20261113c";
+
+const STATUS = { invited: ["Waiting for them to accept", "mm-tag-suggested"], active: ["Active", "mm-tag-ok"], ended: ["Ended", ""] };
+const fmt = (d) => d ? new Date(d + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "";
+
+const w = await requireArea("workspace");
+const orgs = w.memberships.filter((m) => m.role === "org_admin" || m.role === "coordinator");
+const box = document.getElementById("mmPeople");
+let org = orgs[0] && orgs[0].organization_id;
+
+if (!orgs.length) box.innerHTML = notice("info", "<p>Volunteers don't manage the people list. Ask your organization's coordinator.</p>");
+else draw();
+
+async function draw(note = "") {
+  let people;
+  try { people = await rpc("mirror_people", { p_org: org }); }
+  catch (e) { box.innerHTML = notice("urgent", `<p>${esc(e.message)}</p>`); return; }
+  // T8.1: counts beside each person (only what they share with this organization); the list still works without them
+  let counts = {};
+  try { counts = Object.fromEntries((await rpc("mirror_people_counts", { p_org: org })).map((c) => [c.id, c])); } catch { counts = {}; }
+  const cnt = (p, k) => (counts[p.id] ? Number(counts[p.id][k]) || 0 : "");
+  const open = people.filter((p) => p.status !== "ended").length;
+  box.innerHTML = `
+    ${orgs.length > 1 ? `<div class="mm-field" style="max-width:24rem"><label for="mmOrg">Organization</label>
+      <select class="mm-select" id="mmOrg">${orgs.map((o) => `<option value="${esc(o.organization_id)}"${o.organization_id === org ? " selected" : ""}>${esc(o.organization)}</option>`).join("")}</select></div>` : ""}
+    ${note}
+    <h2>${open} ${open === 1 ? "person" : "people"}${people.length > open ? ` <span class="mm-muted" style="font-size:1rem">(and ${people.length - open} ended)</span>` : ""}</h2>
+    ${people.length > 1 ? `<div class="mm-row" style="gap:var(--mm-space-4);align-items:flex-end">
+      <div class="mm-field" style="margin:0;min-width:16rem"><label for="mmFind">Find a person</label><input class="mm-input" id="mmFind" type="search" autocomplete="off" data-mm-no-voice></div>
+      <div class="mm-field" style="margin:0"><label for="mmShow">Show</label><select class="mm-select" id="mmShow">
+        <option value="open">Active and waiting</option><option value="active">Active only</option><option value="invited">Waiting to accept</option>
+        <option value="urgent">With an urgent need</option><option value="ended">Ended</option><option value="all">Everyone</option></select></div>
+      <p class="mm-small mm-muted" id="mmShown" aria-live="polite" style="margin:0"></p></div>` : ""}
+    ${people.length ? `<div class="mm-table-wrap mm-stack"><table class="mm-table">
+      <caption class="mm-sr">People your organization works with</caption>
+      <thead><tr><th scope="col">Name</th><th scope="col">Status</th><th scope="col">Since</th><th scope="col">Coordinator</th><th scope="col" class="mm-num">Open needs</th><th scope="col" class="mm-num">Steps to do</th><th scope="col" class="mm-num">Goals</th><th scope="col">Email</th><th scope="col"><span class="mm-sr">Actions</span></th></tr></thead>
+      <tbody>${people.map((p) => `<tr data-row data-status="${esc(p.status)}" data-urgent="${cnt(p, "needs_urgent") > 0 ? 1 : 0}" data-name="${esc(((p.preferred_name || "") + " " + (p.legal_name || "") + " " + (p.email || "")).toLowerCase())}">
+        <td data-label="Name"><strong>${esc(p.preferred_name)}</strong>${p.safety_sensitive ? ' <span class="mm-tag mm-tag-urgent">Safety mode</span>' : ""}${p.legal_name && p.legal_name !== p.preferred_name ? `<br><span class="mm-muted mm-small">${esc(p.legal_name)}</span>` : ""}</td>
+        <td data-label="Status"><span class="mm-tag ${STATUS[p.status][1]}">${STATUS[p.status][0]}</span></td>
+        <td data-label="Since">${esc(fmt(p.started_on))}</td>
+        <td data-label="Coordinator">${esc(p.coordinator || "")}</td>
+        <td class="mm-num" data-label="Open needs">${cnt(p, "needs_open")}${cnt(p, "needs_urgent") ? ` <span class="mm-tag mm-tag-urgent">${cnt(p, "needs_urgent")} urgent</span>` : ""}</td>
+        <td class="mm-num" data-label="Steps to do">${cnt(p, "steps_open")}</td>
+        <td class="mm-num" data-label="Goals">${cnt(p, "goals_active")}</td>
+        <td data-label="Email">${p.email ? esc(p.email) : '<span class="mm-muted">none</span>'}</td>
+        <td data-label="">${p.status === "active" ? `<a class="mm-btn mm-btn-quiet" href="/mirror/workspace/person/?id=${encodeURIComponent(p.id)}&org=${encodeURIComponent(org)}">Open their Mirror</a>` : ""}${p.status === "ended"
+          ? `<button class="mm-btn mm-btn-quiet" type="button" data-status="${esc(p.id)}" data-to="${p.email ? "invited" : "active"}">Restart</button>`
+          : `<button class="mm-btn mm-btn-quiet" type="button" data-status="${esc(p.id)}" data-to="ended" data-name="${esc(p.preferred_name)}">End</button>`}${p.status === "invited" && p.email ? ` <button class="mm-btn mm-btn-quiet" type="button" data-resend="${esc(p.id)}">Send the invitation again</button>` : ""}${p.status !== "ended" ? ` <button class="mm-btn mm-btn-quiet" type="button" data-email="${esc(p.id)}" data-name="${esc(p.preferred_name)}">Change email</button>` : ""}${p.status === "active" ? ` <button class="mm-btn mm-btn-quiet" type="button" data-hide="${esc(p.id)}" data-name="${esc(p.preferred_name)}">Hide their Mirror</button>` : ""}</td>
+      </tr>`).join("")}</tbody></table></div>` : notice("info", "<p>Nobody yet. Add the first person below.</p>")}
+    <div id="mmEmail"></div>
+
+    <form class="mm-card mm-read" id="mmAdd" novalidate style="margin-top:var(--mm-space-6)">
+      <h2 style="margin-top:0">Add a person</h2>
+      <p class="mm-muted">Only the name they go by is needed. Everything else can wait, and the person can change it later.</p>
+      <div class="mm-field"><label for="pName">Name they go by</label><input class="mm-input" id="pName" autocomplete="off" required></div>
+      <div class="mm-field"><label for="pLegal">Legal name <span class="mm-muted">(optional)</span></label><input class="mm-input" id="pLegal" autocomplete="off"></div>
+      <div class="mm-field"><label for="pEmail">Their own email <span class="mm-muted">(optional)</span></label>
+        <span class="mm-hint" id="pEmailHint">With an email they can sign in to their own Mirror once invitations start. No email is sent yet.</span>
+        <input class="mm-input" type="email" id="pEmail" autocomplete="off" aria-describedby="pEmailHint"></div>
+      <div class="mm-field" style="max-width:12rem"><label for="pYear">Birth year <span class="mm-muted">(optional)</span></label><input class="mm-input" id="pYear" inputmode="numeric" maxlength="4" data-mm-no-voice></div>
+      <div id="mmAddMsg" aria-live="assertive"></div>
+      <button class="mm-btn" type="submit">Add person</button>
+    </form>`;
+  voiceAll(box);
+  const find = box.querySelector("#mmFind"), show = box.querySelector("#mmShow");
+  const filter = () => {
+    if (!find) return;
+    const q = find.value.trim().toLowerCase(), s = show.value;
+    let n = 0;
+    box.querySelectorAll("tr[data-row]").forEach((tr) => {
+      const st = tr.dataset.status;
+      const okS = s === "all" || (s === "open" ? st !== "ended" : s === "urgent" ? tr.dataset.urgent === "1" : st === s);
+      const on = okS && (!q || tr.dataset.name.includes(q));
+      tr.style.display = on ? "" : "none"; if (on) n++;
+    });
+    box.querySelector("#mmShown").textContent = n + (n === 1 ? " person shown" : " people shown");
+  };
+  find?.addEventListener("input", filter); show?.addEventListener("change", filter); filter();
+  box.querySelector("#mmOrg")?.addEventListener("change", (e) => { org = e.target.value; draw(); });
+  box.querySelectorAll("[data-status]").forEach((b) => b.addEventListener("click", async () => {
+    const to = b.dataset.to;
+    if (to === "ended" && !confirmEnd(b)) return;
+    b.disabled = true;
+    try { await rpc("mirror_person_status", { p_org: org, p_individual: b.dataset.status, p_status: to }); toast(to === "ended" ? "Ended. Their Mirror stays theirs." : "Restarted."); draw(); }
+    catch (e) { b.disabled = false; toast(e.message); }
+  }));
+  const SAID = { queued: "Invitation sent.", held: "Recorded. Invitation emails are not switched on yet: give them https://2ndchinc.org/mirror/register/ yourself.", skipped: "Not sent again: it was sent in the last 12 hours." };
+  box.querySelectorAll("[data-resend]").forEach((b) => b.addEventListener("click", async () => {
+    b.disabled = true;
+    try { const s = await rpc("mirror_invitation_resend", { p_org: org, p_individual: b.dataset.resend }); toast(SAID[s] || s); }
+    catch (e) { b.disabled = false; toast(e.message); }
+  }));
+  box.querySelectorAll("[data-email]").forEach((b) => b.addEventListener("click", () => emailForm(b.dataset.email, b.dataset.name)));
+  box.querySelectorAll("[data-hide]").forEach((b) => b.addEventListener("click", () => hideForm(b.dataset.hide, b.dataset.name)));
+  box.querySelector("#mmAdd").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const v = (id) => document.getElementById(id).value.trim();
+    const msg = box.querySelector("#mmAddMsg");
+    if (!v("pName")) { msg.innerHTML = notice("urgent", "<p>Enter the name the person goes by.</p>"); return; }
+    e.target.querySelector("button[type=submit]").disabled = true;
+    try {
+      await rpc("mirror_person_add", { p: { organization_id: org, preferred_name: v("pName"), legal_name: v("pLegal"), email: v("pEmail"), birth_year: v("pYear") } });
+      draw(notice("ok", `<p><strong>${esc(v("pName"))}</strong> was added.${v("pEmail") ? " They will see your invitation the next time they sign in to their Mirror, and can accept or decline it. No email has been sent." : ""}</p>`));
+    } catch (err) {
+      e.target.querySelector("button[type=submit]").disabled = false;
+      msg.innerHTML = notice("urgent", `<p>${esc(err.message)}</p>`);
+    }
+  });
+}
+
+// P2-10 (migration 20261119695000): change a person's email. A typo on an invitation nobody has used: any coordinator, with a reason.
+// An email they signed in with: only the organization's admin, after confirming it is them (never only by email); both addresses get a notice.
+async function emailForm(pid, name) {
+  const el = box.querySelector("#mmEmail");
+  let rule;
+  try { rule = await rpc("mirror_person_email_rule", { p_org: org, p_individual: pid }); }
+  catch (e) { el.innerHTML = notice("urgent", `<p>${esc(e.message)}</p>`); el.scrollIntoView({ block: "start" }); return; }
+  if (rule.refusal) { el.innerHTML = notice("caution", `<p><strong>Change ${esc(name)}'s email:</strong> ${esc(rule.refusal)}</p>`); el.scrollIntoView({ block: "start" }); return; }
+  el.innerHTML = `<form class="mm-card mm-read" id="mmEmailForm" novalidate style="margin-top:var(--mm-space-5)">
+    <h2 style="margin-top:0" tabindex="-1">Change ${esc(name)}'s email</h2>
+    <p class="mm-hint">${rule.used
+      ? `They sign in with this email. Before you change it, confirm it is really ${esc(name)}: by phone, a video call or in person, never only by email.
+         They then sign in with the new email; their Mirror, sharing and history stay the same. The old and the new address each get a short notice.`
+      : "Nobody has signed in with this email yet, so you can correct it. The invitation goes to the new address."}</p>
+    <div class="mm-field"><label for="eNew">Their new email</label><input class="mm-input" type="email" id="eNew" autocomplete="off" maxlength="254" required data-mm-no-voice></div>
+    <div class="mm-field"><label for="eWhy">Why</label><span class="mm-hint" id="eWhyHint">${rule.used ? "For example: lost access to their old email; confirmed by phone." : "For example: typo on the invitation."}</span>
+      <input class="mm-input" id="eWhy" maxlength="300" aria-describedby="eWhyHint" required></div>
+    ${rule.used ? `<label class="mm-choice" style="margin-bottom:var(--mm-space-3)"><input type="checkbox" id="eSure"> I confirmed it is ${esc(name)} by phone, video or in person.</label>` : ""}
+    <div id="eMsg" aria-live="assertive"></div>
+    <p class="mm-row"><button class="mm-btn" type="submit">Change email</button> <button class="mm-btn mm-btn-secondary" type="button" id="eCancel">Cancel</button></p>
+  </form>`;
+  const f = el.querySelector("#mmEmailForm");
+  f.querySelector("h2").focus();
+  f.querySelector("#eCancel").addEventListener("click", () => { el.innerHTML = ""; });
+  f.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const msg = f.querySelector("#eMsg");
+    if (rule.used && !f.querySelector("#eSure").checked) { msg.innerHTML = notice("urgent", "<p>Confirm it is them first, then tick the box.</p>"); return; }
+    f.querySelector("button[type=submit]").disabled = true;
+    try {
+      const r = await rpc("mirror_person_email_change", { p_org: org, p_individual: pid, p_email: f.querySelector("#eNew").value.trim(),
+        p_reason: f.querySelector("#eWhy").value.trim(), p_confirmed: rule.used ? f.querySelector("#eSure").checked : false });
+      const held = [r.notice_old, r.notice_new, r.invitation].includes("held");
+      draw(notice("ok", `<p>${esc(name)}'s email was changed. It's in your organization's record of who changed what.${r.used ? " They sign in with the new email from now on." : ""}
+        ${held ? (r.used ? " Notice emails aren't switched on yet, so tell them yourself." : " Invitation emails aren't switched on yet: give them https://2ndchinc.org/mirror/register/ yourself.") : ""}</p>`));
+    } catch (err) {
+      f.querySelector("button[type=submit]").disabled = false;
+      msg.innerHTML = notice("urgent", `<p>${esc(err.message)}</p>`);
+    }
+  });
+}
+
+// Privacy page promise (migration 20261119698000): when a person in danger asks, hide their Mirror from everyone at once.
+// Every organization loses access (yours too) and they leave every list. It deletes nothing; only the person (or 2nd Chance) can show it again.
+function hideForm(pid, name) {
+  const el = box.querySelector("#mmEmail");
+  el.innerHTML = `<form class="mm-card mm-read" id="mmHideForm" novalidate style="margin-top:var(--mm-space-5)">
+    <h2 style="margin-top:0" tabindex="-1">Hide ${esc(name)}'s Mirror from everyone</h2>
+    <p class="mm-hint">Only when ${esc(name)} asks for it, in person or by phone, for example because they may be in danger. Every organization loses access
+      at once, including yours, and ${esc(name)} leaves your list. Nothing is deleted. Only ${esc(name)} can show it again, in their Settings.
+      If they want it deleted too, they ask in their Settings or call 2nd Chance at (262)&nbsp;236&#8209;5443.</p>
+    <div class="mm-field"><label for="hWhy">Why</label><span class="mm-hint" id="hWhyHint">For example: asked on the phone, not safe at home.</span>
+      <input class="mm-input" id="hWhy" maxlength="300" aria-describedby="hWhyHint" required></div>
+    <label class="mm-choice" style="margin-bottom:var(--mm-space-3)"><input type="checkbox" id="hSure"> ${esc(name)} asked me for this, in person or by phone.</label>
+    <div id="hMsg" aria-live="assertive"></div>
+    <p class="mm-row"><button class="mm-btn" type="submit">Hide their Mirror now</button> <button class="mm-btn mm-btn-secondary" type="button" id="hCancel">Cancel</button></p>
+  </form>`;
+  const f = el.querySelector("#mmHideForm");
+  f.querySelector("h2").focus();
+  f.querySelector("#hCancel").addEventListener("click", () => { el.innerHTML = ""; });
+  f.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const msg = f.querySelector("#hMsg");
+    if (!f.querySelector("#hSure").checked) { msg.innerHTML = notice("urgent", "<p>Only when they ask. Then tick the box.</p>"); return; }
+    f.querySelector("button[type=submit]").disabled = true;
+    try {
+      await rpc("mirror_person_hide", { p_org: org, p_individual: pid, p_reason: f.querySelector("#hWhy").value.trim(), p_confirmed: true });
+      draw(notice("ok", `<p>${esc(name)}'s Mirror is hidden from everyone. It's in your organization's record of who changed what.</p>`));
+    } catch (err) {
+      f.querySelector("button[type=submit]").disabled = false;
+      msg.innerHTML = notice("urgent", `<p>${esc(err.message)}</p>`);
+    }
+  });
+}
+
+// Ending is a second press on the same button (no browser pop-up).
+function confirmEnd(b) {
+  if (b.dataset.sure) return true;
+  b.dataset.sure = "1";
+  b.textContent = `Press again to end work with ${b.dataset.name}`;
+  setTimeout(() => { if (b.isConnected) { delete b.dataset.sure; b.textContent = "End"; } }, 6000);
+  return false;
+}
+</script>
+</body>
+</html>

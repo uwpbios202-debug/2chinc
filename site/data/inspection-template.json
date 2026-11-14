@@ -1,0 +1,948 @@
+{
+ "_note": "Each item lists its own labels. 'ok' labels count as fine, 'bad' labels count as Needs repair (and create a maintenance request when staff submit), 'na' is the not-applicable label. The saved value s stays OK / Needs repair / N/A so reports and counts keep working; l holds the label picked. An area with 'only' shows just for those inspection purposes. 'photos' is the number of photos the item needs before submitting. 'quick' = standard notes shown as tap-to-add buttons under an item's note (by item name); an item or unit file can supply its own 'quick'.",
+ "areas": [
+  {
+   "id": "keys",
+   "name": "Before keys are handed over",
+   "only": [
+    "pre_move_in"
+   ],
+   "items": [
+    {
+     "name": "Breaker box",
+     "ok": [
+      "Off (verified)"
+     ],
+     "bad": [
+      "Not off"
+     ],
+     "photos": 1,
+     "hint": "Open the panel and photograph the breakers in the OFF position."
+    },
+    {
+     "name": "Mailbox, closed",
+     "ok": [
+      "Closed and locked"
+     ],
+     "bad": [
+      "Won't close",
+      "Damaged"
+     ],
+     "photos": 1,
+     "hint": "Photograph the mailbox closed."
+    },
+    {
+     "name": "Mailbox, open with key",
+     "ok": [
+      "Key opens it"
+     ],
+     "bad": [
+      "Key won't turn",
+      "Key missing",
+      "Damaged"
+     ],
+     "photos": 1,
+     "hint": "Photograph the mailbox open with the key inserted."
+    },
+    {
+     "name": "Parking stall",
+     "ok": [
+      "Stall clear"
+     ],
+     "bad": [
+      "Occupied",
+      "Damaged",
+      "Marked wrong"
+     ],
+     "photos": 1,
+     "hint": "Photograph the tenant's assigned parking stall."
+    },
+    {
+     "name": "All keys",
+     "ok": [
+      "All keys present"
+     ],
+     "bad": [
+      "Key missing",
+      "Key damaged"
+     ],
+     "photos": 1,
+     "hint": "Lay out every key being handed over and take one photo of all of them together."
+    },
+    {
+     "name": "Unit entry key",
+     "ok": [
+      "Present and works"
+     ],
+     "bad": [
+      "Missing",
+      "Does not turn",
+      "Damaged"
+     ],
+     "stamp": true,
+     "hint": "The unit's entry door key. Read the code stamped on it."
+    },
+    {
+     "name": "Building entry key",
+     "ok": [
+      "Present and works"
+     ],
+     "bad": [
+      "Missing",
+      "Does not turn",
+      "Damaged"
+     ],
+     "stamp": true,
+     "hint": "The building entry door key. Read the code stamped on it."
+    },
+    {
+     "name": "Parking sticker",
+     "ok": [
+      "Sticker ready"
+     ],
+     "bad": [
+      "Sticker missing"
+     ],
+     "photos": 1,
+     "hint": "Photograph the vehicle sticker for the front windshield, by itself."
+    }
+   ]
+  },
+  {
+   "id": "burns",
+   "name": "Burn check (tenants are charged for burns)",
+   "only": [
+    "pre_move_in"
+   ],
+   "items": [
+    {
+     "name": "Incense burns or small holes in the walls",
+     "ok": [
+      "None found"
+     ],
+     "bad": [
+      "Found"
+     ],
+     "photosBad": 1,
+     "hint": "Incense sticks are pushed into tiny holes in the wall: look closely along the walls in every room. If found, take a photo."
+    },
+    {
+     "name": "Burn marks around outlet and light switch covers",
+     "ok": [
+      "None found"
+     ],
+     "bad": [
+      "Found"
+     ],
+     "photosBad": 1,
+     "hint": "Check the cover plates and the wall around every outlet and light switch. If found, take a photo."
+    },
+    {
+     "name": "Cigarette burns on the bathroom sink",
+     "ok": [
+      "None found"
+     ],
+     "bad": [
+      "Found"
+     ],
+     "photosBad": 1,
+     "hint": "Check the sink basin and rim in the bathroom. If found, take a photo."
+    },
+    {
+     "name": "Cigarette burns on the floors",
+     "ok": [
+      "None found"
+     ],
+     "bad": [
+      "Found"
+     ],
+     "photosBad": 1,
+     "hint": "Check the floors, especially near the bathroom and bedrooms. If found, take a photo."
+    },
+    {
+     "name": "Any other cigarette or incense burn in the unit",
+     "ok": [
+      "None found"
+     ],
+     "bad": [
+      "Found"
+     ],
+     "photosBad": 1,
+     "hint": "Anywhere else in the unit. Photograph each burn and say where in the notes. If found, take a photo."
+    }
+   ]
+  },
+  {
+   "id": "hallway",
+   "name": "Hallway",
+   "items": [
+    {
+     "name": "Hallway",
+     "ok": [
+      "Clean",
+      "Good"
+     ],
+     "bad": [
+      "Dirty",
+      "Damaged",
+      "Marked"
+     ]
+    },
+    {
+     "name": "Smoke / CO detectors",
+     "ok": [
+      "Present and tested"
+     ],
+     "bad": [
+      "Missing",
+      "Does not sound",
+      "Damaged",
+      "Expired"
+     ],
+     "locations": [
+      "Hallway",
+      "Bedroom 1",
+      "Bedroom 2"
+     ],
+     "photos": 1,
+     "hint": "Tick every place that has one (any 1, 2 or all 3). Test each and take one photo per detector."
+    }
+   ]
+  },
+  {
+   "id": "entry",
+   "name": "Entry",
+   "items": [
+    {
+     "name": "Door",
+     "ok": [
+      "Good"
+     ],
+     "bad": [
+      "Won't lock",
+      "Sticks",
+      "Damaged",
+      "Marked"
+     ]
+    },
+    {
+     "name": "Walls",
+     "ok": [
+      "Good",
+      "Clean"
+     ],
+     "bad": [
+      "Marked",
+      "Stained",
+      "Holes",
+      "Cracked",
+      "Incense burns"
+     ]
+    },
+    {
+     "name": "Ceiling",
+     "ok": [
+      "Good"
+     ],
+     "bad": [
+      "Stained",
+      "Cracked",
+      "Peeling",
+      "Hole"
+     ]
+    },
+    {
+     "name": "Floor",
+     "ok": [
+      "Good",
+      "Clean",
+      "New floor"
+     ],
+     "bad": [
+      "Dirty",
+      "Stained",
+      "Scratched",
+      "Damaged",
+      "Cigarette burn"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "living",
+   "name": "Living room",
+   "items": [
+    {
+     "name": "Patio door",
+     "ok": [
+      "Good"
+     ],
+     "bad": [
+      "Won't lock",
+      "Sticks",
+      "Cracked glass",
+      "Damaged"
+     ],
+     "na": "None"
+    },
+    {
+     "name": "Walls",
+     "ok": [
+      "Good",
+      "Clean"
+     ],
+     "bad": [
+      "Marked",
+      "Stained",
+      "Holes",
+      "Cracked",
+      "Incense burns"
+     ]
+    },
+    {
+     "name": "Ceiling",
+     "ok": [
+      "Good"
+     ],
+     "bad": [
+      "Stained",
+      "Cracked",
+      "Peeling",
+      "Hole"
+     ]
+    },
+    {
+     "name": "Porch",
+     "ok": [
+      "Good",
+      "Clean"
+     ],
+     "bad": [
+      "Dirty",
+      "Damaged"
+     ],
+     "na": "None"
+    },
+    {
+     "name": "Floor",
+     "ok": [
+      "Good",
+      "Clean",
+      "New floor"
+     ],
+     "bad": [
+      "Dirty",
+      "Stained",
+      "Scratched",
+      "Damaged",
+      "Cigarette burn"
+     ]
+    },
+    {
+     "name": "Outlets",
+     "ok": [
+      "Working"
+     ],
+     "bad": [
+      "Not working",
+      "Cover broken",
+      "Loose",
+      "Burn marks"
+     ]
+    },
+    {
+     "name": "Lights",
+     "ok": [
+      "Working"
+     ],
+     "bad": [
+      "Not working",
+      "Flickers",
+      "Cover missing",
+      "Burn marks"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "kitchen",
+   "name": "Kitchen",
+   "items": [
+    {
+     "name": "Walls",
+     "ok": [
+      "Good",
+      "Clean"
+     ],
+     "bad": [
+      "Marked",
+      "Stained",
+      "Holes",
+      "Cracked",
+      "Incense burns"
+     ]
+    },
+    {
+     "name": "Ceiling",
+     "ok": [
+      "Good"
+     ],
+     "bad": [
+      "Stained",
+      "Cracked",
+      "Peeling",
+      "Hole"
+     ]
+    },
+    {
+     "name": "Floor",
+     "ok": [
+      "Good",
+      "Clean",
+      "New floor"
+     ],
+     "bad": [
+      "Dirty",
+      "Stained",
+      "Scratched",
+      "Damaged",
+      "Cigarette burn"
+     ]
+    },
+    {
+     "name": "Appliances",
+     "ok": [
+      "Working",
+      "Clean",
+      "Not supplied by landlord"
+     ],
+     "bad": [
+      "Not working",
+      "Dirty",
+      "Damaged"
+     ]
+    },
+    {
+     "name": "Countertops",
+     "ok": [
+      "Good",
+      "Clean"
+     ],
+     "bad": [
+      "Stained",
+      "Chipped",
+      "Burned",
+      "Damaged"
+     ]
+    },
+    {
+     "name": "Sink",
+     "ok": [
+      "Good"
+     ],
+     "bad": [
+      "Leaks",
+      "Clogged",
+      "Chipped",
+      "Stained",
+      "Cigarette burn"
+     ]
+    },
+    {
+     "name": "Faucet",
+     "ok": [
+      "Works"
+     ],
+     "bad": [
+      "Leaks",
+      "Loose",
+      "Won't shut off",
+      "Low pressure"
+     ]
+    },
+    {
+     "name": "Drain",
+     "ok": [
+      "Drains well"
+     ],
+     "bad": [
+      "Slow",
+      "Clogged",
+      "Leaks"
+     ]
+    },
+    {
+     "name": "Cabinets",
+     "ok": [
+      "Good",
+      "Clean"
+     ],
+     "bad": [
+      "Doors loose",
+      "Damaged",
+      "Dirty",
+      "Water damage"
+     ]
+    },
+    {
+     "name": "Base",
+     "ok": [
+      "Good"
+     ],
+     "bad": [
+      "Damaged",
+      "Loose",
+      "Missing",
+      "Marked"
+     ]
+    },
+    {
+     "name": "Outlets",
+     "ok": [
+      "Working"
+     ],
+     "bad": [
+      "Not working",
+      "Cover broken",
+      "Loose",
+      "Burn marks"
+     ]
+    },
+    {
+     "name": "Lights",
+     "ok": [
+      "Working"
+     ],
+     "bad": [
+      "Not working",
+      "Flickers",
+      "Cover missing",
+      "Burn marks"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "bathroom",
+   "name": "Bathroom",
+   "items": [
+    {
+     "name": "Walls",
+     "ok": [
+      "Good",
+      "Clean"
+     ],
+     "bad": [
+      "Marked",
+      "Stained",
+      "Holes",
+      "Cracked",
+      "Incense burns"
+     ]
+    },
+    {
+     "name": "Ceiling",
+     "ok": [
+      "Good"
+     ],
+     "bad": [
+      "Stained",
+      "Cracked",
+      "Peeling",
+      "Hole"
+     ]
+    },
+    {
+     "name": "Floor",
+     "ok": [
+      "Good",
+      "Clean",
+      "New floor"
+     ],
+     "bad": [
+      "Dirty",
+      "Stained",
+      "Scratched",
+      "Damaged",
+      "Cigarette burn"
+     ]
+    },
+    {
+     "name": "Bathtub",
+     "ok": [
+      "Good",
+      "Clean"
+     ],
+     "bad": [
+      "Chipped",
+      "Cracked",
+      "Stained",
+      "Dirty"
+     ],
+     "na": "None"
+    },
+    {
+     "name": "Shower panel",
+     "ok": [
+      "Good"
+     ],
+     "bad": [
+      "Cracked",
+      "Leaks",
+      "Moldy",
+      "Loose"
+     ],
+     "na": "None"
+    },
+    {
+     "name": "Toilet",
+     "ok": [
+      "Flushes well"
+     ],
+     "bad": [
+      "Runs",
+      "Leaks",
+      "Loose",
+      "Cracked"
+     ]
+    },
+    {
+     "name": "Countertop",
+     "ok": [
+      "Good",
+      "Clean"
+     ],
+     "bad": [
+      "Stained",
+      "Chipped",
+      "Burned",
+      "Damaged"
+     ]
+    },
+    {
+     "name": "Sink",
+     "ok": [
+      "Good"
+     ],
+     "bad": [
+      "Leaks",
+      "Clogged",
+      "Chipped",
+      "Stained",
+      "Cigarette burn"
+     ]
+    },
+    {
+     "name": "Faucet",
+     "ok": [
+      "Works"
+     ],
+     "bad": [
+      "Leaks",
+      "Loose",
+      "Won't shut off",
+      "Low pressure"
+     ]
+    },
+    {
+     "name": "Drain",
+     "ok": [
+      "Drains well"
+     ],
+     "bad": [
+      "Slow",
+      "Clogged",
+      "Leaks"
+     ]
+    },
+    {
+     "name": "Cabinet",
+     "ok": [
+      "Good",
+      "Clean"
+     ],
+     "bad": [
+      "Doors loose",
+      "Damaged",
+      "Dirty",
+      "Water damage"
+     ]
+    },
+    {
+     "name": "Outlets",
+     "ok": [
+      "Working"
+     ],
+     "bad": [
+      "Not working",
+      "Cover broken",
+      "Loose",
+      "Burn marks"
+     ]
+    },
+    {
+     "name": "Lights",
+     "ok": [
+      "Working"
+     ],
+     "bad": [
+      "Not working",
+      "Flickers",
+      "Cover missing",
+      "Burn marks"
+     ]
+    },
+    {
+     "name": "Bath fan",
+     "ok": [
+      "Works"
+     ],
+     "bad": [
+      "Not working",
+      "Noisy",
+      "Dirty"
+     ],
+     "na": "None"
+    }
+   ]
+  },
+  {
+   "id": "br1",
+   "name": "Bedroom 1",
+   "items": [
+    {
+     "name": "Door",
+     "ok": [
+      "Good"
+     ],
+     "bad": [
+      "Sticks",
+      "Damaged",
+      "Marked"
+     ]
+    },
+    {
+     "name": "Walls",
+     "ok": [
+      "Good",
+      "Clean"
+     ],
+     "bad": [
+      "Marked",
+      "Stained",
+      "Holes",
+      "Cracked",
+      "Incense burns"
+     ]
+    },
+    {
+     "name": "Ceiling",
+     "ok": [
+      "Good"
+     ],
+     "bad": [
+      "Stained",
+      "Cracked",
+      "Peeling",
+      "Hole"
+     ]
+    },
+    {
+     "name": "Floor",
+     "ok": [
+      "Good",
+      "Clean",
+      "New floor"
+     ],
+     "bad": [
+      "Dirty",
+      "Stained",
+      "Scratched",
+      "Damaged",
+      "Cigarette burn"
+     ]
+    },
+    {
+     "name": "Outlets",
+     "ok": [
+      "Working"
+     ],
+     "bad": [
+      "Not working",
+      "Cover broken",
+      "Loose",
+      "Burn marks"
+     ]
+    },
+    {
+     "name": "Lights",
+     "ok": [
+      "Working"
+     ],
+     "bad": [
+      "Not working",
+      "Flickers",
+      "Cover missing",
+      "Burn marks"
+     ]
+    },
+    {
+     "name": "Windows",
+     "ok": [
+      "Good"
+     ],
+     "bad": [
+      "Won't lock",
+      "Sticks",
+      "Cracked",
+      "Screen torn"
+     ]
+    },
+    {
+     "name": "Closet",
+     "ok": [
+      "Good"
+     ],
+     "bad": [
+      "Door off track",
+      "Rod missing",
+      "Damaged"
+     ],
+     "na": "None"
+    }
+   ]
+  },
+  {
+   "id": "br2",
+   "name": "Bedroom 2",
+   "items": [
+    {
+     "name": "Door",
+     "ok": [
+      "Good"
+     ],
+     "bad": [
+      "Sticks",
+      "Damaged",
+      "Marked"
+     ]
+    },
+    {
+     "name": "Walls",
+     "ok": [
+      "Good",
+      "Clean"
+     ],
+     "bad": [
+      "Marked",
+      "Stained",
+      "Holes",
+      "Cracked",
+      "Incense burns"
+     ]
+    },
+    {
+     "name": "Ceiling",
+     "ok": [
+      "Good"
+     ],
+     "bad": [
+      "Stained",
+      "Cracked",
+      "Peeling",
+      "Hole"
+     ]
+    },
+    {
+     "name": "Floor",
+     "ok": [
+      "Good",
+      "Clean",
+      "New floor"
+     ],
+     "bad": [
+      "Dirty",
+      "Stained",
+      "Scratched",
+      "Damaged",
+      "Cigarette burn"
+     ]
+    },
+    {
+     "name": "Outlets",
+     "ok": [
+      "Working"
+     ],
+     "bad": [
+      "Not working",
+      "Cover broken",
+      "Loose",
+      "Burn marks"
+     ]
+    },
+    {
+     "name": "Lights",
+     "ok": [
+      "Working"
+     ],
+     "bad": [
+      "Not working",
+      "Flickers",
+      "Cover missing",
+      "Burn marks"
+     ]
+    },
+    {
+     "name": "Windows",
+     "ok": [
+      "Good"
+     ],
+     "bad": [
+      "Won't lock",
+      "Sticks",
+      "Cracked",
+      "Screen torn"
+     ]
+    },
+    {
+     "name": "Closet",
+     "ok": [
+      "Good"
+     ],
+     "bad": [
+      "Door off track",
+      "Rod missing",
+      "Damaged"
+     ],
+     "na": "None"
+    }
+   ]
+  }
+ ],
+ "quick": {
+  "Appliances": [
+   "Appliances are not supplied with the unit. If the tenant uses the appliances that are inside the unit, the landlord is not responsible for repair or replacement. If the tenant replaces an appliance, the tenant must tell the landlord first."
+  ],
+  "Floor": [
+   "New floors installed.",
+   "One cigarette burn on the floor.",
+   "Vinyl rolled or lifted at the edge."
+  ],
+  "Lights": [
+   "Light works from the wall switch.",
+   "Light is controlled by a switched outlet.",
+   "Light works from both the switch and the outlet."
+  ],
+  "Outlets": [
+   "Outlet is controlled by a wall switch.",
+   "Cover plate replaced."
+  ],
+  "Drain": [
+   "Drain is clear and flows well."
+  ],
+  "Walls": [
+   "Fresh paint.",
+   "Small nail holes only."
+  ]
+ }
+}

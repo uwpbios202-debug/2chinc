@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<title>Confirm Details — 2nd Chance Housing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+</head>
+<body>
+<div class="appbar"><div class="appbar-in"><div class="org">2nd Chance Housing<span>Owner Portal</span></div></div></div>
+
+<!-- Reached from the "Nothing changed" button in a 6-month reminder email.
+     Confirming takes a click on THIS page (not just opening the link), so an
+     email security scanner that pre-opens links can't confirm on the owner's
+     behalf. The link's token is single-use and reveals nothing about the owner. -->
+<main class="wrap narrow">
+  <div class="panel" id="box">
+    <h1>Confirm your details</h1>
+    <p>Confirm that your mailing address, phone numbers and emergency contact on file with 2nd Chance Housing are still correct.</p>
+    <div class="row"><button class="btn primary" type="button" id="confirmBtn">Yes, nothing changed</button></div>
+    <p class="sub">Something has changed? <a href="/association-owners/roca1/">Sign in to update it</a> instead.</p>
+    <div class="msg" id="msg" role="status"></div>
+  </div>
+</main>
+
+<script type="module">
+import { client, $, notifyStaff } from "/assets/portal/portal.js";
+
+const token = new URLSearchParams(location.search).get("t") || "";
+// Keep the token out of the address bar and history once it's been read.
+history.replaceState(null, "", location.pathname);
+
+if (!/^[0-9a-f]{64}$/.test(token)) {
+  $("box").innerHTML = `<h1>This link isn't complete</h1>
+    <p>Open the "Nothing changed" button from the email again, or <a href="/association-owners/roca1/">sign in</a> to review your information.</p>`;
+}
+
+$("confirmBtn")?.addEventListener("click", async () => {
+  $("confirmBtn").disabled = true;
+  $("msg").className = "msg"; $("msg").textContent = "Confirming…";
+  const { data, error } = await client.rpc("condo_confirm_by_token", { p_token: token });
+  if (error) {
+    $("confirmBtn").disabled = false;
+    $("msg").className = "msg err"; $("msg").textContent = "We couldn't reach the server. Try again.";
+    return;
+  }
+  if (data && data.ok) notifyStaff();
+  $("box").innerHTML = data && data.ok
+    ? `<h1>Thank you</h1><p>Your details are confirmed. We'll check in again in six months. You can close this page.</p>`
+    : `<h1>This link has already been used or has expired</h1>
+       <p>If you've already confirmed, you're all set. Otherwise <a href="/association-owners/roca1/">sign in</a> to review your information.</p>`;
+});
+</script>
+</body>
+</html>

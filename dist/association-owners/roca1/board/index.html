@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>ROCA1 Board — 2nd Chance Housing Staff</title>
+<link rel="icon" href="/favicon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+<style>
+.card2{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:14px}
+.card2 h2{margin:0 0 6px;font-size:1.15rem}.card2 h3{margin:12px 0 4px;font-size:1rem}
+.meta{color:var(--muted);font-size:.9rem}
+td.n,th.n{text-align:right;white-space:nowrap}
+.pill3{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;border-radius:20px;padding:.12rem .55rem;background:var(--accent-soft);color:var(--accent)}
+.pill3.warn{background:#fff3cd;color:#7a5200}.pill3.off{background:#e8e8e8;color:#444}.pill3.bad{background:#fde2e1;color:#8a1c1c}.pill3.blue{background:#e3eefb;color:#1f4d8a}
+.tabs2{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 14px}.tabs2 a{padding:6px 14px;border:1px solid var(--line);border-radius:999px;text-decoration:none;color:var(--fg);background:var(--panel)}
+.tabs2 a[aria-current=page]{background:var(--accent);color:#fff;border-color:var(--accent)}
+.formrow{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-top:8px}
+.formrow label{display:grid;gap:3px;font-size:.85rem;color:var(--muted)}
+.formrow input,.formrow select,.formrow textarea{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:6px;color:var(--fg);background:var(--panel)}
+.body{white-space:pre-wrap;background:#f6f8f5;border-radius:8px;padding:8px 10px;margin:6px 0;font-size:.95rem}
+.notice{background:#fff3cd;border:1px solid #e0a800;color:#5c4200;border-radius:8px;padding:10px 12px;margin-bottom:14px}
+.err2{color:#8a1c1c;font-weight:600}
+table.mini{font-size:.85rem}table.mini td,table.mini th{padding:3px 6px}
+.grp td{background:#eef1ec;font-weight:700}
+.voters{display:grid;gap:4px;margin-top:6px}.voters .v{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:.9rem;border-top:1px solid var(--line);padding-top:4px}
+@media print{.appbar,.tabs2,.noprint,button,.formrow{display:none!important}.card2{border:0;padding:0;break-inside:avoid}body{background:#fff}
+  body.print-one .card2:not(.printing){display:none}body.print-one section:not(:has(.printing)) > :not(.card2){display:none}}
+</style>
+</head>
+<body>
+<div class="appbar" data-nav="staff"><div class="appbar-in">
+  <div class="org">2nd Chance Housing<span>ROCA1 board · Staff</span></div>
+  <div class="row" id="userBar" hidden>
+    
+    <button class="linkbtn" type="button" id="signOutBtn">Sign out</button>
+  </div>
+</div></div>
+<main class="wrap">
+  <header><h1>ROCA1 board business</h1><p class="lead">Resolutions, budget, special assessments and liens. Nothing is charged, filed or satisfied until a resolution is adopted by the vote the governing documents require; then the system carries it out. Automations only propose.</p></header>
+  <div id="signin" class="narrow"></div>
+  <div id="app" hidden>
+    <nav class="tabs2" id="tabs"><a href="#resolutions">Resolutions</a><a href="#budget">Budget</a><a href="#assessments">Assessments</a><a href="#liens">Liens</a><a href="#automation">Automation</a></nav>
+    <div id="modeNote" class="notice" hidden></div>
+    <section data-tab="resolutions"></section>
+    <section data-tab="budget" hidden></section>
+    <section data-tab="assessments" hidden></section>
+    <section data-tab="liens" hidden></section>
+    <section data-tab="automation" hidden></section>
+  </div>
+</main>
+<script type="module">
+import { client, $, esc, fmtDate, money, signIn, signOut, errorText } from "/assets/portal/portal.js";
+
+const KINDS = { budget: "Budget", special_assessment: "Special assessment", violation_decision: "Violation decision", fine_waiver: "Fine waiver", lien_filing: "Lien filing",
+  lien_satisfaction: "Lien satisfaction", foreclosure: "Foreclosure", rule: "Rule / by-law", other: "Other" };
+const THRESH = { board_majority_all: "Board: majority of all directors", board_hearing: "Board hearing (chair breaks ties)", members_majority: "Members: more than 50%",
+  members_75pct: "Members: 75%", members_consent: "Members: written consent of all in good standing" };
+const DEF_THRESH = { budget: "board_majority_all", special_assessment: "board_majority_all", violation_decision: "board_hearing", fine_waiver: "board_majority_all",
+  lien_filing: "board_majority_all", lien_satisfaction: "board_majority_all", foreclosure: "board_majority_all", rule: "members_consent", other: "board_majority_all" };
+const ST = { draft: "warn", voting: "blue", adopted: "", rejected: "off", withdrawn: "off" };
+const flush = () => client.functions.invoke("outbox-flush", { body: {} }).catch(() => {});
+const today = () => new Date().toISOString().slice(0, 10);
+async function rpc(name, args) { const { data, error } = await client.rpc(name, args); if (error) throw new Error(await errorText(error)); return data; }
+const run = (f) => async (...a) => { try { await f(...a); } catch (e) { alert(e.message); } };
+function printCard(card) { document.body.classList.add("print-one"); card.classList.add("printing"); window.print(); card.classList.remove("printing"); document.body.classList.remove("print-one"); }
+const S = {};
+
+// ---- Resolutions ------------------------------------------------------------
+function tallyLine(t) { return t ? `${t.yes} yes · ${t.no} no${t.abstain ? " · " + t.abstain + " abstain" : ""}${t.recused ? " · " + t.recused + " recused" : ""} — ${esc(t.rule)} — <b>${t.passes ? "passes" : "does not pass yet"}</b>` : ""; }
+function resCard(r) {
+  const t = r.live_tally || r.tally, votes = Object.fromEntries((r.votes || []).map((v) => [v.voter_key, v]));
+  return `<div class="card2" data-res="${esc(r.id)}"><div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap">
+      <h2>${r.number ? esc(r.number) + " · " : ""}${esc(r.title)}</h2><span><span class="pill3 ${ST[r.status]}">${esc(r.status)}</span> <span class="pill3 off">${esc(KINDS[r.kind] || r.kind)}</span></span></div>
+    <div class="meta">${esc(THRESH[r.threshold] || r.threshold)} · ${r.origin === "automation" ? "proposed by the system" : r.origin === "historical" ? "recorded from a signed document" : "proposed by " + esc(r.proposed_by || "")} ${fmtDate(r.proposed_at)}${r.voting_closes_on ? " · voting closes " + fmtDate(r.voting_closes_on) : ""}${r.decided_at ? " · decided " + fmtDate(r.decided_at) : ""}</div>
+    ${r.origin_note ? `<div class="meta">${esc(r.origin_note)}</div>` : ""}
+    ${r.body ? `<div class="body">${esc(r.body)}</div>` : ""}
+    ${t ? `<div>${tallyLine(t)}</div>` : ""}
+    ${r.source_document ? `<div class="meta">Signed document: ${esc(r.source_document)}</div>` : ""}${r.rod_document ? `<div class="meta">Register of Deeds: ${esc(r.rod_document)}</div>` : ""}
+    ${r.execution_result ? `<div class="meta">Carried out: ${esc(JSON.stringify(r.execution_result))}</div>` : ""}
+    ${r.execution_error ? `<div class="err2">Could not be carried out: ${esc(r.execution_error)} <button class="btn small" type="button" data-retry>Retry</button></div>` : ""}
+    ${r.status === "voting" || (r.status === "draft" && r.voters) ? `<div class="voters">${(r.voters || []).map((v) => `<div class="v"><b style="min-width:110px">${esc(v.voter_key.replace("seat:", "").replace("unit:", "Unit "))}</b><span>${esc(v.voter_name || "")}</span>
+        ${v.eligible ? (votes[v.voter_key] ? `<span class="pill3">${esc(votes[v.voter_key].vote)}</span><span class="meta">${esc(votes[v.voter_key].via)} ${fmtDate(votes[v.voter_key].voted_at)}</span>` : `<span class="meta">no vote yet</span>`)
+          : `<span class="pill3 off">can't vote: ${esc(v.reason || "")}</span>`}
+        ${r.status === "voting" && v.eligible ? `<select data-vote="${esc(v.voter_key)}" class="noprint"><option value="">record…</option><option>yes</option><option>no</option><option>abstain</option><option>recused</option></select>
+          <select data-via="${esc(v.voter_key)}" class="noprint"><option value="meeting">at a meeting</option><option value="paper">on paper</option><option value="email">by email</option><option value="staff">by phone/staff</option></select>` : ""}</div>`).join("")}</div>` : ""}
+    <div class="formrow noprint">
+      ${r.status === "draft" ? `<button class="btn small" type="button" data-edit>Edit</button><label>Voting closes<input type="date" data-closes></label><button class="btn primary small" type="button" data-open>Open the vote</button><button class="btn small" type="button" data-withdraw>Withdraw</button>` : ""}
+      ${r.status === "voting" ? `<button class="btn primary small" type="button" data-close>Close the vote and count</button><button class="btn small" type="button" data-withdraw>Withdraw</button>` : ""}
+      <button class="btn small" type="button" data-print>Print</button></div></div>`;
+}
+function resForm(r = {}) {
+  return `<div class="card2 noprint"><h2>${r.id ? "Edit draft" : "New resolution"}</h2>
+    <p class="meta">Special assessments and lien actions are easiest from their own tabs, which fill in what the system needs to carry them out.</p>
+    <div class="formrow"><label>Kind<select id="rKind">${Object.entries(KINDS).map(([k, v]) => `<option value="${k}" ${r.kind === k ? "selected" : ""}>${v}</option>`).join("")}</select></label>
+      <label>Who decides<select id="rThr">${Object.entries(THRESH).map(([k, v]) => `<option value="${k}" ${r.threshold === k ? "selected" : ""}>${v}</option>`).join("")}</select></label>
+      <label style="flex:1;min-width:260px">Title<input id="rTitle" value="${esc(r.title || "")}"></label></div>
+    <div class="formrow"><label style="flex:1">Resolution text<textarea id="rBody" rows="5" style="width:100%">${esc(r.body || "")}</textarea></label></div>
+    <details><summary class="meta">What the system does on adoption (payload, advanced)</summary><div class="formrow"><label style="flex:1"><textarea id="rPayload" rows="4" style="width:100%;font-family:monospace">${esc(JSON.stringify(r.payload || {}, null, 1))}</textarea></label></div></details>
+    <div class="formrow"><label style="flex:1">Signed document on file (optional)<input id="rSrc" value="${esc(r.source_document || "")}"></label></div>
+    <div class="formrow"><button class="btn primary" type="button" id="rSave" data-id="${esc(r.id || "")}">Save draft</button>${r.id ? `<button class="btn" type="button" id="rCancel">Cancel</button>` : ""}<span class="msg" id="rMsg"></span></div>
+    <details style="margin-top:10px"><summary><b>Record a resolution adopted before this system</b> (from a signed document)</summary>
+      <div class="formrow"><label>Adopted on<input type="date" id="hDate"></label><label>Register of Deeds doc (if any)<input id="hRod"></label></div>
+      <p class="meta">Uses the kind, title, text, who-decides and signed document above. It is recorded as history and not carried out again.</p>
+      <button class="btn" type="button" id="hSave">Record as adopted</button></details></div>`;
+}
+async function loadRes() {
+  const el = document.querySelector('[data-tab="resolutions"]'), list = await rpc("roca_resolutions_staff_list", { p_status: null });
+  S.res = list;
+  el.innerHTML = resForm(S.editing || {}) + (list.length ? list.map(resCard).join("") : `<p class="meta">No resolutions yet.</p>`);
+  $("rKind").onchange = () => { $("rThr").value = DEF_THRESH[$("rKind").value]; };
+  if (!S.editing) $("rThr").value = DEF_THRESH[$("rKind").value];
+  $("rCancel") && ($("rCancel").onclick = () => { S.editing = null; loadRes(); });
+  const payload = () => { try { return JSON.parse($("rPayload").value || "{}"); } catch { throw new Error("The payload isn't valid JSON."); } };
+  $("rSave").onclick = run(async () => {
+    await rpc("roca_resolution_save", { p_id: $("rSave").dataset.id || null, p_kind: $("rKind").value, p_title: $("rTitle").value, p_body: $("rBody").value,
+      p_threshold: $("rThr").value, p_payload: payload(), p_source_document: $("rSrc").value });
+    S.editing = null; await loadRes();
+  });
+  $("hSave").onclick = run(async () => {
+    if (!$("hDate").value) throw new Error("Enter the date it was adopted.");
+    await rpc("roca_resolution_record_adopted", { p_kind: $("rKind").value, p_title: $("rTitle").value, p_body: $("rBody").value, p_threshold: $("rThr").value,
+      p_payload: payload(), p_decided_on: $("hDate").value, p_source_document: $("rSrc").value, p_rod_document: $("hRod").value || null, p_execute: false });
+    await loadRes();
+  });
+  el.querySelectorAll("[data-res]").forEach((card) => {
+    const id = card.dataset.res, r = list.find((x) => x.id === id), q = (s) => card.querySelector(s);
+    q("[data-print]").onclick = () => printCard(card);
+    q("[data-edit]") && (q("[data-edit]").onclick = () => { S.editing = r; loadRes(); window.scrollTo(0, 0); });
+    q("[data-open]") && (q("[data-open]").onclick = run(async () => { if (!confirm("Open the vote? Every eligible voter is emailed.")) return; await rpc("roca_resolution_open", { p_id: id, p_closes_on: q("[data-closes]").value || null }); flush(); await loadRes(); }));
+    q("[data-close]") && (q("[data-close]").onclick = run(async () => { if (!confirm("Close the vote now and count it? If it passes, it is carried out right away.")) return; await rpc("roca_resolution_close", { p_id: id }); flush(); await loadAll(); }));
+    q("[data-withdraw]") && (q("[data-withdraw]").onclick = run(async () => { const n = prompt("Why is it withdrawn?"); if (n === null) return; await rpc("roca_resolution_withdraw", { p_id: id, p_note: n }); await loadRes(); }));
+    q("[data-retry]") && (q("[data-retry]").onclick = run(async () => { await rpc("roca_resolution_retry", { p_id: id }); flush(); await loadAll(); }));
+    card.querySelectorAll("[data-vote]").forEach((s) => s.onchange = run(async () => {
+      if (!s.value) return; const key = s.dataset.vote;
+      await rpc("roca_vote_record", { p_id: id, p_voter: key, p_vote: s.value, p_via: card.querySelector(`[data-via="${key}"]`).value, p_note: null }); await loadRes();
+    }));
+  });
+}
+
+// ---- Budget ----------------------------------------------------------------
+const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const GRPS = ["INCOME", "ADMINISTRATIVE", "UTILITIES", "GROUNDS", "BUILDINGS"];
+async function loadBudget() {
+  const el = document.querySelector('[data-tab="budget"]'), d = await rpc("roca_budgets_staff");
+  S.bud = d; const years = d.budgets.map((b) => b.fiscal_year);
+  if (!S.fy || !years.includes(S.fy)) S.fy = years[0];
+  const b = d.budgets.find((x) => x.fiscal_year === S.fy);
+  if (!b) { el.innerHTML = `<p class="meta">No budgets.</p>`; return; }
+  const t = b.totals, draft = b.status === "draft", pt = b.printed_totals;
+  const rows = GRPS.map((g) => { const ls = b.lines.filter((l) => l.grp === g); if (!ls.length) return "";
+    const sum = ls.reduce((a, l) => a + Number(l.annual), 0), act = ls.reduce((a, l) => a + Number(l.actual || 0), 0);
+    return `<tr class="grp"><td colspan="15">${g}</td></tr>` + ls.map((l) => `<tr${draft ? ` data-line="${esc(l.id)}" style="cursor:pointer"` : ""}><td>${esc(l.code)}</td><td>${esc(l.name)}${l.note ? `<div class="meta">${esc(l.note)}</div>` : ""}</td>
+      ${l.months.map((m) => `<td class="n">${Number(m) ? Number(m).toLocaleString("en-US", { maximumFractionDigits: 2 }) : ""}</td>`).join("")}<td class="n"><b>${money(l.annual)}</b></td>
+      <td class="n">${g === "INCOME" ? "" : money(l.actual)}</td></tr>`).join("")
+      + `<tr><td></td><td><b>Total ${g.toLowerCase()}</b></td>${MON.map(() => "<td></td>").join("")}<td class="n"><b>${money(sum)}</b></td><td class="n">${g === "INCOME" ? "" : money(act)}</td></tr>`; }).join("");
+  el.innerHTML = `<div class="card2"><div class="formrow noprint"><label>Fiscal year<select id="bFy">${years.map((y) => `<option ${y === S.fy ? "selected" : ""}>${y}</option>`).join("")}</select></label>
+      <button class="btn" type="button" id="bCopy">Start ${Math.max(...years) + 1} from this one</button><button class="btn" type="button" id="bPrint">Print</button></div>
+    <h2>ROCA1 budget, fiscal year ${b.fiscal_year} <span class="pill3 ${b.status === "adopted" ? "" : "warn"}">${esc(b.status.replace("_", " "))}</span>${b.resolution ? ` <span class="pill3 blue">resolution ${esc(b.resolution.number || "draft")} ${esc(b.resolution.status)}</span>` : ""}</h2>
+    ${b.source_document ? `<div class="meta">Source: ${esc(b.source_document)}</div>` : ""}${b.notes ? `<div class="meta">${esc(b.notes)}</div>` : ""}
+    <div class="table-wrap"><table class="mini"><tbody>
+      <tr><td>General assessment (dues) per unit per month</td><td class="n"><b>${money(b.monthly_dues)}</b></td><td class="meta">billed now: ${money(d.current_dues)}</td></tr>
+      <tr><td>Total income</td><td class="n">${money(t.income)}</td><td class="meta">${pt ? "printed " + money(pt.total_income) : ""}</td></tr>
+      <tr><td>Total expenditures</td><td class="n">${money(t.expenditures)}</td><td class="meta">${pt ? "printed " + money(pt.total_expenditures) : ""}</td></tr>
+      <tr><td>Carry forward</td><td class="n">${money(b.carry_forward)}</td><td></td></tr>
+      <tr><td><b>Shortfall (over budget)</b></td><td class="n"><b>${money(t.shortfall)}</b></td><td class="meta">${pt ? "printed over budget " + money(pt.over_budget) + (pt.essential_services ? " · \"essential services\" " + money(pt.essential_services) + " (printed, unexplained)" : "") : ""}</td></tr>
+      <tr><td>Actual ${b.fiscal_year}: dues billed / dues collected / all collected</td><td class="n">${money(b.actual_income.dues_billed)} / ${money(b.actual_income.dues_collected)} / ${money(b.actual_income.all_collected)}</td><td></td></tr>
+      <tr><td>Actual ${b.fiscal_year} expenses recorded</td><td class="n">${money(b.actual_expenses)}</td><td class="meta">from expenses entered below</td></tr></tbody></table></div>
+    <div class="formrow noprint">
+      ${draft ? `<label>Dues / month<input id="bDues" type="number" step="0.01" value="${esc(b.monthly_dues)}" style="width:100px"></label><label>Carry forward<input id="bCf" type="number" step="0.01" value="${esc(b.carry_forward)}" style="width:110px"></label>
+        <label style="flex:1">Notes<input id="bNotes" value="${esc(b.notes || "")}"></label><button class="btn" type="button" id="bSet">Save</button>` : ""}
+      ${["draft", "on_file", "proposed"].includes(b.status) && !(b.resolution && ["draft", "voting"].includes(b.resolution.status)) ? `<button class="btn primary" type="button" id="bPropose">Propose for adoption (board vote)</button>` : ""}
+      ${Number(t.shortfall) > 0 ? `<label>Installments<input id="sN" type="number" min="1" max="60" value="1" style="width:70px"></label><label>First due<input id="sDue" type="date"></label><button class="btn" type="button" id="bShort">Propose a special assessment for the shortfall</button>` : ""}</div></div>
+  <div class="card2"><h2>Lines${draft ? ` <span class="meta">(click a line to edit)</span>` : ""}</h2><div class="table-wrap"><table class="mini"><thead><tr><th>Code</th><th>Line</th>${MON.map((m) => `<th class="n">${m}</th>`).join("")}<th class="n">Budget</th><th class="n">Actual</th></tr></thead><tbody>${rows}</tbody></table></div>
+    ${draft ? `<div class="formrow noprint" id="lineForm"><input type="hidden" id="lId"><label>Group<select id="lGrp">${GRPS.map((g) => `<option>${g}</option>`).join("")}</select></label><label>Code<input id="lCode" style="width:60px"></label><label>Name<input id="lName"></label>
+      ${MON.map((m, i) => `<label>${m}<input id="lM${i}" type="number" step="0.01" style="width:78px"></label>`).join("")}<label>Note<input id="lNote"></label>
+      <button class="btn primary" type="button" id="lSave">Save line</button><button class="btn" type="button" id="lDel">Remove line</button><button class="btn" type="button" id="lNew">Clear</button></div>` : ""}</div>
+  <div class="card2"><h2>Expenses ${b.fiscal_year} (paid from ROCA1's account)</h2>
+    <div class="formrow noprint"><label>Date<input id="xDate" type="date"></label><label>Budget code<select id="xCode">${b.lines.filter((l) => l.grp !== "INCOME").map((l) => `<option value="${esc(l.code)}">${esc(l.code + " " + l.name)}</option>`).join("")}</select></label>
+      <label>Vendor<input id="xVendor"></label><label>Amount<input id="xAmt" type="number" step="0.01" style="width:100px"></label><label style="flex:1">Memo<input id="xMemo"></label><button class="btn primary" type="button" id="xAdd">Add expense</button></div>
+    <div class="table-wrap"><table class="mini"><thead><tr><th>Date</th><th>Code</th><th>Vendor</th><th>Memo</th><th class="n">Amount</th><th></th></tr></thead><tbody>
+      ${b.expenses.map((x) => `<tr style="${x.voided_at ? "text-decoration:line-through;color:#888" : ""}"><td>${fmtDate(x.expense_date)}</td><td>${esc(x.budget_code)}</td><td>${esc(x.vendor || "")}</td><td>${esc(x.memo || "")}${x.void_note ? `<div class="meta">void: ${esc(x.void_note)}</div>` : ""}</td><td class="n">${money(x.amount)}</td>
+        <td>${x.voided_at ? "" : `<button class="btn small noprint" type="button" data-void="${esc(x.id)}">Void</button>`}</td></tr>`).join("") || `<tr><td colspan="6" class="meta">No expenses entered for ${b.fiscal_year}.</td></tr>`}</tbody></table></div></div>`;
+  $("bFy").onchange = () => { S.fy = Number($("bFy").value); loadBudget(); };
+  $("bPrint").onclick = () => window.print();
+  $("bCopy").onclick = run(async () => { const to = Math.max(...years) + 1; if (!confirm(`Start a ${to} draft budget as a copy of ${b.fiscal_year}?`)) return; await rpc("roca_budget_copy", { p_from_year: b.fiscal_year, p_to_year: to }); S.fy = to; await loadBudget(); });
+  $("bSet") && ($("bSet").onclick = run(async () => { await rpc("roca_budget_set", { p_budget: b.id, p_monthly_dues: Number($("bDues").value), p_carry_forward: Number($("bCf").value || 0), p_notes: $("bNotes").value }); await loadBudget(); }));
+  $("bPropose") && ($("bPropose").onclick = run(async () => { await rpc("roca_budget_propose", { p_budget: b.id }); location.hash = "#resolutions"; await loadAll(); }));
+  $("bShort") && ($("bShort").onclick = run(async () => { if (!$("sDue").value) throw new Error("Choose the first due date."); await rpc("roca_shortfall_propose", { p_budget: b.id, p_installments: Number($("sN").value || 1), p_first_due: $("sDue").value }); location.hash = "#resolutions"; await loadAll(); }));
+  if (draft) {
+    const fill = (l) => { $("lId").value = l ? l.id : ""; $("lGrp").value = l ? l.grp : "ADMINISTRATIVE"; $("lCode").value = l ? l.code : ""; $("lName").value = l ? l.name : ""; $("lNote").value = l ? l.note || "" : ""; MON.forEach((m, i) => { $("lM" + i).value = l ? Number(l.months[i]) || "" : ""; }); };
+    el.querySelectorAll("[data-line]").forEach((tr) => tr.onclick = () => { fill(b.lines.find((l) => l.id === tr.dataset.line)); $("lineForm").scrollIntoView({ block: "center" }); });
+    $("lNew").onclick = () => fill(null);
+    $("lSave").onclick = run(async () => { await rpc("roca_budget_line_save", { p_budget: b.id, p_line: $("lId").value || null, p_grp: $("lGrp").value, p_code: $("lCode").value, p_name: $("lName").value, p_months: MON.map((m, i) => Number($("lM" + i).value || 0)), p_note: $("lNote").value || null }); await loadBudget(); });
+    $("lDel").onclick = run(async () => { if (!$("lId").value || !confirm("Remove this line from the draft?")) return; await rpc("roca_budget_line_delete", { p_line: $("lId").value }); await loadBudget(); });
+  }
+  $("xAdd").onclick = run(async () => { await rpc("roca_expense_add", { p_date: $("xDate").value || null, p_code: $("xCode").value, p_vendor: $("xVendor").value, p_amount: Number($("xAmt").value), p_memo: $("xMemo").value, p_receipt: null }); await loadBudget(); });
+  el.querySelectorAll("[data-void]").forEach((x) => x.onclick = run(async () => { const n = prompt("Why is this expense voided?"); if (n === null) return; await rpc("roca_expense_void", { p_id: x.dataset.void, p_note: n }); await loadBudget(); }));
+}
+
+// ---- Assessments -----------------------------------------------------------
+function parseUnits(s) {
+  const o = {}; (s || "").split(/[,;\n]+/).map((x) => x.trim()).filter(Boolean).forEach((p) => { const m = p.match(/^#?\s*(\w+)\s*[:=]\s*\$?([\d.,]+)$/); if (!m) throw new Error(`Write units as "8: 400, 12: 250" (not "${p}").`); o[m[1]] = Number(m[2].replace(/,/g, "")); });
+  return o;
+}
+async function loadAssess() {
+  const el = document.querySelector('[data-tab="assessments"]'), list = await rpc("roca_assessments_staff");
+  el.innerHTML = `<div class="card2 noprint"><h2>Propose a special assessment</h2>
+      <p class="meta">Every special assessment is a board vote (By-Laws §1500(5): majority of all directors), including a charge-back to one owner for a repair (§1500(3)). Once adopted, each owner is emailed the amount, due date(s) and reason, and each installment posts to their account on its due date.</p>
+      <div class="formrow"><label style="flex:1;min-width:240px">Title<input id="aTitle"></label><label>Total<input id="aTotal" type="number" step="0.01" style="width:110px"></label>
+        <label>Shared<select id="aAlloc"><option value="equal_16">Equally, 1/16 each</option><option value="per_unit">Set per unit</option><option value="single_unit">One unit (charge-back)</option></select></label>
+        <label>Units and amounts<input id="aUnits" placeholder="8: 400" disabled></label><label>Installments<input id="aN" type="number" min="1" max="60" value="1" style="width:70px"></label><label>First due<input id="aDue" type="date"></label></div>
+      <div class="formrow"><label style="flex:1">Reason (owners see it)<input id="aReason"></label><label>Invoice / repair reference<input id="aRef"></label><button class="btn primary" type="button" id="aSave">Draft the resolution</button></div></div>
+    ${list.map((a) => { const units = {}; (a.charges || []).forEach((c) => { units[c.unit_number] = units[c.unit_number] || []; units[c.unit_number].push(c); });
+      return `<div class="card2"><h2>${esc(a.number || "")} · ${esc(a.title)} <span class="pill3 ${a.status === "complete" ? "" : "blue"}">${esc(a.status)}</span></h2>
+        <div class="meta">${money(a.total)} · ${a.allocation === "equal_16" ? "1/16 each" : a.allocation === "single_unit" ? "charge-back" : "per unit"} · ${a.installments} installment(s) from ${fmtDate(a.first_due)} · posted ${money(a.posted)}</div>
+        <div class="body">${esc(a.reason)}${a.cost_reference ? "\n" + esc(a.cost_reference) : ""}</div>
+        <div class="table-wrap"><table class="mini"><thead><tr><th>Unit</th>${Array.from({ length: a.installments }, (_, i) => `<th class="n">#${i + 1}</th>`).join("")}<th class="n">Total</th><th>Notice</th></tr></thead><tbody>
+        ${Object.entries(units).map(([u, cs]) => `<tr><td>${esc(u)}</td>${cs.map((c) => `<td class="n" title="due ${esc(c.due_date)}">${money(c.amount)}${c.ledger_entry_id ? " ✓" : ""}</td>`).join("")}<td class="n">${money(cs.reduce((s, c) => s + Number(c.amount), 0))}</td><td>${cs[0].notice_sent_at ? fmtDate(cs[0].notice_sent_at) : "no email on file"}</td></tr>`).join("")}</tbody></table></div>
+        <p class="meta">✓ = posted to the owner's account.</p></div>`; }).join("") || `<p class="meta">No special assessments yet.</p>`}`;
+  $("aAlloc").onchange = () => { $("aUnits").disabled = $("aAlloc").value === "equal_16"; };
+  $("aSave").onclick = run(async () => {
+    const alloc = $("aAlloc").value, units = alloc === "equal_16" ? null : parseUnits($("aUnits").value);
+    await rpc("roca_assessment_draft", { p_title: $("aTitle").value, p_reason: $("aReason").value, p_total: Number($("aTotal").value), p_allocation: alloc, p_units: units,
+      p_installments: Number($("aN").value || 1), p_first_due: $("aDue").value || null, p_cost_reference: $("aRef").value || null });
+    location.hash = "#resolutions"; await loadAll();
+  });
+}
+
+// ---- Liens -----------------------------------------------------------------
+const LST = { approved: "warn", recorded: "bad", satisfaction_approved: "warn", satisfied: "off", released: "off", foreclosure: "bad" };
+async function loadLiens() {
+  const el = document.querySelector('[data-tab="liens"]'), d = await rpc("roca_liens_staff"), s = d.settings || {};
+  el.innerHTML = `<div class="card2"><h2>Liens</h2>
+      <p class="meta">Filing: a unit ${esc(s.roca_lien_months_behind)} months behind, then every ${esc(s.roca_lien_refile_months)} months while it stays behind (Stephen, 10/7/2026). Wis. Stat. § 703.165: a statement must be filed within 2 years after each assessment is due, and foreclosure brought within 3 years after it is recorded. Decided by a board vote. Foreclosure: association-fee balance over ${money(s.roca_foreclosure_threshold)} (2/19/2025 action D)${s.roca_foreclosure_hold_units ? "; not proposed for Unit " + esc(s.roca_foreclosure_hold_units) : ""}.</p>
+      <div class="table-wrap"><table class="mini"><thead><tr><th>Unit</th><th>Status</th><th>Lien doc</th><th>Recorded</th><th class="n">Claimed</th><th>Refile by</th><th>Satisfaction</th><th class="n">Balance now</th><th>Resolutions</th><th class="noprint"></th></tr></thead><tbody>
+      ${d.liens.map((l) => `<tr><td><b>${esc(l.unit_number)}</b><div class="meta">${esc(l.owner || "")}</div></td><td><span class="pill3 ${LST[l.status]}">${esc(l.status.replace("_", " "))}</span></td>
+        <td>${esc(l.rod_document || "")}</td><td>${l.recorded_on ? fmtDate(l.recorded_on) : ""}</td><td class="n">${l.amount_claimed != null ? money(l.amount_claimed) : ""}</td><td>${l.refile_due ? fmtDate(l.refile_due) : ""}</td>
+        <td>${esc(l.satisfaction_document || "")}${l.satisfied_on ? " " + fmtDate(l.satisfied_on) : ""}</td><td class="n">${money(l.balance)}</td>
+        <td class="meta">${[l.filing_number, l.satisfaction_number, l.foreclosure_number].filter(Boolean).map(esc).join(", ")}</td>
+        <td class="noprint">${l.status === "approved" ? `<button class="btn small primary" type="button" data-rec="${esc(l.id)}">Record filing</button>` : ""}${l.status === "satisfaction_approved" ? `<button class="btn small primary" type="button" data-sat="${esc(l.id)}">Record satisfaction</button>` : ""}<button class="btn small" type="button" data-note="${esc(l.id)}">Note</button></td></tr>
+        ${l.notes ? `<tr><td></td><td colspan="9" class="meta" style="white-space:pre-wrap">${esc(l.notes)}</td></tr>` : ""}`).join("")}</tbody></table></div></div>
+    <div class="card2 noprint"><h2>Propose a lien action</h2><p class="meta">Choose units, then draft the resolution (a board vote). "Months behind" counts from the oldest unpaid charge not yet under a recorded statement; red money is already past the 2-year window and can no longer be liened.</p>
+      <div class="table-wrap"><table class="mini"><thead><tr><th></th><th>Unit</th><th class="n">Balance</th><th class="n">Association-fee balance</th><th>Lien</th><th class="n">Months behind</th><th class="n">Not yet liened</th><th class="n">Past 2-year window</th></tr></thead><tbody>
+      ${d.units.map((u) => { const p = u.position || {}, lost = p.past_statutory_window; return `<tr><td><input type="checkbox" data-u="${esc(u.unit)}"></td><td>${esc(u.unit)}</td><td class="n">${money(u.balance)}</td><td class="n">${money(u.fee_balance)}</td><td>${u.has_lien ? "yes" : ""}</td>
+        <td class="n ${Number(p.months_behind) >= Number(s.roca_lien_months_behind) ? "bad" : ""}">${p.months_behind != null ? esc(p.months_behind) : ""}</td><td class="n">${Number(p.uncovered_amount) > 0 ? money(p.uncovered_amount) : ""}</td>
+        <td class="n bad">${lost ? money(lost.amount) + `<div class="meta">${fmtDate(lost.from)}–${fmtDate(lost.to)}</div>` : ""}</td></tr>`; }).join("")}</tbody></table></div>
+      <div class="formrow"><label>Action<select id="lpKind"><option value="lien_filing">Record liens</option><option value="lien_satisfaction">Satisfy liens</option><option value="foreclosure">Pursue foreclosure</option></select></label>
+        <label style="flex:1">Note added to the text (optional)<input id="lpNote"></label><button class="btn primary" type="button" id="lpGo">Draft the resolution</button></div></div>`;
+  el.querySelectorAll("[data-rec]").forEach((b) => b.onclick = run(async () => {
+    const doc = prompt("Register of Deeds document number:"); if (!doc) return;
+    const on = prompt("Date recorded (YYYY-MM-DD):", today()); if (!on) return;
+    const amt = prompt("Amount claimed on the lien (blank = keep):", ""); const cost = prompt("Recording/filing cost to charge the owner (0 if none):", "0");
+    await rpc("roca_lien_record", { p_id: b.dataset.rec, p_rod: doc, p_recorded_on: on, p_amount: amt ? Number(amt) : null, p_cost: Number(cost || 0) }); flush(); await loadLiens();
+  }));
+  el.querySelectorAll("[data-sat]").forEach((b) => b.onclick = run(async () => {
+    const doc = prompt("Satisfaction of Lien document number:"); if (!doc) return; const on = prompt("Date recorded (YYYY-MM-DD):", today()); if (!on) return;
+    await rpc("roca_lien_satisfy", { p_id: b.dataset.sat, p_doc: doc, p_date: on }); flush(); await loadLiens();
+  }));
+  el.querySelectorAll("[data-note]").forEach((b) => b.onclick = run(async () => { const n = prompt("Note:"); if (!n) return; await rpc("roca_lien_note", { p_id: b.dataset.note, p_note: n }); await loadLiens(); }));
+  $("lpGo").onclick = run(async () => {
+    const units = [...el.querySelectorAll("[data-u]:checked")].map((c) => c.dataset.u); if (!units.length) throw new Error("Choose at least one unit.");
+    await rpc("roca_lien_propose", { p_kind: $("lpKind").value, p_units: units, p_note: $("lpNote").value }); location.hash = "#resolutions"; await loadAll();
+  });
+}
+
+// ---- Automation ------------------------------------------------------------
+async function loadAuto() {
+  const el = document.querySelector('[data-tab="automation"]'), d = await rpc("roca_automation_staff");
+  const off = d.mode !== "live";
+  $("modeNote").hidden = !off; $("modeNote").textContent = off ? "Automation is OFF (automation_mode). A run is a dry run: it shows what it would propose or post, and changes nothing." : "";
+  el.innerHTML = `<div class="card2"><h2>Board automation <span class="pill3 ${off ? "warn" : ""}">${off ? "off — dry run" : "live"}</span></h2>
+      <p class="meta">Each run: closes votes whose window ended; posts special-assessment installments due; applies dues changes from an adopted budget; reminds you from October 1 if next year's budget isn't adopted; proposes lien filings (October of odd / January of even years), satisfactions when a liened unit is paid up, and foreclosures over the threshold. It only proposes; people decide.</p>
+      <div class="formrow noprint"><label>As of<input type="date" id="auDate" value="${today()}"></label><button class="btn primary" type="button" id="auRun">Run now</button></div>
+      <pre id="auOut" style="white-space:pre-wrap;font-size:.8rem;background:#f6f8f5;padding:8px;border-radius:8px" hidden></pre>
+      <h3>Settings</h3><div class="meta">${Object.entries(d.settings || {}).map(([k, v]) => `${esc(k)} = <b>${esc(v || "—")}</b>`).join(" · ")}</div>
+      <h3>Recent runs</h3><div class="table-wrap"><table class="mini"><thead><tr><th>When</th><th>As of</th><th>Mode</th><th>By</th><th>Result</th></tr></thead><tbody>
+      ${d.runs.map((r) => `<tr><td>${fmtDate(r.created_at)}</td><td>${fmtDate(r.run_on)}</td><td>${esc(r.mode)}</td><td>${esc(r.run_by || "")}</td><td class="meta" style="max-width:600px;word-break:break-word">${esc(JSON.stringify(r.result || r.error))}</td></tr>`).join("") || `<tr><td colspan="5" class="meta">No runs yet.</td></tr>`}</tbody></table></div></div>`;
+  $("auRun").onclick = run(async () => { const r = await rpc("roca_automation_run", { p_today: $("auDate").value }); flush(); $("auOut").hidden = false; $("auOut").textContent = JSON.stringify(r, null, 2); await loadAll(true); });
+}
+
+const LOAD = { resolutions: loadRes, budget: loadBudget, assessments: loadAssess, liens: loadLiens, automation: loadAuto };
+function tab() { return LOAD[location.hash.slice(1)] ? location.hash.slice(1) : "resolutions"; }
+function route() {
+  const v = tab();
+  document.querySelectorAll("section[data-tab]").forEach((s) => { s.hidden = s.dataset.tab !== v; });
+  document.querySelectorAll("#tabs a").forEach((a) => a.setAttribute("aria-current", a.getAttribute("href") === "#" + v ? "page" : "false"));
+}
+async function loadAll(keepAuto) {
+  try { await Promise.all(Object.entries(LOAD).filter(([k]) => !(keepAuto && k === "automation")).map(([, f]) => f())); }
+  catch (e) { $("signin").hidden = false; $("signin").innerHTML = `<div class="panel">${esc(e.message)}</div>`; }
+  route();
+}
+addEventListener("hashchange", route);
+$("signOutBtn").onclick = signOut;
+const who = await signIn($("signin"), { audience: "staff" });
+$("userBar").hidden = false;
+if (who.role !== "staff") { $("signin").hidden = false; $("signin").innerHTML = `<div class="panel"><p>This page is for office staff. <a href="/staff/">Go to My units</a></p></div>`; }
+else { $("signin").hidden = true; $("app").hidden = false; await loadAll(); }
+</script>
+</body>
+</html>

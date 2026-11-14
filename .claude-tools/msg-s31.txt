@@ -1,0 +1,9 @@
+Human Mirror Phase 10 step 31: security review of everything live (read only; no hole found, no change)
+
+All 69 mirror tables: row security on, no policies, no grants or schema usage for anon/authenticated, service_role granted.
+165 public Mirror/CHPMS functions: definer with fixed search_path, none for anon; the 156 callable when signed in each check the caller first.
+Advisor: Mirror items expected by design; 9 search_path warnings on plain SQL helpers accepted (built-ins only, no create rights, keeps inlining).
+dblink schema and refusal writer minimal; audit log append-only; mirror-docs bucket private, mirror-files gates every action; Auth settings sound.
+Same checks to repeat on the Phase 9 step 27 and 28 migrations when they land. Docs: DEVELOPMENT_STATUS, NEXT_ACTIONS, MASTER_ROADMAP, DEPLOYMENT.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>

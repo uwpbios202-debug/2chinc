@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Bank Account by Unit — 2nd Chance Housing Staff</title>
+<link rel="icon" href="/favicon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+<style>
+.meta{color:var(--muted);font-size:.9rem}
+select{font:inherit;padding:5px 7px;border:1px solid var(--line);border-radius:3px;max-width:100%}
+.flag{display:block;font-size:.82rem;color:#7a5200}
+.notice{background:#fff3cd;border:1px solid #e0a800;color:#5c4200;border-radius:8px;padding:10px 12px;margin-bottom:14px}
+</style>
+</head>
+<body>
+<div class="appbar" data-nav="staff"><div class="appbar-in">
+  <a class="org" href="/staff/" style="color:inherit;text-decoration:none">2nd Chance Housing<span>Bank account by unit · Staff</span></a>
+  <div class="row" id="userBar" hidden><button class="linkbtn" type="button" id="signOutBtn">Sign out</button></div>
+</div></div>
+<main class="wrap">
+  <header><h1>Bank account by unit</h1>
+    <p class="lead">The bank account each tenant's rent is paid into. It decides which deposits can be matched to the lease, the Zelle and transfer details the tenant
+    sees on Payments, which Stripe account takes their online payment, and (for ROCA1's account) the owner split. Office staff can change it.</p></header>
+  <div id="signin" class="narrow"></div>
+  <div id="app" hidden></div>
+</main>
+<script type="module">
+import { client, $, esc, fmtDate, signIn, signOut, errorText } from "/assets/portal/portal.js";
+const who = await signIn($("signin"), { audience: "staff" });
+$("userBar").hidden = false; $("signOutBtn").onclick = signOut;
+if (who.role !== "staff") { $("signin").hidden = false; $("signin").innerHTML = `<div class="panel"><p>This page is for the office. <a href="/staff/">Go to My units</a></p></div>`; }
+else await load();
+
+async function load(note) {
+  const [{ data, error }, logR] = await Promise.all([client.rpc("staff_lease_banks"), client.rpc("admin_change_log_recent", { p_kind: "lease_bank" })]);
+  $("signin").hidden = true; $("app").hidden = false;
+  if (error) { $("app").innerHTML = `<div class="panel"><p class="msg err">${esc(await errorText(error))}</p></div>`; return; }
+  const can = data.can_change === true, accts = data.accounts || [];
+  const opts = (sel) => accts.map((a) => `<option value="${a.id}"${a.id === sel ? " selected" : ""}>${esc(a.name)}${a.default ? " (default)" : ""}</option>`).join("");
+  $("app").innerHTML = (note ? `<p class="notice">${esc(note)}</p>` : "") +
+    `<div class="panel"><div class="table-wrap"><table><thead><tr><th>Unit</th><th>Tenant(s)</th><th>Lease</th><th>Rent is paid into</th></tr></thead><tbody>${(data.leases || []).map((l, i) =>
+      `<tr><td><b>${esc(l.unit)}</b><div class="meta">${esc(l.address || "")}</div></td><td>${esc(l.tenants || "")}</td><td>${esc(l.status)}</td>
+        <td>${can ? `<select data-i="${i}" aria-label="Bank account for unit ${esc(l.unit)}">${opts(l.account_id)}</select>` : esc(l.account || "")}
+          ${l.routed_roca1 ? `<span class="flag">ROCA1 takes the owner's dues from this rent and the rest goes to the owner.</span>` : ""}
+          ${l.autopay_active ? `<span class="flag">Autopay is set up: cannot change until the tenant cancels it.</span>` : ""}
+          ${l.in_flight ? `<span class="flag">A bank payment is still clearing: change after it clears.</span>` : ""}
+          <span class="msg" id="m${i}" role="status"></span></td></tr>`).join("")}</tbody></table></div></div>` +
+    `<section class="panel" style="margin-top:14px"><h2 style="margin:0">Recent changes</h2>${(logR.data || []).length
+      ? `<div class="table-wrap"><table><thead><tr><th>When</th><th>By</th><th>Unit</th><th>From</th><th>To</th></tr></thead><tbody>${(logR.data || []).map((x) =>
+          `<tr><td>${esc(fmtDate(x.at))}</td><td>${esc(x.by)}</td><td>${esc(x.detail.unit)}</td><td>${esc(x.detail.from || "")}</td><td>${esc(x.detail.to || "")}</td></tr>`).join("")}</tbody></table></div>`
+      : `<p class="meta">No changes yet.</p>`}</section>`;
+  if (!can) return;
+  $("app").onchange = async (e) => {
+    const s = e.target; if (s.tagName !== "SELECT") return;
+    const l = data.leases[Number(s.dataset.i)], to = accts.find((a) => a.id === s.value), m = $("m" + s.dataset.i);
+    const ok = confirm(`Change Unit ${l.unit} from "${l.account}" to "${to.name}"?\n\nFrom now on: only deposits into ${to.name} can be matched to this lease, the tenant's Payments page shows that account's Zelle and transfer details, and online payment goes through that account's Stripe (or is offered only by Zelle/transfer if it has none).${l.routed_roca1 || /ROCA1/.test(to.name) ? "\n\nThis also changes whether ROCA1 splits this rent with the owner." : ""}\n\nPast payments stay as they are.`);
+    if (!ok) { s.value = l.account_id; return; }
+    s.disabled = true; m.className = "msg"; m.textContent = "Saving…";
+    const { error: err } = await client.rpc("admin_lease_bank_set", { p_lease: l.lease_id, p_account: to.id });
+    if (err) { s.value = l.account_id; s.disabled = false; m.className = "msg err"; m.textContent = await errorText(err); return; }
+    await load(`Unit ${l.unit} now pays into ${to.name}. Tell the tenant by email where to send rent from now on.`);
+  };
+}
+</script>
+</body>
+</html>

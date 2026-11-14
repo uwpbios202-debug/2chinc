@@ -1,0 +1,12 @@
+{
+  "_note": "One entry per association. Add an association here, then copy association-owners/roca1/ to association-owners/<slug>/ for its portal.",
+  "associations": [
+    {
+      "slug": "roca1",
+      "short": "ROCA1",
+      "name": "Royal Orleans Condominium – Addition One",
+      "address": "6622 & 6626 N Bourbon St, Milwaukee, WI 53224",
+      "units": 16
+    }
+  ]
+}

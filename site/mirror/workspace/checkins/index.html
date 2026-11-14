@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Navigator Check-ins | The Human Mirror</title>
+<link rel="icon" href="/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Source+Serif+4:opsz,wght@8..60,600&display=swap">
+<link rel="stylesheet" href="/mirror/assets/mirror.css?v=20261113l">
+</head>
+<body data-area="workspace">
+<!-- Phase N (TN.5): a Housing Navigator's check-ins with a person, from the first meeting, each linked to one of the person's Mirror needs
+     so the check-ins follow their plan. Only needs in topics the person shares are listed; linking needs "see and change" for that topic. -->
+<main id="main" class="mm-main">
+  <p class="mm-eyebrow"><a href="/mirror/workspace/people/">People</a> · <a id="mmBack" href="/mirror/workspace/people/">This person</a></p>
+  <div id="mmBox"><p role="status">Loading…</p></div>
+</main>
+<script type="module" src="/mirror/assets/mirror-ui.js?v=20261113h"></script>
+<script type="module">
+import { requireArea, rpc } from "/mirror/assets/mirror-client.js?v=20261113p";
+import { esc, notice, toast } from "/mirror/assets/mirror-ui.js?v=20261113h";
+
+const MARK = { checkin: "Check-in", d30: "30-day check-in", d60: "60-day check-in", d90: "90-day stability review", m6: "6-month check-in", m12: "12-month stability review" };
+const OUT = { stable: "Doing well", concern: "Some concern", at_risk: "At risk", left: "Left", unreachable: "Could not reach them" };
+const day = (/** @type {string} */ d) => new Date(d + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+const msg = (/** @type {unknown} */ e) => (e instanceof Error ? e.message : String(e));
+
+const w = await requireArea("workspace");
+const q = new URLSearchParams(location.search);
+const id = q.get("id") || "", org = q.get("org") || (w.memberships[0] && w.memberships[0].organization_id);
+/** @type {HTMLAnchorElement} */ (document.getElementById("mmBack")).href = `/mirror/workspace/person/?id=${encodeURIComponent(id)}&org=${encodeURIComponent(org)}`;
+const box = /** @type {HTMLElement} */ (document.getElementById("mmBox"));
+/** @type {any} */ let person, data;
+
+async function load() {
+  try {
+    person = (await rpc("mirror_people", { p_org: org })).find((/** @type {any} */ p) => p.id === id);
+    if (!person) throw new Error("This person is not on your organization's list.");
+    data = await rpc("mirror_nav_checkins", { p_individual: id, p_org: org });
+  } catch (e) { box.innerHTML = notice("caution", `<p>${esc(msg(e))}</p>`); return; }
+  draw();
+}
+
+function draw() {
+  const linkable = data.needs.filter((/** @type {any} */ n) => n.can_link);
+  const row = (/** @type {any} */ c) => `<li class="mm-card" style="list-style:none;margin-bottom:var(--mm-space-3)" data-c="${esc(c.id)}">
+      <strong>${esc(MARK[c.mark] || c.mark)}</strong> · ${c.done_on ? `done ${esc(day(c.done_on))}: ${esc(OUT[c.outcome] || c.outcome || "")}` : `planned for ${esc(day(c.due_on))}`}
+      ${c.note ? `<p class="mm-small" style="margin:var(--mm-space-2) 0 0">${esc(c.note)}</p>` : ""}
+      <p class="mm-small" style="margin:var(--mm-space-2) 0 0">${c.need_title ? `For the need: <strong>${esc(c.need_title)}</strong>` : c.linked_hidden ? "Linked to a need in a topic they do not share with you." : '<span class="mm-muted">Not linked to a need.</span>'}</p>
+      ${linkable.length && !c.linked_hidden ? `<label class="mm-small" style="display:block;margin-top:var(--mm-space-2)">Link to a need
+        <select class="mm-select" data-link><option value="">Not linked</option>${linkable.map((/** @type {any} */ n) => `<option value="${esc(n.id)}"${n.id === c.need_id ? " selected" : ""}>${esc(n.title)}</option>`).join("")}</select></label>` : ""}
+    </li>`;
+  box.innerHTML = `<h1>Check-ins with ${esc(person.preferred_name)}</h1>
+    <p class="mm-lead">Your Housing Navigator check-ins, from the first meeting. Link each one to a need in ${esc(person.preferred_name)}'s Mirror so the check-ins follow their plan.
+      You record check-ins and change the plan on the person's file in the Navigator portal (https://2ndchinc.org/navigator/).</p>
+    ${data.checkins.length ? `<ul style="padding:0">${data.checkins.map(row).join("")}</ul>` : '<p class="mm-muted">No check-ins yet.</p>'}
+    ${data.needs.length && !linkable.length ? `<p class="mm-small mm-muted">To link check-ins to needs, ${esc(person.preferred_name)} shares that topic with "see and change".</p>` : ""}
+    ${!data.needs.length ? `<p class="mm-small mm-muted">No needs you may see yet. Needs are on their Mirror (Needs on their page).</p>` : ""}`;
+  box.querySelectorAll("[data-c]").forEach((li) => {
+    li.querySelector("[data-link]")?.addEventListener("change", async (e) => {
+      const sel = /** @type {HTMLSelectElement} */ (e.currentTarget);
+      try { data = await rpc("mirror_nav_checkin_link", { p_followup: /** @type {HTMLElement} */ (li).dataset.c, p_need: sel.value || null, p_org: org }); toast("Saved."); draw(); }
+      catch (err) { toast(msg(err)); load(); }
+    });
+  });
+}
+
+load();
+</script>
+</body>
+</html>

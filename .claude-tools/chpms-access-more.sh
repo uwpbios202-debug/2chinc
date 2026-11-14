@@ -1,0 +1,11 @@
+#!/bin/sh
+NAV="select lower(email) from navigators where status in ('preview','pilot','active')"
+CLAIMS="with u as (select a.id, a.email from auth.users a where lower(a.email) in ($NAV) limit 1), s as (select set_config('request.jwt.claims', json_build_object('sub', u.id::text, 'email', u.email, 'aal', 'aal1', 'role', 'authenticated')::text, true) x from u)"
+echo "== tenant / owner accounts that exist in sign-in (so the refusals above were real users)"
+./.claude-tools/supa-query.sh "select (select count(*) from auth.users a where lower(a.email) in (select lower(t.email) from tenants t)) tenant_users, (select count(*) from auth.users a where lower(a.email) in (select lower(o.email) from condo_owners o)) owner_users"
+echo "== Navigator: pathways, funding, gaps, log, own referrals, one history"
+./.claude-tools/supa-query.sh "$CLAIMS, x as (select chpms_extras() j, chpms_referrals_list() r, chpms_history('org', 'ORG001') h from s) select jsonb_array_length(j->'pathways') pathways, jsonb_array_length(j->'funding') funding, jsonb_array_length(j->'gaps') gaps, jsonb_array_length(j->'log') log, jsonb_array_length(r) my_referrals, jsonb_array_length(h) org001_history from x"
+echo "== Navigator in Preview tries to log a check: must say Preview only"
+./.claude-tools/supa-query.sh "$CLAIMS select chpms_check_log(jsonb_build_object('record_type','org','record_id','ORG001','result','open')) from s"
+echo "== Navigator in Preview tries to edit: must be refused"
+./.claude-tools/supa-query.sh "$CLAIMS select chpms_org_save(jsonb_build_object('org_id','ORG001','legal_name','x')) from s"

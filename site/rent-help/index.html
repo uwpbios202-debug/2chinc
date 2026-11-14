@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rent Help &amp; Resources — 2nd Chance Housing Inc.</title>
+  <meta name="description" content="For applicants and current residents. 2nd Chance Housing does not offer financial assistance. Rent assistance, utility help, free mediation and legal help, and social services for Milwaukee renters." />
+  <link rel="icon" href="/favicon.png" />
+  <link rel="apple-touch-icon" href="/logo-192.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/site.css" />
+  <style>
+  .hero .audience { color: rgba(255,255,255,0.9); margin-top: 0.5rem; }
+  .hero .audience strong { color: var(--green-lt); }
+  .hero .checked { color: rgba(255,255,255,0.55); font-size: 0.8rem; margin-top: 0.6rem; }
+  :root { --red: #9B2F2F; --red-bg: #F8E1E1; --amber: #7A5200; --amber-bg: #FFF3CD; --blue: #3D4F8A; --blue-bg: #E5E9F6; }
+  .nofunds { background: var(--red-bg); border: 2px solid var(--red); border-radius: 10px; padding: 1rem 1.25rem; margin-bottom: 1rem; }
+  .nofunds h2 { font-family: var(--sans); font-size: 1.1rem; color: var(--red); margin-bottom: 0.25rem; }
+  .nofunds p { max-width: 72ch; }
+  .callfirst { display: grid; grid-template-columns: 1fr 1fr; background: var(--white); border: 1px solid var(--border); border-left: 6px solid var(--green); border-radius: 10px; box-shadow: 0 6px 24px rgba(19,32,26,0.08); margin-bottom: 1rem; overflow: hidden; }
+  .callfirst > div { padding: 1.1rem 1.4rem; }
+  .callfirst > div + div { border-left: 1px solid var(--border); }
+  .callfirst h2 { font-family: var(--sans); font-size: 0.95rem; font-weight: 700; margin-bottom: 0.2rem; }
+  .callfirst .num { display: inline-block; font-family: var(--serif); font-size: clamp(1.6rem, 4vw, 2.2rem); color: var(--green-dk); text-decoration: none; line-height: 1.15; }
+  .callfirst .num:hover { text-decoration: underline; }
+  .callfirst p { color: var(--gray); font-size: 0.9rem; margin-top: 0.3rem; }
+  .notice { background: var(--amber-bg); border-left: 6px solid #e0a800; border-radius: 8px; padding: 0.9rem 1.25rem; margin-bottom: 1.5rem; }
+  .notice p { max-width: 80ch; font-size: 0.95rem; }
+  .notice p + p { margin-top: 0.4rem; }
+  .layout { display: grid; grid-template-columns: 210px 1fr; gap: 2rem; align-items: start; }
+  .toc { position: sticky; top: 1rem; }
+  .toc h2 { font-family: var(--sans); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--gray); margin-bottom: 0.5rem; }
+  .toc ul { list-style: none; margin-bottom: 1rem; }
+  .toc li a { display: block; padding: 0.35rem 0 0.35rem 0.75rem; border-left: 3px solid var(--border); color: var(--text); text-decoration: none; font-size: 0.9rem; font-weight: 600; }
+  .toc li a:hover { border-left-color: var(--green); color: var(--green-dk); }
+  .search label { display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 0.3rem; }
+  .search input { width: 100%; padding: 0.55rem 0.7rem; font: inherit; font-size: 0.9rem; border: 1px solid var(--border); border-radius: 8px; background: var(--white); }
+  .search .count { font-size: 0.78rem; color: var(--gray); margin-top: 0.3rem; min-height: 1.2em; }
+  section.group { margin-bottom: 1.75rem; scroll-margin-top: 1rem; }
+  .group > h2 { font-family: var(--serif); font-weight: 400; font-size: 1.6rem; margin-bottom: 0.25rem; }
+  .group > .lede { color: var(--gray); font-size: 0.95rem; margin-bottom: 0.75rem; max-width: 66ch; }
+  .res { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 0.7rem; }
+  .res-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.3rem 0.7rem; }
+  .res h3 { font-size: 1.02rem; font-weight: 700; }
+  .res h3 a { color: var(--text); text-decoration-color: var(--green-lt); text-decoration-thickness: 2px; }
+  .res h3 a:hover { color: var(--green-dk); }
+  .res p { margin-top: 0.3rem; max-width: 70ch; font-size: 0.95rem; }
+  .res .contact { display: flex; flex-wrap: wrap; gap: 0.2rem 1.1rem; margin-top: 0.5rem; font-size: 0.9rem; }
+  .res .contact a { font-weight: 600; }
+  .res .contact span { color: var(--gray); }
+  .rtag { display: inline-block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 0.2rem 0.6rem; border-radius: 20px; white-space: nowrap; }
+  .rtag.open { color: var(--green-dk); background: var(--tint); }
+  .rtag.limited { color: var(--amber); background: var(--amber-bg); }
+  .rtag.paused { color: var(--red); background: var(--red-bg); }
+  .rtag.referral { color: var(--blue); background: var(--blue-bg); }
+  .w2-scroll { overflow-x: auto; }
+  .w2 { width: 100%; border-collapse: collapse; margin-top: 0.6rem; font-size: 0.88rem; }
+  .w2 th, .w2 td { text-align: left; padding: 0.5rem 0.7rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .w2 th { background: var(--tint); }
+  .ready { background: var(--tint); border-radius: 12px; padding: 1.25rem 1.5rem; }
+  .ready h2 { margin-bottom: 0.4rem; }
+  .ready ul { margin: 0.5rem 0 0 1.25rem; }
+  .ready li { margin-bottom: 0.25rem; }
+  .ready .us { margin-top: 0.75rem; font-weight: 600; }
+  .tlbar { display: flex; flex-wrap: wrap; gap: 0.6rem 1rem; align-items: center; margin: 0.4rem 0 0.9rem; }
+  .tlbar label { font-weight: 600; font-size: 0.9rem; }
+  .tlbar select { font: inherit; font-size: 0.9rem; padding: 0.4rem 0.6rem; border: 1px solid var(--border); border-radius: 8px; background: var(--white); }
+  .tlnote { color: var(--gray); font-size: 0.85rem; }
+  ol.tl { list-style: none; position: relative; margin: 0; padding: 0 0 0 1.6rem; border-left: 3px solid var(--border); }
+  ol.tl li { position: relative; padding: 0 0 1rem 0.9rem; }
+  ol.tl li::before { content: ""; position: absolute; left: -2.18rem; top: 0.25rem; width: 14px; height: 14px; border-radius: 50%; background: var(--green); border: 3px solid var(--cream); }
+  ol.tl li.warn::before { background: #e0a800; }
+  ol.tl li.end::before { background: var(--red); }
+  ol.tl .when { font-weight: 700; color: var(--green-dk); }
+  ol.tl li.end .when { color: var(--red); }
+  ol.tl .t { font-weight: 700; }
+  ol.tl p { max-width: 68ch; font-size: 0.93rem; margin-top: 0.15rem; }
+  .tlsum { background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: 0.7rem 1rem; font-size: 0.93rem; margin-bottom: 0.9rem; }
+  .certnote { background: var(--tint); border-left: 6px solid var(--green); border-radius: 8px; padding: 0.9rem 1.25rem; margin-top: 0.4rem; }
+  .certnote h3 { font-family: var(--sans); font-size: 1rem; margin-bottom: 0.25rem; }
+  .certnote ul { margin: 0.4rem 0 0 1.2rem; font-size: 0.93rem; }
+  .hidden { display: none !important; }
+  .no-results { display: none; padding: 1rem; background: var(--white); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 0.7rem; }
+  .no-results.show { display: block; }
+  .disclaimer { font-size: 0.82rem; color: var(--gray); max-width: 68ch; }
+  @media (max-width: 860px) {
+    .layout { grid-template-columns: 1fr; gap: 1rem; }
+    .toc { position: static; }
+    .toc ul { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .toc li a { border: 1px solid var(--border); border-radius: 20px; padding: 0.3rem 0.7rem; background: var(--white); }
+  }
+  @media (max-width: 640px) { .callfirst { grid-template-columns: 1fr; } .callfirst > div + div { border-left: 0; border-top: 1px solid var(--border); } }
+  @media print { .site-header, .toc, .site-footer { display: none; } .layout { display: block; } .res { break-inside: avoid; } }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="inner">
+    <a href="/" class="brand">
+      <img src="/logo-192.png" alt="" width="56" height="56" />
+      <div><strong>2nd Chance Housing</strong><span>501(c)(3) Nonprofit · Chicago &amp; Milwaukee</span></div>
+    </a>
+    <nav class="site-nav" aria-label="Main">
+      <a href="/#units">Available Units</a>
+      <a href="/who-we-serve/">Who We Serve</a>
+      <a href="/rent-help/" aria-current="page">Rent Help</a>
+      <a href="/documents/public/">Documents</a>
+      <a href="/contact/">Contact</a>
+      <a href="/investor/">Investor</a>
+      <a href="/waitlist/" class="waitlist">Waitlist</a>
+      <a href="/leasing/apply/" class="apply">Apply</a>
+      <a href="/#signin" class="signin">Sign In</a>
+    </nav>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="inner">
+    <div class="eyebrow">Rent help · Milwaukee</div>
+    <h1>Help with rent <em>in Milwaukee</em></h1>
+    <p class="desc">Money is tight sometimes. These local programs can help with rent, utility bills, disputes, legal questions and longer-term housing support. Reach out early, before a notice turns into a court date.</p>
+    <p class="desc audience"><strong>For applicants and current residents.</strong> It is written mostly for people who are applying or looking for housing, and it also applies if you already live with us and fall behind. Tell us early. We can talk about a payment plan.</p>
+    <p class="checked">Last checked: October 2026. Programs open and close often, so call before you go.</p>
+  </div>
+</div>
+
+<main>
+      <div class="nofunds" role="note">
+        <h2>2nd Chance Housing does not offer financial assistance.</h2>
+        <p>We do not give rent help, grants, loans, deposit help or utility help, and we cannot pay your rent or bills for you. The programs listed below are separate organizations. Contact them directly to ask about funding.</p>
+      </div>
+
+      <div class="callfirst">
+        <div>
+          <h2>Not sure where to start? Call RentHelpMKE</h2>
+          <a class="num" href="tel:4148957368">414-895-7368</a>
+          <p>Milwaukee Rental Housing Resource Center. Walk in Monday–Friday, 8 AM–4 PM at 728 N. James Lovell St.</p>
+        </div>
+        <div>
+          <h2>Need help tonight, or anything else?</h2>
+          <a class="num" href="tel:211">Dial 2-1-1</a>
+          <p>Free, 24/7. Connects you to rent help, shelter, food and other services.</p>
+        </div>
+      </div>
+
+      <div class="notice" role="note">
+        <p><strong>Funding is tight right now.</strong> Community Advocates paused new applications for direct rental assistance on January 7, 2026. They still take applications if you have a placard on your home, have had a fire or domestic violence situation, or live in Lindsay Heights, Clarke Square or Layton Boulevard West.</p>
+        <p>The Social Development Commission (SDC) no longer runs these programs. UMOS has taken over as Milwaukee County's community action agency.</p>
+      </div>
+
+  <div class="layout">
+    <aside class="toc" aria-label="On this page">
+      <h2>On this page</h2>
+      <ul>
+        <li><a href="#timeline">If rent isn't paid</a></li>
+        <li><a href="#start">Start here</a></li>
+        <li><a href="#money">Money for rent</a></li>
+        <li><a href="#utilities">Utility bills</a></li>
+        <li><a href="#legal">Mediation &amp; legal help</a></li>
+        <li><a href="#longterm">Long-term support</a></li>
+        <li><a href="#ready">What to bring</a></li>
+      </ul>
+      <div class="search">
+        <label for="filter">Search this list</label>
+        <input id="filter" type="search" placeholder="e.g. energy, legal, veterans" autocomplete="off">
+        <div class="count" id="count" aria-live="polite"></div>
+      </div>
+    </aside>
+
+    <div>
+      <div class="no-results" id="no-results">No matches. Try a shorter word, or call 2-1-1 and they'll find the right program for you.</div>
+
+      <section class="group static" id="timeline" aria-labelledby="h-timeline">
+        <h2 id="h-timeline">If rent isn't paid: what happens, day by day</h2>
+        <p class="lede">This is a sample of how a missed rent payment moves along, from rent due at 11:59 pm on the 1st to the sheriff. It shows how long you have to ask for help. Real dates are set by the court, so use these as a guide.</p>
+        <div class="tlbar">
+          <label for="tlmonth">Sample month</label>
+          <select id="tlmonth" aria-label="Sample month for the timeline"></select>
+          <span class="tlnote" id="tlnote"></span>
+        </div>
+        <div class="tlsum" id="tlsum" aria-live="polite"></div>
+        <ol class="tl" id="tl"><li><p>Turn on JavaScript to see the dates for the next month. In short: rent is due on the 1st, the pay-or-vacate notice is mailed on the 2nd, the notice ends 5 days later, then a court case, a court date about two weeks after filing, and the sheriff about 10 days after a writ.</p></li></ol>
+
+        <div class="certnote" role="note">
+          <h3>Keep your certified pay-or-vacate notice. It is what agencies ask for.</h3>
+          <p>The pay-or-vacate (5-day) notice is mailed to you by certified mail. It states the exact rent owed and the exact last day to pay. Take it (the paper copy or the emailed copy) to the agency you are asking for help. Most programs want it as proof of the amount owed and the deadline.</p>
+          <ul>
+            <li>Ask for help <strong>before</strong> the notice ends. Tell the agency the date it ends so they can move quickly.</li>
+            <li>The notice covers rent only, not late fees. Paying that full amount before it ends stops this process.</li>
+            <li>2nd Chance Housing does not provide funds. You can show your rent ledger from your resident portal, and we provide the notice.</li>
+            <li>Some tenancies (for example, some leases longer than a year or Section 8 tenancies) get a 30-day notice. Your notice says which.</li>
+          </ul>
+        </div>
+        <p class="disclaimer" style="margin-top:0.7rem">This sample is for information, not legal advice. For free legal help, see <a href="#legal">Mediation &amp; legal help</a>.</p>
+      </section>
+
+      <section class="group" id="start" aria-labelledby="h-start">
+        <h2 id="h-start">Start here</h2>
+        <p class="lede">These offices assess your situation and point you to whatever funding or help is available that week.</p>
+
+        <article class="res">
+          <div class="res-head">
+            <h3><a href="https://renthelpmke.org">Milwaukee Rental Housing Resource Center (RentHelpMKE)</a></h3>
+            <span class="rtag open">Open</span>
+          </div>
+          <p>Run by Community Advocates. Assesses your needs and refers you to rent and utility help, free mediation, help with repair problems, and case management.</p>
+          <div class="contact"><a href="tel:4148957368">414-895-RENT (7368)</a><a href="mailto:info@renthelpmke.org">info@renthelpmke.org</a><span>728 N. James Lovell St.</span></div>
+        </article>
+
+        <article class="res">
+          <div class="res-head">
+            <h3><a href="https://communityadvocates.net/what-we-do/rent-assistance.html">Community Advocates – Rental Assistance</a></h3>
+            <span class="rtag limited">Limited</span>
+          </div>
+          <p>Short-term rent help, mediation and relocation services for Milwaukee County tenants. New direct-assistance applications are paused except for the situations listed above.</p>
+          <div class="contact"><a href="tel:4148957368">414-895-RENT (7368)</a></div>
+        </article>
+
+        <article class="res">
+          <div class="res-head">
+            <h3><a href="https://city.milwaukee.gov/CDGA">City of Milwaukee – Emergency Rental Assistance</a></h3>
+            <span class="rtag limited">Limited</span>
+          </div>
+          <p>City program for tenants facing a temporary financial hardship, run with Community Advocates. Apply through the Resource Center.</p>
+        </article>
+
+        <article class="res">
+          <div class="res-head">
+            <h3><a href="https://www.impactinc.org/impact-2-1-1/">IMPACT 2-1-1</a></h3>
+            <span class="rtag open">Open 24/7</span>
+          </div>
+          <p>Free helpline that matches you with rent, shelter, food and other programs in Milwaukee County.</p>
+          <div class="contact"><a href="tel:211">Dial 2-1-1</a></div>
+        </article>
+      </section>
+
+      <section class="group" id="money" aria-labelledby="h-money">
+        <h2 id="h-money">Money for rent</h2>
+        <p class="lede">Most of these pay your landlord directly, and most will ask your landlord for paperwork.</p>
+
+        <article class="res">
+          <div class="res-head">
+            <h3><a href="https://www.umos.org/community-pathways/">UMOS – Community Pathways Program</a></h3>
+            <span class="rtag open">Open</span>
+          </div>
+          <p>Up to $1,800 per household for rent, mortgage or property tax help. For households at or below 125% of the federal poverty level. Also offers food help and free mental health services.</p>
+          <div class="contact"><a href="tel:4143896207">414-389-6207</a><span>2701 S. Chase Ave.</span><span>Also at Wellpoint Care Network, Silver Spring Neighborhood Center, Northcott Neighborhood House</span></div>
+        </article>
+
+        <article class="res" data-keywords="w-2 w2 emergency assistance families children ross maximus america works umos">
+          <div class="res-head">
+            <h3><a href="https://dcf.wisconsin.gov/w2/ea">W-2 Emergency Assistance</a></h3>
+            <span class="rtag open">Families with children</span>
+          </div>
+          <p>One-time state help for low-income parents facing homelessness or an urgent housing or utility cost. Apply through the W-2 agency for your area of Milwaukee:</p>
+          <div class="w2-scroll">
+            <table class="w2">
+              <thead><tr><th scope="col">Area</th><th scope="col">Agency</th><th scope="col">Address</th><th scope="col">Phone</th></tr></thead>
+              <tbody>
+                <tr><td>Northern</td><td><a href="https://www.rossworks.com/milwaukee-wisconsin/">Ross Innovative Employment Solutions</a></td><td>7800 W. Brown Deer Rd., Suite 200</td><td><a href="tel:4147606060">414-760-6060</a></td></tr>
+                <tr><td>West Central</td><td><a href="https://www.maximusw-2.com/">Maximus</a></td><td>4201 N. 27th St., Suite 400</td><td><a href="tel:4142038500">414-203-8500</a></td></tr>
+                <tr><td>East Central</td><td><a href="https://www.americaworks.com/">America Works of Wisconsin</a></td><td>310 W. Wisconsin Ave., 3rd Floor</td><td><a href="tel:4143865765">414-386-5765</a></td></tr>
+                <tr><td>Southern</td><td><a href="https://www.umos.org/">UMOS</a></td><td>2701 S. Chase Ave.</td><td><a href="tel:4143896600">414-389-6600</a></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="res">
+          <div class="res-head">
+            <h3><a href="https://residentrelieffoundation.org">Resident Relief Foundation</a></h3>
+            <span class="rtag open">Open</span>
+          </div>
+          <p>National nonprofit that helps renters with a good payment history through a one-time emergency. You need to have lived in your home 9+ months with no lease violations. Apply online; the foundation contacts us to confirm your residency.</p>
+        </article>
+
+        <article class="res">
+          <div class="res-head">
+            <h3><a href="https://www.svdpmilw.org">St. Vincent de Paul Society of Milwaukee</a></h3>
+            <span class="rtag limited">Limited</span>
+          </div>
+          <p>Volunteer-run charity with limited funds for rent and energy bills. Also offers food and thrift store vouchers.</p>
+        </article>
+
+        <article class="res">
+          <div class="res-head">
+            <h3><a href="https://salvationarmyusa.org/wi/milwaukee/w-villard-ave-corps/material-assistance-program">Salvation Army – Milwaukee</a></h3>
+            <span class="rtag referral">Referral only</span>
+          </div>
+          <p>Offers food and thrift store vouchers. For rent or utility help, they ask you to call 2-1-1.</p>
+          <div class="contact"><a href="tel:4144633300">414-463-3300</a><span>4129 W. Villard Ave.</span></div>
+        </article>
+      </section>
+
+      <section class="group" id="utilities" aria-labelledby="h-utilities">
+        <h2 id="h-utilities">Utility bills</h2>
+        <p class="lede">Getting help with We Energies frees up money for rent. Many rent programs also ask you to apply for energy assistance first.</p>
+
+        <article class="res" data-keywords="energy heat we energies electric gas wisconsin home energy assistance whea">
+          <div class="res-head">
+            <h3><a href="https://communityadvocates.net/what-we-do/energy-assistance.html">Community Advocates – Energy Assistance</a></h3>
+            <span class="rtag open">Open</span>
+          </div>
+          <p>Applications for the Wisconsin Home Energy Assistance Program, plus crisis help if your heat or electric is shut off or about to be.</p>
+        </article>
+
+        <article class="res" data-keywords="energy heat we energies electric gas county">
+          <div class="res-head">
+            <h3><a href="https://county.milwaukee.gov/EN/DHHS/Energy-Assistance">Milwaukee County Energy Assistance</a></h3>
+            <span class="rtag open">Open</span>
+          </div>
+          <p>County information on energy assistance and application sites, including UMOS on the south side.</p>
+        </article>
+      </section>
+
+      <section class="group" id="legal" aria-labelledby="h-legal">
+        <h2 id="h-legal">Mediation &amp; legal help</h2>
+        <p class="lede">Free help working out a payment plan or a disagreement, and free lawyers if an eviction has been filed.</p>
+
+        <article class="res" data-keywords="mediation dispute payment plan">
+          <div class="res-head">
+            <h3><a href="https://www.mediatewisconsin.org">Mediate Wisconsin</a></h3>
+            <span class="rtag open">Free</span>
+          </div>
+          <p>A neutral mediator helps tenant and landlord agree on a plan without going to court.</p>
+          <div class="contact"><a href="tel:4149398800">414-939-8800</a></div>
+        </article>
+
+        <article class="res" data-keywords="lawyer attorney eviction court legal aid">
+          <div class="res-head">
+            <h3><a href="https://www.evictionfreemke.org">Eviction Free MKE (Legal Aid Society)</a></h3>
+            <span class="rtag open">Free</span>
+          </div>
+          <p>Free lawyers for Milwaukee tenants who have an eviction case filed against them.</p>
+          <div class="contact"><a href="tel:4148927368">414-892-RENT (7368)</a></div>
+        </article>
+
+        <article class="res" data-keywords="lawyer attorney eviction court legal action defense">
+          <div class="res-head">
+            <h3><a href="https://www.legalaction.org/services/eviction-defense-project-milwaukee">Legal Action of Wisconsin – Eviction Defense Project</a></h3>
+            <span class="rtag open">Free</span>
+          </div>
+          <p>Help and limited representation at your eviction court date. Call to check eligibility and hours.</p>
+          <div class="contact"><a href="tel:8559472529">855-947-2529</a></div>
+        </article>
+
+        <article class="res" data-keywords="lawyer legal advice helpline court">
+          <div class="res-head">
+            <h3><a href="https://www.milwaukeejusticecenter.org">Milwaukee Justice Center</a></h3>
+            <span class="rtag open">Free</span>
+          </div>
+          <p>Brief legal advice by phone through the Civil Legal Helpline, and help with court forms.</p>
+          <div class="contact"><a href="tel:4142783965">414-278-3965</a></div>
+        </article>
+      </section>
+
+      <section class="group" id="longterm" aria-labelledby="h-longterm">
+        <h2 id="h-longterm">Long-term support</h2>
+        <p class="lede">Housing vouchers, case management and social services that help keep things stable over time.</p>
+
+        <article class="res" data-keywords="section 8 voucher public housing hacm">
+          <div class="res-head">
+            <h3><a href="https://www.hacm.org">Housing Authority of the City of Milwaukee (HACM)</a></h3>
+            <span class="rtag limited">Waitlists</span>
+          </div>
+          <p>Public housing and Section 8 Housing Choice Vouchers in the City of Milwaukee. Waitlists open at set times.</p>
+        </article>
+
+        <article class="res" data-keywords="county homeless prevention moving rent grants housing division">
+          <div class="res-head">
+            <h3><a href="https://county.milwaukee.gov/EN/DHHS/Housing">Milwaukee County Housing Services</a></h3>
+            <span class="rtag open">Open</span>
+          </div>
+          <p>Homelessness prevention, street outreach, moving help and supportive housing programs.</p>
+        </article>
+
+        <article class="res" data-keywords="shelter homeless families hope house">
+          <div class="res-head">
+            <h3><a href="https://www.hopehousemilwaukee.org">Hope House of Milwaukee</a></h3>
+            <span class="rtag open">Open</span>
+          </div>
+          <p>Emergency shelter and housing programs for individuals and families.</p>
+        </article>
+
+        <article class="res" data-keywords="families north side behavioral health mental health wellpoint">
+          <div class="res-head">
+            <h3><a href="https://wellpointcare.org">Wellpoint Care Network</a></h3>
+            <span class="rtag open">Open</span>
+          </div>
+          <p>North side human services agency. Connects families to energy help, rent and mortgage help, and behavioral health care. A UMOS partner site.</p>
+        </article>
+
+        <article class="res" data-keywords="directory search zip code food jobs benefits">
+          <div class="res-head">
+            <h3><a href="https://www.findhelp.org">FindHelp.org</a></h3>
+            <span class="rtag open">Directory</span>
+          </div>
+          <p>Search free and low-cost services by ZIP code: food, jobs, health care, benefits and more.</p>
+        </article>
+      </section>
+
+      <section class="group ready" id="ready" aria-labelledby="h-ready">
+        <h2 id="h-ready">What to bring when you apply for help</h2>
+        <p>Having these ready can cut days off the process:</p>
+        <ul>
+          <li>Photo ID for every adult in the home</li>
+          <li>Your lease</li>
+          <li>Proof of income for the last 30–60 days, or proof that you lost income</li>
+          <li>Any notice you received, plus a rent ledger showing what you owe</li>
+          <li>A recent We Energies bill</li>
+        </ul>
+        <p class="us">2nd Chance residents: we do not provide funds. To show a program what you owe, print your rent ledger or show it on screen from your <a href="/#signin">resident portal</a>. If the program asks for a notice, we provide the 5-day notice or the pay or vacate notice. Email <a href="mailto:info@2ndchinc.org">info@2ndchinc.org</a> or call <a href="tel:2622365443">(262) 236-5443</a>.</p>
+      </section>
+
+      <p class="disclaimer">2nd Chance Housing is not affiliated with these organizations and can't guarantee their funding or eligibility rules. If a link or number has changed, please let us know.</p>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <p class="tagline">Safe Homes · Stronger Lives</p>
+  <p><strong>2nd Chance Housing Inc.</strong> · Chicago &amp; Milwaukee · 6626 N Bourbon St, Milwaukee, WI 53224 · EIN 47-5387503 · 501(c)(3) Public Charity</p>
+  <p><a href="tel:2622365443">(262) 236-5443</a> · <a href="mailto:info@2ndchinc.org">info@2ndchinc.org</a> · <a href="/documents/public/">Resident documents</a> &middot; <a href="/privacy/">Privacy</a></p>
+  <p>© 2026 2nd Chance Housing Inc. All rights reserved.</p>
+</footer>
+
+<script>
+
+  // Timeline: always starts at the 1st of a coming month, so it never goes stale.
+  // Same rules as our rent cycle: pay-or-vacate mailed on the 2nd (day mailed = day 1 of the notice),
+  // case filed the next business day after the notice ends, court date about 14 days after filing,
+  // writ decision at the hearing, sheriff about 10 days later. Business days skip weekends and court holidays.
+  (function () {
+    var DAY = 86400000, TZ = 'America/Chicago';
+    var sel = document.getElementById('tlmonth'), list = document.getElementById('tl');
+    var sum = document.getElementById('tlsum'), note = document.getElementById('tlnote');
+    if (!sel || !list) return;
+    function mk(y, m, d) { return new Date(Date.UTC(y, m, d, 12)); }
+    function add(d, n) { return new Date(d.getTime() + n * DAY); }
+    function key(d) { return d.toISOString().slice(0, 10); }
+    function nth(y, m, dow, n) { var d = mk(y, m, 1); while (d.getUTCDay() !== dow) d = add(d, 1); return add(d, 7 * (n - 1)); }
+    function lastMon(y, m) { var d = mk(y, m + 1, 0); while (d.getUTCDay() !== 1) d = add(d, -1); return d; }
+    var cache = {};
+    function holidays(y) {
+      if (cache[y]) return cache[y];
+      var j4 = mk(y, 6, 4); if (j4.getUTCDay() === 6) j4 = add(j4, -1); if (j4.getUTCDay() === 0) j4 = add(j4, 1);
+      var tg = nth(y, 10, 4, 4);
+      var s = {};
+      [mk(y, 0, 1), nth(y, 0, 1, 3), lastMon(y, 4), j4, nth(y, 8, 1, 1), tg, add(tg, 1), mk(y, 11, 24), mk(y, 11, 25), mk(y, 11, 31)]
+        .forEach(function (d) { s[key(d)] = 1; });
+      return (cache[y] = s);
+    }
+    function biz(d) { var w = d.getUTCDay(); return w !== 0 && w !== 6 && !holidays(d.getUTCFullYear())[key(d)]; }
+    function nextBiz(d) { for (var i = 0; i < 20 && !biz(d); i++) d = add(d, 1); return d; }
+    function fmt(d, short) { return d.toLocaleDateString('en-US', short ? { weekday: 'short', month: 'short', day: 'numeric', timeZone: 'UTC' } : { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' }); }
+    function todayChicago() { var p = new Date().toLocaleDateString('en-CA', { timeZone: TZ }).split('-'); return mk(+p[0], +p[1] - 1, +p[2]); }
+
+    var t = todayChicago(), opts = [];
+    for (var i = 1; i <= 6; i++) opts.push(mk(t.getUTCFullYear(), t.getUTCMonth() + i, 1));
+    sel.innerHTML = opts.map(function (d, i) {
+      return '<option value="' + key(d) + '">' + d.toLocaleDateString('en-US', { month: 'long', year: 'numeric', timeZone: 'UTC' }) + (i === 0 ? ' (next rent due date)' : '') + '</option>';
+    }).join('');
+    note.textContent = "Today is " + fmt(t) + '.';
+
+    function draw() {
+      var p = sel.value.split('-'), due = mk(+p[0], +p[1] - 1, +p[2]);
+      var mail = add(due, 1), second = add(due, 2), deadline = add(mail, 4);
+      var filing = nextBiz(add(deadline, 1)), court = nextBiz(add(filing, 14)), writ = court, sheriff = add(writ, 10);
+      var total = Math.round((sheriff - due) / DAY), toNotice = Math.round((deadline - due) / DAY);
+      sum.innerHTML = '<strong>' + total + ' days</strong> from the rent due date to the sheriff, if nothing is paid. You have until <strong>' + fmt(deadline, true) + '</strong> (' + toNotice + ' days after rent was due) to pay the full amount on the notice and stop it.';
+      var steps = [
+        ['', fmt(due) + ', by 11:59 pm', 'Rent is due', 'Pay in full by 11:59 pm and nothing else on this list happens.'],
+        ['warn', fmt(mail) + ', 12:01 am', 'Pay-or-vacate email goes out', "Rent is unpaid, so a pay-or-vacate email comes to you. That morning the notice is printed and mailed to you by certified mail. A late fee may be added under your lease."],
+        ['', fmt(second), 'Second email: what happens next', 'We email you these dates, worked out for your own lease. This is a good day to contact the agency you are asking for help, and to keep your certified notice when it arrives.'],
+        ['warn', fmt(deadline), 'The notice ends', 'The last day to pay the full rent shown on the notice. The day it was mailed counts as day 1. Paying all of it by then stops the process.'],
+        ['', fmt(filing), 'Eviction case filed in court', 'If rent is still unpaid, the case is filed on the next business day after the notice ends.'],
+        ['', fmt(court), 'Expected court date', 'The court sets the real date. It is usually about two weeks after filing. You can go, ask for free legal help, or work out a plan.'],
+        ['', fmt(writ), 'Writ decision', 'If the court rules for the landlord, a writ of restitution is requested.'],
+        ['end', 'About ' + fmt(sheriff), 'The sheriff', 'The sheriff can remove you and your belongings, typically about 10 days after the writ is filed. An eviction judgment can make it much harder to rent a home later.']
+      ];
+      list.innerHTML = steps.map(function (s) {
+        return '<li class="' + s[0] + '"><div class="when">' + s[1] + '</div><div class="t">' + s[2] + '</div><p>' + s[3] + '</p></li>';
+      }).join('');
+    }
+    sel.addEventListener('change', draw);
+    draw();
+  })();
+
+  // Search filter
+  (function () {
+    var input = document.getElementById('filter');
+    var count = document.getElementById('count');
+    var empty = document.getElementById('no-results');
+    var items = Array.prototype.slice.call(document.querySelectorAll('.res'));
+    var groups = Array.prototype.slice.call(document.querySelectorAll('.group:not(.ready):not(.static)'));
+    input.addEventListener('input', function () {
+      var q = input.value.trim().toLowerCase();
+      var shown = 0;
+      items.forEach(function (el) {
+        var text = (el.textContent + ' ' + (el.getAttribute('data-keywords') || '')).toLowerCase();
+        var match = !q || text.indexOf(q) !== -1;
+        el.classList.toggle('hidden', !match);
+        if (match) shown++;
+      });
+      groups.forEach(function (g) {
+        g.classList.toggle('hidden', !!q && !g.querySelector('.res:not(.hidden)'));
+      });
+      empty.classList.toggle('show', !!q && shown === 0);
+      count.textContent = q ? shown + (shown === 1 ? ' match' : ' matches') : '';
+    });
+  })();
+</script>
+</body>
+</html>

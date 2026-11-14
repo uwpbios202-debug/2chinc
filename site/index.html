@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2nd Chance Housing Inc. — Safe Homes, Stronger Lives</title>
+  <meta name="description" content="2nd Chance Housing Inc., a 501(c)(3) in Chicago and Milwaukee: safe, stable housing with mentoring and reentry support. If every other landlord has said no, we say yes." />
+  <link rel="icon" href="/favicon.png" />
+  <link rel="apple-touch-icon" href="/logo-192.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/site.css" />
+</head>
+<body>
+
+<header class="site-header">
+  <div class="inner">
+    <a href="/" class="brand">
+      <img src="/logo-192.png" alt="" width="56" height="56" />
+      <div><strong>2nd Chance Housing</strong><span>501(c)(3) Nonprofit · Chicago &amp; Milwaukee</span></div>
+    </a>
+    <nav class="site-nav" aria-label="Main">
+      <a href="/#units">Available Units</a>
+      <a href="/who-we-serve/">Who We Serve</a>
+      <a href="/rent-help/">Rent Help</a>
+      <a href="/documents/public/">Documents</a>
+      <a href="/contact/">Contact</a>
+      <a href="/investor/">Investor</a>
+      <a href="/waitlist/" class="waitlist">Waitlist</a>
+      <a href="/leasing/apply/" class="apply">Apply</a>
+      <a href="/#signin" class="signin">Sign In</a>
+    </nav>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="inner">
+    <div class="eyebrow">Chicago &amp; Milwaukee</div>
+    <h1>A Home for a <em>Fresh Start</em></h1>
+    <p class="desc">2nd Chance Housing provides safe, stable homes for people and families facing barriers to housing, with mentoring and support for lasting independence. We do not conduct background checks—we focus on where you are today and where you want to go.</p>
+    <p class="desc"><strong>If every other landlord has said no, we say yes.</strong></p>
+    <div class="stats">
+      <div class="stat" id="statUnits"><b>2</b><span>Accepting applications</span></div>
+      <div class="stat"><b>2</b><span>Cities</span></div>
+      <div class="stat"><b>501c3</b><span>Tax-Exempt Org</span></div>
+    </div>
+  </div>
+</div>
+
+<main>
+
+  <!-- AVAILABLE UNITS -->
+  <section id="units">
+    <h2 class="section-title">Available Units</h2>
+    <p class="section-lead">Every home comes with mentoring and reentry support. <strong>We are accepting applications now</strong> for the units marked "Accepting applications", even while they are still being made ready. Applying is free.</p>
+    <p class="section-lead"><a href="/waitlist/"><strong>Join the waitlist</strong></a> too: when a unit is ready to move in, we email the list in the order people joined, and the first person on the list hears 48 hours before everyone else.</p>
+
+    <!-- Built from /data/listings.json (the one place to change a listing). -->
+    <div id="listings"><noscript><p class="section-lead">Turn on JavaScript to see the available units, or email <a href="mailto:info@2ndchinc.org">info@2ndchinc.org</a>.</p></noscript></div>
+
+    <h3 class="qa-title" id="questions">Questions people ask</h3>
+    <div class="qa" id="qa"></div>
+    <script type="module">
+      const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+      const money = (n) => "$" + Number(n).toLocaleString("en-US");
+      const CHECK = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>`;
+      try {
+        const L = await (await fetch("/data/listings.json", { cache: "no-cache" })).json();
+        // Rent ready comes from the database: staff mark it on https://2ndchinc.org/staff/waitlist/ (Stephen, 11/10/2026).
+        // Until then the unit says "Accepting applications". Only a rent-ready unit can show "Under contract" (a lease, or a lease in progress).
+        let readyList = [];
+        try {
+          const { SUPABASE_URL, SUPABASE_ANON_KEY } = await import("/assets/portal/config.js");
+          const r = await (await fetch(SUPABASE_URL + "/rest/v1/rpc/public_units_rent_ready", { method: "POST", headers: { apikey: SUPABASE_ANON_KEY, "Content-Type": "application/json" }, body: "{}" })).json();
+          if (Array.isArray(r)) readyList = r;
+        } catch {}
+        for (const u of L.units) u.status = u.applications_open === false ? "closed" : readyList.includes(String(u.unit)) ? "ready" : "open";   // closed: listed, applications not open yet
+        try {
+          const { SUPABASE_URL, SUPABASE_ANON_KEY } = await import("/assets/portal/config.js");
+          const held = await (await fetch(SUPABASE_URL + "/rest/v1/rpc/public_units_under_contract", { method: "POST", headers: { apikey: SUPABASE_ANON_KEY, "Content-Type": "application/json" }, body: "{}" })).json();
+          if (Array.isArray(held)) for (const u of L.units) if (u.status === "ready" && held.includes(String(u.unit))) u.status = "under_contract";
+        } catch {}
+        // Once the lease is signed the unit leaves the page (Stephen, 11/6/2026).
+        try {
+          const { SUPABASE_URL, SUPABASE_ANON_KEY } = await import("/assets/portal/config.js");
+          const leased = await (await fetch(SUPABASE_URL + "/rest/v1/rpc/public_units_leased", { method: "POST", headers: { apikey: SUPABASE_ANON_KEY, "Content-Type": "application/json" }, body: "{}" })).json();
+          if (Array.isArray(leased)) L.units = L.units.filter((u) => !leased.includes(String(u.unit)));
+        } catch {}
+        const units = L.units.filter((u) => u.listed);
+        const nOpen = units.filter((u) => u.status === "open").length, nReady = units.filter((u) => u.status === "ready").length;
+        document.getElementById("statUnits").innerHTML = nReady ? `<b>${nReady}</b><span>Ready now</span>` : nOpen ? `<b>${nOpen}</b><span>Accepting applications</span>` : `<b>Open</b><span>Waitlist</span>`;
+        const streets = [...new Set(units.map((u) => u.street))];
+        const fill = (t, u) => t.replace(/\{rent\}/g, money(u.rent)).replace(/\{deposit\}/g, money(u.deposit)).replace(/\{move_in_total\}/g, money(u.rent + u.deposit));
+        document.getElementById("listings").innerHTML = streets.map((st) => {
+          const here = units.filter((u) => u.street === st), ready = here.filter((u) => u.status === "ready"), held = here.filter((u) => u.status === "under_contract"), soon = here.filter((u) => u.status === "open"), closed = here.filter((u) => u.status === "closed");
+          const pill = [ready.length && `${ready.length} Ready now`, held.length && `${held.length} Under contract`,
+            soon.length && `${soon.length} Accepting applications`, closed.length && `${closed.length} Coming ${closed.map((u) => u.ready_label || "later").filter((v, i, a) => a.indexOf(v) === i).join(", ")}`].filter(Boolean).join(" · ");
+          return `<div class="building"><div class="icon"></div><div><div class="addr">${esc(st)}</div><div class="city">${esc(here[0].city)}</div><span class="pill">${esc(pill)}</span></div></div>
+          <div class="grid">${here.map((u) => {
+            const heldU = u.status === "under_contract", soonU = u.status === "open", closedU = u.status === "closed", subj = encodeURIComponent(`Inquiry: Unit ${u.unit}, ${u.street}`);
+            return `<div class="card">
+              <span class="tag ${heldU ? "held" : soonU || closedU ? "soon" : ""}">${heldU ? "Under contract" : closedU ? "Coming " + esc(u.ready_label || "later") : soonU ? "Accepting applications" : "Ready now"}</span>
+              <h3>Unit ${esc(u.unit)}</h3>
+              <div class="sub">${esc(u.street)}<br>${esc(u.city)}</div>
+              <div class="price">${money(u.rent)}<small>/mo</small><span class="dep">${money(u.deposit)} security deposit · ${money(u.rent + u.deposit)} to move in</span></div>
+              ${(L.stairs_only_units || []).includes(String(u.unit)) ? `<div role="note" style="background:#fff8e1;color:#5c3d00;border-left:4px solid #e0a800;border-radius:6px;padding:0.5rem 0.7rem;margin:0.4rem 0 0.6rem;font-size:0.95rem;line-height:1.35"><strong>Caution:</strong> ${esc(L.stairs_caution)}</div>` : ""}
+              <ul class="features"><li>${CHECK}<span><strong>${u.beds} Bed · ${u.baths} Bath</strong>${u.sqft ? ` · ${u.sqft} sq ft` : ""}</span></li>
+                ${L.features.map((f) => `<li>${CHECK}<span>${esc(f)}</span></li>`).join("")}</ul>
+              ${heldU ? `<div class="soon-note held">UNDER CONTRACT</div>` : closedU ? `<div class="soon-note">COMING ${esc(String(u.ready_label || "later").toUpperCase())}</div>` : soonU ? `<div class="soon-note">NOT MOVE-IN READY YET · APPLICATIONS ACCEPTED NOW${u.ready_label ? " · EXPECTED " + esc(String(u.ready_label).toUpperCase()) : ""}</div>` : ""}
+              ${closedU ? `<a href="/waitlist/" class="btn">Join the waitlist</a>` : heldU ? `<a href="/leasing/apply/?unit=${encodeURIComponent(u.unit)}" class="btn-link">Another adult on this lease? Apply here</a>` : `<a href="/leasing/apply/?unit=${encodeURIComponent(u.unit)}" class="btn">Apply Now</a>${soonU ? `<a href="/waitlist/" class="btn-link">Join the waitlist: we email you when it is ready</a>` : ""}`}
+              <a href="#questions" class="btn-link">Questions? See the answers below</a>
+              <a href="mailto:${esc(L.contact.email)}?subject=${subj}" class="btn-link" style="margin-top:0.25rem">Or email us</a>
+            </div>`; }).join("")}</div>`;
+        }).join("");
+        // Money in the answers follows the first listed unit (Unit 15 is $950 from 11/9/2026; the others $925).
+        const u0 = units[0] || { rent: 0, deposit: 0 };
+        document.getElementById("qa").innerHTML = L.qa.map((x) => `<details><summary>${esc(x.q)}</summary><p>${esc(fill(x.a, u0))}</p></details>`).join("") +
+          `<p class="qa-more">Something else? Email <a href="mailto:${esc(L.contact.email)}">${esc(L.contact.email)}</a> or call ${esc(L.contact.phone)}.</p>`;
+      } catch (e) {
+        document.getElementById("listings").innerHTML = `<p class="section-lead">We couldn't load the units right now. Email <a href="mailto:info@2ndchinc.org">info@2ndchinc.org</a> and we'll tell you what's available.</p>`;
+      }
+    </script>
+  </section>
+
+  <!-- WHO WE SERVE -->
+  <section id="who-we-serve">
+    <h2 class="section-title">Who We Serve</h2>
+    <p class="section-lead">If every other landlord has said no, we say yes. Find yourself below.</p>
+    <div class="policy">
+      <strong>One conversation:</strong> What is your plan to keep rent on track, and what will you do if something changes?
+      <ul class="policy-list">
+        <li>No background checks.</li>
+        <li>No credit checks.</li>
+        <li>No judgment.</li>
+        <li><strong>FREE application</strong>, answered on video instead of a long form.</li>
+      </ul>
+      The only limit: <strong>no pets</strong>. Service animals and emotional support animals are always welcome, with no fees.
+    </div>
+    <div class="chips">
+      <a href="/who-we-serve/#/returning-citizens">Returning Citizens</a>
+      <a href="/who-we-serve/#/past-evictions">Past Evictions</a>
+      <a href="/who-we-serve/#/divorced-and-ordered-out">Divorced &amp; Ordered Out</a>
+      <a href="/who-we-serve/#/credit-and-debt">Bad Credit &amp; Debt</a>
+      <a href="/who-we-serve/#/vouchers-and-benefits">Vouchers &amp; Benefits</a>
+      <a href="/who-we-serve/#/experiencing-homelessness">Experiencing Homelessness</a>
+      <a href="/who-we-serve/#/first-time-renters">First-Time Renters</a>
+      <a href="/who-we-serve/#/families">Families</a>
+      <a href="/who-we-serve/#/veterans">Veterans</a>
+    </div>
+    <a href="/who-we-serve/" class="btn green inline">See everyone we serve →</a>
+  </section>
+
+  <!-- SIGN IN -->
+  <section id="signin">
+    <h2 class="section-title">Sign In</h2>
+    <p class="section-lead">Every account signs in with a code emailed to you. No passwords to remember.</p>
+    <div class="grid">
+      <div class="card">
+        <div class="role-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3zm0 5.5a2 2 0 110 4 2 2 0 010-4z"/></svg></div>
+        <h3>Owners</h3>
+        <a href="/association-owners/roca1/" class="btn">Sign In</a>
+      </div>
+      <div class="card">
+        <div class="role-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></div>
+        <h3>Residents</h3>
+        <a href="/resident/" class="btn">Sign In</a>
+      </div>
+      <div class="card">
+        <div class="role-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/></svg></div>
+        <h3>Contractors</h3>
+        <a href="/contractor/" class="btn ghost">Sign In</a>
+      </div>
+      <div class="card">
+        <div class="role-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1s-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm-2 14l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg></div>
+        <h3>Staff</h3>
+        <a href="/staff/" class="btn ghost">Sign In</a>
+      </div>
+      <div class="card">
+        <div class="role-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6h-4V4c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-6 0h-4V4h4v2z"/></svg></div>
+        <h3>Agents</h3>
+        <a href="/leasing/countersign/" class="btn ghost">Sign In</a>
+      </div>
+      <div class="card">
+        <div class="role-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm3.5 6.5l-2 5-5 2 2-5 5-2zM12 11a1 1 0 100 2 1 1 0 000-2z"/></svg></div>
+        <h3>Housing Navigators</h3>
+        <a href="/navigator/" class="btn ghost">Sign In</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- VIDEO -->
+  <div class="band">
+    <div class="band-head">
+      <div>
+        <h2>See a <span>Sample Unit</span></h2>
+        <p>Watch a video walkthrough of a sample unit so you know what to expect before you apply.</p>
+      </div>
+      <a href="https://www.youtube.com/playlist?list=PLj41XXtFKkrGSRvlpVUmU0hRTlje08yTr" target="_blank" rel="noopener" class="btn green inline">Full Playlist</a>
+    </div>
+    <div class="video">
+      <iframe src="https://www.youtube.com/embed/Tu77LYk-gws?list=PLj41XXtFKkrGSRvlpVUmU0hRTlje08yTr" title="2nd Chance Housing — Sample Unit" loading="lazy"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    </div>
+  </div>
+
+  <!-- MISSION -->
+  <div class="mission" id="mission">
+    <div class="text">
+      <h3>Our Mission</h3>
+      <p>Transforming the lives of Ex-Offenders (returning citizens), military veterans, 1st time renters and their families through housing, mentoring, and empowerment — building a path to a self-sustaining, law-abiding life.</p>
+    </div>
+    <a href="/contact/">Contact Us</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <p class="tagline">Safe Homes · Stronger Lives</p>
+  <p><strong>2nd Chance Housing Inc.</strong> · Chicago &amp; Milwaukee · 6626 N Bourbon St, Milwaukee, WI 53224 · EIN 47-5387503 · 501(c)(3) Public Charity</p>
+  <p><a href="tel:2622365443">(262) 236-5443</a> · <a href="mailto:info@2ndchinc.org">info@2ndchinc.org</a> · <a href="/documents/public/">Resident documents</a> &middot; <a href="/privacy/">Privacy</a></p>
+  <p>© 2026 2nd Chance Housing Inc. All rights reserved.</p>
+</footer>
+
+</body>
+</html>

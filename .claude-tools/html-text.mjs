@@ -1,0 +1,12 @@
+import fs from 'fs';
+const [src, out] = process.argv.slice(2);
+let h = fs.readFileSync(src, 'utf8');
+const imgs = [...h.matchAll(/<img\b[^>]*>/gi)].map(m => m[0]).map(t => ({ src: (t.match(/\bsrc="([^"]*)"/i) || [])[1] || '', alt: (t.match(/\balt="([^"]*)"/i) || [])[1] || '', w: (t.match(/\bwidth="([^"]*)"/i) || [])[1] || '' }));
+h = h.replace(/<(script|style|svg|noscript)\b[\s\S]*?<\/\1>/gi, '');
+h = h.replace(/<img\b[^>]*alt="([^"]*)"[^>]*>/gi, '\n[IMAGE: $1]\n');
+h = h.replace(/<(br|\/p|\/div|\/li|\/h\d|\/tr|\/section|\/article)\b[^>]*>/gi, '\n').replace(/<[^>]+>/g, '');
+h = h.replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;|&#x27;/g, "'");
+h = h.split('\n').map(s => s.trim()).filter(Boolean).join('\n');
+fs.writeFileSync(out, h);
+console.log('text chars', h.length);
+for (const i of imgs) console.log('IMG', i.src.slice(0, 140), '| alt:', i.alt.slice(0, 120), '| w:', i.w);

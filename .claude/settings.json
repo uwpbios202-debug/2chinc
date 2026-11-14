@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "deny": [
+      "Read(./Open-Claude-Here.*)",
+      "Edit(./Open-Claude-Here.*)",
+      "Write(./Open-Claude-Here.*)",
+      "Bash(git add *Open-Claude-Here*)",
+      "Bash(git add -f *)",
+      "Bash(git add --force *)",
+      "Bash(*cat *Open-Claude-Here*)",
+      "Bash(*type *Open-Claude-Here*)",
+      "PowerShell(*Open-Claude-Here*)"
+    ]
+  }
+}

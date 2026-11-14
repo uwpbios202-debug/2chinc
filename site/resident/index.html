@@ -1,0 +1,1503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Resident Portal — 2nd Chance Housing</title>
+  <link rel="icon" href="/favicon.png" />
+<link rel="manifest" href="/resident/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/logo-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="2nd Chance">
+<meta name="theme-color" content="#2e7d1f">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/site.css" />
+  <link rel="stylesheet" href="/assets/portal/portal.css" />
+  <style>
+    body { background: var(--cream); font-family: var(--sans); }
+    .shell { display: grid; grid-template-columns: 230px 1fr; min-height: 100vh; }
+    .side { background: var(--white); border-right: 1px solid var(--border); padding: 18px 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+    .side .logo { display: flex; justify-content: center; margin-bottom: 14px; }
+    .side .logo img { width: 84px; height: 84px; border-radius: 50%; }
+    .side nav a { display: flex; align-items: center; gap: 10px; padding: 12px 22px; color: var(--text); text-decoration: none; font-weight: 600; font-size: 0.95rem; border-left: 4px solid transparent; }
+    .side nav a[aria-current="page"] { background: var(--tint); border-left-color: var(--green); color: var(--green-dk); }
+    .side nav a:hover { background: var(--cream); }
+    .main { padding: 22px 28px 60px; max-width: 1100px; }
+    .top { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 18px; flex-wrap: wrap; }
+    .top h1 { font-family: var(--serif); font-weight: 400; font-size: 1.9rem; margin: 0; }
+    .top .addr { color: var(--gray); text-align: right; font-size: 0.92rem; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .box { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; margin-bottom: 16px; }
+    .box h2 { font-family: var(--serif); font-weight: 400; font-size: 1.3rem; margin: 0 0 10px; }
+    .balance { border-left: 5px solid var(--green); display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .balance .amt { font-size: 2.6rem; font-weight: 700; margin-top: 4px; }
+    .btn2 { display: inline-block; background: var(--green); color: #fff; border: 0; border-radius: 999px; padding: 11px 22px; font: 700 0.95rem var(--sans); cursor: pointer; text-decoration: none; text-align: center; }
+    .btn2.ghost { background: var(--white); color: var(--text); border: 1px solid var(--border); }
+    .btn2:disabled { opacity: 0.5; cursor: not-allowed; }
+    table.t { width: 100%; border-collapse: collapse; font-size: 0.93rem; }
+    table.t th { text-align: left; font-size: 0.75rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--gray); padding: 10px 8px; border-bottom: 1px solid var(--border); background: var(--cream); }
+    table.t td { padding: 11px 8px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    table.t .num { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+    .sub2 { color: var(--gray); font-size: 0.85rem; }
+    dl.kv { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 18px; margin: 0; }
+    dl.kv dt { color: var(--gray); font-size: 0.82rem; font-weight: 600; }
+    dl.kv dd { margin: 0 0 4px; font-weight: 500; }
+    .tagx { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 0.78rem; font-weight: 700; background: var(--tint); color: var(--green-dk); }
+    .tagx.warn { background: #fdf4e1; color: #8a5a00; }
+    .tagx.off { background: #edf0f3; color: #667180; }
+    .wk { margin-bottom: 14px; }
+    .wk h2 { margin: 0 0 4px; }
+    .wkpill { display: inline-block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 0.15rem 0.6rem; border-radius: 20px; background: var(--tint); color: var(--green-dk); }
+    .wkpill.warn { background: #fff3cd; color: #7a5200; } .wkpill.done { background: #e8e8e8; color: #444; }
+    .wktask { display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; padding: 8px 0; border-top: 1px solid var(--border); }
+    .wkterms { border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px; margin: 8px 0; background: var(--white); }
+    .wkterms summary { cursor: pointer; font-weight: 600; } .wkterms h4 { margin: 10px 0 2px; } .wkterms ul { margin: 4px 0 4px 1.2rem; }
+    .wknote { border-top: 1px solid var(--border); padding: 8px 0; font-size: 0.93rem; }
+    .wknote img { max-width: 180px; border-radius: 8px; display: block; margin-top: 4px; }
+    .wkcomp { display: grid; gap: 8px; margin-top: 10px; }
+    .pkopts { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; margin: 10px 0; }
+    .pkopts button { text-align: left; background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; cursor: pointer; font: inherit; }
+    .pkopts button:hover, .pkopts button.on { border-color: var(--green); background: var(--tint); }
+    .pkopts b { display: block; }
+    .pkcard { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; }
+    .pkgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; margin-top: 10px; }
+    .pkphotos { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 8px 0; }
+    .pkphotos img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 8px; background: #e8ece6; display: block; }
+    .pkform { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; margin-top: 10px; }
+    .pkform label { display: grid; gap: 3px; font-size: 0.85rem; color: var(--gray); }
+    .pkform label.wide { grid-column: 1 / -1; }
+    .paygrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin-top: 12px; }
+    .paycard { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+    .paycard.main { border-color: var(--green); box-shadow: 0 4px 16px rgba(19,32,26,0.08); }
+    .paycard h3 { font-size: 1.05rem; margin: 0; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+    .paycard h3 .badge { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; background: var(--tint); color: var(--green-dk); padding: 0.15rem 0.5rem; border-radius: 20px; }
+    .paycard .go { display: block; text-align: center; background: var(--green); color: #fff; text-decoration: none; font-weight: 700; padding: 0.65rem 0.9rem; border-radius: 8px; border: 0; cursor: pointer; font: inherit; font-weight: 700; }
+    .paycard .go.alt { background: transparent; color: var(--green-dk); border: 1px solid var(--green); }
+    .paycard .detail { font-size: 0.92rem; overflow-wrap: anywhere; }
+    .paycard .copyrow { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .paycard .copyrow b { font-size: 1.02rem; }
+    .paycard canvas, .paycard img.qr { align-self: flex-start; }
+    .paycard .banks { display: flex; flex-wrap: wrap; gap: 6px; }
+    .paycard .banks a { font-size: 0.8rem; border: 1px solid var(--border); border-radius: 20px; padding: 0.2rem 0.65rem; text-decoration: none; color: var(--text); }
+    .req { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+    .req img { width: 60px; height: 60px; object-fit: cover; border-radius: 8px; }
+    .req .ico { width: 60px; height: 60px; border-radius: 8px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; }
+    label.f2 { display: block; font-weight: 600; font-size: 0.88rem; margin: 12px 0 5px; }
+    .in { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; font: 500 0.98rem var(--sans); }
+    textarea.in { min-height: 110px; }
+    .folder { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); text-decoration: none; color: var(--text); }
+    .folder:hover { color: var(--green-dk); }
+    .msg2 { min-height: 1.2em; margin-top: 8px; font-size: 0.9rem; }
+    .msg2.err { color: #b03a2e; } .msg2.ok { color: var(--green-dk); }
+    .menu-btn { display: none; }
+    .badge { display: inline-block; min-width: 18px; padding: 0 6px; margin-left: 6px; border-radius: 999px; background: #b03a2e; color: #fff; font-size: 0.75rem; text-align: center; }
+    .letter { border-top: 1px solid var(--border); padding: 14px 0; }
+    .letter video, .letter audio { width: 100%; max-width: 640px; margin: 8px 0; border-radius: 10px; background: #000; }
+    .letter audio { background: none; }
+    .search { display: flex; gap: 8px; } .search input { flex: 1; }
+    .chat { display: grid; gap: 8px; max-height: 60vh; overflow-y: auto; padding: 4px; }
+    .chat .b { max-width: 80%; padding: 10px 14px; border-radius: 14px; background: #f1f3f5; white-space: pre-wrap; }
+    .chat .b.me { justify-self: end; background: var(--tint); }
+    .chat .b .sub2 { display: block; margin-top: 4px; }
+    .nudge { border-left: 5px solid #c9a227; }
+    .emerg { background: #fbeceb; border-left: 5px solid #b03a2e; border-radius: 10px; padding: 12px 16px; margin-bottom: 16px; }
+    .cats { border: 0; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 8px; }
+    .cats legend { padding: 0; }
+    .cats label { display: flex; gap: 8px; align-items: flex-start; border: 1px solid var(--border); border-radius: 10px; padding: 10px; cursor: pointer; }
+    .cats label:has(input:checked) { border-color: var(--green); background: var(--tint); }
+    .cats label > span { display: grid; }
+    .yn { border: 0; padding: 0; margin: 0; } .yn label { margin-right: 18px; }
+    .rq { border-top: 1px solid var(--border); padding: 14px 0; }
+    .rq-h { display: flex; gap: 10px; align-items: center; }
+    .rq-h .ico { font-size: 1.5rem; }
+    ol.track { display: flex; list-style: none; padding: 0; margin: 10px 0; gap: 4px; }
+    ol.track li { flex: 1; text-align: center; font-size: 0.78rem; padding: 6px 2px; border-radius: 6px; background: #edf0f3; color: #667180; }
+    ol.track li.done { background: var(--tint); color: var(--green-dk); }
+    ol.track li.now { background: var(--green); color: #fff; font-weight: 700; }
+    .thread { display: grid; gap: 6px; margin: 8px 0; }
+    .thread > div { background: #f5f6f8; border-radius: 10px; padding: 8px 12px; font-size: 0.92rem; }
+    .thread > div.me { background: var(--tint); }
+    .confirm { border: 1px solid #c9a227; background: #fdf8e8; border-radius: 10px; padding: 12px; margin: 10px 0; }
+    .cm { display: flex; gap: 8px; margin-top: 8px; } .cm input { flex: 1; }
+    .room { border: 1px solid var(--border); border-radius: 10px; margin: 10px 0; }
+    .room > summary { padding: 12px 14px; font-weight: 700; cursor: pointer; display: flex; justify-content: space-between; gap: 10px; }
+    .room .body { padding: 0 14px 14px; }
+    .ci { display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; align-items: center; padding: 8px 0; border-top: 1px solid var(--border); }
+    .ci .conds { display: flex; gap: 4px; flex-wrap: wrap; }
+    .ci .conds label { border: 1px solid var(--border); border-radius: 999px; padding: 4px 10px; font-size: 0.85rem; cursor: pointer; }
+    .ci .conds input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+    .ci .conds input:checked + span { font-weight: 700; color: var(--green-dk); }
+    .ci .conds label:has(input:checked) { border-color: var(--green); background: var(--tint); }
+    .ci .conds label:has(input[value="damaged"]:checked) { border-color: #b03a2e; background: #fbeceb; }
+    .ci .conds label:has(input:focus-visible) { outline: 2px solid var(--green); outline-offset: 2px; }
+    .ci input.note { grid-column: 1 / -1; }
+    .ci .ci-head { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+    .ci .ci-name { font-weight: 600; }
+    .ci .cam { display: inline-flex; align-items: center; gap: 4px; border: 1px solid var(--border); border-radius: 999px; padding: 4px 12px; cursor: pointer; font-size: 1.05rem; background: #fff; }
+    .ci .cam:hover { border-color: var(--green); background: var(--tint); }
+    .ci .cam:has(input:focus-visible) { outline: 2px solid var(--green); outline-offset: 2px; }
+    .ci .cam-n { font-size: 0.8rem; font-weight: 700; color: var(--green-dk); }
+    .ci .thumbs.small { grid-column: 1 / -1; margin: 0; }
+    .ci .thumbs.small:empty { display: none; }
+    .ci .thumbs.small img { width: 60px; height: 60px; }
+    .ci [data-imsg]:empty { display: none; }
+    .ci .conds label:has(input[value="dirty"]:checked), .ci .conds label:has(input[value="marked"]:checked) { border-color: #c9a227; background: #fdf8e8; }
+    @media (max-width: 560px) { .ci { grid-template-columns: 1fr; } }
+    .thumbs { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+    .thumbs img { width: 84px; height: 84px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); }
+    .steps { counter-reset: s; }
+    .steps > .box > h2::before { counter-increment: s; content: counter(s) ". "; }
+    @media (max-width: 860px) {
+      .shell { grid-template-columns: minmax(0, 1fr); }
+      .side, .side nav { max-width: 100vw; }
+      .side { position: static; height: auto; padding: 8px 0; }
+      .side .logo { display: none; }
+      .side nav { display: flex; overflow-x: auto; }
+      .side nav a { border-left: 0; border-bottom: 3px solid transparent; padding: 10px 14px; white-space: nowrap; }
+      .side nav a[aria-current="page"] { border-bottom-color: var(--green); }
+      .grid2, .grid2[style] { grid-template-columns: 1fr !important; }   /* inline column styles must not keep two columns on a phone */
+      .grid2 > *, .shell > *, .main { min-width: 0; }
+      .main { padding: 16px; }
+      table.t { display: block; overflow-x: auto; }
+    }
+  </style>
+</head>
+<body>
+<div id="signinWrap" class="wrap" style="max-width:520px;margin:40px auto;padding:0 16px">
+  <div style="text-align:center;margin-bottom:12px"><img src="/logo-192.png" alt="2nd Chance Housing" width="90" height="90" style="border-radius:50%"></div>
+  <h1 style="font-family:var(--serif);font-weight:400;text-align:center">Resident sign-in</h1>
+  <div id="signin" class="narrow"></div>
+</div>
+
+<div class="shell" id="shell" hidden>
+  <aside class="side">
+    <div class="logo"><img src="/logo-192.png" alt="2nd Chance Housing"></div>
+    <nav id="nav" aria-label="Resident portal">
+      <a href="#home">🏠 Home</a><a href="#checkout" id="navCheckout" hidden>📋 Move-out checklist</a><a href="#movein" id="navMoveIn" hidden>🔑 Move-in</a><a href="#renewal" id="navRenewal" hidden>📝 Renewal</a><a href="#moveout" id="navMoveOut" hidden>📦 Move-out</a><a href="#payments">💳 Payments</a><a href="#requests">🔧 Requests</a>
+      <a href="#letters">🎬 Monthly letters</a><a href="#messages">💬 Messages<span class="badge" id="msgBadge" hidden></span></a>
+      <a href="#landcontract" id="navLC" hidden>🏡 Land contract</a><a href="#work" id="navWork" hidden>🛠 Work</a><a href="#parking">🚗 Parking</a><a href="#guests">🧳 Guests</a><a href="#keys">🔑 Keys</a><a href="#household">👪 Household</a><a href="#documents">📄 Documents</a><a href="#announcements">📣 Announcements</a><a href="#contacts">👥 Contacts</a><a href="#profile">👤 Profile</a>
+      <a href="#" id="signOutLink">↩ Sign out</a>
+    </nav>
+  </aside>
+  <main class="main" id="main" aria-live="polite"></main>
+</div>
+
+<footer style="text-align:center;font-size:0.82rem;padding:18px 16px 28px;color:#5f6b63"><a href="/privacy/" style="color:inherit">Privacy policy</a> · 2nd Chance Housing Inc.</footer>
+
+<script type="module">
+import { client, $, esc, fmtDate, money, balCell, amtCell, CREDIT_NOTE, signIn, signOut, errorText } from "/assets/portal/portal.js";
+import { balClass } from "/assets/portal/balance.js";
+import { withStepUp } from "/assets/portal/step-up.js";
+import { mountGuests } from "/assets/portal/guests.js";
+import { mountKeys } from "/assets/portal/keys.js";
+import { mountHvac } from "/assets/portal/hvac.js?v=20261105b";
+import { mountKeyAdd } from "/assets/portal/keys-tenant.js";
+import { mountStalls } from "/assets/portal/stalls.js?v=20261103b";
+import { mountParkAlert } from "/assets/portal/parking-alert.js?v=20261108c";
+import { mountParkingStatus } from "/assets/portal/parking-status.js?v=20261109a";
+import { mountPushCard } from "/assets/portal/push.js";
+import { vinFieldHtml, wireVin, cleanVin } from "/assets/portal/vin.js";
+import { mountAssistance } from "/assets/portal/assistance.js";
+import { mountHousehold } from "/assets/portal/household.js";
+import { mountDisputes, questionCharge } from "/assets/portal/disputes.js";
+import { mountInspectionNotices } from "/assets/portal/inspections.js";
+import { mountEvictionNotice } from "/assets/portal/eviction-notice.js?v=20261109a";
+import { mountInspectionDocs, mountInspectionReport } from "/assets/portal/inspection-tenant.js?v=20261105";
+import { mountTenantReports } from "/assets/portal/reports.js";
+import QRCode from "https://esm.sh/qrcode@1.5.3";
+import { renderPayPalButtons } from "/assets/portal/paypal.js";
+
+let H = null;           // resident_home() payload
+const leaseOf = () => H.leases[0] || null;
+const lc = () => H.land_contracts[0] || null;
+// A land contract buyer (no lease): the tenant-only parts of the portal are hidden and the wording says "payment", not "rent".
+const isBuyer = () => !!H && !leaseOf() && !!lc();
+const BUYER_HIDDEN = ["letters", "requests", "parking", "guests", "keys", "household", "contacts"];
+const first = () => (H.name || "").split(/\s+/)[0];
+
+async function act(body) {
+  const { data, error } = await client.functions.invoke("resident-portal", { body });
+  if (error) { let m = error.message; try { m = (await error.context.json()).error || m; } catch {} throw new Error(m); }
+  return data;
+}
+const tel = (n) => `<a href="tel:${esc((n || "").replace(/\D/g, ""))}">${esc(n || "")}</a>`;
+const balHtml = (n) => Number(n) < -0.004 ? `<span class="b-credit">Credit ${money(-n)}</span>` : `<span class="${balClass(n)}">${money(n)}</span>`;
+const creditNote = (n) => Number(n) < -0.004 ? `<div class="sub2" style="margin-top:4px">${CREDIT_NOTE}</div>` : "";
+const kindLabel = (e) => e.kind === "in_kind" ? "Work in lieu of rent" : e.kind === "charge" || e.kind === "installment_due" || e.kind === "rent_due" ? "Charge" : e.kind === "late_fee" ? "Late fee" : e.kind === "payment" ? "Payment" : e.kind === "credit" ? "Credit" : (e.type || e.kind);
+
+function historyRows(list, limit) {
+  let run = 0;
+  const rows = (list || []).map((e) => { run += Number(e.amount); return { ...e, run: Math.round(run * 100) / 100 }; }).reverse();
+  return (limit ? rows.slice(0, limit) : rows).map((e) => `<tr><td>${fmtDate(e.date)}</td><td><b>${esc(kindLabel(e))}</b><div class="sub2">${esc(e.memo || "")}</div>
+    ${Number(e.amount) > 0 && leaseOf() ? `<button class="linklike" type="button" data-qdate="${esc(e.date)}" data-qamt="${esc(e.amount)}" data-qmemo="${esc(e.memo || "")}" style="background:none;border:0;padding:0;color:var(--green,#2e7d1f);text-decoration:underline;cursor:pointer;font-size:.85rem">Question this</button>` : ""}</td>
+    <td class="num">${amtCell(e)}</td><td class="num">${balCell(e.run)}</td></tr>`).join("");
+}
+
+function leaseInfo(l) {
+  return `<div class="box"><h2>Lease information</h2><dl class="kv">
+    <dt>Account number</dt><dd>${esc(l.account_number || "—")}</dd>
+    <dt>Address</dt><dd>${esc(l.address || "")}</dd>
+    <dt>Start date</dt><dd>${fmtDate(l.start_date)}</dd>
+    <dt>Term</dt><dd>${l.end_date ? "until " + fmtDate(l.end_date) : "month-to-month"}</dd>
+    <dt>Rent</dt><dd>${money(l.rent)}</dd>
+    <dt>Deposits</dt><dd>${l.deposit_held == null ? "—" : money(l.deposit_held)}</dd></dl></div>`;
+}
+function contactBox() {
+  const s = H.settings || {};
+  return `<div class="box"><h2>Contact us</h2><p>🏢 ${esc(s.office_name || "")}</p><p>📞 Office: ${tel(s.org_phone || s.office_phone)}</p>
+    <p>🔧 Maintenance &amp; emergencies: ${tel(s.emergency_phone || s.office_phone)}</p>
+    <p>✉️ <a href="mailto:${esc(s.org_email || s.office_email || "")}">${esc(s.org_email || s.office_email || "")}</a></p></div>`;
+}
+
+// Stage 2: before the keys are handed over, the home page leads with the move-in step.
+function moveInBox(l) {
+  const m = H.movein, st = m && m.checklist ? m.checklist.status : "draft";
+  if (m && m.keys_ready_at && !["submitted", "approved"].includes(st)) {
+    const late = new Date(m.due_on + "T23:59:59") < new Date();
+    return `<div class="box" style="border-left:5px solid #c9a227"><h2>📋 ${st === "returned" ? "Your move-in checklist needs a change" : "Finish your move-in checklist"}</h2>
+      <p>Go room by room and note the condition of each item, with photos${late ? "" : `, by <b>${fmtDate(m.due_on)}</b>`}. It protects your security deposit when you move out.</p>
+      <a class="btn2" href="#movein">Open the checklist</a></div>`;
+  }
+  if (!l || !l.move_in_charges_posted || l.keys_released_at) return "";
+  const s = H.settings || {};
+  if (l.keys_ready_at) return `<div class="box" style="border-left:5px solid var(--green)"><h2>🔑 Your keys are ready</h2>
+    <p>Your security deposit and first month's rent are paid. Call ${tel(s.org_phone || s.office_phone)} to arrange pick-up. You can move in before ${fmtDate(l.start_date)} with no extra charge.</p></div>`;
+  return `<div class="box" style="border-left:5px solid #c9a227"><h2>🔑 Pay your move-in amount to get your keys</h2>
+    <p>Your security deposit and first month's rent: <b>${balHtml(Math.max(Number(l.balance), 0))}</b>. As soon as it is paid, your keys are released, even before your lease starts on ${fmtDate(l.start_date)}, with no extra charge for moving in early. There are no fees to you.</p>
+    <a class="btn2" href="#payments">Pay now</a></div>`;
+}
+
+const views = {
+  home() {
+    const l = leaseOf(), c = lc();
+    const bal = l ? Number(l.balance) : c ? Number(c.balance) : 0;
+    const waiting = H.signing.filter((d) => d.status === "sent" && !d.you_signed);
+    const open = H.requests.filter((r) => !["completed", "closed"].includes(r.status));
+    return `<div class="top"><h1>Hello, ${esc(first())}!</h1><div class="addr">${esc(l ? l.address : c ? c.street : "")}</div></div>
+      ${autopayBanner()}
+      <div class="box balance"><div><div style="font-size:1.3rem">${isBuyer() ? "Payment due now" : "Your current balance is"}</div><div class="amt">${balHtml(bal)}</div>${creditNote(bal)}</div>
+        <div style="display:grid;gap:8px;min-width:220px"><a class="btn2" href="#payments">${isBuyer() ? "Make a payment" : "Pay rent"}</a><a class="btn2 ghost" href="#payments">Payment history</a></div></div>
+      ${l && l.former ? `<div class="box nudge"><h2>Your tenancy has ended</h2><p>This portal is read-only now${H.moveout && H.moveout.move_out && H.moveout.move_out.access_ends_at ? ", until " + fmtDate(H.moveout.move_out.access_ends_at) : ""}. You can see your final statement and documents, and keep your forwarding address up to date on the <a href="#moveout">Move-out</a> page.</p></div>` : ""}
+      <div id="evictMount"></div>
+      ${moveInBox(l)}
+      <div id="inspNoticeMount"></div>
+      ${H.renewal && H.renewal.status === "offered" ? `<div class="box nudge"><h2>📝 Your lease renewal offer</h2>
+        <p>Your lease ends ${fmtDate(H.renewal.end_date)}. We'd like you to stay: ${money(H.renewal.new_rent)} a month, ${esc(H.renewal.term_text)}. Please answer by <b>${fmtDate(H.renewal.respond_by)}</b>.</p>
+        <a class="btn2" href="#renewal">See the offer</a></div>` : ""}
+      ${H.profile && H.profile.reminder_due ? `<div class="box nudge"><h2>👤 Is your contact information still right?</h2>
+        <p>Mobile: <b>${esc(H.profile.phone || "—")}</b> · Email: <b>${esc(H.profile.email || "—")}</b> · Emergency contact: <b>${esc(H.profile.emergency_name || "none")}</b></p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn2" type="button" id="pfOk">Yes, it's right</button><a class="btn2 ghost" href="#profile">Update it</a></div></div>` : ""}
+      ${!isBuyer() && H.letters && H.letters[0] && !H.letters[0].viewed ? `<div class="box nudge"><h2>🎬 Your ${monthName(H.letters[0].month)} letter</h2>
+        <p><b>${esc(H.letters[0].title)}</b> · ${esc(H.letters[0].rule_topic)}</p><a class="btn2" href="#letters">Watch or listen</a></div>` : ""}
+      ${waiting.length ? `<div class="box"><h2>Documents to sign</h2>${waiting.map((d) => `<div class="req" style="align-items:center"><div class="ico">✍️</div>
+        <div style="flex:1"><b>${esc(d.title)}</b><div class="sub2">${esc(d.unit_label)} · ready for you to review and sign</div></div>
+        <button class="btn2" type="button" data-resend="${d.doc_id}">Email me the signing link</button></div>`).join("")}<div class="msg2" id="resendMsg"></div></div>` : ""}
+      <div class="grid2">
+        ${isBuyer() ? `<div class="box"><h2>Questions?</h2><p class="sub2">Send the office a message and we'll answer here and by email.</p><a class="btn2" href="#messages" style="margin-top:12px">Send a message</a></div>`
+          : `<div class="box"><h2>Open requests</h2>${open.length ? open.map(reqItem).join("") : `<p class="sub2">No open requests.</p>`}
+          <a class="btn2" href="#requests" style="margin-top:12px">Create request</a></div>`}
+        <div>${l ? leaseInfo(l) : ""}${c ? lcInfo(c) : ""}${contactBox()}</div>
+      </div>
+      <div class="box"><h2>New announcements</h2>${H.announcements.slice(0, 5).map((a) => `<p><b>${esc(a.title)}</b> <span class="sub2">${fmtDate(a.created_on)}</span></p>`).join("") || `<p class="sub2">You're all caught up!</p>`}</div>`;
+  },
+  payments() {
+    const l = leaseOf(), c = lc(), s = H.settings || {};
+    const hist = l ? l.history : c ? c.history : [];
+    const bal = l ? Number(l.balance) : c ? Number(c.balance) : 0;
+    return `<div class="top"><h1>Payments</h1></div>
+      <div class="box" style="text-align:center"><h2>Current balance</h2><div class="amt" style="font-size:2.2rem;font-weight:700">${balHtml(bal)}</div>${creditNote(bal)}
+        ${pendingTotal() ? `<p class="sub2" style="margin-top:6px">${money(pendingTotal())} reported earlier, waiting to match with our bank</p>` : ""}</div>
+      <div id="assistMount"></div>
+      ${payBox(l, c)}
+      <div class="grid2" style="grid-template-columns:2fr 1fr">
+        <div><div class="box"><h2>How your payment reaches your account</h2>
+          ${isBuyer() ? `<p>Pay from your bank account with <b>Pay now</b>. It is added to your land contract as soon as the bank confirms it, with nothing for you to report.</p>` : `<p>Our bank shows us every payment, and it's added to your account automatically, usually within 1 to 2 business days.</p>`}
+          ${isBuyer() ? "" : `<ul class="sub2" style="margin:8px 0 0 18px;line-height:1.6">
+            <li><b>Zelle:</b> ${c && !l ? `put <b>Land contract</b> and your street address (<b>${esc(c.street)}</b>) in the memo` : `put your account number${l && l.account_number ? ` <b>${esc(l.account_number)}</b>` : ""} in the memo`} so it matches right away.</li>
+            <li><b>Pay now</b> (from your bank): it's added the moment you pay.</li>
+            <li>A payment made in someone else's name can take a little longer to match. It still reaches your account.</li>
+          </ul>`}
+          <p class="sub2" style="margin-top:10px">Paid more than 3 business days ago and it isn't in your history? <a href="#messages">Send us a message</a> with the date and amount.</p>
+          ${H.reports.length ? `<div class="sub2" style="margin-top:14px">Payments you reported before:</div><table class="t" style="margin-top:6px"><thead><tr><th>Date</th><th>Method</th><th class="num">Amount</th><th>Status</th></tr></thead><tbody>
+            ${H.reports.map((r) => `<tr><td>${fmtDate(r.paid_on)}</td><td>${esc(r.method.replace("_", " "))}${r.confirmation_code ? `<div class="sub2">#${esc(r.confirmation_code)}</div>` : ""}</td>
+              <td class="num">${money(r.amount)}</td><td>${r.status === "verified" ? `<span class="tagx">✓ verified</span>` : r.status === "rejected" ? `<span class="tagx off">not matched</span>${r.reject_reason ? `<div class="sub2">${esc(r.reject_reason)}</div>` : ""}` : `<span class="tagx warn">pending</span>`}</td></tr>`).join("")}</tbody></table>` : ""}
+        </div>
+        <div class="box"><div style="display:flex;justify-content:space-between;align-items:center"><h2>History</h2>
+          ${l ? `<button class="btn2 ghost" type="button" id="stmt">Email statement</button>` : c ? `<button class="btn2 ghost" type="button" onclick="print()">Print</button>` : ""}</div><div class="msg2" id="stmtMsg"></div>
+          <table class="t"><thead><tr><th>Date</th><th>Memo</th><th class="num">Amount</th><th class="num">Balance</th></tr></thead><tbody id="histBody">${historyRows(hist, 15)}</tbody></table>
+          ${(hist || []).length > 15 ? `<p style="text-align:center"><button class="btn2 ghost" type="button" id="more">Show all ${hist.length}</button></p>` : ""}</div></div>
+        <div>
+          ${l ? leaseInfo(l) : ""}${c ? lcInfo(c) : ""}
+          ${isBuyer() ? lcLateBox() : `<div class="box"><h2>Late fee policy</h2><p>${esc(s.late_fee_policy || "")}</p></div>`}
+          </div>
+      </div>
+      ${l ? `<div class="box" id="disputesBox"><div id="disputesMount"></div></div>
+      <div class="box"><div id="tenantReportsMount"></div></div>` : ""}`;
+  },
+  requests() {
+    const s = H.settings || {}, em = s.emergency_phone || "(262) 236-5443";
+    const CATS = [["plumbing", "🚰 Plumbing", "Leaks, clogs, pipes, water heater"], ["fixtures", "🚽 Faucet, toilet & sink", "Dripping faucet, running toilet, tub, shower"], ["keys", "🔑 Keys & locks", "Lost key, locked out, broken lock"], ["doors", "🚪 Doors", "Won't close or lock, hinges, frame"], ["windows", "🪟 Windows", "Won't open or close, broken glass, screens"], ["heat", "🔥 Heat", "No heat, thermostat, radiator"], ["electric", "💡 Electric", "Outlets, lights, breakers"], ["pests", "🪳 Pests", "Roaches, mice, bed bugs"], ["other", "🔧 Other", "Walls, floors, ceilings, anything else"]];
+    const open = H.requests.filter((r) => r.status !== "closed"), closed = H.requests.filter((r) => r.status === "closed");
+    return `<div class="top"><h1>Requests</h1></div>
+      <div class="emerg" role="alert"><b>Emergency?</b> No heat in winter, flooding, a gas smell or a fire: <b>call ${tel(em)} right away</b>. Don't wait for a ticket.
+        For a fire or a gas smell, leave first and call 911.</div>
+      <div id="hvacMount"></div>
+      <div class="box"><h2>New repair request</h2>
+        <fieldset class="cats"><legend class="f2">What kind of problem is it?</legend>
+          ${CATS.map(([k, t, d]) => `<label><input type="radio" name="rqCat" value="${k}"><span><b>${t}</b><span class="sub2">${d}</span></span></label>`).join("")}</fieldset>
+        <div class="emerg" id="rqHeatWarn" hidden>No heat at all in cold weather, or water you can't stop? That's an emergency: <b>call ${tel(em)} now</b>, then send this request too.</div>
+        <label class="f2" for="rqSubject">What needs attention?</label><input class="in" id="rqSubject" maxlength="120" placeholder="e.g. Kitchen sink is leaking">
+        <label class="f2" for="rqDesc">Describe the problem</label><textarea class="in" id="rqDesc" maxlength="4000" placeholder="Where is it, when did it start, anything you've noticed"></textarea>
+        <label class="f2" for="rqPhotos">Photos (up to 6)</label><input class="in" id="rqPhotos" type="file" accept="image/*" multiple>
+        <label class="f2" for="rqEntry">May we enter to fix it if you're not home?</label>
+        <select class="in" id="rqEntry"><option value="">Choose…</option><option value="yes">Yes, you may enter</option><option value="call_first">Call me first</option><option value="no">No, only when I'm home</option></select>
+        <p class="sub2">If you don't give permission, we send a 12-hour notice before we enter, as the law requires.</p>
+        <fieldset class="yn"><legend class="f2">Are there any animals in the unit?</legend>
+          <label><input type="radio" name="rqPets" value="no"> No</label><label><input type="radio" name="rqPets" value="yes"> Yes</label></fieldset>
+        <div id="rqPetsBox" hidden><label class="f2" for="rqPetsNote">What animal, and will it be put away during the visit?</label><input class="in" id="rqPetsNote" maxlength="300"></div>
+        <div style="margin-top:14px"><button class="btn2" type="button" id="rqSend">Send request</button></div><div class="msg2" id="rqMsg"></div></div>
+      <div class="box"><h2>Your open requests</h2>${open.length ? open.map(requestCard).join("") : `<p class="sub2">No open requests.</p>`}</div>
+      ${closed.length ? `<div class="box"><h2>Closed</h2>${closed.map(requestCard).join("")}</div>` : ""}`;
+  },
+  landcontract() {
+    const KIND = { contract: "Land contract", amortization: "Amortization schedule", interest_statement: "Annual interest statements", tax_bill: "Property tax bills", other: "Other" };
+    return `<div class="top"><h1>Land contract</h1></div>` + (H.lcs || []).map((c) => {
+      const docs = c.documents || [];
+      const kinds = Object.keys(KIND).filter((k) => docs.some((d) => d.kind === k));
+      const bal = (x) => money(Math.max(0, Number(x)));
+      return `<div class="box"><h2>${esc(c.street)}</h2><dl class="kv">
+          <dt>Buyers</dt><dd>${esc(c.buyers)}</dd><dt>Purchase price</dt><dd>${money(c.purchase_price)}</dd>
+          <dt>Interest rate</dt><dd>${(Number(c.interest_rate) * 100).toFixed(2)}%</dd><dt>Monthly payment</dt><dd>${money(c.monthly_payment)}</dd>
+          <dt>Principal remaining</dt><dd>${c.principal_now == null ? "—" : bal(c.principal_now)}</dd>
+          <dt>Interest accrued, not yet paid</dt><dd>${c.accrued_interest == null ? "—" : money(c.accrued_interest)}</dd><dt>Paid in full by</dt><dd>${fmtDate(c.maturity_date)}</dd></dl></div>
+        <div class="box"><h2>Interest by year</h2>
+          <p class="sub2">Worked out the way your land contract says: ${(Number(c.interest_rate) * 100).toFixed(2)}% a year on the balance you actually owe, counted by the day from ${fmtDate(c.contract_date)}, with each payment you made applied to interest first and then to principal. "Interest paid" is the interest part of the payments received that year.</p>
+          <table class="t"><thead><tr><th>Year</th><th class="num">Interest paid</th><th class="num">Principal paid</th><th class="num">Total paid</th></tr></thead><tbody>
+          ${(c.years || []).filter((y) => Number(y.paid) > 0).map((y) => `<tr><td>${y.year}${y.complete ? "" : " <span class=\"sub2\">(so far)</span>"}</td><td class="num"><b>${money(y.interest)}</b></td><td class="num">${money(y.principal)}</td><td class="num">${money(y.paid)}</td></tr>`).join("")}
+          </tbody></table>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button class="btn2 ghost" type="button" data-lccsv="${c.id}">Download schedule (CSV)</button><button class="btn2 ghost" type="button" onclick="print()">Print</button></div></div>
+        <div class="box"><h2>City of Milwaukee bills</h2><p class="sub2">Property taxes and water are billed to you, not to us. The city's sites don't let us sign you in, so copy your number here and paste it on their page.</p>
+          <div class="folder"><span>🏛️</span><span style="flex:1"><b>Property tax bill</b><div class="sub2">${c.tax_key ? "Tax key <b>" + esc(c.tax_key) + "</b>" : "Tax key: ask the office"}</div></span>
+            ${c.tax_key ? `<button class="btn2 ghost" type="button" data-copy="${esc(c.tax_key)}">Copy</button>` : ""}<a class="btn2" href="https://cityofmilwaukeewi.tylerportico.com/navigator/public/selections/navigator" target="_blank" rel="noopener">Open</a></div>
+          <div class="folder"><span>💧</span><span style="flex:1"><b>Water bill (Milwaukee Water Works)</b><div class="sub2">${c.water_account ? "Account number <b>" + esc(c.water_account) + "</b>" : "Water account number: ask the office or find it on your water bill"}</div></span>
+            ${c.water_account ? `<button class="btn2 ghost" type="button" data-copy="${esc(c.water_account)}">Copy</button>` : ""}<a class="btn2" href="https://paywater.milwaukee.gov/app/" target="_blank" rel="noopener">Open</a></div>
+          <div class="msg2" id="copyMsg"></div></div>
+        <div class="box"><h2>My documents</h2>${docs.length ? kinds.map((k) => `<h3 style="margin:10px 0 2px;font-size:1rem">${KIND[k]}</h3>` + docs.filter((d) => d.kind === k).map((d) => `<div class="folder"><span>📄</span><span style="flex:1"><b>${esc(d.title)}</b>
+              <div class="sub2">${d.dated ? "dated " + fmtDate(d.dated) : ""}</div></span><button class="btn2 ghost" type="button" data-lcdoc="${esc(d.path)}">Open</button></div>`).join("")).join("") : `<p class="sub2">Your documents will appear here.</p>`}</div>
+        <div class="box"><h2>Original payment schedule (Exhibit A)</h2><p class="sub2">The schedule the monthly payment was set from. Your real balance above follows the payments you actually made.</p><details><summary>Show all ${(c.schedule || []).length} payments</summary>
+          <div style="overflow:auto"><table class="t"><thead><tr><th>#</th><th>Due</th><th class="num">Payment</th><th class="num">Extra</th><th class="num">Principal</th><th class="num">Interest</th><th class="num">Balance after</th></tr></thead><tbody>
+          ${(c.schedule || []).map((s) => `<tr><td>${s.n}</td><td>${fmtDate(s.due)}</td><td class="num">${money(s.payment)}</td><td class="num">${Number(s.extra) ? money(s.extra) : "—"}</td><td class="num">${money(s.principal)}</td><td class="num">${money(s.interest)}</td><td class="num">${bal(s.end)}</td></tr>`).join("")}
+          </tbody></table></div></details></div>`;
+    }).join("");
+  },
+  documents() {
+    const executed = H.signing.filter((d) => d.executed_pdf_path);
+    const files = (leaseOf() || {}).files || [];
+    const FOLDERS = [["Health & safety (lead, radon)", "/documents/public/#health"], ["Pests & extermination", "/documents/public/#pests"], ["City rules: animals & parking", "/documents/public/#city"]];
+    return `<div class="top"><h1>Documents</h1></div>
+      <div class="box"><h2>My signed documents</h2>${executed.length ? executed.map((d) => `<div class="folder"><span>📄</span><span style="flex:1"><b>${esc(d.title)}</b>
+          <div class="sub2">${esc(d.unit_label)} · signed ${fmtDate(d.executed_at)}</div></span><button class="btn2 ghost" type="button" data-pdf="${esc(d.executed_pdf_path)}">Open</button></div>`).join("")
+        : `<p class="sub2">Leases you sign online will appear here.</p>`}
+        ${files.length ? `<p class="sub2" style="margin-top:12px">On file with the office: ${files.map((f) => `${esc({ signed_lease: "signed lease", addendum: "addendum", rent_increase: "rent increase" }[f.kind] || f.kind)}${f.dated ? " (" + fmtDate(f.dated) + ")" : ""}${f.status === "coming_soon" ? " — coming soon" : f.status === "needs_update" ? " — being updated" : ""}`).join(" · ")}. Ask the office for a copy.</p>` : ""}</div>
+      <div id="inspDocMount"></div>
+      <div class="box"><h2>Notices</h2>${H.notices.length ? H.notices.map((n) => `<div class="folder"><span>📨</span><span style="flex:1"><b>${esc(n.subject)}</b>
+          <div class="sub2">${fmtDate(n.sent_at)}</div></span><button class="btn2 ghost" type="button" data-notice="${esc(n.pdf_path)}">Open</button></div>`).join("") : `<p class="sub2">No notices.</p>`}</div>
+      <div class="box"><h2>Payment receipts</h2>${(() => { const pays = ((leaseOf() || {}).history || []).filter((e) => e.kind === "payment" && Number(e.amount) < 0).slice(-12).reverse();
+          return pays.length ? pays.map((e, i) => `<div class="folder"><span>🧾</span><span style="flex:1"><b>${money(-Number(e.amount))}</b> received ${fmtDate(e.date)}<div class="sub2">${esc(e.memo || "")}</div></span>
+            <button class="btn2 ghost" type="button" data-receipt="${i}">Receipt</button></div>`).join("") : `<p class="sub2">Payments you make will appear here.</p>`; })()}</div>
+      ${isBuyer() ? "" : `<div class="box"><h2>Monthly letters</h2><a class="folder" href="#letters"><span>🎬</span><span>All monthly rule letters (searchable)</span></a></div>`}
+      <div class="box"><h2>Resident documents</h2>${FOLDERS.map(([n, h]) => `<a class="folder" href="${h}" target="_blank" rel="noopener"><span>📁</span><span>${esc(n)}</span></a>`).join("")}</div>`;
+  },
+  contacts() {
+    return `<div class="top"><h1>Contacts</h1></div>${contactBox()}
+      <div class="box"><table class="t"><thead><tr><th>Name</th><th>Category</th><th>Email</th><th>Phone</th></tr></thead><tbody>
+        ${H.contacts.map((c) => `<tr><td><b>${esc(c.name)}</b></td><td>${esc(c.category || "")}</td><td>${c.email ? `<a href="mailto:${esc(c.email)}">${esc(c.email)}</a>` : ""}</td>
+          <td>${c.phone ? `<a href="tel:${esc(c.phone.replace(/\D/g, ""))}">${esc(c.phone)}</a>` : ""}</td></tr>`).join("")}</tbody></table></div>`;
+  },
+  autopay() { return `<div class="top"><h1>Autopay</h1></div><div id="apMount"><p class="sub2">Loading…</p></div>`; },
+  announcements() {
+    return `<div class="top"><h1>Announcements</h1></div><div class="box">${H.announcements.map((a) => `<div class="req" style="display:block"><b>${esc(a.title)}</b>
+      <span class="sub2"> · ${fmtDate(a.created_on)}</span>${a.body ? `<p>${esc(a.body)}</p>` : ""}</div>`).join("") || `<p class="sub2">No announcements.</p>`}</div>`;
+  },
+};
+// The bank a resident uses for Zelle, saved to their account so it is there next time (and on any device).
+// If the server can't save it, it is kept in this browser instead.
+const BANK_KEY = "zelleBank";
+const ZELLE_BANKS = [["Chase", "https://www.chase.com"], ["Bank of America", "https://www.bankofamerica.com"], ["Wells Fargo", "https://www.wellsfargo.com"], ["US Bank", "https://www.usbank.com"],
+  ["PNC", "https://www.pnc.com"], ["Citi", "https://www.citi.com"], ["Capital One", "https://www.capitalone.com"], ["Associated Bank", "https://www.associatedbank.com"],
+  ["Huntington / TCF", "https://www.huntington.com"], ["Bank of Milwaukee", "https://www.bankofmilwaukee.com"], ["Educators Credit Union", "https://www.ecu.com"], ["Landmark Credit Union", "https://www.landmarkcu.com"]];
+async function loadBank() {
+  try { const { data, error } = await client.rpc("resident_bank_get"); if (!error && data && data.url) return data; } catch {}
+  try { const v = JSON.parse(localStorage.getItem(BANK_KEY) || "null"); if (v && v.url) return v; } catch {}
+  return null;
+}
+async function saveBank(b) {
+  try { localStorage.setItem(BANK_KEY, JSON.stringify(b)); } catch {}
+  try { const { error } = await client.rpc("resident_bank_save", { p_name: b ? b.name : "", p_url: b ? b.url : "" }); if (error) throw error; } catch {}
+}
+function zelleBankBlock(s) {
+  const b = H.bank, addr = s.pay_zelle_to || "";
+  if (b && b.url && !H.bankEdit) return `<a class="go" href="${esc(b.url)}" target="_blank" rel="noopener" data-zbopen="${esc(addr)}">Open ${esc(b.name)} to send with Zelle</a>
+      <div class="sub2">We copy ${addr ? "<b>" + esc(addr) + "</b>" : "the Zelle address"} when you tap, so you can paste it in Zelle.
+        <button class="linkish" type="button" data-zbchange>Use a different bank</button></div>`;
+  return `<div class="detail"><b>Set up your bank once</b>, and next time one tap takes you there.</div>
+      <select class="in" data-zbsel aria-label="Your bank"><option value="">Choose your bank</option>${ZELLE_BANKS.map(([n, u]) => `<option value="${esc(u)}" ${b && b.url === u ? "selected" : ""}>${esc(n)}</option>`).join("")}<option value="other">My bank is not listed</option></select>
+      <input class="in" data-zbother type="text" placeholder="Your bank's website, like https://www.mybank.com" hidden>
+      <button class="go" type="button" data-zbsave>Save my bank</button>${b ? ` <button class="linkish" type="button" data-zbcancel>Cancel</button>` : ""}
+      <div class="msg2" data-paymsg></div>`;
+}
+function pendingTotal() { return (H.reports || []).filter((r) => r.status === "pending").reduce((s, r) => s + Number(r.amount), 0); }
+// ---- Autopay: the tenant sets it up and cancels it themselves. Nothing here can be done by staff or in "View as".
+const apActive = () => ((H.autopay || {}).authorizations || []).find((x) => x.status === "active");
+const apPending = () => ((H.autopay || {}).authorizations || []).find((x) => x.status === "pending");
+const apPaused = () => ((H.autopay || {}).authorizations || []).find((x) => x.status === "paused");
+const apPausedWhy = (p) => p.ended_by === "staff_pause" ? "The office paused it" + (p.ended_reason ? ": " + esc(p.ended_reason) : "") + "." : p.ended_by === "system_return" ? "Your last withdrawal did not go through." : p.ended_reason ? "It was paused because " + esc(p.ended_reason) + "." : "It was paused.";
+// on hold: autopay is switched off, or online payments are off, so nothing will be withdrawn until it is back on
+const apOnHold = (a) => !(H.autopay || {}).enabled || !a.ready;
+function autopayCard() {
+  const act = apActive(), pend = apPending(), paused = apPaused();
+  if (!(H.autopay || {}).enabled && !act && !paused) return "";
+  if (act && apOnHold(act)) return `<div class="detail"><b>Autopay is on hold.</b> Online payments are switched off right now, so <b>nothing will be withdrawn</b> until they are back on (we will email you). Your rent is still due: pay it another way in Payments.
+      <div style="margin-top:6px"><button class="btn2 ghost" type="button" id="apOff">Cancel autopay</button></div></div>`;
+  if (act) return `<div class="detail"><b>✓ Autopay is on.</b> Up to ${money(act.amount)} (what you owe that day) will be withdrawn from <b>${esc(act.bank || "your bank")}</b> on the <b>${act.draw_day}</b> of each month. Next withdrawal: <b>${fmtDate(act.next_draw)}</b>. We email you 10, 7, 3 and 1 day before, and on the day. Cancel before 11:59 PM the day before to stop it.
+      <div style="margin-top:6px"><button class="btn2 ghost" type="button" id="apOff">Cancel autopay</button></div></div>`;
+  return `${paused ? `<div class="detail"><b>Autopay is paused.</b> ${apPausedWhy(paused)} No money will be withdrawn until you set it up again yourself.</div>` : ""}
+    ${pend && pend.verifying ? `<div class="detail"><b>Waiting for your bank to be verified.</b> Watch for an email from Stripe about small test deposits and follow its steps. Autopay is not on yet and <b>nothing will be withdrawn</b> until your bank is verified. We will email you when it is on. Until then, pay as usual.</div>` : ""}
+    <div class="detail"><button class="go alt" type="button" id="apOn">${pend && pend.verifying ? "Start over with a different bank" : pend ? "Finish setting up autopay" : "Set up autopay"}</button>
+      <div class="sub2" style="margin-top:4px">You choose the day (the 1st to the 5th) and you get email reminders before every withdrawal. Keep enough money in the account: a returned withdrawal can cost a fee.</div></div>`;
+}
+function autopayBanner() {
+  const act = apActive(), paused = apPaused();
+  if (act && apOnHold(act)) return `<div class="box nudge"><h2>Autopay is on hold</h2><p>Online payments are switched off right now, so <b>nothing will be withdrawn</b>. Your rent is still due: please pay it another way.</p><a class="btn2" href="#payments">Payments</a> <a class="btn2 ghost" href="#autopay">Manage autopay</a></div>`;
+  if (act) return `<div class="box nudge"><h2>💳 Autopay</h2><p>Up to <b>${money(act.amount)}</b> will be withdrawn from <b>${esc(act.bank || "your bank")}</b> on <b>${fmtDate(act.next_draw)}</b>. Make sure the money is in the account. You can cancel before 11:59 PM the day before.</p><a class="btn2 ghost" href="#payments">Manage autopay</a></div>`;
+  if (paused) return `<div class="box nudge"><h2>Autopay is paused</h2><p>${apPausedWhy(paused)} No money will be withdrawn. Pay in Payments, or set up autopay again yourself.</p><a class="btn2" href="#payments">Payments</a></div>`;
+  return "";
+}
+function payBox(l, c) {
+  // Nothing owed: suggest one month of what the tenant pays themselves (their portion when an agency pays part).
+  const s = H.settings || {}, acct = l ? l.account_number : "", amt = l ? Math.max(Number(l.balance), 0) || Number(l.tenant_rent != null ? l.tenant_rent : l.rent) : c ? Number(c.monthly_payment) : 0;
+  const amtTxt = amt.toFixed(2);
+  const card = (title, badge, body, cls = "") => `<div class="paycard ${cls}"><h3>${title}${badge ? `<span class="badge">${badge}</span>` : ""}</h3>${body}</div>`;
+  const pt = l && l.pay_to;   // this lease pays into a specific bank account: Zelle or transfer only, details from that account
+  const cards = [], slow = [];   // slow: PayPal / Cash App reach the bank as lump transfers, so the office matches them by hand
+  const st = H.stripe || {}, ap = st.autopay || {};
+
+  // 1. Pay online (Stripe): bank account, or the tenant’s own card while tenant_cards is on, plus autopay — only once Stripe is live (setting stripe_enabled).
+  const stripeOk = !pt || (pt.stripe_account && s["stripe_enabled_" + pt.stripe_account] === "on");   // a routed lease pays online only through its own Stripe account
+  if (stripeOk && s.stripe_enabled === "on") cards.push(card("Pay online", "No fee", `<div class="detail">${s.tenant_cards === "on" ? "Pay with your <b>debit card</b> or from your bank account. Debit cards only: a credit card is refunded. The name on the card must be yours (or a tenant on your lease). Tick <b>save</b> on the next page and next time it is just choose and pay. Secured by Stripe." : "Pay from your bank account. Secured by Stripe."}</div>
+        ${(st.recent || []).filter((r) => r.status === "processing").map((r) => `<div class="detail" style="border-left:4px solid #1a7f37;padding:6px 10px;margin:6px 0;background:#eaf7ee;color:#14532d"><b>✓ Your ${money(r.amount)} payment from ${fmtDate(r.created_at)} is on its way</b> from your bank. Bank payments take a few business days to clear, and your balance updates when it does. <b>You do not need to pay again.</b></div>`).join("")}
+        <label for="spAmount" style="display:block;margin:6px 0 2px"><b>Type the amount you are paying today</b></label>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><input class="in" id="spAmount" type="number" min="1" step="0.01" value="" placeholder="$0.00" inputmode="decimal" style="max-width:140px;border:2px solid #1f6feb"><button class="go" type="button" id="spPay" style="flex:1;min-width:120px">Pay now</button></div>
+        <div class="detail" style="margin-top:6px">${l && Number(l.balance) > 0 ? `Your balance is ${money(l.balance)}. ` : ""}Pay only your part: if an agency or housing program pays some of your rent${l && l.tenant_rent != null && Number(l.tenant_rent) < Number(l.rent) ? ` (your share is <b>${money(l.tenant_rent)} a month</b>)` : ""}, do not include what they pay. If your card or bank does not have the full amount, pay what you have now and the rest later.</div>
+        ${s.tenant_cards === "on" ? `<div class="sub2" style="margin-top:8px"><b>Paying with a prepaid card?</b> Try $300 at a time. Prepaid cards often have low limits, so a smaller amount goes through when a bigger one is declined. Tap Pay now again for the rest, as many times as you need. <button class="linkbtn" type="button" id="spTry300">Use $300</button><br>Your prepaid card may also have its own routing and account number in its app. If so, choose <b>Enter bank details manually</b> on the next page and use those.</div>` : ""}
+    ${autopayCard()}
+    ${(st.recent || []).filter((r) => !(r.status === "created" && Date.now() - new Date(r.created_at).getTime() > 2 * 3600e3)).length ? `<div class="sub2">${st.recent.filter((r) => !(r.status === "created" && Date.now() - new Date(r.created_at).getTime() > 2 * 3600e3)).slice(0, 5).map((r) => `${fmtDate(r.created_at)} · ${money(r.amount)} · ${r.status === "succeeded" ? "✓ paid" : r.status === "processing" ? "processing (bank payments take a few business days)" : r.status === "failed" ? "didn't go through" + (r.failure ? ": " + esc(r.failure) : "") + payAdvice(r.failure) : "started"}`).join("<br>")}</div>` : ""}
+    <div class="msg2" id="spMsg"></div>`, "main"));
+
+  // 2. PayPal (and Venmo through the PayPal button)
+  if (!pt && s.pay_paypal_hosted_id) slow.push(card("PayPal or Venmo", "", `<div class="detail">Tap the button to pay with PayPal or Venmo.</div><div id="pp-tenant" data-pp-lazy style="max-width:320px"></div>`));
+  if (!pt && s.pay_paypal_link) {
+    const pp = /paypal\.me\//i.test(s.pay_paypal_link) ? `${s.pay_paypal_link}/${amtTxt}` : s.pay_paypal_link;
+    slow.push(card("PayPal", "", `<a class="go" href="${esc(pp)}" target="_blank" rel="noopener">Pay with PayPal</a><canvas data-qr="${esc(pp)}"></canvas>`));
+  }
+
+  // 3. Cash App
+  if (!pt && s.pay_cashapp_tag) {
+    const ca = `https://cash.app/${esc(s.pay_cashapp_tag)}/${amtTxt}`;
+    slow.push(card("Cash App", "", `<a class="go" href="${ca}" target="_blank" rel="noopener">Pay with Cash App</a><div class="detail">${esc(s.pay_cashapp_tag)}</div><canvas data-qr="${ca}"></canvas>`));
+  }
+
+  // 4. Zelle: there is no pay-by-link for Zelle (it only works inside your bank's app), so give the
+  // one-tap pieces: copy the address, the amount, and a shortcut to your bank.
+  const zs = pt ? { ...s, pay_zelle_to: pt.zelle_to || "", pay_zelle_name: pt.zelle_name || "", pay_zelle_qr: pt.zelle_qr || "" } : s;
+  if (zs.pay_zelle_to || zs.pay_zelle_qr) {
+    cards.push(card("Zelle", "Free · 1–2 business days", `<div class="detail">Zelle works inside your bank's app, so we send you to your bank to finish.</div>
+      ${zelleBankBlock(zs)}
+      ${zs.pay_zelle_to ? `<div class="copyrow"><span>To <b>${esc(zs.pay_zelle_to)}</b>${zs.pay_zelle_name ? ` <span class="sub2">(${esc(zs.pay_zelle_name)})</span>` : ""}</span><button class="btn2 ghost" type="button" data-paycopy="${esc(zs.pay_zelle_to)}">Copy</button></div>` : ""}
+      <div class="copyrow"><span>Amount <b>$${amtTxt}</b></span><button class="btn2 ghost" type="button" data-paycopy="${amtTxt}">Copy</button></div>
+      ${acct ? `<div class="copyrow"><span>Memo <b>${esc(acct)}</b></span><button class="btn2 ghost" type="button" data-paycopy="${esc(acct)}">Copy</button></div>` : ""}
+      ${zs.pay_zelle_qr ? `<details><summary class="sub2" style="cursor:pointer">Use a QR code instead</summary><img class="qr" src="${esc(zs.pay_zelle_qr)}" alt="Zelle QR code" style="width:150px;margin-top:6px"><div class="sub2">On a computer, scan it with your phone's bank app.</div></details>` : ""}`));
+  }
+
+  // 5. Bank transfer
+  const bt = pt ? pt.bank_transfer : s.pay_bank_transfer;
+  if (bt) cards.push(card("Bank transfer", "ACH or wire", `<div class="detail">${esc(bt).replace(/\n/g, "<br>")}</div>`));
+  if (pt && !zs.pay_zelle_to && !bt) cards.push(card("How to pay", "", `<div class="detail">Call or text <b>(262) 236-5443</b> and we will tell you exactly where to send your rent.</div>`));
+  if (pt) cards.unshift(card("Where your rent goes", "", `<div class="detail">Your rent is paid to <b>${esc(pt.zelle_name || pt.entity || pt.name)}</b>, not 2nd Chance Housing.${stripeOk && s.stripe_enabled === "on" ? " Pay online from your bank, or send Zelle." : " Send it by Zelle."} Put your account number <b>${esc(acct || "")}</b> in the memo.</div>`));
+
+  // 6. Pay by mail
+  // Checks are an exception: the mail-in instructions show only for a month the tenant asked to pay by check (check_request_make).
+  if (!pt && s.pay_by_mail) {
+    if (H.check?.active && H.check.instructions) cards.push(card("Pay by mail", "Check or money order · " + esc(H.check.month) + " only", `<div class="detail">Send payment to:<br>${esc(H.check.instructions).replace(/\n/g, "<br>")}</div>${acct ? `<div class="sub2">Write your account number <b>${esc(acct)}</b> on it.</div>` : ""}`));
+    else if (H.check) cards.push(card("Need to pay by check this month?", "", `<div class="detail">Paying online is faster and shows on your account right away. If you need to pay by check or money order this month, ask here and the mail-in instructions will appear.</div><button class="btn2 ghost" type="button" id="chkAsk">Request to pay by check this month</button><div class="msg2" id="chkMsg"></div>`));
+  }
+
+  if (c && !l) {   // land contract buyer: only the payment that credits the contract by itself (Pay now); no Zelle, PayPal, Cash App, transfer or mail
+    const online = cards.find((x) => x.includes('id="spPay"'));
+    return `<div class="box"><h2>Make a payment</h2><p class="sub2">Pay from your bank account. It is added to your land contract as soon as the bank confirms it.</p>
+      <div class="paygrid">${online || `<div class="detail">Online payment isn't available right now. Call or text <b>(262) 236-5443</b> and we will help you.</div>`}</div></div>`;
+  }
+  return `<div class="box"><h2>Pay your rent</h2>${acct ? `<p>Your account number: <b style="font-size:1.15rem">${esc(acct)}</b></p>` : ""}
+    <p class="sub2">${esc(s.pay_instructions || "")}</p>
+    <div class="paygrid">${cards.join("")}</div>
+    ${slow.length ? `<details class="slowpay" id="slowPay" style="margin-top:12px"><summary class="sub2" style="cursor:pointer">Other ways to pay (slower to show on your account)</summary>
+      <p class="sub2" style="margin:8px 0">PayPal, Venmo and Cash App payments can take up to 5 business days to appear on your account. Our bank sees them as one transfer from PayPal or Cash App, not from you, so the office has to match each one by hand. Zelle with your account number in the memo shows up within 1 to 2 business days.</p>
+      <div class="paygrid">${slow.join("")}</div></details>` : ""}
+    <p class="sub2" style="margin-top:10px">However you pay, it shows up in your history automatically once our bank receives it. No need to report it.</p></div>`;
+}
+const STATUS = { new: "Received", scheduled: "Scheduled", in_progress: "In progress", completed: "Done", closed: "Closed", deferred: "On hold" };
+function statusTag(s) { return `<span class="tagx ${s === "deferred" || s === "completed" ? "warn" : s === "closed" ? "off" : ""}">${esc(STATUS[s] || s)}</span>`; }
+function steps(s) {
+  const order = ["new", "scheduled", "in_progress", "completed"], at = s === "closed" ? 4 : order.indexOf(s);
+  return `<ol class="track">${order.map((k, i) => `<li class="${i < at || s === "closed" ? "done" : i === at ? "now" : ""}">${STATUS[k]}</li>`).join("")}</ol>`;
+}
+function requestCard(r) {
+  const cat = {plumbing: "🚰", fixtures: "🚽", keys: "🔑", doors: "🚪", windows: "🪟", heat: "🔥", electric: "💡", pests: "🪳", other: "🔧"}[r.category] || "🔧";
+  const when = r.scheduled_start ? new Date(r.scheduled_start).toLocaleString("en-US", { weekday: "short", month: "numeric", day: "numeric", hour: "numeric", minute: "2-digit" }) + "–" +
+    new Date(r.scheduled_end).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) : "";
+  const ups = (r.updates || []).filter((u) => u.note && u.note !== "Request submitted");
+  return `<div class="rq"><div class="rq-h"><span class="ico">${cat}</span><div style="flex:1"><b>${esc(r.subject)}</b><div class="sub2">#${r.number} · sent ${fmtDate(r.created_at)}</div></div>${statusTag(r.status)}</div>
+    ${r.status === "deferred" ? "" : steps(r.status)}
+    <p class="sub2" style="margin:6px 0">${esc(r.description)}</p>
+    ${r.photos && r.photos.length ? `<div class="thumbs">${r.photos.map((p) => `<img alt="Request photo" data-rqphoto="${esc(p)}">`).join("")}</div>` : ""}
+    ${r.videos && r.videos.length ? `<div class="thumbs">${r.videos.map((p) => `<video controls preload="metadata" playsinline style="max-width:240px;max-height:180px;border-radius:8px" data-rqvideo="${esc(p)}"></video>`).join("")}</div>` : ""}
+    ${r.video_requested_at && !(r.videos || []).length && r.status !== "closed" ? `<div class="emerg" style="background:#fff3cd;border-color:#e0b400;color:#5c3d00">🎥 <b>We need a very short video (10 to 20 seconds).</b> ${esc(r.video_request_note || "")}<br>Record it with your phone, then choose <b>Add a photo or video</b> below.</div>` : ""}
+    ${when && ["scheduled", "in_progress"].includes(r.status) ? `<p>📅 Visit: <b>${esc(when)}</b>${r.vendor ? ` · ${esc(r.vendor)}` : ""}</p>` : ""}
+    ${r.notice_pdf ? `<button class="btn2 ghost" type="button" data-notice="${esc(r.notice_pdf)}">Open the 12-hour notice</button>` : ""}
+    ${ups.length ? `<div class="thread">${ups.map((u) => `<div class="${u.from_resident ? "me" : ""}"><span class="sub2">${u.from_resident ? "You" : "2nd Chance"} · ${fmtDate(u.at)}</span><br>${esc(u.note)}</div>`).join("")}</div>` : ""}
+    ${r.status === "completed" ? `<div class="confirm"><b>We marked this repair done. Is it fixed?</b>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><button class="btn2" type="button" data-fixed="${r.id}">Yes, it's fixed</button><button class="btn2 ghost" type="button" data-notfixed="${r.id}">No, still a problem</button></div></div>` : ""}
+    ${r.status !== "closed" ? `<div class="cm" style="margin-bottom:6px"><label class="btn2 ghost" style="cursor:pointer">📎 Add a photo or video<input type="file" accept="image/*,video/*" data-rqmedia="${r.id}" hidden></label><span class="sub2">Videos: keep them short (under 50 MB).</span></div>` : ""}
+    ${r.status !== "closed" ? `<div class="cm"><input class="in" placeholder="Add a comment for the office" maxlength="2000" data-cmt="${r.id}"><button class="btn2 ghost" type="button" data-cmtsend="${r.id}">Send</button></div>` : ""}
+    <div class="msg2" data-rqmsg="${r.id}"></div></div>`;
+}
+function reqItem(r) { return `<div class="req"><div class="ico">🔧</div><div><b>${esc(r.subject)}</b><div class="sub2">${statusTag(r.status)} · #${r.number}${r.status === "completed" ? " · please confirm it's fixed" : ""}</div></div></div>`; }
+// The buyer's real figures (interest first, then principal, by the day), the next payment and what it would take to pay it off today.
+function lcLateBox() {
+  const t = H.lcTerms || {};
+  return `<div class="box"><h2>If a payment is late</h2><p>If a payment is more than ${esc(t.default_days || 10)} days late, we send you a written notice of default. You then have ${esc(t.cure_days || 30)} days to catch up. Your contract has the full terms, under <a href="#landcontract">Land contract</a>. Call or text ${tel((H.settings || {}).org_phone || (H.settings || {}).office_phone)} before a payment is late and we will work with you.</p></div>`;
+}
+function lcInfo(c) {
+  const m = (H.lcs || []).find((x) => x.id === c.id) || c, today = new Date().toISOString().slice(0, 10);
+  const next = (m.schedule || []).find((x) => x.due >= today), paid = (c.history || []).filter((e) => e.kind === "payment" && Number(e.amount) < 0).pop();
+  const payoff = m.principal_now != null && m.accrued_interest != null ? Number(m.principal_now) + Number(m.accrued_interest) : null, dueNow = Math.max(Number(c.balance) || 0, 0);
+  return `<div class="box"><h2>Land contract</h2><dl class="kv"><dt>Property</dt><dd>${esc(c.street || c.property)}</dd>
+    <dt>Monthly payment</dt><dd>${money(c.monthly_payment)}</dd>
+    <dt>${dueNow > 0.004 ? "Payment due now" : "Next payment"}</dt><dd>${dueNow > 0.004 ? `<b>${money(dueNow)}</b>` : next ? `${money(c.monthly_payment)} on ${fmtDate(next.due)}` : "—"}</dd>
+    ${paid ? `<dt>Last payment</dt><dd>${money(-Number(paid.amount))} on ${fmtDate(paid.date)}</dd>` : ""}
+    <dt>Principal remaining</dt><dd>${m.principal_now == null ? "—" : money(m.principal_now)}</dd>
+    ${payoff != null ? `<dt>To pay it off today</dt><dd>${money(payoff)}<div class="sub2">Principal plus interest owed so far. Interest adds each day, so ask the office for a payoff letter for the day you pay. Any amount above your monthly payment goes to principal after the interest owed.</div></dd>` : ""}
+    <dt>Paid in full by</dt><dd>${fmtDate(m.maturity_date || c.maturity_date)}</dd></dl>
+    <p style="margin:8px 0 0"><a href="#landcontract">Schedule, yearly interest and documents →</a></p></div>`;
+}
+
+// ---- Stage 3: move in ------------------------------------------------------
+let MI = null;   // working copy of the checklist while editing
+const COND = [["good", "Good"], ["fair", "Fair"], ["clean", "Clean"], ["marked", "Marked"], ["dirty", "Dirty"], ["damaged", "Damaged"]];
+const miEditable = () => MIMODE === "out" ? !!H.checkout && !["submitted", "approved"].includes((H.checkout.checklist || {}).status || "draft")
+  : H.movein && H.movein.keys_ready_at && !["submitted", "approved"].includes((H.movein.checklist || {}).status || "draft");
+let MIMODE = "in";   // "in" = the move-in checklist, "out" = the move-out checklist (same room-by-room form)
+function miSrc() { return MIMODE === "out" ? H.checkout : H.movein; }
+function miState() {
+  const src = miSrc(), key = MIMODE + ":" + src.lease_id;
+  if (!MI || MI.key !== key) {
+    const c = src.checklist || {};
+    MI = { key, lease: src.lease_id, data: JSON.parse(JSON.stringify(c.data || {})), prior: !!c.prior_damage_list_requested };
+    MI.data.rooms = MI.data.rooms || {};
+  }
+  return MI;
+}
+function roomDone(r, d) {
+  if (r.optional && d.na) return true;
+  // Photos are optional: a room is done when every item has a condition (and anything damaged is described).
+  return r.items.every((it) => d.items && d.items[it] && d.items[it].c && (d.items[it].c !== "damaged" || (d.items[it].n || "").trim()));
+}
+function roomHtml(r, edit) {
+  const d = miState().data.rooms[r.key] || {}, done = roomDone(r, d);
+  const items = r.items.map((it, i) => {
+    const v = (d.items || {})[it] || {}, nm = `c-${r.key}-${i}`, pics = v.p || [];
+    return `<div class="ci" data-room="${r.key}" data-item="${esc(it)}">
+      <div class="ci-head"><span class="ci-name">${esc(it)}</span>
+        ${edit ? `<label class="cam" title="Add a photo of ${esc(it)} (optional)"><span aria-hidden="true">📷</span><span class="cam-n">${pics.length || ""}</span><input type="file" accept="image/*" multiple hidden data-iphoto aria-label="Add a photo of ${esc(it)}"></label>` : ""}</div>
+      ${edit ? `<span class="conds" role="radiogroup" aria-label="${esc(it)}">${(r.conds || COND).map(([k, t]) => `<label><input type="radio" name="${nm}" value="${k}" data-cond ${v.c === k ? "checked" : ""}><span>${t}</span></label>`).join("")}</span>
+        <input class="in note" placeholder="${v.c === "damaged" ? "Describe the damage (required)" : "Details (optional)"}" maxlength="300" data-note value="${esc(v.n || "")}">`
+      : `<span><b>${esc(((r.conds || COND).find((c) => c[0] === v.c) || [0, "—"])[1])}</b>${v.n ? ` <span class="sub2">· ${esc(v.n)}</span>` : ""}</span>`}
+      <div class="thumbs small" data-ithumbs>${pics.map((p) => `<img alt="${esc(it)} photo" data-photo="${esc(p)}">`).join("")}</div>
+      <span class="sub2" data-imsg></span></div>`;
+  }).join("");
+  return `<details class="room" data-roomkey="${r.key}" ${edit && !done ? "open" : ""}><summary><span>${esc(r.name)}</span><span class="tagx ${done ? "" : "warn"}" data-roomtag>${d.na && r.optional ? "Not in my unit" : done ? "Done" : "To do"}</span></summary><div class="body">
+    ${r.note ? `<p class="sub2" style="margin:0 0 8px"><b>${esc(r.note)}</b></p>` : ""}
+    ${r.optional && edit ? `<label class="sub2"><input type="checkbox" data-na="${r.key}" ${d.na ? "checked" : ""}> Not in my unit</label>` : ""}
+    ${d.na && r.optional ? "" : `${items}
+      <div class="sub2" style="margin-top:10px">Photos of the whole room (optional)</div>
+      <div class="thumbs" data-thumbs="${r.key}">${(d.photos || []).map((p) => `<img alt="${esc(r.name)} photo" data-photo="${esc(p)}">`).join("")}</div>
+      ${edit ? `<label class="btn2 ghost" style="cursor:pointer">📷 Add room photos<input type="file" accept="image/*" multiple hidden data-upload="${r.key}"></label> <span class="sub2" data-upmsg="${r.key}"></span>` : ""}`}
+  </div></details>`;
+}
+views.movein = function () {
+  MIMODE = "in";
+  const m = H.movein;
+  if (!m) return `<div class="top"><h1>Move-in</h1></div><div class="box"><p class="sub2">Nothing to do here.</p></div>`;
+  const c = m.checklist || {}, st = c.status || "draft", edit = miEditable(), s = H.settings || {};
+  const keys = m.keys_released_at ? `<p>✅ Keys handed over ${fmtDate(m.keys_released_at)}.</p>`
+    : m.keys_ready_at ? `<p>🔑 Your keys are ready. Call ${tel(s.org_phone || s.office_phone)} to arrange pick-up. You can move in before ${fmtDate(m.start_date)} with no extra charge.</p>`
+    : `<p>Pay your move-in amount (security deposit and first month's rent) to get your keys. <a href="#payments">Pay now</a></p>`;
+  const status = { draft: "", returned: `<div class="msg2 err" style="margin:0 0 10px">The office asked for a change: <b>${esc(c.staff_notes || "")}</b></div>`,
+    submitted: `<p class="tagx warn">Sent ${fmtDate(c.submitted_at)} · the office is reviewing it</p>`,
+    approved: `<p class="tagx">Approved ${fmtDate(c.decided_at)} · saved for your move-out</p>${c.staff_notes ? `<p class="sub2">Office note: ${esc(c.staff_notes)}</p>` : ""}` }[st];
+  return `<div class="top"><h1>Move-in</h1><div class="addr">${esc(m.address)}</div></div><div class="steps">
+    <div class="box"><h2>Keys</h2>${keys}</div>
+    <div class="box"><h2>Move-in checklist</h2>
+      ${!m.keys_ready_at ? `<p class="sub2">The checklist opens once your move-in amount is paid.</p>` : `
+      <div class="sub2" style="background:var(--off-soft,#eef2f7);border-radius:8px;padding:10px 12px;margin:0 0 12px"><b>Set aside 30 to 45 minutes.</b> The checklist is detailed on purpose: it protects you from being charged for damage that was already there. Take your time, go one room at a time, and don't rush the photos. You can stop whenever you need to and come back later; everything you have entered is saved.</div>
+      <p>Go room by room. For each item choose its condition and describe any damage. Tap 📷 beside an item to add a photo: photos are optional, so skip them for items in good shape, but they're the best proof of damage that was already there. Your answers save as you go, so you can stop and come back anytime. You have until <b>${fmtDate(m.due_on)}</b> (7 days after you received your keys) to report damage that was already there. Anything you report by then is not charged to you. Damage not reported by that date is treated as not there when you moved in, unless our own pre-move-in inspection shows it, and you may be charged the reasonable cost of damage beyond normal wear and tear. We review your list, sign off, and use it again when you move out.</p>
+      ${status}
+      ${m.rooms.map((r) => roomHtml(r, edit)).join("")}
+      ${edit ? `<label style="display:flex;gap:8px;margin:14px 0"><input type="checkbox" id="miPrior" ${miState().prior ? "checked" : ""}> <span>Send me the list of damages charged to the previous tenant's security deposit.</span></label>
+        <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn2 ghost" type="button" id="miSave">Save for later</button><button class="btn2" type="button" id="miSend">Send to the office</button></div><div class="sub2" id="miAuto" aria-live="polite"></div>
+        <div class="msg2" id="miMsg"></div>` : c.prior_damage_list_requested ? `<p class="sub2">You asked for the list of damages charged to the previous tenant's deposit.</p>` : ""}`}
+    </div>
+    ${(H.settings || {}).stripe_enabled !== "on" || !(H.autopay || {}).enabled ? "" : `<div class="box"><h2>Autopay (optional)</h2><p>${apActive() ? "✅ Autopay is on." : "Autopay is optional. You set it up yourself, choose the day, and get email reminders before every withdrawal. Keep enough money in the account."}</p><a class="btn2 ghost" href="#payments">Payment settings</a></div>`}
+    <div class="box"><h2>Resident guides</h2>
+      <a class="folder" href="/documents/public/cockroach-control-preparation.html" target="_blank" rel="noopener"><span>📄</span><span>Cockroach control: preparation steps</span></a>
+      <a class="folder" href="/documents/public/#pests" target="_blank" rel="noopener"><span>📁</span><span>Pests &amp; extermination (bed bugs, rats)</span></a>
+      <a class="folder" href="/documents/public/#health" target="_blank" rel="noopener"><span>📁</span><span>Health &amp; safety (lead, radon)</span></a>
+      <a class="folder" href="/documents/public/#city" target="_blank" rel="noopener"><span>📁</span><span>City rules: animals &amp; parking</span></a></div>
+  </div>`;
+};
+async function miPhotos() {
+  const imgs = [...document.querySelectorAll("img[data-photo]")].filter((i) => !i.src);
+  if (!imgs.length) return;
+  const { data } = await client.storage.from("move-in").createSignedUrls(imgs.map((i) => i.dataset.photo), 600);
+  (data || []).forEach((d, k) => { if (d.signedUrl) imgs[k].src = d.signedUrl; });
+}
+async function miSave(submit) {
+  const st = miState();
+  const { error } = MIMODE === "out" ? await client.rpc("resident_move_out_check_save", { p_data: st.data, p_submit: submit })
+    : await client.rpc("resident_move_in_save", { p_lease: st.lease, p_data: st.data, p_prior_list: st.prior, p_submit: submit });
+  if (error) throw new Error(await errorText(error));
+  if (submit) client.functions.invoke("outbox-flush", { body: {} }).catch(() => {});
+}
+// Redraw the checklist without losing the tenant's place: same scroll position, same rooms open.
+function redrawInPlace() {
+  const y = window.scrollY, open = [...document.querySelectorAll("details.room[open]")].map((x) => x.dataset.roomkey);
+  route();
+  document.querySelectorAll("details.room").forEach((x) => { if (open.includes(x.dataset.roomkey)) x.open = true; });
+  window.scrollTo(0, y);
+}
+// The checklist saves itself a moment after each change, so the tenant can stop anytime and pick up later.
+let miTimer = null;
+function miAutosave() {
+  clearTimeout(miTimer);
+  const note = $("miAuto"); if (note) { note.className = "sub2"; note.textContent = "Saving…"; }
+  miTimer = setTimeout(async () => {
+    try {
+      await miSave(false);
+      const n = $("miAuto"); if (n) n.textContent = "✓ Saved " + new Date().toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) + ". You can stop and come back anytime.";
+    } catch (e) { const n = $("miAuto"); if (n) { n.className = "msg2 err"; n.textContent = "Not saved: " + e.message; } }
+  }, 1200);
+}
+async function miUpload(files, folder) {
+  const st = miState(), paths = [];
+  for (const f of [...files].slice(0, 12)) {
+    const path = `${st.lease}/${MIMODE === "out" ? "out/" : ""}${folder}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${(f.type.split("/")[1] || "jpg").replace("jpeg", "jpg")}`;
+    const { error } = await client.storage.from("move-in").upload(path, f, { contentType: f.type || "image/jpeg" });
+    if (error) throw new Error("A photo couldn't be uploaded. Try a smaller photo.");
+    paths.push(path);
+  }
+  return paths;
+}
+function bindMoveIn() {
+  miPhotos();
+  const st = miSrc() && miState();
+  if (!st) return;
+  const room = (k) => (st.data.rooms[k] = st.data.rooms[k] || { items: {}, photos: [] });
+  const item = (ci) => { const r = room(ci.dataset.room); r.items = r.items || {}; return (r.items[ci.dataset.item] = r.items[ci.dataset.item] || {}); };
+  const refreshTag = (ci) => {
+    const det = ci.closest("details.room"), def = (miSrc().rooms || []).find((x) => x.key === det.dataset.roomkey), tag = det.querySelector("[data-roomtag]");
+    if (!def || !tag) return;
+    const done = roomDone(def, room(def.key));
+    tag.textContent = done ? "Done" : "To do"; tag.className = "tagx " + (done ? "" : "warn");
+  };
+  document.querySelectorAll(".ci[data-room]").forEach((ci) => {
+    ci.querySelectorAll("input[data-cond]").forEach((el) => el.onchange = () => {
+      item(ci).c = el.value;
+      const note = ci.querySelector("input[data-note]"); if (note) note.placeholder = el.value === "damaged" ? "Describe the damage (required)" : "Details (optional)";
+      refreshTag(ci); miAutosave();
+    });
+    const note = ci.querySelector("input[data-note]");
+    if (note) note.oninput = () => { item(ci).n = note.value; refreshTag(ci); miAutosave(); };
+    const cam = ci.querySelector("input[data-iphoto]");
+    if (cam) cam.onchange = async () => {
+      const msg = ci.querySelector("[data-imsg]"); msg.className = "sub2"; msg.textContent = "Uploading…";
+      try {
+        const it = item(ci), added = await miUpload(cam.files, `${ci.dataset.room}/items`);
+        it.p = [...(it.p || []), ...added];
+        const box = ci.querySelector("[data-ithumbs]");
+        added.forEach((p) => { const img = document.createElement("img"); img.alt = ci.dataset.item + " photo"; img.dataset.photo = p; box.appendChild(img); });
+        ci.querySelector(".cam-n").textContent = it.p.length;
+        msg.textContent = ""; cam.value = ""; miPhotos(); miAutosave();
+      } catch (e) { msg.className = "msg2 err"; msg.textContent = e.message; }
+    };
+  });
+  document.querySelectorAll("input[data-na]").forEach((el) => el.onchange = () => { room(el.dataset.na).na = el.checked; miAutosave(); redrawInPlace(); });
+  document.querySelectorAll("input[data-upload]").forEach((el) => el.onchange = async () => {
+    const k = el.dataset.upload, msg = document.querySelector(`[data-upmsg="${k}"]`), r = room(k);
+    msg.textContent = "Uploading…";
+    try {
+      const added = await miUpload(el.files, k);
+      r.photos = [...(r.photos || []), ...added];
+      const box = document.querySelector(`[data-thumbs="${k}"]`);
+      added.forEach((p) => { const img = document.createElement("img"); img.alt = "Room photo"; img.dataset.photo = p; box.appendChild(img); });
+      msg.textContent = ""; el.value = ""; miPhotos(); miAutosave();
+    } catch (e) { msg.textContent = e.message; }
+  });
+  $("miPrior") && ($("miPrior").onchange = () => { st.prior = $("miPrior").checked; miAutosave(); });
+  const go = (submit, btn) => async () => {
+    clearTimeout(miTimer);
+    const m = $("miMsg"); btn.disabled = true; m.className = "msg2"; m.textContent = submit ? "Sending…" : "Saving…";
+    try {
+      await miSave(submit);
+      if (submit) { await reload(); MI = null; route(); window.scrollTo(0, 0); }
+      else { m.className = "msg2 ok"; m.textContent = "Saved. You can stop now and finish later: your answers and photos will be here."; btn.disabled = false; }
+    } catch (e) { m.className = "msg2 err"; m.textContent = e.message; btn.disabled = false; }
+  };
+  $("miSave") && ($("miSave").onclick = go(false, $("miSave")));
+  $("miSend") && ($("miSend").onclick = go(true, $("miSend")));
+}
+
+// ---- Stage 6: day to day ----------------------------------------------------
+const monthName = (d) => new Date(d + "T12:00:00").toLocaleDateString("en-US", { month: "long", year: "numeric" });
+let letterQuery = "";
+views.checkout = function () {
+  MIMODE = "out";
+  const m = H.checkout;
+  if (!m) return `<div class="top"><h1>Move-out checklist</h1></div><div class="box"><p class="sub2">The move-out checklist opens when your move-out is set up. Tell the office your move-out date first.</p></div>`;
+  const c = m.checklist || {}, st = c.status || "draft", edit = miEditable();
+  const status = { draft: "", returned: `<div class="msg2 err">The office asked for a change: <b>${esc(c.staff_notes || "")}</b></div>`,
+    submitted: `<p class="tagx warn">Sent ${fmtDate(c.submitted_at)} · the office will walk through the unit and compare it with your move-in checklist</p>`,
+    approved: `<p class="tagx">Approved ${fmtDate(c.decided_at)}</p>` }[st];
+  return `<div class="top"><h1>Move-out checklist</h1><div class="addr">${esc(m.address)}</div></div><div class="steps">
+    <div class="box"><h2>Show us how you left the unit</h2>
+      <p>Go room by room, the same way you did at move-in. Choose the condition of each item and describe anything damaged. Tap 📷 beside an item to add a photo (optional). Take photos once the unit is empty and cleaned. Your answers save as you go. ${m.move_out_date ? `Your move-out date is <b>${fmtDate(m.move_out_date)}</b>.` : ""}</p>
+      <p class="sub2">${m.move_in ? "Your approved move-in checklist is saved, so the office can compare it with this one." : "Normal wear from living in a home is not charged to your security deposit."}</p>
+      ${status}${m.rooms.map((r) => roomHtml(r, edit)).join("")}
+      ${edit ? `<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px"><button class="btn2 ghost" type="button" id="miSave">Save for later</button><button class="btn2" type="button" id="miSend">Send to the office</button></div><div class="sub2" id="miAuto" aria-live="polite"></div><div class="msg2" id="miMsg"></div>` : ""}
+    </div></div>`;
+};
+
+views.letters = function () {
+  const list = H.letterResults || H.letters || [];
+  return `<div class="top"><h1>Monthly letters</h1></div>
+    <div class="box"><p>Each month we send a short video or audio letter about one rule in your lease. Past letters stay here, and you can search them.</p>
+      <div class="search"><input class="in" id="ltQ" placeholder="Search, e.g. guests, parking, trash" value="${esc(letterQuery)}"><button class="btn2" type="button" id="ltGo">Search</button></div></div>
+    <div class="box">${list.length ? list.map((x) => `<div class="letter"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap">
+        <div><b>${esc(x.title)}</b><div class="sub2">${monthName(x.month)} · ${esc(x.rule_topic)}${x.lease_section ? " · " + esc(x.lease_section) : ""}</div></div>
+        ${x.viewed ? `<span class="tagx off">Watched</span>` : `<span class="tagx warn">New</span>`}</div>
+      <div data-player="${x.id}">${x.media_path ? `<button class="btn2" type="button" data-play="${x.id}">${x.media_kind === "audio" ? "🎧 Listen" : "▶ Watch"}${x.duration_seconds ? " (" + Math.round(x.duration_seconds / 60) + " min)" : ""}</button>` : ""}</div>
+      <p>${esc(x.summary)}</p>
+      ${x.transcript ? `<details><summary class="sub2">Read the full transcript</summary><p style="white-space:pre-wrap">${esc(x.transcript)}</p></details>` : ""}</div>`).join("")
+      : `<p class="sub2">${letterQuery ? "No letters match that search." : "No letters yet."}</p>`}</div>`;
+};
+views.messages = function () {
+  if (H.messages === null) return `<div class="top"><h1>Messages</h1></div><div class="box"><p class="sub2">Loading…</p></div>`;
+  const ms = H.messages || [];
+  return `<div class="top"><h1>Messages</h1></div>
+    <div class="box"><p class="sub2">Messages go to the 2nd Chance Housing office. ${isBuyer() ? "" : `For repairs, use <a href="#requests">Requests</a>. `}For an emergency, call ${tel((H.settings || {}).emergency_phone)}.</p>
+      <div class="chat" id="chat">${ms.map((m) => `<div class="b ${m.from_resident ? "me" : ""}">${esc(m.body)}<span class="sub2">${m.from_resident ? "You" : "2nd Chance"} · ${new Date(m.created_at).toLocaleString("en-US", { month: "numeric", day: "numeric", hour: "numeric", minute: "2-digit" })}</span></div>`).join("") || `<p class="sub2">No messages yet.</p>`}</div>
+      <label class="f2" for="msgBody">New message</label><textarea class="in" id="msgBody" maxlength="4000"></textarea>
+      <button class="btn2" type="button" id="msgSend" style="margin-top:10px">Send</button><div class="msg2" id="msgMsg"></div></div>`;
+};
+views.profile = function () {
+  const p = H.profile || {}, pend = (f) => (p.pending || []).find((x) => x.field === f);
+  return `<div class="top"><h1>Profile</h1></div>
+    <div class="box"><h2>Sign-in details</h2>
+      <p class="sub2">Your email is how you sign in (we email you a code). To keep your account safe, the office confirms a change with you by phone before it takes effect.</p>
+      <dl class="kv"><dt>Name</dt><dd>${esc(p.name || "")}</dd><dt>Email</dt><dd>${esc(p.email || "—")}${pend("email") ? `<div class="sub2">Change to ${esc(pend("email").new_value)} waiting for the office</div>` : ""}</dd>
+        <dt>Mobile</dt><dd>${esc(p.phone || "—")}${pend("phone") ? `<div class="sub2">Change to ${esc(pend("phone").new_value)} waiting for the office</div>` : ""}</dd></dl>
+      <div class="grid2" style="margin-top:12px"><div><label class="f2" for="pcField">Change my</label><select class="in" id="pcField"><option value="phone">Mobile number</option><option value="email">Email address</option></select></div>
+        <div><label class="f2" for="pcNew">New value</label><input class="in" id="pcNew" maxlength="120"></div></div>
+      <button class="btn2 ghost" type="button" id="pcSend" style="margin-top:10px">Ask the office to change it</button><div class="msg2" id="pcMsg"></div></div>
+    <div class="box"><h2>Other contact details</h2>
+      <div class="grid2"><div><label class="f2" for="pfAlt">Another phone (optional)</label><input class="in" id="pfAlt" value="${esc(p.alt_phone || "")}" maxlength="30"></div><div></div>
+        <div><label class="f2" for="pfEName">Emergency contact name</label><input class="in" id="pfEName" value="${esc(p.emergency_name || "")}" maxlength="80"></div>
+        <div><label class="f2" for="pfERel">Relationship</label><input class="in" id="pfERel" value="${esc(p.emergency_relation || "")}" maxlength="40" placeholder="e.g. sister"></div>
+        <div><label class="f2" for="pfEPhone">Emergency contact phone</label><input class="in" id="pfEPhone" value="${esc(p.emergency_phone || "")}" maxlength="30"></div></div>
+      <button class="btn2" type="button" id="pfSave" style="margin-top:12px">Save</button><div class="msg2" id="pfMsg"></div>
+      <p class="sub2">${p.profile_confirmed_at ? "Last checked " + fmtDate(p.profile_confirmed_at) + "." : ""} Please keep this up to date so we can reach you.</p></div>`;
+};
+async function playLetter(id) {
+  const x = (H.letterResults || H.letters || []).find((l) => l.id === id); if (!x) return;
+  const { data, error } = await client.storage.from("rule-letters").createSignedUrl(x.media_path, 3600);
+  const box = document.querySelector(`[data-player="${id}"]`);
+  if (error) { box.innerHTML = `<p class="msg2 err">Couldn't load it. Try again.</p>`; return; }
+  box.innerHTML = x.media_kind === "audio" ? `<audio controls autoplay src="${data.signedUrl}"></audio>` : `<video controls autoplay playsinline src="${data.signedUrl}"></video>`;
+  if (!x.viewed) { client.rpc("resident_letter_viewed", { p_id: id }).then(() => {}); x.viewed = true; }
+}
+function bindDay(v) {
+  const flush = () => client.functions.invoke("outbox-flush", { body: {} }).catch(() => {});
+  $("pfOk") && ($("pfOk").onclick = async () => { await client.rpc("resident_profile_confirm"); H.profile.reminder_due = false; route(); });
+  if (v === "letters") {
+    document.querySelectorAll("[data-play]").forEach((b) => b.onclick = () => playLetter(b.dataset.play));
+    const go = async () => { letterQuery = $("ltQ").value.trim(); const { data } = await client.rpc("resident_letters", { p_query: letterQuery || null }); H.letterResults = data || []; route(); };
+    $("ltGo").onclick = go; $("ltQ").onkeydown = (e) => { if (e.key === "Enter") go(); };
+  }
+  if (v === "messages" && H.messages === null) {
+    // Opening Messages marks the office's replies as read.
+    client.rpc("resident_messages").then(({ data }) => { H.messages = data || []; $("msgBadge").hidden = true; if (location.hash.startsWith("#messages")) route(); });
+    return;
+  }
+  if (v === "messages") {
+    const c = $("chat"); c.scrollTop = c.scrollHeight;
+    $("msgSend").onclick = async () => {
+      const m = $("msgMsg"); m.className = "msg2"; m.textContent = "Sending…";
+      const { error } = await client.rpc("resident_message_send", { p_body: $("msgBody").value });
+      if (error) { m.className = "msg2 err"; m.textContent = await errorText(error); return; }
+      flush(); const { data } = await client.rpc("resident_messages"); H.messages = data || []; route();
+    };
+  }
+  if (v === "profile") {
+    $("pfSave").onclick = async () => {
+      const m = $("pfMsg"); m.className = "msg2"; m.textContent = "Saving…";
+      const { error } = await client.rpc("resident_profile_save", { p_alt_phone: $("pfAlt").value, p_emergency_name: $("pfEName").value, p_emergency_phone: $("pfEPhone").value, p_emergency_relation: $("pfERel").value });
+      if (error) { m.className = "msg2 err"; m.textContent = await errorText(error); return; }
+      const { data } = await client.rpc("resident_profile"); H.profile = data; route(); $("pfMsg").className = "msg2 ok"; $("pfMsg").textContent = "Saved. Thank you!";
+    };
+    $("pcSend").onclick = async () => {
+      const m = $("pcMsg"); m.className = "msg2"; m.textContent = "Sending…";
+      const { error } = await withStepUp(() => client.rpc("resident_contact_change", { p_field: $("pcField").value, p_new: $("pcNew").value }));
+      if (error) { m.className = "msg2 err"; m.textContent = await errorText(error); return; }
+      flush(); const { data } = await client.rpc("resident_profile"); H.profile = data; route();
+      $("pcMsg").className = "msg2 ok"; $("pcMsg").textContent = "Sent. The office will call you to confirm, then make the change.";
+    };
+  }
+}
+
+// ---- Stage 7: renewal ------------------------------------------------------
+views.renewal = function () {
+  const r = H.renewal;
+  if (!r) return `<div class="top"><h1>Renewal</h1></div><div class="box"><p class="sub2">No renewal offer right now.</p></div>`;
+  const head = `<div class="top"><h1>Renewal</h1><div class="addr">${esc(r.address)}</div></div>`;
+  if (r.status === "non_renewal") return head + `<div class="box"><h2>Your lease will not be renewed</h2><p>Your lease ends <b>${fmtDate(r.end_date)}</b>. The notice is in Documents. Please give your forwarding address and see the move-out steps on the <a href="#moveout">Move-out</a> page.</p></div>`;
+  if (r.status === "declined") return head + `<div class="box"><h2>You told us you're moving out</h2><p>Your lease ends <b>${fmtDate(r.end_date)}</b>. Please give your written notice and forwarding address on the <a href="#moveout">Move-out</a> page.</p></div>`;
+  if (r.status === "signed") return head + `<div class="box"><h2>✅ Renewed</h2><p>${esc(r.term_text)}. Rent ${money(r.new_rent)} a month starting ${fmtDate(r.new_start)}. The signed agreement is in Documents.</p></div>`;
+  if (r.status === "accepted") return head + `<div class="box"><h2>Almost done: sign your renewal</h2><p>We emailed each tenant on the lease a private link to sign the Lease Renewal Agreement. Once everyone signs and the office countersigns, you're renewed.</p>
+    ${r.signing_waiting ? `<p class="sub2">Your signature is still needed. Check your email (and spam folder) for "Sign your lease renewal".</p>` : `<p class="sub2">You've signed. Waiting for the others and the office.</p>`}</div>`;
+  return head + `<div class="box"><h2>Your renewal offer</h2>
+      <p>Your current lease ends <b>${fmtDate(r.end_date)}</b>. We'd like you to stay:</p>
+      <dl class="kv"><dt>New rent</dt><dd><b>${money(r.new_rent)}</b> a month${Number(r.new_rent) !== Number(r.current_rent) ? ` (now ${money(r.current_rent)})` : " (no change)"}</dd>
+        <dt>Starting</dt><dd>${fmtDate(r.new_start)}</dd><dt>Term</dt><dd>${esc(r.term_text)}</dd><dt>Please answer by</dt><dd>${fmtDate(r.respond_by)}</dd></dl>
+      <p class="sub2">Everything else in your lease stays the same.</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px"><button class="btn2" type="button" id="rnAccept">Accept and sign</button><button class="btn2 ghost" type="button" id="rnDecline">I'm moving out</button></div>
+      <div class="msg2" id="rnMsg"></div></div>`;
+};
+function bindRenewal(v) {
+  if (v !== "renewal" || !H.renewal) return;
+  $("rnAccept") && ($("rnAccept").onclick = async () => {
+    const m = $("rnMsg"), b = $("rnAccept"); b.disabled = true; m.className = "msg2"; m.textContent = "Preparing your renewal agreement…";
+    const { error } = await client.functions.invoke("lease-signing", { body: { action: "renewal_sign", renewal_id: H.renewal.id } });
+    if (error) { let msg = error.message; try { msg = (await error.context.json()).error || msg; } catch {} m.className = "msg2 err"; m.textContent = msg; b.disabled = false; return; }
+    await reload(); route();
+  });
+  $("rnDecline") && ($("rnDecline").onclick = async () => {
+    const note = prompt("Thanks for letting us know. Anything you'd like to tell us? (optional)");
+    if (note === null) return;
+    const { error } = await client.rpc("resident_renewal_decline", { p_id: H.renewal.id, p_note: note });
+    if (error) { $("rnMsg").className = "msg2 err"; $("rnMsg").textContent = await errorText(error); return; }
+    client.functions.invoke("outbox-flush", { body: {} }).catch(() => {});
+    await reload(); location.hash = "#moveout"; route();
+  });
+}
+
+// ---- Stage 8: move out -----------------------------------------------------
+const MO_TASKS = [["belongings", "Remove all belongings and trash"], ["appliances", "Clean the stove, oven, refrigerator (defrost it) and microwave"], ["floors", "Sweep and mop all floors"],
+  ["surfaces", "Wipe down all surfaces"], ["bathroom", "Clean the bathroom thoroughly"], ["bulbs", "Replace burned-out light bulbs"], ["utilities", "Stop utilities, phone and cable in your name"],
+  ["parking", "Move your vehicle out of your parking stall and return your parking hanger"], ["keys", "Return all keys in person (call or text 2 hours ahead)"]];
+views.moveout = function () {
+  const o = H.moveout, s = H.settings || {};
+  if (!o) return `<div class="top"><h1>Move-out</h1></div><div class="box"><p class="sub2">Nothing here.</p></div>`;
+  const m = o.move_out, head = `<div class="top"><h1>Move-out</h1><div class="addr">${esc(o.address)}</div></div>`;
+  if (!m) {
+    const mtm = o.lease_type !== "fixed";
+    return head + `<div class="box"><h2>Give notice to vacate</h2>
+      <p>${mtm ? `You rent month to month. Your lease requires written notice at least 28 days before the end of a month, and the tenancy can only end on the <b>last day of a month</b>. The earliest date you can choose today is <b>${fmtDate(o.earliest_mtm_date)}</b>.`
+        : `Your lease ends on <b>${fmtDate(o.end_date)}</b> and ends on its own that day. If you move out earlier, your lease says you stay responsible for rent until the unit is re-rented.`}</p>
+      <div class="grid2"><div><label class="f2" for="moDate">Move-out date (last night in the unit)</label><input class="in" type="date" id="moDate" value="${mtm ? o.earliest_mtm_date : o.end_date}" ${mtm ? `min="${o.earliest_mtm_date}"` : `max="${o.end_date}"`}></div><div></div></div>
+      <label class="f2" for="moAddr">Forwarding address (we mail your security deposit here)</label><textarea class="in" id="moAddr" maxlength="300" placeholder="Street, apartment, city, state, ZIP"></textarea>
+      <label class="f2" for="moWhy">Reason (optional)</label><input class="in" id="moWhy" maxlength="1000">
+      <p class="sub2">Sending this gives us your written notice to vacate. You'll get the move-out steps by email.</p>
+      <button class="btn2" type="button" id="moSend">Send my notice to vacate</button><div class="msg2" id="moMsg"></div></div>`;
+  }
+  const ORDER = ["notice", "scheduled", "vacated", "inspected", "deposit_sent", "closed"], LBL = ["Notice given", "Inspection set", "Keys returned", "Inspected", "Deposit statement sent", "Done"];
+  const at = ORDER.indexOf(m.status), tasks = m.tenant_tasks || {}, locked = !!m.letter_pdf;
+  return head + `<div class="box"><h2>Your move-out</h2>
+      <ol class="track">${LBL.map((t, i) => `<li class="${i < at ? "done" : i === at ? "now" : ""}">${t}</li>`).join("")}</ol>
+      <dl class="kv"><dt>Move-out date</dt><dd>${fmtDate(m.move_out_date)}${m.early ? ` <span class="tagx warn">before lease end</span>` : ""}</dd>
+        <dt>Inspection</dt><dd>${m.inspection_at ? new Date(m.inspection_at).toLocaleString("en-US", { weekday: "short", month: "numeric", day: "numeric", hour: "numeric", minute: "2-digit" }) : "We'll let you know"}</dd>
+        ${m.surrendered_on ? `<dt>Tenancy ended</dt><dd>${fmtDate(m.surrendered_on)}</dd><dt>Deposit statement by</dt><dd>${fmtDate(m.deposit_due_by)}</dd>` : ""}</dl></div>
+    <div class="box"><h2>Forwarding address</h2><p class="sub2">Your security deposit and the itemized statement are mailed here.</p>
+      <textarea class="in" id="moAddr" maxlength="300" ${locked ? "disabled" : ""}>${esc(m.forwarding_address || "")}</textarea>
+      ${locked ? `<p class="sub2">The statement was already sent. Call ${tel(s.org_phone)} if your address changed.</p>` : `<button class="btn2 ghost" type="button" id="moAddrSave" style="margin-top:8px">Save address</button>`}
+      <div class="msg2" id="moAddrMsg"></div></div>
+    ${o.former ? "" : `<div class="box"><h2>Move-out checklist</h2>${MO_TASKS.map(([k, t]) => `<label style="display:flex;gap:8px;padding:6px 0"><input type="checkbox" data-task="${k}" ${tasks[k] ? "checked" : ""}> ${t}</label>`).join("")}
+      <p class="sub2">Return keys by calling or texting ${tel(s.org_phone)} at least 2 hours ahead. Items left behind are treated as abandoned.</p></div>`}
+    <div class="box"><h2>Security deposit</h2>${m.letter_pdf ? `<p>${Number(m.refund_amount) > 0 ? `Refund: <b>${money(m.refund_amount)}</b>${m.refund_sent_on ? ` · sent ${fmtDate(m.refund_sent_on)}` : ""}`
+        : Number(m.balance_due) > 0 ? (m.absorb_balance ? "The remaining balance was absorbed under our nonprofit policy. You owe nothing further." : `Balance due after the deposit: <b>${money(m.balance_due)}</b>`) : "Your deposit covered everything. Nothing is owed."}</p>
+      <button class="btn2 ghost" type="button" data-notice="${esc(m.letter_pdf)}">Open the deposit statement</button>`
+      : `<p>Within 21 days after your tenancy ends we send your deposit back with an itemized statement of anything withheld (Wis. Stat. § 704.28).${o.deposit_held ? ` Deposit on file: ${money(o.deposit_held)}.` : ""}</p>`}</div>
+    ${o.former ? `<div class="box"><h2>Final statement</h2><p>Balance: <b>${balHtml(Number(o.balance))}</b>. See every line under <a href="#payments">Payments</a>.</p></div>` : ""}`;
+};
+function bindMoveOut(v) {
+  if (v !== "moveout" || !H.moveout) return;
+  const flush = () => client.functions.invoke("outbox-flush", { body: {} }).catch(() => {});
+  $("moSend") && ($("moSend").onclick = async () => {
+    const m = $("moMsg"); m.className = "msg2"; m.textContent = "Sending…";
+    if (!confirm("Send your written notice to vacate? You can't take it back here.")) { m.textContent = ""; return; }
+    const { data, error } = await client.rpc("resident_move_out_notice", { p_date: $("moDate").value || null, p_forwarding: $("moAddr").value, p_reason: $("moWhy").value });
+    if (error) { m.className = "msg2 err"; m.textContent = await errorText(error); return; }
+    flush(); await reload(); route();
+  });
+  $("moAddrSave") && ($("moAddrSave").onclick = async () => {
+    const { error } = await client.rpc("resident_move_out_update", { p_forwarding: $("moAddr").value, p_tasks: null });
+    $("moAddrMsg").className = error ? "msg2 err" : "msg2 ok"; $("moAddrMsg").textContent = error ? await errorText(error) : "Saved.";
+    if (!error) flush();
+  });
+  document.querySelectorAll("[data-task]").forEach((c) => c.onchange = async () => {
+    const tasks = {}; document.querySelectorAll("[data-task]").forEach((x) => { if (x.checked) tasks[x.dataset.task] = true; });
+    await client.rpc("resident_move_out_update", { p_forwarding: null, p_tasks: tasks });
+    H.moveout.move_out.tenant_tasks = tasks;
+  });
+}
+
+
+// ---- Parking and vehicles --------------------------------------------------
+const KIND = { own: "My vehicle", loaner: "Loaner", visitor: "Regular visitor" };
+async function loadParking() {
+  const [{ data: mine }, { data: dir }] = await Promise.all([client.rpc("resident_vehicles_mine"), client.rpc("vehicles_directory")]);
+  H.parking = mine || { unit: "", vehicles: [], declaration: null }; H.parkDir = dir || [];
+  route();
+}
+async function shrinkPhoto(file, max = 1600) {
+  try {
+    const bmp = await createImageBitmap(file), s = Math.min(1, max / Math.max(bmp.width, bmp.height));
+    const c = document.createElement("canvas"); c.width = Math.round(bmp.width * s); c.height = Math.round(bmp.height * s);
+    c.getContext("2d").drawImage(bmp, 0, 0, c.width, c.height);
+    return await new Promise((r) => c.toBlob(r, "image/jpeg", 0.82));
+  } catch { return file; }
+}
+function vehLine(v) {
+  return v.kind === "visitor" ? `${esc(v.visitor_name || "Visitor")}${v.visitor_relationship ? " (" + esc(v.visitor_relationship) + ")" : ""} · ${esc(v.visitor_frequency || "")}`
+    : `${esc(v.color || "")} ${v.year ? esc(v.year) + " " : ""}${esc(v.make || "")} ${esc(v.model || "")}`;
+}
+function vehCard(v, mine) {
+  return `<div class="pkcard"><b>${mine ? "" : "Unit " + esc(v.unit) + " · "}${esc(KIND[v.kind] || v.kind)}</b>${v.kind === "loaner" && v.loaner_until ? ` <span class="sub2">until ${fmtDate(v.loaner_until)}</span>` : ""}
+    <div>${vehLine(v)}</div>${mine && v.plate ? `<div class="sub2">Plate ${esc(v.plate)} ${esc(v.plate_state || "")}</div>` : ""}
+    ${v.front_path || v.back_path ? `<div class="pkphotos"><img data-pk="${esc(v.front_path || "")}" alt="Front of the vehicle"><img data-pk="${esc(v.back_path || "")}" alt="Back of the vehicle"></div>` : ""}
+    ${mine ? `<button class="btn2 ghost" type="button" data-pkend="${esc(v.id)}">Remove</button>` : ""}</div>`;
+}
+views.parking = function () {
+  if (H.parking === null) return `<div class="top"><h1>Parking</h1></div><div class="box"><p class="sub2">Loading…</p></div>`;
+  const p = H.parking, mineV = p.vehicles, dec = p.declaration, hasOwn = mineV.some((v) => v.kind === "own"), hasLoan = mineV.some((v) => v.kind === "loaner");
+  const others = (H.parkDir || []).filter((v) => v.unit !== p.unit);
+  const opt = (k, t, d, off) => `<button type="button" data-pkmode="${k}" class="${H.pkMode === k ? "on" : ""}" ${off ? "disabled" : ""}><b>${t}</b><span class="sub2">${d}</span></button>`;
+  const f = (id, label, attrs = "", wide = false) => `<label class="${wide ? "wide" : ""}">${label}<input class="in" id="${id}" ${attrs}></label>`;
+  const photoPick = (id, label) => `<label>${label}<input class="in" id="${id}" type="file" accept="image/*" capture="environment"></label>`;
+  let form = "";
+  if (H.pkMode === "own" || H.pkMode === "loaner") {
+    form = `<div class="pkform">${vinFieldHtml()}${f("pkMake", "Make", 'maxlength="40" placeholder="Toyota"')}${f("pkModel", "Model", 'maxlength="40" placeholder="Camry"')}${f("pkColor", "Color", 'maxlength="30"')}${f("pkYear", "Year", 'type="number" min="1950" max="2100"')}
+      ${f("pkPlate", "License plate", 'maxlength="12"')}${f("pkState", "Plate state", 'maxlength="2" placeholder="WI"')}
+      ${H.pkMode === "loaner" ? f("pkWhy", "Why do you have a loaner?", 'maxlength="200" placeholder="My car is in the repair shop"', true) + f("pkLender", "Who lent it (shop or person)", 'maxlength="100"') + f("pkFrom", "Since", 'type="date"') + f("pkUntil", "Return it by", 'type="date"') : ""}
+      ${photoPick("pkFront", "Photo of the FRONT")}${photoPick("pkBack", "Photo of the BACK")}</div>
+      <p class="sub2">Take both photos so the whole vehicle and its plate can be seen. Everyone who lives or owns here can see the photos, so neighbors know whose vehicle belongs in each stall.</p>`;
+  } else if (H.pkMode === "visitor") {
+    form = `<div class="pkform">${f("pkVName", "Visitor's name", 'maxlength="80"')}${f("pkVRel", "Who are they to you?", 'maxlength="40" placeholder="Aunt, friend, caregiver"')}${f("pkVFreq", "How often do they park here?", 'maxlength="80" placeholder="Every Sunday"')}
+      ${f("pkPlate", "License plate (if you know it)", 'maxlength="12"')}${f("pkState", "Plate state", 'maxlength="2" placeholder="WI"')}${f("pkNote", "Anything else", 'maxlength="200"')}</div>`;
+  } else if (H.pkMode === "none") {
+    form = `<div class="pkform"><label class="wide"><span><input type="checkbox" id="pkVisitors"> A regular visitor parks in my unit's stall</span></label>${f("pkNote", "Tell us about them (optional)", 'maxlength="200"', true)}</div>`;
+  }
+  return `<div class="top"><h1>Parking</h1></div><div id="pstMount"></div><div id="stallsMount" style="margin-bottom:14px"></div><div id="parkSlot"><div id="parkAlertMount"></div><div id="pushMount"></div></div>
+    <div class="box"><h2>Your stall</h2><p>Every unit has <b>one parking stall</b>. Tell us which vehicle is yours, so we know whose it is. ${p.unit ? "Unit " + esc(p.unit) + "." : ""}</p>
+      ${!mineV.length && !(dec && dec.no_vehicle) && p.register_by ? `<p style="border-left:4px solid #b3261e;padding:8px 12px;background:rgba(179,38,30,.07);border-radius:6px"><b>Register by ${fmtDate(p.register_by)}.</b>${p.enforce_from ? ` From ${fmtDate(p.enforce_from)} Always Towing patrols the lot and may tow any vehicle in a numbered stall that is not registered to that unit.` : ""}</p>` : ""}
+      ${mineV.length ? `<div class="pkgrid">${mineV.map((v) => vehCard(v, true)).join("")}</div>` : `<p class="sub2">${dec && dec.no_vehicle ? "You told us you have no vehicle" + (dec.has_regular_visitors ? ", and that a regular visitor parks in your stall" : "") + "." : "Nothing registered yet."}</p>`}
+      <h2 style="margin-top:14px">Add or change</h2>
+      <div class="pkopts">${opt("own", "Register my vehicle", "Make, model, plate and front and back photos", hasOwn)}${opt("loaner", "I have a loaner", "A temporary vehicle, for example while yours is in the shop", hasLoan)}
+        ${opt("none", "I don't have a vehicle", "Tell us, and tell us if a visitor parks regularly", false)}${opt("visitor", "A regular visitor parks here", "Name, how often, and their plate", false)}</div>
+      ${form}${form ? `<div style="display:flex;gap:8px;margin-top:10px"><button class="btn2" type="button" id="pkSave">Save</button><button class="btn2 ghost" type="button" id="pkCancel">Cancel</button></div>` : ""}
+      <div class="msg2" id="pkMsg"></div></div>
+    <div class="box"><h2>Vehicles in the building</h2><p class="sub2">So everyone knows whose vehicle belongs in each stall. Photos are for residents and owners only.</p>
+      ${others.length ? `<div class="pkgrid">${others.map((v) => vehCard(v, false)).join("")}</div>` : `<p class="sub2">No other vehicles have been registered yet.</p>`}</div>`;
+};
+async function paintParkingPhotos() {
+  const imgs = [...document.querySelectorAll("img[data-pk]")].filter((i) => i.dataset.pk);
+  if (!imgs.length) return;
+  const { data } = await client.storage.from("vehicles").createSignedUrls(imgs.map((i) => i.dataset.pk), 3600);
+  const by = Object.fromEntries((data || []).map((x) => [x.path, x.signedUrl]));
+  imgs.forEach((i) => { if (by[i.dataset.pk]) i.src = by[i.dataset.pk]; });
+}
+// Keep the element matching sel at screen position y while the page around it finishes loading (about 3 seconds),
+// unless the person scrolls themselves.
+function holdInPlace(sel, y) {
+  let stop = false; const quit = () => { stop = true; };
+  ["wheel", "touchstart", "keydown"].forEach((e) => window.addEventListener(e, quit, { once: true, passive: true }));
+  const fix = () => { if (stop) return; const el = document.querySelector(sel); if (!el) return; const d = el.getBoundingClientRect().top - y; if (Math.abs(d) > 1) window.scrollBy(0, d); };
+  fix(); const ro = new ResizeObserver(fix); ro.observe(document.body);
+  setTimeout(() => { ro.disconnect(); quit(); }, 3000);
+}
+function bindParking(v) {
+  if (v !== "parking") return;
+  if (H.parking === null) { loadParking(); return; }
+  paintParkingPhotos();
+  // The lot map is first; tapping your own stall ("Someone in my stall?") opens the alert right under the map.
+  if ($("stallsMount")) mountStalls($("stallsMount"), { alert: mountParkAlert($("parkAlertMount")), slot: $("parkSlot") });
+  if ($("pushMount")) mountPushCard($("pushMount"));
+  if ($("pstMount")) mountParkingStatus($("pstMount"));
+  const flush = () => client.functions.invoke("outbox-flush", { body: {} }).catch(() => {});
+  const say = (t, bad) => { $("pkMsg").className = "msg2 " + (bad ? "err" : "ok"); $("pkMsg").textContent = t; };
+  // Choosing an option redraws the page; the map and boxes above it reload and change height. Keep the options exactly where they
+  // were on screen so the page does not jump (Stephen, 11/3/2026).
+  document.querySelectorAll("[data-pkmode]").forEach((b) => b.onclick = () => { const y = b.getBoundingClientRect().top; H.pkMode = b.dataset.pkmode; route(); holdInPlace(".pkopts", y); });
+  $("pkCancel") && ($("pkCancel").onclick = () => { const o = document.querySelector(".pkopts"), y = o ? o.getBoundingClientRect().top : 0; H.pkMode = ""; route(); if (o) holdInPlace(".pkopts", y); });
+  wireVin(document, { onFound: (v) => { if (v.make) $("pkMake").value = v.make; if (v.model) $("pkModel").value = v.model; if (v.year) $("pkYear").value = v.year; } });
+  document.querySelectorAll("[data-pkend]").forEach((b) => b.onclick = async () => {
+    if (!confirm("Remove this vehicle from your unit?")) return;
+    const { error } = await client.rpc("resident_vehicle_end", { p_id: b.dataset.pkend });
+    if (error) return say(await errorText(error), true);
+    flush(); await loadParking();
+  });
+  $("pkSave") && ($("pkSave").onclick = async () => {
+    const b = $("pkSave"), val = (id) => ($(id) ? $(id).value.trim() : ""), mode = H.pkMode;
+    b.disabled = true; say("Saving…");
+    try {
+      if (mode === "none") {
+        const { error } = await client.rpc("resident_parking_declare", { p_no_vehicle: true, p_visitors: $("pkVisitors").checked, p_note: val("pkNote") });
+        if (error) throw new Error(await errorText(error));
+      } else {
+        const id = crypto.randomUUID(), unit = H.parking.unit; let front = null, back = null;
+        if (mode !== "visitor") {
+          const ff = $("pkFront").files[0], bf = $("pkBack").files[0];
+          if (!ff || !bf) throw new Error("Add a photo of the front and a photo of the back.");
+          for (const [file, name] of [[ff, "front"], [bf, "back"]]) {
+            const blob = await shrinkPhoto(file), path = `${unit}/${id}/${name}.jpg`;
+            const up = await client.storage.from("vehicles").upload(path, blob, { contentType: "image/jpeg", upsert: true });
+            if (up.error) throw new Error("A photo didn't upload. Check your connection and try again.");
+            if (name === "front") front = path; else back = path;
+          }
+        }
+        const { error } = await client.rpc("resident_vehicle_save", {
+          p_id: id, p_kind: mode, p_make: val("pkMake"), p_model: val("pkModel"), p_color: val("pkColor"), p_year: val("pkYear") ? Number(val("pkYear")) : null,
+          p_plate: val("pkPlate"), p_plate_state: val("pkState"), p_loaner_reason: val("pkWhy"), p_loaner_lender: val("pkLender"), p_loaner_from: val("pkFrom") || null, p_loaner_until: val("pkUntil") || null,
+          p_visitor_name: val("pkVName"), p_visitor_relationship: val("pkVRel"), p_visitor_frequency: val("pkVFreq"), p_notes: val("pkNote"), p_front: front, p_back: back });
+        if (error) throw new Error(await errorText(error));
+        const vin = cleanVin(val("pkVin"));
+        if (vin && mode !== "visitor") { const { error: verr } = await client.rpc("resident_vehicle_set_vin", { p_id: id, p_vin: vin }); if (verr) throw new Error("Saved, but the VIN wasn't: " + await errorText(verr)); }
+      }
+      flush(); H.pkMode = ""; await loadParking();
+    } catch (e) { say(e.message, true); b.disabled = false; }
+  });
+}
+
+// ---- Work in lieu of rent ---------------------------------------------------
+// Plain advice under a payment that didn't go through (the card company's own wording is hard to act on).
+function payAdvice(f) {
+  const m = String(f || "").toLowerCase(); if (!m) return "";
+  let t = "";
+  if (/limit|balance|velocity|exceed/.test(m)) t = "Your card has a spending limit. Try a smaller amount on this card (for example half), then pay the rest with another card or from your bank account.";
+  else if (/declined|not supported|do not honor|generic/.test(m)) t = "Your card company or our payment processor declined it. Prepaid cards are often declined: use a debit card from your bank, or choose Enter bank details manually. A smaller amount can also help.";
+  else if (/incorrect|invalid|expired|cvc|zip|postal/.test(m)) t = "Check the card number, expiry date, security code and ZIP, then try again.";
+  else if (/credit card|name on the card/.test(m)) return "";
+  return t ? ` <span class="sub2" style="display:block;color:var(--fg)">What to do: ${t} Questions? Call or text (262) 236-5443.</span>` : "";
+}
+const WSTAT = { todo: "Not started", working: "Started", done: "Done, waiting for inspection", accepted: "Accepted" };
+const wkMonth = (d) => d ? new Date(d + "T12:00:00").toLocaleDateString("en-US", { month: "long", year: "numeric" }) : "";
+async function loadWork() {
+  const { data } = await client.rpc("resident_work_list");
+  H.work = data || [];
+  const nav = $("navWork"); if (nav) nav.hidden = !H.work.length;
+}
+views.work = function () {
+  const ws = H.work || [];
+  if (!ws.length) return `<div class="top"><h1>Work</h1></div><div class="box"><p class="sub2">You have no work agreements right now.</p></div>`;
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  return `<div class="top"><h1>Work in lieu of rent</h1></div>
+    <p class="sub2" style="margin-bottom:10px">Jobs you do for 2nd Chance Housing that are credited against your rent. Tell us when each task is started and done, add notes and photos as you go, and we inspect before any credit is posted.</p>
+    ${ws.map((w) => {
+      const job = w.kind === "job", ended = w.status === "ended", ack = !!w.worker_ack_at;
+      const pill = ended ? `<span class="wkpill done">Accepted and credited</span>` : !ack ? `<span class="wkpill warn">Read and agree</span>` : `<span class="wkpill">${job ? "In progress" : "Active"}</span>`;
+      const worth = job ? `Worth <b>${money(w.job_value)}</b>, credited to your <b>${esc(wkMonth(w.credit_month))}</b> rent after we inspect and accept it.` : `<b>${money(w.monthly_credit)}</b> credited against your rent <b>every month</b> while you keep up the work.`;
+      const taskOpts = `<option value="">Whole job</option>${(w.tasks || []).map((t) => `<option value="${esc(t.key)}">${esc(t.name)}</option>`).join("")}`;
+      return `<div class="box wk" data-wk="${esc(w.id)}" data-lease="${esc(w.lease_id)}"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><h2>${esc(w.title)}</h2>${pill}</div>
+        <p>${worth}</p>${w.work_location ? `<p class="sub2">Where: ${esc(w.work_location)}</p>` : ""}
+        <details class="wkterms" ${!ack && !ended ? "open" : ""}><summary>${job ? "Agreement and what the job includes" : "What this job includes"}</summary><p>${esc(w.scope)}</p>${w.terms_html || ""}${w.equipment_terms ? `<p class="sub2">${esc(w.equipment_terms)}</p>` : ""}</details>
+        ${!ack && !ended ? `<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin:8px 0"><label style="display:grid;gap:3px;font-size:.85rem;color:var(--gray)">Type your full name to agree<input class="in" data-ackname style="min-width:220px"></label><button class="btn2" type="button" data-ack>I agree</button><span class="msg2" data-wkmsg></span></div>` : ""}
+        ${job && (w.tasks || []).length ? `<div>${w.tasks.map((t) => `<div class="wktask"><div><b>${esc(t.name)}</b> <span class="sub2">${esc(WSTAT[t.status] || t.status)}</span></div>
+            ${ack && !ended && t.status !== "accepted" ? `<div>${t.status === "todo" ? `<button class="btn2 ghost" type="button" data-task="${esc(t.key)}" data-to="working">I started</button> ` : ""}${t.status !== "done" ? `<button class="btn2" type="button" data-task="${esc(t.key)}" data-to="done">Mark done</button>` : `<button class="btn2 ghost" type="button" data-task="${esc(t.key)}" data-to="working">Not done yet</button>`}</div>` : ""}</div>`).join("")}</div>` : ""}
+        ${ack && !ended ? `<div class="wkcomp"><b>Add a note or photo</b>
+          <select class="in" data-nt>${taskOpts}</select>
+          <textarea class="in" data-nbody rows="3" placeholder="What you did today, what you need, anything we should know"></textarea>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">${SR ? `<button class="btn2 ghost" type="button" data-mic>🎤 Start talking</button>` : `<span class="sub2">Your phone's keyboard microphone also works for dictating.</span>`}
+            <label class="btn2 ghost" style="cursor:pointer">📷 Add a photo<input type="file" accept="image/*" capture="environment" data-nphoto hidden></label><span class="sub2" data-nphotoname></span>
+            <button class="btn2" type="button" data-nsave>Save note</button></div><span class="msg2" data-nmsg></span></div>` : ""}
+        ${(w.credits || []).length ? `<p class="sub2" style="margin-top:10px"><b>Credits applied:</b> ${w.credits.slice(0, 6).map((c) => `${fmtDate(c.date)} ${money(c.amount)}`).join(" · ")}</p>` : ""}
+        <div>${(w.notes || []).length ? w.notes.map((n) => `<div class="wknote"><span class="sub2">${fmtDate(n.at)} · ${n.role === "staff" ? "2nd Chance" : "You"}${n.task_key ? " · " + esc(((w.tasks || []).find((t) => t.key === n.task_key) || {}).name || "") : ""}${n.voice ? " · dictated" : ""}</span><div>${esc(n.note || "")}</div>${n.photo ? `<img data-wkph="${esc(n.photo)}" alt="Photo">` : ""}</div>`).join("") : ""}</div>
+      </div>`; }).join("")}`;
+};
+function bindWork(v) {
+  if (v !== "work") return;
+  const flush = () => client.functions.invoke("outbox-flush", { body: {} }).catch(() => {});
+  const refresh = async () => { await loadWork(); route(); };
+  const imgs = [...document.querySelectorAll("img[data-wkph]")];
+  if (imgs.length) client.storage.from("work-photos").createSignedUrls(imgs.map((i) => i.dataset.wkph), 3600).then(({ data }) => {
+    const by = Object.fromEntries((data || []).map((x) => [x.path, x.signedUrl])); imgs.forEach((i) => { if (by[i.dataset.wkph]) i.src = by[i.dataset.wkph]; });
+  });
+  document.querySelectorAll(".wk").forEach((card) => {
+    const id = card.dataset.wk, say = (sel, t, bad) => { const m = card.querySelector(sel); if (m) { m.className = "msg2 " + (bad ? "err" : "ok"); m.textContent = t; } };
+    const ack = card.querySelector("[data-ack]");
+    if (ack) ack.onclick = async () => {
+      ack.disabled = true; const { error } = await client.rpc("resident_work_ack", { p_agreement: id, p_name: card.querySelector("[data-ackname]").value });
+      if (error) { say("[data-wkmsg]", await errorText(error), true); ack.disabled = false; return; }
+      flush(); refresh();
+    };
+    card.querySelectorAll("[data-task]").forEach((b) => b.onclick = async () => {
+      b.disabled = true; const { error } = await client.rpc("resident_work_task", { p_agreement: id, p_task: b.dataset.task, p_status: b.dataset.to });
+      if (error) { alert(await errorText(error)); b.disabled = false; return; }
+      flush(); refresh();
+    });
+    const mic = card.querySelector("[data-mic]"), body = card.querySelector("[data-nbody]");
+    let voice = false;
+    if (mic) {
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition; let rec = null, on = false;
+      mic.onclick = () => {
+        if (on) { rec.stop(); return; }
+        rec = new SR(); rec.lang = "en-US"; rec.interimResults = true; rec.continuous = true; const base = body.value ? body.value.trim() + " " : "";
+        rec.onresult = (e) => { let t = ""; for (const r of e.results) t += r[0].transcript; body.value = base + t; voice = true; };
+        rec.onend = () => { on = false; mic.textContent = "🎤 Start talking"; };
+        rec.onerror = () => { on = false; mic.textContent = "🎤 Start talking"; };
+        rec.start(); on = true; mic.textContent = "■ Stop";
+      };
+    }
+    const pin = card.querySelector("[data-nphoto]");
+    if (pin) pin.onchange = () => { card.querySelector("[data-nphotoname]").textContent = pin.files[0] ? pin.files[0].name : ""; };
+    const save = card.querySelector("[data-nsave]");
+    if (save) save.onclick = async () => {
+      save.disabled = true; say("[data-nmsg]", "Saving…");
+      try {
+        let photo = null;
+        if (pin && pin.files[0]) {
+          const blob = await shrinkPhoto(pin.files[0]), path = `${card.dataset.lease}/${crypto.randomUUID()}.jpg`;
+          const up = await client.storage.from("work-photos").upload(path, blob, { contentType: "image/jpeg" });
+          if (up.error) throw new Error("The photo didn't upload. Check your connection and try again.");
+          photo = path;
+        }
+        const { error } = await client.rpc("resident_work_note", { p_agreement: id, p_task: card.querySelector("[data-nt]").value, p_note: body.value, p_voice: voice, p_photo: photo });
+        if (error) throw new Error(await errorText(error));
+        await refresh();
+      } catch (e) { say("[data-nmsg]", e.message, true); save.disabled = false; }
+    };
+  });
+}
+
+// ---- Guest requests (overnight stays and guest parking; the office approves and hands over parking decals) ----
+views.keys = () => `<div class="top"><h1>Keys</h1></div><div id="keyAddMount"></div><div id="keysMount"></div>`;
+views.guests = () => `<div class="top"><h1>Guests</h1></div><div id="guestsMount"></div>`;
+// ---- Household: everyone who lives in the unit besides the tenants on the lease (the office approves) ----
+views.inspection = () => `<div class="top"><h1>Move-in inspection</h1></div><div id="inspReportMount"></div>`;
+views.household = () => `<div class="top"><h1>Household</h1></div><div id="householdMount"></div>`;
+
+function route() {
+  const view = (location.hash.slice(1).split("?")[0] || "home");
+  const v = views[view] && !(isBuyer() && BUYER_HIDDEN.includes(view)) ? view : "home";
+  document.querySelectorAll("#nav a[href^='#']").forEach((a) => a.setAttribute("aria-current", a.getAttribute("href") === "#" + v ? "page" : "false"));
+  $("main").innerHTML = views[v]();
+  bind(v);
+  bindParking(v);
+  bindWork(v);
+  if (v === "guests") mountGuests($("guestsMount"));
+  if (v === "keys") { mountKeys($("keysMount")); mountKeyAdd($("keyAddMount"), () => mountKeys($("keysMount"))); }
+  if (v === "household") mountHousehold($("householdMount"));
+  if (v === "documents" && $("inspDocMount")) mountInspectionDocs($("inspDocMount"));
+  if (v === "inspection") mountInspectionReport($("inspReportMount"), new URLSearchParams(location.hash.split("?")[1] || "").get("id"));
+  if (v === "home" && $("inspNoticeMount")) mountInspectionNotices($("inspNoticeMount"), { hideWhenEmpty: true });
+  if (v === "home" && $("evictMount")) mountEvictionNotice($("evictMount"));
+  if (v === "payments" && leaseOf()) {
+    mountAssistance($("assistMount"), { leaseId: leaseOf().id, quietErrors: true });
+    mountDisputes($("disputesMount"), { side: "tenant" });
+    mountTenantReports($("tenantReportsMount"));
+    document.querySelectorAll("[data-qdate]").forEach((b) => b.onclick = () =>
+      questionCharge($("disputesMount"), { side: "tenant", date: b.dataset.qdate, amount: Number(b.dataset.qamt), memo: b.dataset.qmemo }));
+  }
+  // Go to the top only when moving to another screen; a redraw of the same screen (choosing an option, saving) stays put.
+  if (H.lastView !== v) window.scrollTo(0, 0);
+  H.lastView = v;
+}
+
+async function bindAutopay() {
+  const mount = $("apMount"); if (!mount) return;
+  const A = H.autopay || {};
+  if (!A.enabled && !apActive()) { mount.innerHTML = `<div class="box"><p>Autopay isn't available yet.</p><a class="btn2 ghost" href="#payments">Back to Payments</a></div>`; return; }
+  if (apActive()) { mount.innerHTML = `<div class="box">${autopayCard()}</div><a class="btn2 ghost" href="#payments">Back to Payments</a>`; $("apOff") && ($("apOff").onclick = async () => {
+    if (!confirm("Cancel autopay? No more automatic withdrawals will be made.")) return;
+    const { error } = await client.rpc("autopay_cancel"); if (error) { alert(error.message); return; } await reload(); route(); }); return; }
+  let day = 1, codeSent = false;
+  const render = async () => {
+    const { data: d, error } = await client.rpc("autopay_prepare", { p_draw_day: day });
+    if (error) { mount.innerHTML = `<div class="box"><p class="msg2 err">${esc(await errorText(error))}</p><a class="btn2 ghost" href="#payments">Back to Payments</a></div>`; return; }
+    const ord = (n) => n + (n === 1 ? "st" : n === 2 ? "nd" : n === 3 ? "rd" : "th");
+    mount.innerHTML = `<div class="box"><h2>Set up autopay yourself</h2>
+      <p>Autopay takes <b>${money(d.amount)}</b> a month from your bank account for <b>${esc(d.label)}</b>. <b>You</b> set it up, <b>you</b> choose the day, and only <b>you</b> can change or cancel it. 2nd Chance staff cannot start it for you.</p>
+      ${apPending() ? `<p class="sub2">You started setting up autopay but didn't connect your bank. Start again below.</p>` : ""}
+      <p><b>Choose the day:</b> <select id="apDay">${[1, 2, 3, 4, 5].map((n) => `<option value="${n}" ${n === day ? "selected" : ""}>the ${ord(n)}</option>`).join("")}</select>
+        <span class="sub2">Pick the day your money is in the account. Your first withdrawal is <b>${fmtDate(d.first_draw)}</b>.</span></p>
+      <p><b>Read this, then agree:</b></p>
+      <pre style="white-space:pre-wrap;font:inherit;background:#f6f8f5;border:1px solid #d9dfd6;border-radius:8px;padding:12px">${esc(d.terms)}</pre>
+      <label style="display:flex;gap:8px;margin:6px 0"><input type="checkbox" id="apA1"> <span>I set this up myself, from my own sign-in.</span></label>
+      <label style="display:flex;gap:8px;margin:6px 0"><input type="checkbox" id="apA2"> <span>I understand a returned withdrawal can cost me a fee and late rent, and autopay will pause.</span></label>
+      <label style="display:flex;gap:8px;margin:6px 0"><input type="checkbox" id="apA3"> <span>I will keep enough money in the account on the withdrawal day.</span></label>
+      <label style="display:flex;gap:8px;margin:6px 0"><input type="checkbox" id="apA4"> <span>I know I can cancel any time, before 11:59 PM the day before a withdrawal.</span></label>
+      <p style="margin-top:10px"><label>Type your full name<br><input class="in" id="apName" autocomplete="off" style="max-width:320px"></label></p>
+      <p><button class="btn2 ghost" type="button" id="apCode">${codeSent ? "Send a new code" : "Email me a confirmation code"}</button> <span class="sub2" id="apCodeNote">${codeSent ? "We emailed a 6-digit code to " + esc(d.email_hint) + ". It works for 10 minutes." : "We email a code to " + esc(d.email_hint) + " to be sure it is you."}</span></p>
+      <p><label>Code from the email<br><input class="in" id="apCodeIn" inputmode="numeric" maxlength="6" autocomplete="one-time-code" style="max-width:160px"></label></p>
+      <p><button class="btn2" type="button" id="apGo" disabled>Authorize and connect my bank</button> <a class="btn2 ghost" href="#payments">Not now</a></p>
+      <div class="msg2" id="apMsg" role="status"></div></div>`;
+    const ready = () => { $("apGo").disabled = !($("apA1").checked && $("apA2").checked && $("apA3").checked && $("apA4").checked && $("apName").value.trim().length > 3 && /^\d{6}$/.test($("apCodeIn").value.trim())); };
+    ["apA1", "apA2", "apA3", "apA4", "apName", "apCodeIn"].forEach((id) => { $(id).addEventListener("input", ready); $(id).addEventListener("change", ready); });
+    $("apDay").onchange = () => { day = Number($("apDay").value); render(); };
+    $("apCode").onclick = async () => {
+      $("apCode").disabled = true; const { error: e } = await client.rpc("autopay_request_code");
+      if (e) { $("apMsg").className = "msg2 err"; $("apMsg").textContent = await errorText(e); $("apCode").disabled = false; return; }
+      codeSent = true; $("apCodeNote").textContent = "We emailed a 6-digit code to " + d.email_hint + ". It works for 10 minutes."; $("apCode").textContent = "Send a new code"; $("apCode").disabled = false;
+      client.functions.invoke("outbox-flush", { body: {} }).catch(() => {});
+    };
+    $("apGo").onclick = async () => {
+      $("apGo").disabled = true; $("apMsg").className = "msg2"; $("apMsg").textContent = "Saving your authorization…";
+      const { data: st, error: e } = await client.rpc("autopay_start", { p_code: $("apCodeIn").value.trim(), p_draw_day: day, p_typed_name: $("apName").value.trim(),
+        p_acks: { set_up_myself: $("apA1").checked, understand_return: $("apA2").checked, keep_money: $("apA3").checked, can_cancel: $("apA4").checked }, p_version: d.version, p_first: d.first_draw });
+      if (e || st?.error) { $("apMsg").className = "msg2 err"; $("apMsg").textContent = e ? await errorText(e) : st.error; ready(); return; }
+      $("apMsg").textContent = "Opening your bank connection…";
+      const { data, error: e2 } = await client.functions.invoke("stripe-pay", { body: { action: "autopay_setup", authorization_id: st.authorization_id } });
+      if (e2 || !data || !data.url) { let m = e2 ? e2.message : "We couldn't open the bank connection."; try { m = (await e2.context.json()).error || m; } catch {} $("apMsg").className = "msg2 err"; $("apMsg").textContent = m; return; }
+      location.href = data.url;
+    };
+  };
+  render();
+}
+function bind(v) {
+  if (v === "autopay") bindAutopay();
+  document.querySelectorAll("[data-resend]").forEach((b) => b.onclick = async () => {
+    b.disabled = true;
+    try { await act({ action: "resend_signing_link", doc_id: b.dataset.resend }); $("resendMsg").className = "msg2 ok"; $("resendMsg").textContent = "Sent. Check your email for the link."; }
+    catch (e) { $("resendMsg").className = "msg2 err"; $("resendMsg").textContent = e.message; b.disabled = false; }
+  });
+  document.querySelectorAll("[data-notice]").forEach((b) => b.onclick = async () => {
+    const { data, error } = await client.storage.from("notices").createSignedUrl(b.dataset.notice, 300);
+    if (error) return alert("Couldn't open the notice. Try again.");
+    window.open(data.signedUrl, "_blank", "noopener");
+  });
+  document.querySelectorAll("[data-pdf]").forEach((b) => b.onclick = async () => {
+    const { data, error } = await client.storage.from("lease-signing").createSignedUrl(b.dataset.pdf, 300);
+    if (error) return alert("Couldn't open the document. Try again.");
+    window.open(data.signedUrl, "_blank", "noopener");
+  });
+  document.querySelectorAll("[data-lcdoc]").forEach((b) => b.onclick = async () => {
+    const { data, error } = await client.storage.from("land-contract-docs").createSignedUrl(b.dataset.lcdoc, 300);
+    if (error) return alert("Couldn't open the document. Try again.");
+    window.open(data.signedUrl, "_blank", "noopener");
+  });
+  document.querySelectorAll("[data-copy]").forEach((b) => b.onclick = async () => {
+    try { await navigator.clipboard.writeText(b.dataset.copy); $("copyMsg").className = "msg2 ok"; $("copyMsg").textContent = "Copied. Paste it on the city's page."; }
+    catch (e) { $("copyMsg").className = "msg2 err"; $("copyMsg").textContent = "Couldn't copy. Number: " + b.dataset.copy; }
+  });
+  document.querySelectorAll("[data-lccsv]").forEach((b) => b.onclick = () => {
+    const c = (H.lcs || []).find((x) => x.id === b.dataset.lccsv); if (!c) return;
+    const rows = [["Payment #", "Due date", "Beginning balance", "Payment", "Extra payment", "Principal", "Interest", "Ending balance"]]
+      .concat(c.schedule.map((s) => [s.n, s.due, s.begin, s.payment, s.extra, s.principal, s.interest, Math.max(0, Number(s.end))]));
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([rows.map((r) => r.join(",")).join("\n")], { type: "text/csv" }));
+    a.download = "amortization-schedule.csv"; a.click(); URL.revokeObjectURL(a.href);
+  });
+  if (v === "movein") { MIMODE = "in"; bindMoveIn(); }
+  if (v === "checkout") { MIMODE = "out"; bindMoveIn(); }
+  bindDay(v);
+  bindRenewal(v);
+  bindMoveOut(v);
+  document.querySelectorAll("[data-receipt]").forEach((b) => b.onclick = () => {
+    const l = leaseOf(), e = (l.history || []).filter((x) => x.kind === "payment" && Number(x.amount) < 0).slice(-12).reverse()[Number(b.dataset.receipt)];
+    const w = window.open("", "_blank"); if (!w) return;
+    w.document.write(`<!doctype html><meta charset="utf-8"><title>Receipt</title><body style="font:16px/1.5 system-ui,sans-serif;max-width:560px;margin:40px auto;padding:0 16px">
+      <h2 style="margin:0">2nd Chance Housing Inc.</h2><p style="color:#555;margin:0 0 24px">6626 N. Bourbon St., Milwaukee, WI 53224 · ${esc((H.settings || {}).org_phone || "")}</p>
+      <h1>Payment receipt</h1><p><b>Received from:</b> ${esc(H.name || "")}<br><b>Unit:</b> ${esc(l.address)}<br><b>Account:</b> ${esc(l.account_number || "")}</p>
+      <p><b>Date:</b> ${fmtDate(e.date)}<br><b>Amount:</b> ${money(-Number(e.amount))}<br><b>Details:</b> ${esc(e.memo || "Payment")}</p>
+      <p style="color:#555">Thank you. This receipt reflects the payment as recorded on your account.</p><button onclick="print()">Print</button></body>`);
+    w.document.close();
+  });
+  renderPayPalButtons((H.settings || {}).pay_paypal_client_id, (H.settings || {}).pay_paypal_hosted_id);
+  $("slowPay") && $("slowPay").addEventListener("toggle", () => {
+    if (!$("slowPay").open) return;
+    document.querySelectorAll("[data-pp-lazy]").forEach((el) => { el.removeAttribute("data-pp-lazy"); el.setAttribute("data-pp", ""); });
+    renderPayPalButtons((H.settings || {}).pay_paypal_client_id, (H.settings || {}).pay_paypal_hosted_id);
+  });
+  document.querySelectorAll("[data-zbopen]").forEach((a) => a.addEventListener("click", () => { try { navigator.clipboard.writeText(a.dataset.zbopen).catch(() => {}); } catch {} }));
+  document.querySelectorAll("[data-zbchange]").forEach((b) => b.onclick = () => { H.bankEdit = true; route(); });
+  document.querySelectorAll("[data-zbcancel]").forEach((b) => b.onclick = () => { H.bankEdit = false; route(); });
+  document.querySelectorAll("[data-zbsel]").forEach((sel) => sel.onchange = () => { const o = sel.closest(".paycard").querySelector("[data-zbother]"); o.hidden = sel.value !== "other"; });
+  document.querySelectorAll("[data-zbsave]").forEach((btn) => btn.onclick = async () => {
+    const card = btn.closest(".paycard"), sel = card.querySelector("[data-zbsel]"), other = card.querySelector("[data-zbother]"), m = card.querySelector("[data-paymsg]");
+    let name = sel.selectedOptions[0] ? sel.selectedOptions[0].textContent : "", url = sel.value;
+    if (!url) { m.className = "msg2 err"; m.textContent = "Choose your bank first."; return; }
+    if (url === "other") {
+      url = other.value.trim(); if (url && !/^https?:\/\//i.test(url)) url = "https://" + url;
+      if (!/^https:\/\/[^\s.]+\.[^\s]+$/i.test(url)) { m.className = "msg2 err"; m.textContent = "Type your bank's website, like https://www.mybank.com"; return; }
+      try { name = new URL(url).hostname.replace(/^www\./, ""); } catch { name = "your bank"; }
+    }
+    btn.disabled = true; await saveBank({ name, url }); H.bank = { name, url }; H.bankEdit = false; route();
+  });
+  document.querySelectorAll("[data-paycopy]").forEach((b) => b.onclick = async () => {
+    const m = b.closest(".paycard").querySelector("[data-paymsg]");
+    try { await navigator.clipboard.writeText(b.dataset.paycopy); b.textContent = "Copied"; setTimeout(() => (b.textContent = "Copy"), 1500); if (m) m.textContent = ""; }
+    catch (e) { if (m) { m.className = "msg2 err"; m.textContent = "Couldn't copy. Select it and copy by hand: " + b.dataset.paycopy; } }
+  });
+  document.querySelectorAll("canvas[data-qr]").forEach((cv) => QRCode.toCanvas(cv, cv.dataset.qr, { width: 140, margin: 1 }).catch(() => cv.remove()));
+  if (v === "payments") {
+    const go = async (body, btn) => {
+      btn.disabled = true; $("spMsg").className = "msg2"; $("spMsg").textContent = "Opening secure checkout…";
+      const { data, error } = await client.functions.invoke("stripe-pay", { body });
+      if (error) { let m = error.message; try { m = (await error.context.json()).error || m; } catch {} $("spMsg").className = "msg2 err"; $("spMsg").textContent = m; btn.disabled = false; return; }
+      if (data.url) location.href = data.url; else { await reload(); route(); }
+    };
+    $("spTry300") && ($("spTry300").onclick = () => { const a = $("spAmount"); a.value = Math.min(300, Number(a.value) || 300); });
+    $("spPay") && ($("spPay").onclick = () => {
+      const amt = Number($("spAmount").value);
+      if (!(amt >= 1)) { $("spMsg").className = "msg2 err"; $("spMsg").textContent = "Type the amount you are paying today in the box first."; $("spAmount").focus(); return; }
+      go({ action: "checkout", amount: amt }, $("spPay"));
+    });
+    $("chkAsk") && ($("chkAsk").onclick = async () => {
+      $("chkAsk").disabled = true; $("chkMsg").className = "msg2"; $("chkMsg").textContent = "Sending your request…";
+      const { data, error } = await client.rpc("check_request_make", { p_kind: "tenant" });
+      if (error || !data) { $("chkMsg").className = "msg2 err"; $("chkMsg").textContent = error ? await errorText(error) : "Couldn't send the request. Please try again."; $("chkAsk").disabled = false; return; }
+      H.check = data; route();
+    });
+    $("apOn") && ($("apOn").onclick = () => { location.hash = "#autopay"; });
+    $("apOff") && ($("apOff").onclick = () => { if (confirm("Cancel autopay? No more automatic withdrawals will be made.")) go({ action: "autopay_cancel" }, $("apOff")); });
+    if (/stripe=done/.test(location.hash)) { $("spMsg").className = "msg2 ok"; $("spMsg").textContent = "Thank you! Your payment was submitted. Bank payments take a few business days to clear; you'll get a receipt by email."; }
+    if (/autopay=done/.test(location.hash)) { $("spMsg").className = "msg2 ok"; $("spMsg").textContent = "Autopay is being set up. It may take a moment to show here."; }
+    const l = leaseOf(), c = lc(), hist = l ? l.history : c ? c.history : [];
+    $("more") && ($("more").onclick = () => { $("histBody").innerHTML = historyRows(hist); $("more").remove(); });
+    $("stmt") && ($("stmt").onclick = async () => {
+      $("stmt").disabled = true;
+      try { await act({ action: "email_statement", lease_id: l.id }); $("stmtMsg").className = "msg2 ok"; $("stmtMsg").textContent = "Statement sent to your email."; }
+      catch (e) { $("stmtMsg").className = "msg2 err"; $("stmtMsg").textContent = e.message; $("stmt").disabled = false; }
+    });
+  }
+  if (v === "requests") {
+    mountHvac($("hvacMount"));   // HVAC technician text card (Stephen, 11/5/2026)
+    const flush = () => client.functions.invoke("outbox-flush", { body: {} }).catch(() => {});
+    document.querySelectorAll("input[name=rqCat]").forEach((el) => el.onchange = () => { $("rqHeatWarn").hidden = !["heat", "plumbing"].includes(el.value); });
+    document.querySelectorAll("input[name=rqPets]").forEach((el) => el.onchange = () => { $("rqPetsBox").hidden = el.value !== "yes"; });
+    (async () => {
+      const imgs = [...document.querySelectorAll("img[data-rqphoto], video[data-rqvideo]")];
+      if (!imgs.length) return;
+      const { data } = await client.storage.from("maintenance").createSignedUrls(imgs.map((i) => i.dataset.rqphoto || i.dataset.rqvideo), 600);
+      (data || []).forEach((d, k) => { if (d.signedUrl) imgs[k].src = d.signedUrl; });
+    })();
+    $("rqSend").onclick = async () => {
+      const m = $("rqMsg"), btn = $("rqSend"); btn.disabled = true; m.className = "msg2"; m.textContent = "Sending…";
+      try {
+        const cat = (document.querySelector("input[name=rqCat]:checked") || {}).value || null;
+        const pets = (document.querySelector("input[name=rqPets]:checked") || {}).value;
+        const files = [...$("rqPhotos").files].slice(0, 6), paths = [], tid = H.tenant_id;
+        for (const f of files) {
+          const path = `${tid}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${(f.type.split("/")[1] || "jpg").replace("jpeg", "jpg")}`;
+          const { error } = await client.storage.from("maintenance").upload(path, f, { contentType: f.type });
+          if (error) throw new Error("A photo couldn't be uploaded. Try a smaller photo.");
+          paths.push(path);
+        }
+        const { data, error } = await client.rpc("resident_create_request", { p_category: cat, p_subject: $("rqSubject").value, p_description: $("rqDesc").value,
+          p_entry: $("rqEntry").value || null, p_has_pets: pets === undefined ? null : pets === "yes", p_pets_note: $("rqPetsNote").value, p_photos: paths });
+        if (error) throw new Error(await errorText(error));
+        flush();
+        await reload(); location.hash = "#requests"; route();
+        $("rqMsg").className = "msg2 ok"; $("rqMsg").textContent = `Request #${data.number} received. We'll email you at each step.`;
+      } catch (e) { m.className = "msg2 err"; m.textContent = e.message; btn.disabled = false; }
+    };
+    const run = async (id, fn) => {
+      const m = document.querySelector(`[data-rqmsg="${id}"]`); m.className = "msg2"; m.textContent = "Sending…";
+      try { const { error } = await fn(); if (error) throw new Error(await errorText(error)); flush(); await reload(); route(); }
+      catch (e) { m.className = "msg2 err"; m.textContent = e.message; }
+    };
+    // Add a photo or video to an open request (Stephen, 11/5/2026: e.g. a short video for a manufacturer).
+    document.querySelectorAll("[data-rqmedia]").forEach((inp) => inp.onchange = () => {
+      const f = inp.files[0], id = inp.dataset.rqmedia; if (!f) return;
+      const m = document.querySelector(`[data-rqmsg="${id}"]`);
+      if (!(f.type.startsWith("image/") || f.type.startsWith("video/"))) { m.className = "msg2 err"; m.textContent = "Choose a photo or a video."; return; }
+      if (f.size > 50 * 1024 * 1024) { m.className = "msg2 err"; m.textContent = "That file is over 50 MB. Record a shorter video (10 to 20 seconds)."; return; }
+      run(id, async () => {
+        m.textContent = f.type.startsWith("video/") ? "Uploading the video… keep this page open." : "Uploading…";
+        const ext = (f.name.split(".").pop() || f.type.split("/")[1] || "bin").toLowerCase().replace("jpeg", "jpg").replace(/[^a-z0-9]/g, "");
+        const path = `${H.tenant_id}/${id}-${Date.now()}.${ext}`;
+        const up = await client.storage.from("maintenance").upload(path, f, { contentType: f.type });
+        if (up.error) return { error: { message: "The file couldn't be uploaded. Try a shorter video or a smaller photo." } };
+        return client.rpc("resident_request_add_media", { p_id: id, p_path: path });
+      });
+    });
+    document.querySelectorAll("[data-cmtsend]").forEach((b) => b.onclick = () => run(b.dataset.cmtsend, () =>
+      client.rpc("resident_request_comment", { p_id: b.dataset.cmtsend, p_note: document.querySelector(`[data-cmt="${b.dataset.cmtsend}"]`).value })));
+    document.querySelectorAll("[data-fixed]").forEach((b) => b.onclick = () => run(b.dataset.fixed, () =>
+      client.rpc("resident_request_confirm", { p_id: b.dataset.fixed, p_fixed: true, p_note: null })));
+    document.querySelectorAll("[data-notfixed]").forEach((b) => b.onclick = () => {
+      const note = prompt("What's still wrong?"); if (!note) return;
+      run(b.dataset.notfixed, () => client.rpc("resident_request_confirm", { p_id: b.dataset.notfixed, p_fixed: false, p_note: note }));
+    });
+  }
+}
+
+async function reload() {
+  const { data, error } = await client.rpc("resident_home");
+  if (error) throw new Error(await errorText(error));
+  H = data;
+  const [{ data: notices }, { data: reports }, { data: stripeSt }] = await Promise.all([client.rpc("resident_notices"), client.rpc("resident_payment_reports"), client.rpc("resident_stripe_status")]);
+  H.notices = notices || []; H.reports = reports || []; H.stripe = stripeSt || {};
+  { const { data: ck } = await client.rpc("check_request_mine", { p_kind: "tenant" }); H.check = ck || null; }
+  { const { data: ap } = await client.rpc("autopay_status_mine"); H.autopay = ap || { enabled: false, authorizations: [] }; }
+  const [{ data: rqs }, { data: prof }, { data: lts }, { data: anns }, { data: msgs }] = await Promise.all([client.rpc("resident_requests"), client.rpc("resident_profile"),
+    client.rpc("resident_letters", { p_query: null }), client.rpc("resident_announcements"), client.rpc("resident_unread_messages")]);
+  H.bank = await loadBank();
+  H.profile = prof || null; H.letters = lts || []; H.letterResults = null; H.messages = null; H.parking = null; H.parkDir = null; H.pkMode = ""; await loadWork();
+  if (anns) H.announcements = anns;
+  $("msgBadge").hidden = !msgs; $("msgBadge").textContent = msgs || "";
+  H.requests = rqs || H.requests || [];
+  const { data: mo } = await client.rpc("resident_move_out");
+  H.moveout = mo || null;
+  $("navMoveOut").hidden = !H.moveout;
+  const { data: rn } = await client.rpc("resident_renewal");
+  H.renewal = rn || null;
+  $("navRenewal").hidden = !H.renewal;
+  const { data: mi } = await client.rpc("resident_move_in");
+  H.movein = mi || null;
+  $("navMoveIn").hidden = !H.movein;
+  const { data: co } = await client.rpc("resident_move_out_check");
+  H.checkout = co || null;
+  $("navCheckout").hidden = !H.checkout;
+  const { data: lcs } = await client.rpc("resident_land_contracts");
+  H.lcs = lcs || [];
+  $("navLC").hidden = !H.lcs.length;
+  document.querySelectorAll("#nav a").forEach((a) => { const h = a.getAttribute("href").slice(1); if (BUYER_HIDDEN.includes(h)) a.hidden = isBuyer(); });
+  H.lcTerms = null;
+  if (isBuyer()) { const { data: tm } = await client.rpc("resident_land_contract_terms"); H.lcTerms = tm || null; }
+  const { data: ids } = await client.rpc("resident_me");
+  H.tenant_id = Array.isArray(ids) ? (typeof ids[0] === "string" ? ids[0] : Object.values(ids[0] || {})[0]) : null;
+}
+
+$("signOutLink").addEventListener("click", (e) => { e.preventDefault(); signOut(); });
+window.addEventListener("hashchange", route);
+
+const who = await signIn($("signin"), { audience: "resident" });
+if (!who.is_resident) { $("signin").innerHTML = `<div class="banner bad">We don't have an active lease for this email${who.email ? " (" + esc(who.email) + ")" : ""}. Contact the office, or <button class="linkbtn" type="button" id="switchEmail">sign in with a different email</button>.</div>`; $("signin").hidden = false; $("switchEmail").onclick = signOut; }
+else {
+  try { await reload(); $("signinWrap").hidden = true; $("shell").hidden = false; route(); }
+  catch (e) { $("signin").innerHTML = `<div class="banner bad">${esc(e.message)}</div>`; $("signin").hidden = false; }
+}
+</script>
+<script src="/assets/report.js" defer></script>
+</body>
+</html>

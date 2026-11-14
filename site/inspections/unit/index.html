@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Unit Inspection — 2nd Chance Housing</title>
+<link rel="icon" href="/favicon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+<style>
+.crumbs{font-size:.9rem;color:var(--muted);margin-bottom:6px}.crumbs a{color:var(--accent)}
+.area{margin-bottom:16px}.area h2{margin:0 0 8px;font-size:1.15rem;display:flex;justify-content:space-between;gap:8px}
+.area h2 small{font-weight:400;color:var(--muted);font-size:.85rem}
+.item{padding:9px 0;border-top:1px solid var(--line);display:grid;gap:6px}
+.item .top{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.item .name{min-width:140px;font-weight:600}
+.item .st{display:flex;gap:4px;flex-wrap:wrap}
+.item .st label{border:1px solid var(--line);border-radius:6px;padding:4px 10px;cursor:pointer;font-size:.9rem;background:var(--panel)}
+.item .st input{position:absolute;opacity:0}
+.item .st label:has(input[data-c="OK"]:checked){background:var(--ok-soft);border-color:var(--ok);color:var(--ok);font-weight:700}
+.item .st label:has(input[data-c="Needs repair"]:checked){background:var(--bad-soft);border-color:var(--bad);color:var(--bad);font-weight:700}
+.item .st label:has(input[data-c="N/A"]:checked){background:var(--off-soft);border-color:var(--off);font-weight:700}
+.item .tools{display:flex;gap:6px;margin-left:auto}
+.ib{border:1px solid var(--line);background:var(--panel);border-radius:6px;padding:4px 10px;cursor:pointer;font-size:.9rem}
+.ib.rec{background:var(--bad-soft);border-color:var(--bad);color:var(--bad)}
+.item textarea{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--fg);width:100%;min-height:36px;resize:vertical}
+.locs{display:flex;gap:14px;flex-wrap:wrap;align-items:center;font-size:.95rem}.locs label{display:flex;gap:5px;align-items:center;cursor:pointer}
+.quick{display:flex;gap:6px;flex-wrap:wrap}.qb{font:inherit;font-size:.82rem;border:1px dashed var(--line);background:var(--panel);color:var(--muted);border-radius:14px;padding:3px 10px;cursor:pointer;text-align:left}
+.item .hint{font-size:.85rem;color:var(--muted);margin:2px 0 6px}
+.item .need{color:var(--bad);font-weight:700}
+.thumbs{display:flex;gap:6px;flex-wrap:wrap}
+.thumbs img{width:84px;height:84px;object-fit:cover;border-radius:6px;border:1px solid var(--line);cursor:pointer}
+.thumbs .ph{position:relative;display:inline-block}
+.lightbox{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.92);display:flex;align-items:center;justify-content:center;padding:56px 8px 8px}
+.lightbox img{max-width:100%;max-height:100%;object-fit:contain}
+.lightbox .lbclose{position:absolute;top:10px;right:10px;font:inherit;font-weight:700;font-size:1.05rem;padding:12px 20px;border-radius:10px;border:2px solid #fff;background:#1b2430;color:#fff;cursor:pointer}
+.thumbs .ph .del{position:absolute;top:-6px;right:-6px;width:26px;height:26px;border-radius:50%;border:1px solid var(--bad);background:var(--panel);color:var(--bad);font-weight:700;line-height:1;cursor:pointer;padding:0}
+.saved{font-size:.85rem;color:var(--muted)}
+.item .fact{font-size:.9rem;color:var(--fg);background:var(--off-soft);border-radius:6px;padding:3px 8px;display:inline-block}
+.item .cnt2{display:flex;gap:8px;align-items:center;font-size:.92rem}.item .cnt2 input{width:70px;font:inherit;padding:5px 8px;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--fg)}
+.item .cnt2 .off{color:var(--bad);font-weight:700}
+.area .afact{margin:-4px 0 8px;font-weight:600}
+.item.flash{outline:3px solid var(--accent);outline-offset:2px;border-radius:6px}
+.shot{position:fixed;inset:0;z-index:1100;background:#111;display:flex;flex-direction:column;align-items:center;padding:12px;gap:10px;color:#fff}
+.shot .what{font-weight:700;text-align:center}.shot img{flex:1;min-height:0;max-width:100%;object-fit:contain}
+.shot .bar{display:flex;gap:10px;width:100%;max-width:520px}.shot .bar button{flex:1;font:inherit;font-weight:700;font-size:1.05rem;padding:14px 8px;border-radius:10px;border:2px solid #fff;background:#1b2430;color:#fff;cursor:pointer}
+.shot .bar button.go{background:var(--accent,#2a6df4);border-color:var(--accent,#2a6df4)}
+.hist a{display:block;padding:6px 0;border-top:1px solid var(--line)}
+@media print{.appbar,.noprint,.tools{display:none}.item .st label:not(:has(input:checked)){display:none}}
+</style>
+</head>
+<body>
+<div class="appbar" data-nav="staff"><div class="appbar-in">
+  <a class="org" href="/" style="color:inherit;text-decoration:none">2nd Chance Housing<span>Inspection</span></a>
+  <div class="row" id="userBar" hidden><button class="linkbtn" type="button" id="signOutBtn">Sign out</button></div>
+</div></div>
+<main class="wrap">
+  <div id="signin" class="narrow"></div>
+  <div id="app" hidden>
+    <header>
+      <div class="crumbs"><a href="/staff/" id="backLink">My units</a> › <span id="crumb">Unit</span></div>
+      <h1 id="title">Unit inspection</h1>
+      <p class="lead" id="addr"></p>
+    </header>
+    <div class="panel noprint" style="margin-bottom:16px">
+      <div class="row" style="flex-wrap:wrap;gap:12px;align-items:flex-end">
+        <label style="display:grid;gap:3px;font-size:.85rem;color:var(--muted)">Inspection date<input type="date" id="idate" style="font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:6px"></label>
+        <label style="display:grid;gap:3px;font-size:.85rem;color:var(--muted)">Purpose<select id="ipurpose" style="font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:6px"><option value="routine">Routine</option><option value="annual">Annual</option><option value="pre_move_in">Pre-move-in</option><option value="pre_move_out">Pre-move-out</option><option value="follow_up">Follow-up</option><option value="complaint">Complaint</option><option value="other">Other</option><option value="pre_lease">Before taking the unit</option></select></label>
+        <button class="btn" type="button" id="allok">Mark unchecked items OK</button>
+        <button class="btn" type="button" id="print">Print</button>
+        <button class="btn primary" type="button" id="submit">Submit inspection</button>
+        <button class="btn" type="button" id="reopen" hidden>Reopen for editing</button>
+        <span class="saved" id="saved"></span>
+      </div>
+      <p class="sub" id="summary" style="margin:10px 0 0"></p>
+      <div class="msg" id="msg" role="status"></div>
+    </div>
+    <p class="sub noprint" id="pmiNote" hidden>Pre-move-in: the tenant has 7 days after receiving the keys to report damage (the date is on their move-in checklist). What you photograph here protects both sides: damage shown on this inspection is never charged to the tenant.</p>
+    <div id="areas"></div>
+    <section class="panel noprint hist" id="hist" style="margin-top:16px"></section>
+  </div>
+</main>
+
+<input type="file" id="camIn" accept="image/*" capture="environment" hidden>
+
+<script type="module">
+import { client, $, esc, fmtDate, signIn, signOut, errorText } from "/assets/portal/portal.js";
+import { unitTemplate } from "/assets/portal/inspection-unit.js";
+
+const q = new URLSearchParams(location.search), pid = q.get("p"), unit = q.get("u") || "_", reqId = q.get("id");
+const STAFF_ROLES = ["staff", "field", "owner", "navigator"];   // navigator: only units in the housing network (p=nav), Stephen 11/11/2026   // owners may inspect their own unit(s) (Stephen, 10/31/2026); the database decides which
+const who = await signIn($("signin"), { audience: "field" });
+const meEmail = ((await client.auth.getSession()).data.session || { user: {} }).user.email || "";
+$("signOutBtn").onclick = signOut; $("userBar").hidden = false;
+if (!STAFF_ROLES.includes(who.role)) {
+  $("signin").hidden = false;
+  $("signin").innerHTML = `<div class="panel"><p>This page is for inspection staff and unit owners. <a href="/">Back to the home page</a></p></div>`;
+  throw new Error("not staff");
+}
+
+const NAV = pid === "nav";
+const BACK = NAV ? "/navigator/unit/?id=" + encodeURIComponent(unit) + "#inspections" : who.role === "owner" ? "/association-owners/roca1/#inspect" : "/staff/", BACK_LABEL = NAV ? "Unit file" : who.role === "owner" ? "My unit" : "My units";
+$("backLink").href = BACK; $("backLink").textContent = BACK_LABEL;
+let [{ properties }, tpl] = await Promise.all([fetch("/data/properties.json").then((r) => r.json()), fetch("/data/inspection-template.json").then((r) => r.json())]);
+let prop = properties.find((x) => x.id === pid);
+if (NAV) { const { data: nl } = await client.rpc("nav_unit_label", { p_unit: unit }); prop = nl ? { name: nl.name, address: nl.address, units: [unit] } : null; }
+const unitOk = prop && (unit === "_" ? prop.units.length === 0 : prop.units.includes(unit));
+if (!unitOk) { $("signin").hidden = false; $("signin").innerHTML = `<div class="panel">Unit not found. <a href="${BACK}">Back to ${BACK_LABEL}</a></div>`; throw new Error("bad unit"); }
+tpl = await unitTemplate(tpl, pid, unit);   // this unit's own rooms, counts and measurements, if known
+const label = NAV ? "" : unit === "_" ? "Whole property" : "Unit " + unit;
+document.title = prop.name + " " + label + " inspection — 2nd Chance Housing";
+$("title").textContent = prop.name + (label ? " · " + label : ""); $("crumb").textContent = prop.name + (label ? " " + label : ""); $("addr").textContent = prop.address;
+
+// ---- load: a chosen inspection, else the newest draft, else a new one ----
+let insp = null;
+if (reqId) {
+  const { data } = await client.rpc("field_get_inspection", { p_id: reqId });
+  insp = data;
+} else {
+  const { data: list, error } = await client.rpc("field_list_inspections", { p_property: pid, p_unit: unit });
+  if (error) { $("signin").hidden = false; $("signin").innerHTML = `<div class="panel">${esc(await errorText(error))} <a href="${BACK}">Back to ${BACK_LABEL}</a></div>`; throw error; }
+  const draft = (list || []).find((i) => i.status === "draft");
+  if (draft) { const { data } = await client.rpc("field_get_inspection", { p_id: draft.id }); insp = data; }
+  window.HIST = list || [];
+}
+if (reqId && !insp) { $("signin").hidden = false; $("signin").innerHTML = `<div class="panel">Inspection not found. <a href="${BACK}">Back to ${BACK_LABEL}</a></div>`; throw new Error("no inspection"); }
+const id = insp ? insp.id : crypto.randomUUID();
+let state = (insp && insp.data) || {}; state.items = state.items || {}; state.meta = state.meta || {};
+let submitted = !!insp && insp.status === "submitted";
+let date = (insp && insp.inspected_on) || new Date().toLocaleDateString("en-CA");
+// Purpose and appointment: from the saved inspection, else from the schedule page's link (?purpose=&appt=).
+const PURPOSES = { pre_lease: "Before taking the unit", routine: "Routine", annual: "Annual", pre_move_in: "Pre-move-in", pre_move_out: "Pre-move-out", follow_up: "Follow-up", complaint: "Complaint", other: "Other" };
+let purpose = (insp && insp.purpose) || (PURPOSES[q.get("purpose")] ? q.get("purpose") : "routine");
+const appt = (insp && insp.appointment_id) || (/^[0-9a-f-]{36}$/.test(q.get("appt") || "") ? q.get("appt") : null);
+const keyOf = (a, it) => a.id + "|" + it.name;
+const CLASSES = (it) => [...it.ok.map((l) => [l, "OK"]), ...it.bad.map((l) => [l, "Needs repair"]), ...(it.na ? [[it.na, "N/A"]] : [])];   // [label, saved value]
+// the label picked: the saved one, else (older inspections) the first label of the saved value
+const pickedLabel = (it, s) => s.l || (s.s ? (CLASSES(it).find(([, c]) => c === s.s) || [])[0] : null);
+const areaShown = (a) => !a.only || a.only.includes(purpose);
+const slug = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+
+// photos an item needs: its own number; for a detector-style item with locations, one photo for each location ticked
+const needOf = (it, x) => { const n = it.photos || (x.s === "Needs repair" ? it.photosBad || 0 : 0); return it.locations && it.photos ? Math.max(n, (x.loc || []).length) : n; };
+const quickOf = (it) => it.quick || (tpl.quick || {})[it.name] || [];
+// ---- render ----
+const box = $("areas");
+box.innerHTML = tpl.areas.map((a) => `<section class="panel area" data-area="${a.id}"${areaShown(a) ? "" : " hidden"}><h2>${esc(a.name)}<small class="cnt"></small></h2>${a.fact ? `<div class="afact">${esc(a.fact)}</div>` : ""}` +
+  a.items.map((it) => { const k = keyOf(a, it), s = state.items[k] || {};
+    return `<div class="item" data-k="${esc(k)}"><div class="top"><div class="name">${esc(it.name)}${it.photos ? ` <span class="need" data-need>(photo required)</span>` : ""}</div>
+      <div class="st">${CLASSES(it).map(([l, c]) => `<label><input type="radio" name="${esc(k)}" value="${esc(l)}" data-c="${c}"${pickedLabel(it, s) === l ? " checked" : ""}><span>${esc(l)}</span></label>`).join("")}</div>
+      <div class="tools"><button type="button" class="ib" data-mic title="Dictate a note">🎤</button><button type="button" class="ib" data-cam title="Take a photo with the phone camera (flash available)">📷</button></div></div>
+      ${it.stamp ? `<div class="cnt2">Code stamped on the key: <input type="text" maxlength="12" autocapitalize="characters" data-stamp value="${esc(s.stamp || "")}" style="width:110px">${it.expectStamp ? ` <span class="meta">Should read <b>${esc(it.expectStamp)}</b></span>` : ""}<span class="off" data-stampoff></span></div>` : ""}${it.locations ? `<div class="locs">Where is it? ${it.locations.map((l) => `<label><input type="checkbox" data-loc value="${esc(l)}"${(s.loc || []).includes(l) ? " checked" : ""}> ${esc(l)}</label>`).join("")}</div>${it.expectLoc ? `<div class="hint">On file: ${esc(it.expectLoc.join(", "))}</div>` : ""}` : ""}${it.fact ? `<div><span class="fact">On file: ${esc(it.fact)}</span></div>` : ""}${it.expect ? `<div class="cnt2">Should be <b>${it.expect}</b>. How many are there? <input type="number" min="0" inputmode="numeric" data-count value="${s.c == null ? "" : esc(s.c)}"><span class="off" data-countoff></span></div>` : ""}${it.hint ? `<div class="hint">${esc(it.hint)}</div>` : ""}<textarea rows="1" placeholder="Notes (type, or tap the microphone)" data-note>${esc(s.n || "")}</textarea>${quickOf(it).length ? `<div class="quick noprint">${quickOf(it).map((x, i) => `<button type="button" class="qb" data-q="${i}">+ ${esc(x.length > 46 ? x.slice(0, 44) + "…" : x)}</button>`).join("")}</div>` : ""}
+      <div class="thumbs" data-thumbs></div></div>`; }).join("") + `</section>`).join("");
+$("idate").value = date; $("ipurpose").value = purpose; $("pmiNote").hidden = purpose !== "pre_move_in";
+
+function setMsg(t, kind = "err") { const m = $("msg"); m.className = "msg " + kind; m.textContent = t; }
+function summarize() {
+  const ks = Object.keys(state.items); let ok = 0, bad = 0, na = 0, total = 0;
+  tpl.areas.filter(areaShown).forEach((a) => a.items.forEach((it) => { total++; const s = (state.items[keyOf(a, it)] || {}).s; if (s === "OK") ok++; else if (s === "Needs repair") bad++; else if (s === "N/A") na++; }));
+  $("summary").textContent = `${total} items: ${ok} OK, ${bad} need repair, ${na} N/A, ${total - ok - bad - na} not yet checked.`;
+  box.querySelectorAll(".area").forEach((sec) => { const its = [...sec.querySelectorAll(".item")]; sec.querySelector(".cnt").textContent = its.filter((i) => (state.items[i.dataset.k] || {}).s).length + " of " + its.length + " checked"; });
+}
+async function paintThumbs(itemEl) {
+  const k = itemEl.dataset.k, paths = (state.items[k] || {}).photos || [], t = itemEl.querySelector("[data-thumbs]");
+  if (!paths.length) { t.innerHTML = ""; return; }
+  const { data, error } = await client.storage.from("inspections").createSignedUrls(paths, 3600);
+  if (error) { t.innerHTML = `<span class="sub">Photos could not be loaded: ${esc(error.message || "error")}</span>`; return; }
+  t.innerHTML = (data || []).map((x, i) => x.signedUrl ? `<span class="ph"><img src="${esc(x.signedUrl)}" alt="Photo ${i + 1}" data-full="${esc(x.signedUrl)}"><button type="button" class="del" data-del="${esc(paths[i])}" title="Delete this photo" aria-label="Delete photo ${i + 1}">×</button></span>` : "<span class=\"sub\">Photo not available</span>").join("");
+}
+function countFlag(el) { const it = itemDef(el.dataset.k), c = (state.items[el.dataset.k] || {}).c, o = el.querySelector("[data-countoff]"); if (o) o.textContent = it && it.expect && c != null && c !== it.expect ? `Not ${it.expect}: say what is missing or extra in the note` : ""; }
+function stampFlag(el) { const it = itemDef(el.dataset.k), v = (state.items[el.dataset.k] || {}).stamp, o = el.querySelector("[data-stampoff]"); if (o) o.textContent = it && it.expectStamp && v && v !== it.expectStamp ? `Not ${it.expectStamp}: say what is stamped in the note` : ""; }
+const itemDef = (k) => { for (const a of tpl.areas) for (const it of a.items) if (keyOf(a, it) === k) return it; return null; };
+const itemEl = (k) => [...box.querySelectorAll(".item")].find((e) => e.dataset.k === k);
+box.querySelectorAll(".item").forEach((e) => { paintThumbs(e); countFlag(e); stampFlag(e); });
+
+// ---- saving ----
+let timer = null, saving = false, dirty = false;
+function touch() { dirty = true; $("saved").textContent = "Unsaved changes…"; clearTimeout(timer); timer = setTimeout(save, 1200); }
+async function save(submit = false) {
+  if (submitted) return true;
+  if (saving) { dirty = true; return false; }
+  saving = true; dirty = false;
+  const { error } = await client.rpc("field_save_inspection", { p_id: id, p_property: pid, p_unit: unit, p_date: date, p_data: state, p_submit: submit, p_purpose: purpose, p_appointment: appt });
+  saving = false;
+  if (error) { $("saved").textContent = "Not saved"; setMsg(await errorText(error)); return false; }
+  $("saved").textContent = submit ? "Submitted" : "Saved " + new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+  if (dirty && !submit) touch();
+  return true;
+}
+function lock() {
+  box.querySelectorAll("input, textarea, button").forEach((x) => x.disabled = true);
+  ["allok", "submit", "idate", "ipurpose"].forEach((i) => $(i).disabled = true);
+  setMsg("This inspection was submitted and is read-only.", "ok");
+}
+window.addEventListener("beforeunload", (e) => { if (dirty || saving) { e.preventDefault(); e.returnValue = ""; } });
+
+box.addEventListener("change", (e) => { if (e.target.type === "radio") { const k = e.target.name; state.items[k] = { ...(state.items[k] || {}), s: e.target.dataset.c, l: e.target.value }; summarize(); touch(); } });
+box.addEventListener("change", (e) => { if (e.target.matches("[data-loc]")) { const el = e.target.closest(".item"), k = el.dataset.k; state.items[k] = { ...(state.items[k] || {}), loc: [...el.querySelectorAll("[data-loc]:checked")].map((x) => x.value) }; touch(); } });
+box.addEventListener("input", (e) => { if (e.target.matches("[data-stamp]")) { const el = e.target.closest(".item"), k = el.dataset.k; state.items[k] = { ...(state.items[k] || {}), stamp: e.target.value.trim().toUpperCase() }; stampFlag(el); touch(); return; } if (e.target.matches("[data-count]")) { const el = e.target.closest(".item"), k = el.dataset.k; const v = e.target.value === "" ? null : Math.max(0, parseInt(e.target.value, 10) || 0); state.items[k] = { ...(state.items[k] || {}), c: v }; countFlag(el); touch(); return; }
+  if (e.target.matches("[data-note]")) { const k = e.target.closest(".item").dataset.k; state.items[k] = { ...(state.items[k] || {}), n: e.target.value }; touch(); } });
+$("idate").oninput = () => { date = $("idate").value || date; touch(); };
+$("ipurpose").onchange = () => { purpose = $("ipurpose").value; $("pmiNote").hidden = purpose !== "pre_move_in"; box.querySelectorAll(".area").forEach((sec) => { sec.hidden = !areaShown(tpl.areas.find((a) => a.id === sec.dataset.area)); }); summarize(); touch(); };
+$("allok").onclick = () => { tpl.areas.filter(areaShown).forEach((a) => a.items.forEach((it) => { const k = keyOf(a, it); if (!(state.items[k] || {}).s) { state.items[k] = { ...(state.items[k] || {}), s: "OK", l: it.ok[0] }; const r = [...itemEl(k).querySelectorAll('input[type="radio"]')].find((x) => x.value === it.ok[0]); if (r) r.checked = true; } })); summarize(); touch(); };
+$("print").onclick = () => window.print();
+if (who.role === "staff" && submitted && insp) $("reopen").hidden = false;
+$("reopen").onclick = async () => {
+  if (!confirm("Reopen this inspection so it can be edited and submitted again?")) return;
+  const { error } = await client.rpc("inspection_reopen", { p_id: id });
+  if (error) return setMsg(await errorText(error));
+  location.reload();
+};
+$("submit").onclick = async () => {
+  const missing = []; tpl.areas.filter(areaShown).forEach((a) => a.items.filter((it) => it.photos || it.photosBad).forEach((it) => { const x = state.items[keyOf(a, it)] || {}; const need = needOf(it, x); if (!x.s || (x.photos || []).length < need) missing.push(it.name); }));
+  tpl.areas.filter(areaShown).forEach((a) => a.items.filter((it) => it.locations).forEach((it) => { const x = state.items[keyOf(a, it)] || {}; if (x.s !== "N/A" && !(x.loc || []).length) missing.push(it.name + " (tick where they are)"); }));
+  tpl.areas.filter(areaShown).forEach((a) => a.items.filter((it) => it.stamp).forEach((it) => { const x = state.items[keyOf(a, it)] || {}; if (x.s !== "N/A" && !x.stamp) missing.push(it.name + " (enter the stamped code)"); else if (it.expectStamp && x.stamp && x.stamp !== it.expectStamp && !(x.n || "").trim()) missing.push(it.name + " (stamped " + x.stamp + ", should be " + it.expectStamp + ": add a note)"); }));
+  tpl.areas.filter(areaShown).forEach((a) => a.items.filter((it) => it.expect).forEach((it) => { const x = state.items[keyOf(a, it)] || {}; if (x.c == null) missing.push(it.name + " (count)"); else if (x.c !== it.expect && !(x.n || "").trim()) missing.push(it.name + " (count is " + x.c + ", should be " + it.expect + ": add a note)"); }));
+  if (missing.length) return setMsg("Before submitting, finish: " + missing.join("; ") + ". (Each needs a label, its photo, and its count where one is asked.)");
+  if (!confirm("Submit this inspection? It can't be edited afterward.")) return;
+  clearTimeout(timer);
+  if (await save(true)) { submitted = true; lock(); loadHistory(); }
+};
+
+// ---- microphone: dictation into the note (browser speech recognition) ----
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+// Phones end a dictation after a pause or a few seconds of speech. We keep listening (restart on every end) until the mic button is tapped again,
+// show the words as they are heard, and add them to the note without losing what was already typed.
+let rec = null, recBtn = null, recWant = false;
+function stopRec() { recWant = false; if (rec) { try { rec.stop(); } catch (e) { /* already stopped */ } } }
+box.addEventListener("click", (e) => {
+  const qb = e.target.closest("[data-q]");
+  if (qb) { const item = qb.closest(".item"), ta = item.querySelector("[data-note]"), k = item.dataset.k, txt = quickOf(itemDef(k))[+qb.dataset.q]; ta.value = (ta.value ? ta.value.replace(/s*$/, " ") : "") + txt; state.items[k] = { ...(state.items[k] || {}), n: ta.value }; touch(); return; }
+  const mic = e.target.closest("[data-mic]");
+  if (mic) {
+    if (!SR) return setMsg("Dictation isn't supported in this browser. Type the note, or use Chrome or Safari.");
+    if (recBtn === mic) return stopRec();
+    stopRec();
+    const item = mic.closest(".item"), ta = item.querySelector("[data-note]"), k = item.dataset.k;
+    const base = ta.value ? ta.value.replace(/s*$/, " ") : "";
+    let committed = "", interim = "";
+    const show = () => { ta.value = base + (committed + (interim ? (committed ? " " : "") + interim : "")); state.items[k] = { ...(state.items[k] || {}), n: ta.value }; touch(); };
+    const start = () => {
+      const r = new SR(); r.lang = "en-US"; r.interimResults = true; r.continuous = true;
+      r.onresult = (ev) => {
+        interim = "";
+        for (let i = ev.resultIndex; i < ev.results.length; i++) { const t = ev.results[i][0].transcript.trim(); if (ev.results[i].isFinal) { if (t) committed += (committed ? " " : "") + t; } else interim += (interim ? " " : "") + t; }
+        show();
+      };
+      r.onerror = (ev) => { if (ev.error === "not-allowed" || ev.error === "service-not-allowed") { recWant = false; setMsg("Microphone access is blocked. Allow it in the browser's site settings."); } else if (ev.error !== "no-speech" && ev.error !== "aborted") setMsg("Dictation paused: " + ev.error + ". Tap the microphone to go on."); };
+      r.onend = () => {
+        if (interim) { committed += (committed ? " " : "") + interim; interim = ""; show(); }
+        if (recWant) { setTimeout(() => { if (recWant) { try { start(); } catch (err) { recWant = false; mic.classList.remove("rec"); mic.textContent = "🎤"; recBtn = null; rec = null; } } }, 150); return; }
+        mic.classList.remove("rec"); mic.textContent = "🎤"; if (recBtn === mic) { recBtn = null; rec = null; }
+      };
+      rec = r; try { r.start(); } catch (err) { setMsg("Couldn't start the microphone."); recWant = false; }
+    };
+    recWant = true; recBtn = mic; mic.classList.add("rec"); mic.textContent = "⏹"; setMsg(""); start();
+    return;
+  }
+  const cam = e.target.closest("[data-cam]");
+  if (cam) return takePhoto(cam.closest(".item").dataset.k);
+  const del = e.target.closest("[data-del]");
+  if (del) return delPhoto(del.dataset.del);
+  const img = e.target.closest("img[data-full]");
+  if (img) openPhoto(img.dataset.full);
+});
+
+// ---- full-size photo: shown on top of this page, so closing it returns to the inspection (a new tab or a plain link left phones stuck on the photo) ----
+function openPhoto(url) {
+  const ov = document.createElement("div");
+  ov.className = "lightbox noprint"; ov.setAttribute("role", "dialog"); ov.setAttribute("aria-label", "Photo");
+  ov.innerHTML = `<button type="button" class="lbclose" aria-label="Close photo">Close ✕</button><img alt="Inspection photo" src="${esc(url)}">`;
+  const close = () => { ov.remove(); document.removeEventListener("keydown", onKey); };
+  const onKey = (e) => { if (e.key === "Escape") close(); };
+  ov.addEventListener("click", (e) => { if (e.target !== ov.querySelector("img")) close(); });
+  document.addEventListener("keydown", onKey);
+  document.body.appendChild(ov);
+}
+
+// ---- photos: the phone's own camera app (flash, focus, zoom) or the photo library ----
+let camKey = null;
+$("camIn").onchange = (e) => takeFiles(e);
+function takePhoto(k) { camKey = k; $("camIn").click(); }
+let shot = null;
+async function takeFiles(e) {
+  shot = null;
+  const files = [...e.target.files]; e.target.value = ""; const k = camKey;
+  for (const f of files) {
+    // Evidence rule: only a photo taken just now. Nothing from the library or an older file.
+    if (!f.lastModified || Math.abs(Date.now() - f.lastModified) > 3 * 60 * 1000) { setMsg("Photo refused: it was not taken just now. Inspection photos must be taken with the camera during the inspection."); break; }
+    try {
+      const bmp = await createImageBitmap(f);
+      const c = document.createElement("canvas"); c.width = bmp.width; c.height = bmp.height; c.getContext("2d").drawImage(bmp, 0, 0);
+      shot = await addPhoto(k, c); if (!shot) break;
+    } catch (err) { setMsg("That photo could not be read (" + (err && err.message || "unsupported format") + "). Try again, or take it with the camera."); break; }
+  }
+  if (shot) showShot(k, shot);
+}
+// After each picture: Retake, or go on. Next = the next photo this item still needs; Finish = on to the next item on the list.
+const photosNeeded = (k) => { const it = itemDef(k); return it ? needOf(it, state.items[k] || {}) : 0; };
+function showShot(k, r) {
+  const need = photosNeeded(k), have = ((state.items[k] || {}).photos || []).length, more = have < need;
+  const ov = document.createElement("div"); ov.className = "shot noprint"; ov.setAttribute("role", "dialog");
+  ov.innerHTML = `<div class="what">${esc(k.split("|")[1])}: photo ${have}${need ? " of " + need : ""}</div><img alt="Photo just taken" src="${esc(r.url)}">
+    <div class="bar"><button type="button" data-a="retake">Retake</button>${more ? '<button type="button" class="go" data-a="next">Next photo ▶</button>' : '<button type="button" data-a="more">+ Another</button><button type="button" class="go" data-a="finish">Finish ✓</button>'}</div>`;
+  document.body.appendChild(ov);
+  ov.addEventListener("click", async (ev) => {
+    const a = ev.target.dataset.a; if (!a) return;
+    ov.remove(); URL.revokeObjectURL(r.url);
+    if (a === "retake") { await delPhoto(r.path, false); takePhoto(k); }
+    else if (a === "next" || a === "more") takePhoto(k);
+    else goNext(k);
+  });
+}
+function goNext(k) {
+  const all = [...box.querySelectorAll(".area:not([hidden]) .item")], i = all.findIndex((e) => e.dataset.k === k);
+  const open = (e) => { const x = state.items[e.dataset.k] || {}; return !x.s || (photosNeeded(e.dataset.k) > (x.photos || []).length); };
+  const nxt = all.slice(i + 1).find(open) || all[i + 1]; if (!nxt) return;
+  nxt.scrollIntoView({ behavior: "smooth", block: "center" }); nxt.classList.add("flash"); setTimeout(() => nxt.classList.remove("flash"), 2500);
+}
+async function addPhoto(k, canvas) {
+  const max = 1600, sc = Math.min(1, max / Math.max(canvas.width, canvas.height));
+  const out = document.createElement("canvas"); out.width = Math.round(canvas.width * sc); out.height = Math.round(canvas.height * sc);
+  const g = out.getContext("2d"); g.drawImage(canvas, 0, 0, out.width, out.height);
+  // The date, time, place and inspector are burned into the picture itself (the re-saved file carries no camera metadata).
+  const taken = new Date();
+  const stamp = taken.toLocaleString("en-US", { timeZone: "America/Chicago", year: "numeric", month: "numeric", day: "numeric", hour: "numeric", minute: "2-digit", second: "2-digit", timeZoneName: "short" })
+    + " · " + prop.name + " " + label + " · " + k.split("|").map((x) => x.replace(/-/g, " ")).join(": ") + " · " + (meEmail || "inspector");
+  const fs = Math.max(14, Math.round(out.width / 55)); g.font = "600 " + fs + "px sans-serif";
+  g.fillStyle = "rgba(0,0,0,.65)"; g.fillRect(0, out.height - fs * 1.9, out.width, fs * 1.9);
+  g.fillStyle = "#fff"; g.textBaseline = "middle"; g.fillText(stamp, fs * 0.5, out.height - fs * 0.95, out.width - fs);
+  const blob = await new Promise((r) => out.toBlob(r, "image/jpeg", 0.8));
+  if (!blob) { setMsg("Photo not saved: the picture could not be converted."); return false; }
+  const path = `${pid}/${unit}/${id}/${slug(k)}-${Date.now()}.jpg`;
+  $("saved").textContent = "Uploading photo…";
+  let error = null;
+  for (let n = 0; n < 3; n++) { ({ error } = await client.storage.from("inspections").upload(path, blob, { contentType: "image/jpeg" })); if (!error) break; await new Promise((r) => setTimeout(r, 800)); }
+  if (error) { $("saved").textContent = "Photo NOT saved"; setMsg("Photo not saved: " + await errorText(error) + " Take it again."); return false; }
+  const sha = [...new Uint8Array(await crypto.subtle.digest("SHA-256", await blob.arrayBuffer()))].map((b) => b.toString(16).padStart(2, "0")).join("");
+  const cur = state.items[k] || {};
+  state.items[k] = { ...cur, photos: [...(cur.photos || []), path], photoMeta: { ...(cur.photoMeta || {}), [path]: { taken_at: taken.toISOString(), sha256: sha, bytes: blob.size, by: meEmail || null } } };
+  paintThumbs(itemEl(k)); touch(); setMsg("");
+  return { path, url: URL.createObjectURL(blob) };
+}
+async function delPhoto(path, ask = true) {
+  if (ask && !confirm("Delete this photo?")) return;
+  const el = [...box.querySelectorAll(".item")].find((i) => ((state.items[i.dataset.k] || {}).photos || []).includes(path));
+  if (!el) return;
+  const k = el.dataset.k;
+  const meta = { ...(state.items[k].photoMeta || {}) }; delete meta[path];
+  state.items[k] = { ...state.items[k], photos: state.items[k].photos.filter((p) => p !== path), photoMeta: meta };
+  paintThumbs(el); touch();
+  client.storage.from("inspections").remove([path]).catch(() => {});
+}
+
+// ---- history ----
+async function loadHistory() {
+  const { data } = await client.rpc("field_list_inspections", { p_property: pid, p_unit: unit });
+  const list = data || [];
+  $("hist").innerHTML = `<h2 style="margin-top:0">Past inspections</h2>` + (list.length ? list.map((i) =>
+    `<a href="?p=${encodeURIComponent(pid)}&u=${encodeURIComponent(unit)}&id=${i.id}">${fmtDate(i.inspected_on)} · ${esc(PURPOSES[i.purpose] || "Routine")} · ${esc(i.status)} · ${esc(i.inspector)} · ${i.needs_repair} need repair${i.id === id ? " (this one)" : ""}</a>`).join("") : `<p class="sub">None yet.</p>`) +
+    (reqId || submitted ? `<p><a class="btn" href="?p=${encodeURIComponent(pid)}&u=${encodeURIComponent(unit)}">Start a new inspection</a></p>` : "");
+}
+
+$("app").hidden = false; $("signin").hidden = true;
+summarize(); loadHistory();
+if (submitted) lock();
+</script>
+</body>
+</html>

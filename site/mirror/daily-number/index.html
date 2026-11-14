@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>The Daily Number | The Human Mirror</title>
+<meta name="description" content="Work out your Daily Number: what one day of your life costs, what comes in, and the gap. Free, and nothing you type is saved or sent.">
+<link rel="icon" href="/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Source+Serif+4:opsz,wght@8..60,600&display=swap">
+<link rel="stylesheet" href="/mirror/assets/mirror.css?v=20261113l">
+</head>
+<body data-area="public">
+<main id="main" class="mm-main" data-mm-listen>
+  <div class="mm-read">
+    <p class="mm-eyebrow">The Daily Number</p>
+    <h1>Know your cost. Understand your resources. Build your future.</h1>
+    <p class="mm-lead">365 days. One life. A plan for every day. The Daily Number is what one day of your life costs, on average.</p>
+    <p>Every person has a daily cost of living, even with no income, no savings and no home: the cost of living in a city does not become zero
+      because income is zero. Thinking one day at a time makes that cost easier to understand, because a day is how we live.</p>
+    <p><strong>Daily Number = what your life costs in a year ÷ 365.</strong> A $600 yearly insurance bill is not $600 a month; it adds about $1.64 to each day.</p>
+    <h2>Three numbers, not one</h2>
+    <ul>
+      <li><strong>Survival:</strong> what it costs to stay safe, fed, clean, connected and alive for one day. The immediate minimum.</li>
+      <li><strong>Stability:</strong> what it costs to keep a secure, independent life: rent, utilities, food, getting around, phone, health care, savings.</li>
+      <li><strong>The life you want:</strong> stability plus your own goals: learning, family, interests, savings, a business, giving back.</li>
+    </ul>
+    <p class="mm-muted">These are not standards of human worth. They are different money situations, and the possibilities in each.</p>
+    <h2>Cost is not the same as income</h2>
+    <p>Benefits, housing help, SNAP and donated things lower what you pay, but they are not cash income, and the Mirror keeps them apart.
+      If life costs $75 a day after taxes, you may need to earn more than $75 a day before taxes. You don't have to earn every dollar:
+      affordable housing, health coverage, benefits and community help all lower the cash you need.</p>
+  </div>
+  <!-- No submit button on purpose: the calculator updates as you type, its fields have no name, and Enter does not submit it (checked 11/13/2026). -->
+  <!-- [html-validate-disable-next wcag/h32] -->
+  <form class="mm-card" id="calc" novalidate>
+    <h2 style="margin-top:0">Work out your Daily Number</h2>
+    <p class="mm-muted">Fill in what you can, one level at a time (for example what Stability costs you). Leave a box empty if it doesn't apply.
+      <strong>Nothing you type here is saved or sent anywhere</strong>; it is worked out on this device only.</p>
+
+    <fieldset class="mm-calc-set"><legend>1. What your life costs</legend>
+      <p class="mm-small mm-muted">Enter each cost as it comes: a bus pass every week, rent every month, insurance once a year.</p>
+      <div class="mm-calc" id="calcCosts"></div>
+    </fieldset>
+
+    <fieldset class="mm-calc-set"><legend>2. Money that comes in</legend>
+      <div class="mm-calc" id="calcIncome"></div>
+      <div class="mm-calc" style="margin-top:var(--mm-space-3)">
+        <div class="mm-field"><label for="cTax">Tax taken from pay (%)</label>
+          <input class="mm-input" type="text" id="cTax" inputmode="decimal" autocomplete="off" aria-describedby="cTaxHint">
+          <p class="mm-hint" id="cTaxHint">Not sure? <button class="mm-btn mm-btn-quiet" style="padding:0;min-height:0" type="button" id="cTaxRough">Use a rough rate for my pay</button>. Free tax help (VITA) can give a real one. <span id="cTaxMsg" role="status"></span></p></div>
+        <div class="mm-field"><label for="cWage">Hourly pay at a job you could get ($)</label>
+          <input class="mm-input" type="text" id="cWage" inputmode="decimal" autocomplete="off" aria-describedby="cWageHint">
+          <p class="mm-hint" id="cWageHint">Used only to show how many hours a week would close the gap.</p></div>
+      </div>
+    </fieldset>
+
+    <fieldset class="mm-calc-set"><legend>3. Help that isn't cash</legend>
+      <p class="mm-small mm-muted">Help like FoodShare lowers what you pay, but it is not cash, and it only covers its own kind of cost (FoodShare pays for food, not rent).</p>
+      <div class="mm-calc" id="calcHelp"></div>
+    </fieldset>
+
+    <h3>Your numbers</h3>
+    <p class="mm-sr" role="status" id="cSay"></p>
+    <div class="mm-grid" id="calcOut">
+      <div><div class="mm-figure-label">Your Daily Number</div><div class="mm-figure" id="cDaily">$0.00</div><p class="mm-small mm-muted" id="cPer"></p></div>
+      <div><div class="mm-figure-label">Coming in each day</div><div class="mm-figure" style="font-size:1.8rem" id="cIn">$0.00</div><p class="mm-small mm-muted" id="cInNote"></p></div>
+      <div><div class="mm-figure-label" id="cGapLabel">Daily gap</div><div class="mm-figure" style="font-size:1.8rem" id="cGap">$0.00</div><p class="mm-small mm-muted" id="cGapNote"></p></div>
+    </div>
+    <div id="cWork" class="mm-small" style="margin-top:var(--mm-space-3)"></div>
+    <p class="mm-row" style="margin-top:var(--mm-space-4)"><button class="mm-btn mm-btn-secondary" type="button" id="cExample">Fill in an example</button>
+      <button class="mm-btn mm-btn-quiet" type="button" id="cClear">Clear everything</button></p>
+    <p class="mm-muted mm-small">In your own Mirror you can keep all three levels, costs that start or end on a date, who in your household pays what,
+      benefit renewal dates, a plan for how to close the gap, and "what if" questions.</p>
+  </form>
+  <p class="mm-row" style="margin-top:var(--mm-space-5)"><a class="mm-btn" href="/mirror/how-it-works/">How the Mirror works</a></p>
+</main>
+<script type="module" src="/mirror/assets/mirror-ui.js?v=20261113h"></script>
+<script type="module" src="/mirror/assets/mirror-voice.js?v=20261113c"></script>
+<script type="module">
+// Public Daily Number calculator (Phase 4 step 5): the same arithmetic as the signed-in pages (daily-number.js dailyNumber), on this device only.
+import { dailyNumber, money, roughTaxRate, annualOf } from "/mirror/assets/daily-number.js?v=20261113e";
+const HOW = [["daily", "a day"], ["weekly", "a week"], ["biweekly", "every 2 weeks"], ["monthly", "a month"], ["annual", "a year"]];
+// [id, label, category or kind, example amount, example how often]
+const COSTS = [["housing", "Housing (rent, a room, a shelter fee)", "housing", 1000, "monthly"], ["utilities", "Electricity, gas and water", "utilities", 150, "monthly"],
+  ["food", "Food", "food", 400, "monthly"], ["transportation", "Getting around (bus, gas, rides)", "transportation", 35, "weekly"],
+  ["healthcare", "Medicine and health care", "healthcare", 100, "monthly"], ["communication", "Phone and internet", "communication", 80, "monthly"],
+  ["clothing", "Personal care and clothing", "clothing", 120, "monthly"], ["household", "Household supplies and laundry", "household", 100, "monthly"],
+  ["financial", "Debts and fees", "financial", 0, "monthly"], ["insurance", "Insurance paid once a year", "insurance", 600, "annual"],
+  ["future", "Savings and emergency reserve", "future", 200, "monthly"], ["other", "Anything else", "other", 0, "monthly"]];
+// Example SSI amount = the SSI federal benefit rate for one person, by the date it takes effect.
+// Source: Social Security Administration, https://www.ssa.gov/oact/cola/SSIamts.html
+// Each October SSA announces next January's amount: add one line here as soon as it is published.
+const SSI_FBR = [["2026-01-01", 994], ["2027-01-01", 1029]];
+const todayYMD = (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; })();
+const EXAMPLE_SSI_MONTHLY = (SSI_FBR.filter(([from]) => from <= todayYMD).pop() || SSI_FBR[0])[1];
+const INCOME = [["pay", "Pay from work", "wages", 0, "weekly"], ["benefit", "Cash benefits (SSI, SSDI, W-2, unemployment)", "cash_benefit", EXAMPLE_SSI_MONTHLY, "monthly"],
+  ["family", "Help in cash from family or friends", "family_support", 0, "monthly"], ["otherin", "Other money that comes in", "other", 0, "monthly"]];
+const HELP = [["snap", "FoodShare (SNAP) or WIC", "food", 250, "monthly"], ["rent", "Rent help paid to your landlord", "housing", 0, "monthly"],
+  ["energy", "Energy help (heating, electric)", "utilities", 0, "monthly"], ["phone", "Phone or internet discount", "communication", 0, "monthly"]];
+const $ = (id) => /** @type {HTMLInputElement} */ (document.getElementById(id));
+const num = (id) => Math.max(0, Number(String($(id).value).replace(/[$,\s]/g, "")) || 0);
+const row = ([id, label, , , how]) => `<div class="mm-field"><label for="a_${id}">${label}</label>
+  <div class="mm-money"><span aria-hidden="true">$</span><input class="mm-input" id="a_${id}" inputmode="decimal" autocomplete="off">
+  <label class="mm-sr" for="f_${id}">How often: ${label}</label><select class="mm-input" id="f_${id}" style="flex:0 0 auto;width:auto">${HOW.map(([v, t]) =>
+    `<option value="${v}"${v === how ? " selected" : ""}>${t}</option>`).join("")}</select></div>
+  ${id === "pay" ? `<label class="mm-choice" style="margin-top:var(--mm-space-2)"><input type="checkbox" id="payGross" checked> This is pay before taxes</label>` : ""}</div>`;
+document.getElementById("calcCosts").innerHTML = COSTS.map(row).join("");
+document.getElementById("calcIncome").innerHTML = INCOME.map(row).join("");
+document.getElementById("calcHelp").innerHTML = HELP.map(row).join("");
+const line = ([id]) => ({ amount: num("a_" + id), frequency: $("f_" + id).value });
+const day = (annual) => money(annual / 365);
+
+function run() {
+  const tax = Math.min(num("cTax"), 90);
+  const expenses = COSTS.map((c) => ({ ...line(c), level: "stability", category: c[2], paid_by: "self" }));
+  // Pay before taxes counts as what reaches you: pay x (1 - tax), as "It started" does in the Mirror.
+  const income = INCOME.map((c) => { const l = line(c); return { ...l, kind: c[2],
+    amount: c[0] === "pay" && $("payGross").checked ? l.amount * (1 - tax / 100) : l.amount }; });
+  const noncash = HELP.map((c) => ({ ...line(c), kind: c[0], category: c[2] }));
+  const L = dailyNumber({ expenses, income, noncash, tax_rate_pct: tax }).levels.stability;
+  $("cDaily").textContent = money(L.cost.daily);
+  $("cPer").textContent = `${money(L.cost.weekly)} a week · ${money(L.cost.monthly)} a month · ${money(L.cost.annual)} a year`;
+  $("cIn").textContent = money(L.resources.daily);
+  $("cInNote").textContent = `${day(L.income.annual)} a day in cash` + (L.noncash_applied.annual > 0 ? ` + ${day(L.noncash_applied.annual)} a day of help that isn't cash` : "");
+  const shortM = L.shortfall.monthly, spare = L.income.annual - L.cash_needed.annual;
+  const noCosts = L.cost.annual <= 0;   // nothing entered yet: no "Covered"
+  $("cGapLabel").textContent = noCosts ? "Daily gap" : shortM > 0.004 ? "Short each day" : "Covered";
+  $("cGap").textContent = noCosts ? money(0) : shortM > 0.004 ? money(L.shortfall.daily) : spare > 0.004 ? "+" + money(spare / 365) : money(0);
+  $("cGapNote").textContent = noCosts ? "Enter your costs to see it." : shortM > 0.004 ? `${money(shortM)} short a month` : spare > 0.004 ? `${money(spare / 12)} a month to spare` : "";
+  const unused = L.noncash.annual - L.noncash_applied.annual;
+  const work = [];
+  if (shortM > 0.004) {
+    const gross = shortM / (1 - tax / 100), wage = num("cWage");
+    work.push(`<strong>To close the gap with work:</strong> about ${money(gross)} a month before taxes` + (tax > 0 ? ` (at ${tax}% tax)` : " (no tax rate entered)") + ".");
+    if (wage > 0) work.push(`At ${money(wage)} an hour that is about <strong>${(gross * 12 / 52 / wage).toFixed(1)} hours a week</strong>.`);
+    // Same warning as "The gap" in the signed-in Mirror (daily-number-page.js): benefits are counted as if they stay the same.
+    const counted = [...INCOME.filter(([id]) => id === "benefit"), ...HELP].filter(([id]) => num("a_" + id) > 0).map(([, label]) => label);
+    if (counted.length) work.push(`<strong>Benefits can go down as earnings go up.</strong> These numbers count ${counted.map((n) => "<strong>" + n + "</strong>").join(", ")}
+      as if they stay the same when you earn more. SSI, FoodShare (SNAP), BadgerCare, rent help and similar help often shrink or stop when pay rises,
+      so you may need more hours than this. Ask your coordinator what would change before you plan around it.`);
+    work.push("You don't have to earn every dollar: housing help, health coverage, benefits and community help all lower the cash you need.");
+  }
+  if (unused > 0.004) work.push(`${money(unused / 12)} a month of help that isn't cash is more than the costs it can pay for; the extra is not counted, because there is no matching cost for it to pay.`);
+  document.getElementById("cWork").innerHTML = work.map((t) => `<p>${t}</p>`).join("");
+  // Screen readers hear one short summary once typing pauses (1.2 seconds), not all three figures at every key.
+  clearTimeout(sayTimer);
+  const say = noCosts ? "" : `Daily Number ${money(L.cost.daily)} a day. ` + (shortM > 0.004 ? `Short ${money(L.shortfall.daily)} a day.` : "Covered.");
+  sayTimer = setTimeout(() => { $("cSay").textContent = say; }, 1200);
+}
+let sayTimer = 0;
+document.getElementById("calc").addEventListener("input", run);
+document.getElementById("calc").addEventListener("change", run);
+document.getElementById("cTaxRough").addEventListener("click", () => {
+  const monthlyPay = annualOf(line(INCOME[0])) / 12;
+  // K-08: no tax rate is ever assumed; a rough rate needs the person's pay.
+  if (monthlyPay <= 0) { $("cTaxMsg").textContent = "Enter your pay from work first."; return; }
+  $("cTaxMsg").textContent = "";
+  $("cTax").value = String(roughTaxRate(monthlyPay)); run();
+});
+const all = [...COSTS, ...INCOME, ...HELP];
+document.getElementById("cExample").addEventListener("click", () => {
+  all.forEach(([id, , , v, how]) => { $("a_" + id).value = v ? String(v) : ""; $("f_" + id).value = how; });
+  $("payGross").checked = true; $("cTax").value = "10"; $("cWage").value = "15"; run();
+});
+document.getElementById("cClear").addEventListener("click", () => {
+  all.forEach(([id, , , , how]) => { $("a_" + id).value = ""; $("f_" + id).value = how; });
+  $("payGross").checked = true; $("cTax").value = ""; $("cWage").value = ""; $("cTaxMsg").textContent = ""; run();
+});
+run();
+</script>
+</body>
+</html>

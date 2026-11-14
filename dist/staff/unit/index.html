@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Unit — 2nd Chance Housing Staff</title>
+<link rel="icon" href="/favicon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+<style>
+.tabs2{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1px solid var(--line);margin:12px 0}
+.tabs2 button{background:none;border:0;border-bottom:3px solid transparent;padding:10px 14px;font:inherit;font-weight:600;color:var(--muted);cursor:pointer;margin-bottom:-1px}
+.tabs2 button[aria-selected=true]{color:var(--accent);border-bottom-color:var(--accent)}
+.viewonly{background:#fff3cd;color:#5c4200;border:1px solid #e0a800;border-radius:8px;padding:8px 12px;font-size:.92rem;margin:8px 0}
+.meta{color:var(--muted);font-size:.9rem}
+.kv{display:grid;grid-template-columns:150px 1fr;gap:4px 12px;margin:6px 0}.kv dt{color:var(--muted)}.kv dd{margin:0}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.card2{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.photos2{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0}
+.photos2 img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:8px;background:#e8ece6;display:block}
+td.n,th.n{text-align:right;white-space:nowrap}
+.bad{color:var(--bad);font-weight:700}
+.ev{border-top:1px solid var(--line);padding:9px 0;display:grid;grid-template-columns:128px 1fr;gap:4px 14px}
+.ev .when{color:var(--muted);font-size:.85rem}.ev .t{font-weight:600}.ev .b{white-space:pre-wrap;font-size:.93rem;margin-top:2px}
+.dir{display:inline-block;font-size:.68rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;border-radius:20px;padding:.1rem .5rem;margin-right:6px;background:#e8e8e8;color:#444}
+.dir.tenant{background:#e3eefb;color:#1f4d8a}.dir.office{background:var(--accent-soft);color:var(--accent)}
+.doc{display:flex;gap:10px;justify-content:space-between;align-items:center;flex-wrap:wrap;padding:8px 0;border-top:1px solid var(--line)}
+@media (max-width:640px){.ev{grid-template-columns:1fr}}
+.cmp td,.cmp th{padding:5px 8px;border-bottom:1px solid var(--line);text-align:left;font-size:.92rem;vertical-align:top}
+.cmp .worse{background:#fde8e8}.cmp .note{display:block;color:var(--muted);font-size:.82rem}
+.rimgs{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 10px}.rimgs img{width:96px;height:72px;object-fit:cover;border-radius:6px;border:1px solid var(--line)}
+.pill3{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;border-radius:20px;padding:.12rem .55rem;background:var(--accent-soft);color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="appbar" data-nav="staff"><div class="appbar-in">
+  <a class="org" href="/staff/" style="color:inherit;text-decoration:none">2nd Chance Housing<span>Staff · unit view</span></a>
+  <div class="row" id="userBar" hidden><span class="sub" id="who"></span><button class="linkbtn" type="button" id="signOutBtn">Sign out</button></div>
+</div></div>
+<main class="wrap">
+  <div id="signin" class="narrow"></div>
+  <div id="app" hidden>
+    <header><h1 id="title">Unit</h1><p class="lead" id="sub"></p></header>
+    <div class="viewonly"><b>View only.</b> You can see everything about this unit, including what the tenant and the owner see. You can't pay, record or change any payment here. The office handles payments.</div>
+    <div class="tabs2" role="tablist" id="tabs"></div>
+    <div id="panel"></div>
+  </div>
+</main>
+<script type="module">
+import { client, $, esc, fmtDate, money, signIn, signOut, errorText } from "/assets/portal/portal.js";
+import { balAmt } from "/assets/portal/balance.js";
+const q = new URLSearchParams(location.search), PID = q.get("p") || "", UNIT = q.get("u") || "";
+let D = null, tab = "overview", DOCS = null, COMMS = null, chan = "", CHK = null, DUE = null;
+const TABS = [["overview", "Overview"], ["tenant", "Tenant view"], ["owner", "Owner view"], ["vehicles", "Vehicles"], ["maint", "Maintenance"], ["docs", "Documents"], ["comms", "Communications"], ["inspect", "Inspections"]];
+const kv = (rows) => `<dl class="kv">${rows.filter((r) => r[1] !== null && r[1] !== undefined && r[1] !== "").map(([k, v]) => `<dt>${esc(k)}</dt><dd>${v}</dd>`).join("")}</dl>`;
+const ledgerTable = (rows) => `<div class="table-wrap" style="max-height:420px;overflow:auto"><table><thead><tr><th>Date</th><th>Type</th><th>Description</th><th class="n">Amount</th></tr></thead><tbody>
+  ${rows.map((e) => `<tr><td>${fmtDate(e.date)}</td><td>${esc(e.kind)}</td><td>${esc(e.description || "")}${e.note ? `<div class="meta">${esc(e.note)}</div>` : ""}</td><td class="n">${money(e.amount)}</td></tr>`).join("") || `<tr><td colspan="4" class="meta">No entries.</td></tr>`}</tbody></table></div>`;
+
+function overview() {
+  const u = D.unit, l = D.lease, o = D.owner;
+  return `<div class="grid3">
+    <div class="card2"><h2>Unit ${esc(u.unit)}</h2>${kv([["Address", esc(u.address)], ["Occupancy", esc(u.occupancy === "owner" ? "Owner-occupied" : u.occupancy === "under_contract" ? "Under contract" : u.occupancy || "")], ["Bedrooms / baths", esc([u.bedrooms, u.bathrooms].filter(Boolean).join(" / "))], ["Size", u.size_sqft ? esc(u.size_sqft) + " sq ft" : ""]])}
+      <p><a class="btn" href="/inspections/unit/?p=${encodeURIComponent(PID)}&u=${encodeURIComponent(UNIT)}">Open the inspection</a></p></div>
+    <div class="card2"><h2>Tenant</h2>${l ? kv([["Tenants", l.tenants.map((t) => esc(t.name)).join(", ")], ["Rent", money(l.rent)], ["Lease", esc(l.type || "") + " from " + fmtDate(l.start_date) + (l.end_date ? " to " + fmtDate(l.end_date) : "")],
+        ["Balance", `<b>${balAmt(l.balance)}</b>`], ["Move-in", D.move_in ? esc(D.move_in.status) : ""], ["Move-out", D.move_out ? esc(D.move_out.status) + (D.move_out.move_out_date ? " · " + fmtDate(D.move_out.move_out_date) : "") : ""]]) : `<p class="meta">No active tenant. The unit is vacant.</p>`}</div>
+    <div class="card2"><h2>Owner</h2>${o ? kv([["Owner", esc(o.name)], ["Since", fmtDate(o.since)], ["Association balance", `<b>${balAmt(o.balance)}</b>`], ["Dues", o.dues ? money(o.dues) + " / month" : ""], ["Board seat", esc(o.board_position || "")]]) : `<p class="meta">No current owner on record.</p>`}</div>
+    <div class="card2"><h2>Vehicles</h2>${D.vehicles.length ? D.vehicles.map((v) => `<div>${esc(v.summary)}</div>`).join("") : `<p class="meta">None registered.</p>`}</div>
+  </div>`;
+}
+function tenantView() {
+  const l = D.lease; if (!l) return `<div class="card2"><p class="meta">No active tenant.</p></div>`;
+  return `<div class="grid3"><div class="card2"><h2>People on the lease</h2>${l.tenants.map((t) => `<div style="margin-bottom:8px"><b>${esc(t.name)}</b>${kv([["Email", esc(t.email || "")], ["Phone", esc(t.phone || "")], ["Other phone", esc(t.alt_phone || "")], ["Emergency", esc([t.emergency_name, t.emergency_phone].filter(Boolean).join(" · "))]])}</div>`).join("")}</div>
+    <div class="card2"><h2>Lease</h2>${kv([["Rent", money(l.rent)], ["Type", esc(l.type || "")], ["Starts", fmtDate(l.start_date)], ["Ends", l.end_date ? fmtDate(l.end_date) : "Month to month"], ["Deposit held", l.deposit_held != null ? money(l.deposit_held) : ""], ["Late fee", money(l.late_fee)], ["Keys released", l.keys_released_at ? fmtDate(l.keys_released_at) : "Not yet"]])}</div></div>
+    <div class="card2" style="margin-top:12px"><h2>Balance and history</h2><p>Balance now: <b>${balAmt(l.balance)}</b> <span class="meta">(view only, no payments here)</span></p>${ledgerTable(D.ledger)}</div>
+    ${D.work.length ? `<div class="card2" style="margin-top:12px"><h2>Work in lieu of rent</h2>${D.work.map((w) => `<div style="margin-bottom:8px"><b>${esc(w.title)}</b> <span class="pill3">${esc(w.status)}</span><div class="meta">${w.kind === "monthly" ? money(w.monthly_credit) + " every month" : money(w.job_value) + " toward " + new Date(w.credit_month + "T12:00:00").toLocaleDateString("en-US", { month: "long", year: "numeric" })}</div>${(w.tasks || []).map((t) => `<div class="meta">· ${esc(t.name)}: ${esc(t.status)}</div>`).join("")}</div>`).join("")}</div>` : ""}
+    <div class="card2" style="margin-top:12px"><h2>Notices sent</h2>${D.notices.length ? `<div class="table-wrap"><table><thead><tr><th>Sent</th><th>Notice</th><th>Status</th></tr></thead><tbody>${D.notices.map((n) => `<tr><td>${fmtDate(n.sent_at)}</td><td>${esc(n.subject)}</td><td>${esc(n.voided ? "voided" : n.status)}</td></tr>`).join("")}</tbody></table></div>` : `<p class="meta">None.</p>`}</div>`;
+}
+function ownerView() {
+  const o = D.owner; if (!o) return `<div class="card2"><p class="meta">No current owner on record.</p></div>`;
+  return `<div class="card2"><h2>${esc(o.name)}</h2>${kv([["Email", esc(o.email || "")], ["Phone", esc(o.phone || "")], ["Owner since", fmtDate(o.since)], ["Monthly dues", o.dues ? money(o.dues) : ""], ["Association balance", `<b>${balAmt(o.balance)}</b>`], ["Board seat", esc(o.board_position || "")]])}</div>
+    <div class="card2" style="margin-top:12px"><h2>Association account history</h2><p class="meta">What the owner sees on their Payments tab. View only.</p>${ledgerTable(D.owner_ledger)}</div>`;
+}
+function vehiclesView() {
+  if (!D.vehicles.length) return `<div class="card2"><p class="meta">No vehicle is registered for this unit yet.</p></div>`;
+  return `<div class="grid3">${D.vehicles.map((v) => `<div class="card2"><b>${esc(v.kind === "own" ? "Tenant's vehicle" : v.kind === "loaner" ? "Loaner" : "Regular visitor")}</b>
+    <div>${esc(v.summary)}</div><div class="meta">${v.kind === "loaner" && v.loaner_until ? "Return by " + fmtDate(v.loaner_until) + " · " : ""}Registered ${fmtDate(v.created_at)}</div>${v.notes ? `<div class="meta">${esc(v.notes)}</div>` : ""}
+    ${v.front_path || v.back_path ? `<div class="photos2"><img data-pk="${esc(v.front_path || "")}" alt="Front"><img data-pk="${esc(v.back_path || "")}" alt="Back"></div>` : ""}</div>`).join("")}</div>`;
+}
+function maintView() {
+  return `<div class="card2"><h2>Maintenance requests</h2>${D.requests.length ? `<div class="table-wrap"><table><thead><tr><th>#</th><th>Opened</th><th>Request</th><th>Status</th><th>Vendor</th><th>Scheduled</th></tr></thead><tbody>
+    ${D.requests.map((r) => `<tr><td>${esc(r.number)}</td><td>${fmtDate(r.created_at)}</td><td><b>${esc(r.subject)}</b><div class="meta">${esc(r.description || "")}</div></td><td>${esc(r.status)}</td><td>${esc(r.vendor || "")}</td><td>${r.scheduled_start ? fmtDate(r.scheduled_start) : ""}</td></tr>`).join("")}</tbody></table></div>` : `<p class="meta">None.</p>`}</div>`;
+}
+const RANK = { good: 0, fair: 1, damaged: 2 }, CTXT = { good: "Good", fair: "Fair / worn", damaged: "Damaged" };
+function checklistsView() {
+  if (CHK === null) return `<div class="card2"><p class="meta">Loading checklists…</p></div>`;
+  const mi = CHK.move_in, mo = CHK.move_out;
+  if (!mi && !mo) return `<div class="card2"><h2>Tenant checklists</h2><p class="meta">No move-in or move-out checklist has been filled in for this unit.</p></div>`;
+  const rooms = CHK.rooms || [];
+  return `<div class="card2"><h2>Tenant move-in and move-out checklists</h2>
+    <p class="meta">Move-in: ${mi ? esc(mi.status) + (mi.submitted_at ? " · " + fmtDate(mi.submitted_at) : "") : "none"} · Move-out: ${mo ? esc(mo.status) + (mo.submitted_at ? " · " + fmtDate(mo.submitted_at) : "") : "none yet"}. Items that got worse are shaded.</p>
+    ${rooms.map((r) => {
+      const a = ((mi || {}).data || {}).rooms || {}, b = ((mo || {}).data || {}).rooms || {}, ai = (a[r.key] || {}).items || {}, bi = (b[r.key] || {}).items || {};
+      const cell = (x) => x && x.c ? `${esc(CTXT[x.c] || x.c)}${x.n ? `<span class="note">${esc(x.n)}</span>` : ""}` : "—";
+      return `<h3 style="margin:12px 0 4px">${esc(r.name)}</h3><table class="cmp"><thead><tr><th>Item</th><th>Move-in</th><th>Move-out</th></tr></thead><tbody>
+        ${r.items.map((it) => { const x = ai[it], y = bi[it], worse = x && y && (RANK[y.c] ?? 0) > (RANK[x.c] ?? 0); return `<tr class="${worse ? "worse" : ""}"><td>${esc(it)}</td><td>${cell(x)}</td><td>${cell(y)}</td></tr>`; }).join("")}</tbody></table>
+        <div class="rimgs">${[...((a[r.key] || {}).photos || []).map((p) => [p, "Move-in"]), ...((b[r.key] || {}).photos || []).map((p) => [p, "Move-out"])].map(([p, t]) => `<img data-mi="${esc(p)}" title="${t}" alt="${t} photo">`).join("")}</div>`;
+    }).join("")}</div>`;
+}
+function dueLine() {
+  if (!DUE) return "";
+  const u = DUE.units.find((x) => String(x.unit) === String(UNIT) && x.property_id === PID); if (!u) return "";
+  const s = { never: ["warn", "Never inspected"], overdue: ["warn", "Inspection overdue (was due " + (u.due_on ? fmtDate(u.due_on) : "") + ")"], soon: ["", "Inspection due " + (u.due_on ? fmtDate(u.due_on) : "")], ok: ["", "Next inspection " + (u.due_on ? fmtDate(u.due_on) : "")] }[u.state];
+  return `<p><span class="pill3 ${s[0] === "warn" ? "warn" : ""}">${esc(s[1])}</span> <span class="meta">${u.last ? "Last inspected " + fmtDate(u.last) + " · " : ""}every ${DUE.interval_days} days</span></p>`;
+}
+function inspectView() {
+  return `${checklistsView()}<div class="card2"><h2>Inspections</h2>${dueLine()}<p><a class="btn" href="/inspections/unit/?p=${encodeURIComponent(PID)}&u=${encodeURIComponent(UNIT)}">Start or continue an inspection</a></p>
+    ${D.inspections.length ? `<div class="table-wrap"><table><thead><tr><th>Date</th><th>Inspector</th><th>Status</th><th class="n">Needs repair</th></tr></thead><tbody>${D.inspections.map((i) => `<tr><td>${fmtDate(i.inspected_on)}</td><td>${esc(i.inspector)}</td><td>${esc(i.status)}</td><td class="n ${i.needs_repair ? "bad" : ""}">${i.needs_repair || ""}</td></tr>`).join("")}</tbody></table></div>` : `<p class="meta">No inspections yet.</p>`}</div>`;
+}
+
+function docsView() {
+  if (DOCS === null) return `<div class="card2"><p class="meta">Loading…</p></div>`;
+  const row = (d) => `<div class="doc"><span><b>${esc(d.title)}</b><div class="meta">${esc([d.who, d.category, d.status, d.date ? fmtDate(d.date) : ""].filter(Boolean).join(" · "))}</div></span><button class="btn small" type="button" data-open="${esc(d.bucket)}|${esc(d.path)}">Open</button></div>`;
+  return `<div class="grid3">
+    <div class="card2"><h2>What the tenant sees</h2><h3 style="margin:8px 0 2px">Signed documents</h3>${DOCS.signed_leases.length ? DOCS.signed_leases.map(row).join("") : `<p class="meta">None.</p>`}
+      <h3 style="margin:12px 0 2px">Notices</h3>${DOCS.notices.length ? DOCS.notices.map(row).join("") : `<p class="meta">None.</p>`}
+      <h3 style="margin:12px 0 2px">On file with the office</h3>${DOCS.on_file.length ? DOCS.on_file.map((f) => `<div class="doc"><span>${esc(f.kind.replace("_", " "))} <span class="meta">${esc(f.status)}${f.dated ? " · " + fmtDate(f.dated) : ""}${f.note ? " · " + esc(f.note) : ""}</span></span></div>`).join("") : `<p class="meta">None.</p>`}
+      <p class="meta" style="margin-top:10px">Tenants also see the public documents: <a href="/documents/public/" target="_blank" rel="noopener">health and safety, pests, city rules</a>.</p></div>
+    <div class="card2"><h2>What the owner sees</h2>${DOCS.owner_docs.length ? DOCS.owner_docs.map(row).join("") : `<p class="meta">None.</p>`}</div></div>`;
+}
+function commsView() {
+  if (COMMS === null) return `<div class="card2"><p class="meta">Loading…</p></div>`;
+  const chans = [...new Set(COMMS.map((e) => e.channel))].sort();
+  const rows = COMMS.filter((e) => !chan || e.channel === chan);
+  return `<div class="card2"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center"><h2 style="margin:0">Communications and requests</h2>
+      <label class="meta">Show <select id="chanSel"><option value="">Everything</option>${chans.map((c) => `<option value="${esc(c)}" ${c === chan ? "selected" : ""}>${esc(c)}</option>`).join("")}</select></label></div>
+    <p class="meta">Messages, repair requests and every update, notices, emails we sent, payment reports and work notes, newest first. Read only.</p>
+    ${rows.map((e) => `<div class="ev"><div class="when">${new Date(e.at).toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" })}</div>
+      <div><span class="dir ${esc(e.from)}">${esc(e.from === "tenant" ? "from tenant" : e.from === "office" ? "from us" : e.from)}</span><span class="meta">${esc(e.channel)}${e.who ? " · " + esc(e.who) : ""}</span>
+        <div class="t">${esc(e.title)}</div>${e.body ? `<div class="b">${esc(e.body)}</div>` : ""}</div></div>`).join("") || `<p class="meta">Nothing yet.</p>`}</div>`;
+}
+async function ensure(which) {
+  if (which === "inspect" && CHK === null) { const [c, d] = await Promise.all([client.rpc("field_unit_checklists", { p_property: PID, p_unit: UNIT }), client.rpc("inspections_due")]); CHK = c.error ? { rooms: [] } : c.data; DUE = d.error ? null : d.data; render(); }
+  if (which === "docs" && DOCS === null) { const { data, error } = await client.rpc("field_unit_documents", { p_property: PID, p_unit: UNIT }); DOCS = error ? { signed_leases: [], notices: [], on_file: [], owner_docs: [] } : data; if (error) alert(await errorText(error)); render(); }
+  if (which === "comms" && COMMS === null) { const { data, error } = await client.rpc("field_unit_comms", { p_property: PID, p_unit: UNIT }); COMMS = error ? [] : data; if (error) alert(await errorText(error)); render(); }
+}
+async function photos() {
+  const mim = [...document.querySelectorAll("img[data-mi]")].filter((i) => i.dataset.mi);
+  if (mim.length) { const { data } = await client.storage.from("move-in").createSignedUrls(mim.map((i) => i.dataset.mi), 3600); const by = Object.fromEntries((data || []).map((x) => [x.path, x.signedUrl])); mim.forEach((i) => { if (by[i.dataset.mi]) i.src = by[i.dataset.mi]; }); }
+  const imgs = [...document.querySelectorAll("img[data-pk]")].filter((i) => i.dataset.pk);
+  if (!imgs.length) return;
+  const { data } = await client.storage.from("vehicles").createSignedUrls(imgs.map((i) => i.dataset.pk), 3600);
+  const by = Object.fromEntries((data || []).map((x) => [x.path, x.signedUrl]));
+  imgs.forEach((i) => { if (by[i.dataset.pk]) i.src = by[i.dataset.pk]; });
+}
+function render() {
+  $("tabs").innerHTML = TABS.map(([k, t]) => `<button type="button" role="tab" data-t="${k}" aria-selected="${k === tab}">${t}</button>`).join("");
+  $("panel").innerHTML = { overview, tenant: tenantView, owner: ownerView, vehicles: vehiclesView, maint: maintView, docs: docsView, comms: commsView, inspect: inspectView }[tab]();
+  photos(); ensure(tab);
+}
+$("panel").addEventListener("click", async (e) => {
+  const o = e.target.closest("[data-open]");
+  if (o) { const [bucket, path] = o.dataset.open.split("|"); const { data, error } = await client.storage.from(bucket).createSignedUrl(path, 300);
+    if (error || !data) return alert("Couldn't open that document. Ask the office."); window.open(data.signedUrl, "_blank", "noopener"); }
+});
+$("panel").addEventListener("change", (e) => { if (e.target.id === "chanSel") { chan = e.target.value; render(); } });
+$("tabs").addEventListener("click", (e) => { const b = e.target.closest("[data-t]"); if (b) { tab = b.dataset.t; history.replaceState(null, "", "#" + tab); render(); } });
+$("signOutBtn").onclick = signOut;
+const who = await signIn($("signin"), { audience: "field" });
+$("userBar").hidden = false; $("who").textContent = who.email || "";
+if (!["staff", "field"].includes(who.role)) { $("signin").hidden = false; $("signin").innerHTML = `<div class="panel"><p>This area is for staff. <a href="/">Back to the home page</a></p></div>`; }
+else {
+  const { data, error } = await client.rpc("field_unit_view", { p_property: PID, p_unit: UNIT });
+  if (error) { $("signin").hidden = false; $("signin").innerHTML = `<div class="panel">${esc(await errorText(error))} <a href="/staff/">Back to My units</a></div>`; }
+  else {
+    D = data; $("signin").hidden = true; $("app").hidden = false;
+    $("title").textContent = "Unit " + UNIT + (D.unit.address ? " · " + D.unit.address : ""); document.title = "Unit " + UNIT + " — 2nd Chance Housing Staff";
+    $("sub").textContent = D.lease ? "Tenant: " + D.lease.tenants.map((t) => t.name).join(", ") : "Vacant";
+    const h = location.hash.slice(1); if (TABS.some(([k]) => k === h)) tab = h;
+    render();
+  }
+}
+</script>
+</body>
+</html>

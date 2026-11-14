@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Renewals — 2nd Chance Housing Staff</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+<style>
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-bottom: 12px; }
+  .card h3 { margin: 0; font-size: 1.1rem; }
+  .meta { color: var(--muted); font-size: 0.9rem; }
+  .tag { display: inline-block; padding: 1px 9px; border-radius: 999px; font-size: 0.78rem; font-weight: 700; }
+  .tag.soon { background: var(--bad-soft); color: var(--bad); } .tag.ok { background: var(--ok-soft); color: var(--ok); }
+  .tag.wait { background: var(--warn-soft); color: var(--warn); } .tag.off { background: var(--off-soft); color: var(--off); }
+  .head { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: baseline; }
+  details { margin-top: 10px; border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; }
+  summary { cursor: pointer; font-weight: 600; }
+  .formrow { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; margin-top: 8px; }
+  .formrow label { display: grid; gap: 3px; font-size: 0.85rem; color: var(--muted); }
+  .formrow input, .formrow select { font: inherit; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; color: var(--text); }
+  .formrow input[type=text] { min-width: 280px; }
+</style>
+</head>
+<body>
+<div class="appbar" data-nav="staff">
+  <div class="appbar-in">
+    <div class="org">2nd Chance Housing<span>Renewals · Staff</span></div>
+    <div class="row" id="userBar" hidden>
+      
+      
+      
+      <button class="linkbtn" type="button" id="signOutBtn">Sign out</button>
+    </div>
+  </div>
+</div>
+<main class="wrap">
+  <header><h1>Renewals</h1><p class="lead">Leases for a term: set the renewal rent and send the offer (the tenant accepts and signs online, then the agent countersigns), or send a non-renewal notice. Month-to-month: change the rent with at least 28 days' notice. You get a digest on the 1st and 15th of leases ending within 90 days; tenants get reminders 7 and 14 days after an unanswered offer.</p></header>
+  <div id="signin" class="narrow"></div>
+  <div id="app" hidden><h2>Leases for a term</h2><div id="fixed"></div><h2 style="margin-top:24px">Month to month</h2><div id="mtm"></div></div>
+</main>
+<script type="module">
+import { client, $, esc, fmtDate, money, signIn, signOut, errorText } from "/assets/portal/portal.js";
+let rows = [];
+const flush = () => client.functions.invoke("outbox-flush", { body: {} }).catch(() => {});
+const iso = (d) => d.toISOString().slice(0, 10);
+const STATUS = { offered: ["Offer sent", "wait"], accepted: ["Accepted — signing", "wait"], signed: ["Renewed", "ok"], declined: ["Tenant moving out", "off"],
+  non_renewal: ["Not renewing", "off"], withdrawn: ["Offer withdrawn", "off"], expired: ["Offer expired", "off"] };
+
+async function sendNotice(r, link) {
+  const { error } = await client.functions.invoke("notices", { body: { action: "send", lease_id: r.lease_id, template_id: r.template_id, subject: r.subject, html: r.html, email_tenants: true, link } });
+  if (error) { let m = error.message; try { m = (await error.context.json()).error || m; } catch {} throw new Error("Saved, but the notice wasn't sent: " + m); }
+}
+function fixedCard(x) {
+  const r = x.renewal, st = r && STATUS[r.status], open = !r || ["withdrawn", "expired"].includes(r.status);
+  const days = x.days_left, soon = days != null && days <= 90;
+  const end = new Date(x.end_date + "T12:00:00"), respond = new Date(Math.max(Date.now() + 14 * 864e5, Math.min(end - 30 * 864e5, Date.now() + 30 * 864e5)));
+  return `<div class="card" data-lease="${x.lease_id}"><div class="head"><h3>${esc(x.address)}</h3><span class="meta">${esc(x.tenants)}</span></div>
+    <div class="meta">Rent ${money(x.rent)} · ends <b>${fmtDate(x.end_date)}</b> ${days < 0 ? `<span class="tag soon">ended ${-days} days ago</span>` : `<span class="tag ${soon ? "soon" : "off"}">${days} days left</span>`}
+      ${st ? ` · <span class="tag ${st[1]}">${st[0]}</span>` : ""}${r && r.new_rent ? ` · offered ${money(r.new_rent)}, ${r.term === "mtm" ? "month to month" : r.term + " months"}, answer by ${fmtDate(r.respond_by)}${r.follow_ups ? ` · ${r.follow_ups} reminder(s) sent` : ""}` : ""}
+      ${x.pending_rent_change ? ` · rent becomes ${money(x.pending_rent_change.new_rent)} on ${fmtDate(x.pending_rent_change.effective_on)}` : ""}</div>
+    ${r && r.note ? `<div class="meta">Note: ${esc(r.note)}</div>` : ""}
+    ${open || r.status === "offered" ? `<details ${soon && open ? "open" : ""}><summary>${r && r.status === "offered" ? "Change the offer" : "Send a renewal offer"}</summary>
+      <div class="formrow"><label>Renewal rent<input type="number" step="1" min="100" data-rent value="${x.rent || ""}"></label>
+        <label>Term<select data-term><option value="12">12 months</option><option value="6">6 months</option><option value="mtm">Month to month</option></select></label>
+        <label>Answer by<input type="date" data-respond value="${iso(respond)}" max="${x.end_date}"></label>
+        <button class="btn primary" type="button" data-offer>Send offer</button></div></details>
+      <details><summary>Send a non-renewal notice</summary>
+      <div class="formrow"><label>Note on the notice (optional)<input type="text" data-nrnote maxlength="400"></label>
+        <button class="btn" type="button" data-nonrenew>Send non-renewal notice</button></div>
+      <div class="meta">The lease ends on its own on ${fmtDate(x.end_date)}; the notice confirms it in writing. It's emailed, filed in the tenant's Documents, and ready to print and mail.</div></details>` : ""}
+    <span class="msg" data-msg></span></div>`;
+}
+function mtmCard(x) {
+  const c = x.pending_rent_change, first = new Date(); first.setDate(first.getDate() + 28);
+  const eff = new Date(first.getFullYear(), first.getMonth() + (first.getDate() === 1 ? 0 : 1), 1);
+  return `<div class="card" data-lease="${x.lease_id}"><div class="head"><h3>${esc(x.address)}</h3><span class="meta">${esc(x.tenants)}</span></div>
+    <div class="meta">Rent ${money(x.rent)} · since ${fmtDate(x.start_date)}${c ? ` · <span class="tag wait">rent becomes ${money(c.new_rent)} on ${fmtDate(c.effective_on)}</span>` : ""}</div>
+    <details><summary>Change the rent</summary>
+      <div class="formrow"><label>New rent<input type="number" step="1" min="100" data-newrent></label>
+        <label>Effective (1st of a month, 28+ days out)<input type="date" data-eff value="${eff.getFullYear()}-${String(eff.getMonth() + 1).padStart(2, "0")}-01"></label>
+        <label>Note (optional)<input type="text" data-rcnote maxlength="400"></label>
+        <button class="btn primary" type="button" data-rentchange>Send Notice of Change of Rent</button></div></details>
+    <span class="msg" data-msg></span></div>`;
+}
+function render() {
+  $("fixed").innerHTML = rows.filter((x) => x.lease_type === "fixed").map(fixedCard).join("") || `<p class="meta">None.</p>`;
+  $("mtm").innerHTML = rows.filter((x) => x.lease_type !== "fixed").map(mtmCard).join("") || `<p class="meta">None.</p>`;
+}
+async function load() {
+  const { data, error } = await client.rpc("renewals_staff_list");
+  if (error) { $("signin").innerHTML = `<div class="banner bad">${esc(await errorText(error))}</div>`; return; }
+  rows = data || []; render(); $("app").hidden = false;
+}
+document.addEventListener("click", async (e) => {
+  const c = e.target.closest(".card"); if (!c) return;
+  const q = (s) => c.querySelector(s), m = q("[data-msg]"), say = (t, bad) => { m.className = bad ? "msg err" : "msg"; m.textContent = t; };
+  const id = c.dataset.lease;
+  try {
+    if (e.target.closest("[data-offer]")) {
+      if (!confirm("Email this renewal offer to the tenants?")) return;
+      say("Sending…");
+      const { data, error } = await client.rpc("renewal_staff_offer", { p_lease: id, p_rent: Number(q("[data-rent]").value), p_term: q("[data-term]").value, p_respond_by: q("[data-respond]").value || null });
+      if (error) throw new Error(await errorText(error));
+      flush(); await load();
+    } else if (e.target.closest("[data-nonrenew]")) {
+      if (!confirm("Send a notice that this lease will NOT be renewed? This can't be undone here.")) return;
+      say("Making the notice…");
+      const { data, error } = await client.rpc("renewal_staff_non_renewal", { p_lease: id, p_note: q("[data-nrnote]").value });
+      if (error) throw new Error(await errorText(error));
+      if (data.days_left < 30 && !confirm(`The lease ends in ${data.days_left} days. Send the notice anyway?`)) return;
+      await sendNotice(data, { kind: "renewal", id: data.renewal_id }); await load();
+    } else if (e.target.closest("[data-rentchange]")) {
+      if (!confirm("Send the Notice of Change of Rent to the tenants?")) return;
+      say("Making the notice…");
+      const { data, error } = await client.rpc("rent_change_staff", { p_lease: id, p_new_rent: Number(q("[data-newrent]").value), p_effective: q("[data-eff]").value || null, p_note: q("[data-rcnote]").value });
+      if (error) throw new Error(await errorText(error));
+      await sendNotice(data, { kind: "rent_change", id: data.change_id }); await load();
+    }
+  } catch (err) { say(err.message, true); }
+});
+$("signOutBtn").addEventListener("click", signOut);
+const who = await signIn($("signin"), { audience: "staff" });
+$("userBar").hidden = false;
+if (who.role !== "staff") location.replace("/association-owners/roca1/"); else load();
+</script>
+</body>
+</html>

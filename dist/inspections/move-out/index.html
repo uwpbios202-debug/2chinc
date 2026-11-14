@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Move-outs — 2nd Chance Housing Staff</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+<style>
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-bottom: 14px; }
+  .card h3 { margin: 0; font-size: 1.15rem; }
+  .head { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: baseline; }
+  .meta { color: var(--muted); font-size: 0.9rem; }
+  .tag { display: inline-block; padding: 1px 9px; border-radius: 999px; font-size: 0.78rem; font-weight: 700; }
+  .tag.bad { background: var(--bad-soft); color: var(--bad); } .tag.ok { background: var(--ok-soft); color: var(--ok); } .tag.wait { background: var(--warn-soft); color: var(--warn); } .tag.off { background: var(--off-soft); color: var(--off); }
+  details.step { border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; margin-top: 10px; }
+  details.step summary { cursor: pointer; font-weight: 600; }
+  details.step.done > summary::after { content: " ✓"; color: var(--ok); }
+  .formrow { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; margin-top: 8px; }
+  .formrow label { display: grid; gap: 3px; font-size: 0.85rem; color: var(--muted); }
+  .formrow input, .formrow select, .formrow textarea { font: inherit; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; color: var(--text); }
+  .cmp { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-top: 6px; table-layout: fixed; }
+  .cmp th, .cmp td { border-top: 1px solid var(--line); padding: 5px 6px; text-align: left; vertical-align: top; }
+  .cmp th { color: var(--muted); font-weight: 600; font-size: 0.8rem; }
+  .cmp tr.worse td { background: var(--bad-soft); }
+  .cmp select, .cmp input { width: 100%; font: inherit; padding: 4px; }
+  .thumbs { display: flex; gap: 6px; flex-wrap: wrap; margin: 6px 0; } .thumbs img { width: 90px; height: 90px; object-fit: cover; border-radius: 6px; border: 1px solid var(--line); }
+  .room { margin: 12px 0; } .room h4 { margin: 0 0 4px; }
+  .lines .ln { display: grid; grid-template-columns: 1fr 130px 120px 34px; gap: 6px; margin-top: 6px; }
+  .lines input, .lines select { font: inherit; padding: 6px; border: 1px solid var(--line); border-radius: 6px; }
+  .sum { margin-top: 10px; background: var(--head); border-radius: 8px; padding: 10px 12px; }
+  .sum b { font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body>
+<div class="appbar" data-nav="staff">
+  <div class="appbar-in">
+    <div class="org">2nd Chance Housing<span>Move-outs · Staff</span></div>
+    <div class="row" id="userBar" hidden>
+      
+      
+      
+      <button class="linkbtn" type="button" id="signOutBtn">Sign out</button>
+    </div>
+  </div>
+</div>
+<main class="wrap">
+  <header><h1>Move-outs</h1><p class="lead">Notice → inspection time → keys back → inspection next to the move-in checklist → deposit statement within 21 days (Wis. Stat. § 704.28) → refund. Former tenants keep read-only access 28 days after a voluntary move-out, 60 days after the sheriff's removal; then their sign-in is removed automatically.</p></header>
+  <div id="signin" class="narrow"></div>
+  <div id="app" hidden>
+    <div id="unrecorded"></div>
+    <div id="list"></div>
+    <details class="card"><summary><b>Record a move-out by hand</b> (paper notice, eviction, abandonment)</summary>
+      <div class="formrow"><label>Lease<select id="sLease"></select></label>
+        <label>Why<select id="sType"><option value="voluntary">Tenant moving out</option><option value="non_renewal">Not renewed</option><option value="evicted">Eviction (sheriff's removal)</option><option value="abandoned">Abandoned</option></select></label>
+        <label>Move-out date<input type="date" id="sDate"></label><label>Sheriff's removal on<input type="date" id="sSheriff"></label></div>
+      <div class="formrow"><label style="flex:1">Forwarding / last known address<input id="sAddr" maxlength="300"></label><label style="flex:1">Note<input id="sNote" maxlength="500"></label>
+        <button class="btn primary" type="button" id="sGo">Record</button><span class="msg" id="sMsg"></span></div></details>
+  </div>
+</main>
+<script type="module">
+import { client, $, esc, fmtDate, money, signIn, signOut, errorText } from "/assets/portal/portal.js";
+import { balClass } from "/assets/portal/balance.js";
+let data = { move_outs: [], unrecorded: [], leases: [], rooms: [] }, open = new Set(), detail = {}, insp = {};
+const flush = () => client.functions.invoke("outbox-flush", { body: {} }).catch(() => {});
+const STATUS = { notice: "Notice given", scheduled: "Inspection set", vacated: "Keys back", inspected: "Inspected", deposit_sent: "Statement sent", closed: "Closed" };
+const TYPE = { voluntary: "Tenant moving out", non_renewal: "Not renewed", evicted: "Eviction", abandoned: "Abandoned" };
+const COND = { good: "Good", fair: "Fair", clean: "Clean", marked: "Marked", dirty: "Dirty", damaged: "Damaged" };
+// Higher is worse; "Clean" sits with "Good" and "Dirty" with "Marked", so the comparison flags anything that got worse.
+const rank = { good: 0, clean: 0, fair: 1, marked: 2, dirty: 2, damaged: 3 };
+
+function card(m) {
+  const d = m.days_to_deadline, late = d != null && d < 0, soon = d != null && d <= 7;
+  const done = (s) => ["notice", "scheduled", "vacated", "inspected", "deposit_sent", "closed"].indexOf(m.status) > ["notice", "scheduled", "vacated", "inspected", "deposit_sent", "closed"].indexOf(s);
+  return `<div class="card" data-id="${m.id}"><div class="head"><h3>${esc(m.address)}</h3><span class="meta">${esc(m.tenants)} · ${TYPE[m.type]}</span></div>
+    <div class="meta"><span class="tag ${m.status === "closed" ? "off" : "wait"}">${STATUS[m.status]}</span> · move-out ${fmtDate(m.move_out_date)}${m.early ? ` <span class="tag bad">early (lease ends ${fmtDate(m.end_date)})</span>` : ""}
+      ${m.surrendered_on ? ` · ended ${fmtDate(m.surrendered_on)}` : ""}${m.deposit_due_by && !["deposit_sent", "closed"].includes(m.status) ? ` · <span class="tag ${late || soon ? "bad" : "ok"}">deposit statement ${late ? "OVERDUE since" : "due"} ${fmtDate(m.deposit_due_by)}${late ? "" : ` (${d} days)`}</span>` : ""}
+      ${m.access_ends_at ? ` · portal access ${m.access_removed_at ? "removed" : "until " + fmtDate(m.access_ends_at)}` : ""}</div>
+    <div class="meta">Forwarding: ${m.forwarding_address ? esc(m.forwarding_address) : `<span class="tag bad">none yet</span>`}${m.reason ? ` · reason: ${esc(m.reason)}` : ""}${m.staff_note ? ` · note: ${esc(m.staff_note)}` : ""}</div>
+    ${m.status === "closed" ? `<div class="meta">Closed ${fmtDate(m.closed_at)}${m.refund_amount > 0 ? ` · refund ${money(m.refund_amount)} by ${esc(m.refund_method || "")} ${esc(m.refund_ref || "")}` : ""}${m.letter_pdf ? ` · <a href="#" data-pdf="${esc(m.letter_pdf)}">deposit statement</a>` : ""}</div>` : `
+    <details class="step ${m.inspection_at ? "done" : ""}"><summary>1. Inspection time</summary><div class="formrow">
+      <label>When<input type="datetime-local" data-insp-at></label><button class="btn" type="button" data-schedule>Set & email the tenant</button></div>
+      ${m.inspection_at ? `<div class="meta">Set for ${new Date(m.inspection_at).toLocaleString()}</div>` : ""}</details>
+    <details class="step ${done("scheduled") && m.surrendered_on ? "done" : ""}" ${["notice", "scheduled"].includes(m.status) ? "open" : ""}><summary>2. Keys returned / tenancy ended</summary><div class="formrow">
+      <label>Keys returned on<input type="date" data-keys value="${m.keys_returned_on || ""}"></label>
+      <label>Tenancy ended (surrender) on<input type="date" data-surr value="${m.surrendered_on || ""}"></label>
+      <button class="btn primary" type="button" data-vacated ${["notice", "scheduled", "vacated"].includes(m.status) ? "" : "disabled"}>Record</button></div>
+      <div class="meta">Surrender is the last day of the tenancy, or, if the tenant left early and told you in writing, the day you got that notice. This starts the 21-day deposit clock and the read-only access window; the unit goes back to vacant.</div></details>
+    ${m.surrendered_on ? `<details class="step ${done("vacated") ? "done" : ""}" ${["vacated", "inspected"].includes(m.status) ? "open" : ""} data-detail><summary>3–5. Inspection, deposit statement, refund</summary>
+      <div data-body>${open.has(m.id) && detail[m.id] ? stepsHtml(m) : `<span class="meta">Loading…</span>`}</div></details>` : ""}`}
+    <span class="msg" data-msg></span></div>`;
+}
+
+function stepsHtml(m) {
+  const dt = detail[m.id], mi = (dt.move_in && dt.move_in.data && dt.move_in.data.rooms) || {}, st = insp[m.id];
+  const rooms = dt.rooms.map((r) => {
+    const a = mi[r.key] || {}, b = st.rooms[r.key] || { items: {}, photos: [] };
+    if (r.optional && a.na) return "";
+    return `<div class="room"><h4>${esc(r.name)}</h4><table class="cmp"><thead><tr><th style="width:24%">Item</th><th>At move-in</th><th style="width:16%">At move-out</th><th style="width:30%">Note</th></tr></thead><tbody>
+      ${r.items.map((it) => { const x = (a.items || {})[it] || {}, y = b.items[it] || {}; const worse = y.c && x.c && rank[y.c] > rank[x.c] || (y.c === "damaged" && !x.c);
+        return `<tr class="${worse ? "worse" : ""}"><td>${esc(it)}</td><td>${esc(COND[x.c] || "—")}${x.n ? `<div class="meta">${esc(x.n)}</div>` : ""}${(x.p || []).length ? `<div class="thumbs">${x.p.map((p) => `<a target="_blank" data-ph="${esc(p)}"><img alt=""></a>`).join("")}</div>` : ""}</td>
+          <td><select data-room="${r.key}" data-item="${esc(it)}" ${m.status === "deposit_sent" ? "disabled" : ""}><option value=""></option>${Object.entries(COND).map(([k, t]) => `<option value="${k}" ${y.c === k ? "selected" : ""}>${t}</option>`).join("")}</select></td>
+          <td><input data-room="${r.key}" data-note="${esc(it)}" value="${esc(y.n || "")}" maxlength="300"></td></tr>`; }).join("")}</tbody></table>
+      <div class="meta">Move-in photos:</div><div class="thumbs">${(a.photos || []).map((p) => `<a target="_blank" data-ph="${esc(p)}"><img alt=""></a>`).join("") || `<span class="meta">none</span>`}</div>
+      <div class="meta">Move-out photos:</div><div class="thumbs">${(b.photos || []).map((p) => `<a target="_blank" data-ph="${esc(p)}"><img alt=""></a>`).join("")}
+        <label class="btn small" style="cursor:pointer">+ Add<input type="file" accept="image/*" multiple hidden data-up="${r.key}"></label></div></div>`;
+  }).join("");
+  const lines = st.lines.map((l, i) => `<div class="ln"><input data-ld="${i}" value="${esc(l.desc)}" placeholder="What and where (e.g. Bedroom 1: hole in wall, patch and paint)">
+      <select data-lc="${i}">${[["damage", "Damage"], ["cleaning", "Cleaning"], ["other", "Other"], ["credit", "Credit to tenant"]].map(([k, t]) => `<option value="${k}" ${l.category === k ? "selected" : ""}>${t}</option>`).join("")}</select>
+      <input type="number" step="0.01" data-la="${i}" value="${l.amount ?? ""}" placeholder="Amount"><button class="btn small" type="button" data-lx="${i}" aria-label="Remove line">×</button></div>`).join("");
+  const ded = st.lines.reduce((t, l) => t + (Number(l.amount) || 0), 0), dep = Number(dt.deposit_held || 0), unpaid = Math.max(Number(dt.balance || 0), 0), net = dep - unpaid - ded;
+  return `${dt.move_in ? `<p class="meta">Move-in checklist ${dt.move_in.status === "approved" ? "approved " + fmtDate(dt.move_in.decided_at) : "(" + esc(dt.move_in.status) + ")"}. Rows in red are worse than at move-in.</p>` : `<p class="meta">No move-in checklist on file for this tenancy (older lease), so only the move-out condition is recorded.</p>`}
+    ${rooms}
+    <div class="formrow"><label style="flex:1">Inspection note<textarea data-inote rows="2">${esc(m.inspection_note || "")}</textarea></label>
+      ${m.status === "deposit_sent" ? "" : `<button class="btn" type="button" data-saveinsp>Save inspection</button>`}</div>
+    <h4 style="margin-top:16px">Deposit statement</h4>
+    ${m.status === "deposit_sent" ? `<p>Sent${m.letter_pdf ? ` · <a href="#" data-pdf="${esc(m.letter_pdf)}">open statement</a>` : ""}. Final ledger posted.</p>
+      ${Number(m.refund_amount) > 0 ? `<div class="formrow"><label>Refund sent by<select data-rmethod><option>Check</option><option>Zelle</option><option>Money order</option><option>Cash</option></select></label>
+        <label>Check / reference #<input data-rref></label><label>Sent on<input type="date" data-rdate></label><button class="btn primary" type="button" data-close>Record refund & close</button></div>`
+        : `<button class="btn primary" type="button" data-close>Close the move-out</button>`}` : `
+    <div class="lines">${lines}</div><div class="formrow"><button class="btn small" type="button" data-ladd>+ Add a line</button></div>
+    <div class="sum">Deposit held <b>${money(dep)}</b> − unpaid rent & charges <b>${money(unpaid)}</b> − deductions <b>${money(ded)}</b> = <b class="${balClass(-net)}">${net > 0.004 ? "refund " + money(net) : net < -0.004 ? "balance due " + money(-net) : money(0)}</b></div>
+    ${(() => { const end = m.move_out_date, held = end && m.surrendered_on && m.surrendered_on > end, cur = m.deposit_letter || (m.absorb_balance ? "absorbed" : held ? "double_rent" : "court");
+      return `<div class="formrow"><label style="flex:1">Which statement<select data-letter>
+        <option value="court" ${cur === "court" ? "selected" : ""}>Total owed: if unpaid, we ask the court for a judgment</option>
+        <option value="double_rent" ${cur === "double_rent" ? "selected" : ""} ${held ? "" : "disabled"}>Double rent: the tenant stayed after the tenancy ended (Wis. Stat. § 704.27)</option>
+        <option value="absorbed" ${cur === "absorbed" ? "selected" : ""}>Balance absorbed: nonprofit policy for tenants who qualify as indigent</option></select></label></div>
+        <p class="meta">${held ? `Tenancy ended ${fmtDate(end)}; keys back ${fmtDate(m.surrendered_on)}. The double rent statement adds twice the daily rent for those days.` : "Double rent applies only when the tenant stayed past the end of the tenancy."}</p>`; })()}
+    <div class="formrow"><button class="btn primary" type="button" data-deposit ${m.status === "inspected" ? "" : "disabled"}>Make & send the deposit statement</button>
+      <span class="meta">${m.status === "inspected" ? "Emailed to the tenant and filed in their Documents; print it and mail it to the forwarding address." : "Save the inspection first."}</span></div>`}
+    <details style="margin-top:12px"><summary class="meta">Final ledger</summary><table class="cmp"><tbody>${(dt.ledger || []).map((e) => `<tr><td style="width:18%">${fmtDate(e.date)}</td><td>${esc(e.desc || "")}<div class="meta">${esc(e.account)}</div></td><td style="width:18%;text-align:right">${money(e.amount)}</td></tr>`).join("")}</tbody></table></details>`;
+}
+
+function initInspection(m) {
+  const dt = detail[m.id], mi = (dt.move_in && dt.move_in.data && dt.move_in.data.rooms) || {};
+  const rooms = JSON.parse(JSON.stringify((m.checklist && m.checklist.rooms) || {}));
+  let lines = (m.deductions || []).map((l) => ({ ...l }));
+  if (!lines.length) {
+    if (dt.suggested_credit > 0) lines.push({ desc: `Rent credit: days after the tenancy ended on ${fmtDate(m.surrendered_on)}`, category: "credit", amount: -dt.suggested_credit });
+  }
+  insp[m.id] = { rooms, lines };
+  if (!(m.deductions || []).length) suggestFromInspection(m.id);
+}
+function suggestFromInspection(id) {
+  const st = insp[id], dt = detail[id], mi = (dt.move_in && dt.move_in.data && dt.move_in.data.rooms) || {};
+  for (const r of dt.rooms) for (const it of r.items) {
+    const y = ((st.rooms[r.key] || {}).items || {})[it], x = ((mi[r.key] || {}).items || {})[it] || {};
+    if (y && y.c === "damaged" && x.c !== "damaged") {
+      const desc = `${r.name}: ${it}${y.n ? " — " + y.n : ""}`;
+      if (!st.lines.some((l) => l.desc === desc)) st.lines.push({ desc, category: "damage", amount: null });
+    } else if (y && y.c === "dirty" && !["dirty", "damaged"].includes(x.c)) {
+      const desc = `${r.name}: ${it} (cleaning)${y.n ? " — " + y.n : ""}`;
+      if (!st.lines.some((l) => l.desc === desc)) st.lines.push({ desc, category: "cleaning", amount: null });
+    }
+  }
+}
+async function photos() {
+  const links = [...document.querySelectorAll("a[data-ph]")].filter((a) => !a.href);
+  if (!links.length) return;
+  const { data: u } = await client.storage.from("move-in").createSignedUrls(links.map((a) => a.dataset.ph), 900);
+  (u || []).forEach((d, k) => { if (d.signedUrl) { links[k].href = d.signedUrl; links[k].querySelector("img").src = d.signedUrl; } });
+}
+function render() {
+  $("unrecorded").innerHTML = data.unrecorded.length ? `<div class="banner warn" style="margin-bottom:14px"><b>Tenancies ending without a recorded move-out:</b> ${data.unrecorded.map((u) => `${esc(u.address)} (${esc(u.tenants)}, ${u.why === "declined" ? "tenant declined renewal" : u.why === "non_renewal" ? "not renewed" : "lease ended"} ${fmtDate(u.end_date)})`).join("; ")}. Record them below or ask the tenant to give notice in the portal.</div>` : "";
+  $("list").innerHTML = data.move_outs.map(card).join("") || `<p class="meta">No move-outs right now.</p>`;
+  $("sLease").innerHTML = data.leases.map((l) => `<option value="${l.lease_id}">${esc(l.label)}</option>`).join("");
+  photos();
+}
+async function load() {
+  const { data: d, error } = await client.rpc("moveouts_staff_list");
+  if (error) { $("signin").innerHTML = `<div class="banner bad">${esc(await errorText(error))}</div>`; return; }
+  data = d; render(); $("app").hidden = false;
+  for (const id of open) loadDetail(id, false);
+}
+async function loadDetail(id, fresh = true) {
+  const { data: d } = await client.rpc("moveout_staff_detail", { p_id: id });
+  detail[id] = d; const m = data.move_outs.find((x) => x.id === id);
+  if (fresh || !insp[id]) initInspection({ ...m, ...d.move_out });
+  open.add(id); render();
+}
+$("list").addEventListener("toggle", (e) => { const det = e.target; if (det.matches && det.matches("details[data-detail]") && det.open) { const id = det.closest(".card").dataset.id; if (!detail[id]) loadDetail(id); } }, true);
+$("list").addEventListener("change", async (e) => {
+  const c = e.target.closest(".card"); if (!c || !insp[c.dataset.id]) return;
+  const st = insp[c.dataset.id], t = e.target;
+  if (t.dataset.room && t.dataset.item !== undefined && t.tagName === "SELECT") { const r = (st.rooms[t.dataset.room] = st.rooms[t.dataset.room] || { items: {}, photos: [] }); r.items[t.dataset.item] = { ...(r.items[t.dataset.item] || {}), c: t.value }; }
+  if (t.dataset.note !== undefined && t.dataset.room) { const r = (st.rooms[t.dataset.room] = st.rooms[t.dataset.room] || { items: {}, photos: [] }); r.items[t.dataset.note] = { ...(r.items[t.dataset.note] || {}), n: t.value }; }
+  if (t.dataset.ld !== undefined) st.lines[+t.dataset.ld].desc = t.value;
+  if (t.dataset.lc !== undefined) st.lines[+t.dataset.lc].category = t.value;
+  if (t.dataset.la !== undefined) { st.lines[+t.dataset.la].amount = t.value === "" ? null : Number(t.value); render(); }
+  if (t.dataset.up) {
+    const id = c.dataset.id, lease = data.move_outs.find((x) => x.id === id).lease_id, r = (st.rooms[t.dataset.up] = st.rooms[t.dataset.up] || { items: {}, photos: [] });
+    for (const f of [...t.files].slice(0, 12)) {
+      const path = `${lease}/moveout/${t.dataset.up}/${Date.now()}-${Math.random().toString(36).slice(2, 7)}.${(f.type.split("/")[1] || "jpg").replace("jpeg", "jpg")}`;
+      const { error } = await client.storage.from("move-in").upload(path, f, { contentType: f.type });
+      if (!error) r.photos = [...(r.photos || []), path];
+    }
+    render();
+  }
+});
+$("list").addEventListener("click", async (e) => {
+  const c = e.target.closest(".card"); if (!c) return;
+  const id = c.dataset.id, m = data.move_outs.find((x) => x.id === id), q = (s) => c.querySelector(s), msg = q("[data-msg]");
+  const say = (t, bad) => { msg.className = bad ? "msg err" : "msg"; msg.textContent = t; };
+  const pdf = e.target.closest("[data-pdf]");
+  if (pdf) { e.preventDefault(); const { data: u } = await client.storage.from("notices").createSignedUrl(pdf.dataset.pdf, 300); if (u) window.open(u.signedUrl, "_blank", "noopener"); return; }
+  try {
+    if (e.target.closest("[data-schedule]")) {
+      const v = q("[data-insp-at]").value; if (!v) throw new Error("Choose the date and time.");
+      const { error } = await client.rpc("moveout_staff_schedule", { p_id: id, p_at: new Date(v).toISOString() }); if (error) throw new Error(await errorText(error));
+      flush(); await load();
+    } else if (e.target.closest("[data-vacated]")) {
+      const { data: r, error } = await client.rpc("moveout_staff_vacated", { p_id: id, p_keys_on: q("[data-keys]").value || null, p_surrendered_on: q("[data-surr]").value || null });
+      if (error) throw new Error(await errorText(error));
+      flush(); await load(); say(`Recorded. Deposit statement due ${fmtDate(r.deposit_due_by)}.`);
+    } else if (e.target.closest("[data-saveinsp]")) {
+      const { error } = await client.rpc("moveout_staff_inspection", { p_id: id, p_checklist: { rooms: insp[id].rooms }, p_note: q("[data-inote]").value });
+      if (error) throw new Error(await errorText(error));
+      suggestFromInspection(id); await load(); say("Inspection saved. Damage not on the move-in checklist was added to the deposit lines; enter the amounts.");
+    } else if (e.target.closest("[data-ladd]")) { insp[id].lines.push({ desc: "", category: "damage", amount: null }); render();
+    } else if (e.target.closest("[data-lx]")) { insp[id].lines.splice(+e.target.closest("[data-lx]").dataset.lx, 1); render();
+    } else if (e.target.closest("[data-deposit]")) {
+      const lines = insp[id].lines.filter((l) => l.desc || l.amount != null);
+      if (lines.some((l) => !l.desc || l.amount == null)) throw new Error("Every line needs a description and an amount.");
+      if (!confirm("Make the deposit statement, email it to the tenant, file it, and post the final ledger?")) return;
+      say("Making the statement…");
+      const { data: r, error } = await client.rpc("moveout_staff_deposit", { p_id: id, p_deductions: lines, p_letter: q("[data-letter]").value });
+      if (error) throw new Error(await errorText(error));
+      const { error: nErr } = await client.functions.invoke("notices", { body: { action: "send", lease_id: r.lease_id, template_id: r.template_id, subject: r.subject, html: r.html, email_subject: r.email_subject, email_html: r.email_html, email_tenants: true, link: { kind: "move_out", id } } });
+      if (nErr) { let x = nErr.message; try { x = (await nErr.context.json()).error || x; } catch {} throw new Error("The statement wasn't sent: " + x); }
+      const { error: fErr } = await client.rpc("moveout_staff_finalize", { p_id: id }); if (fErr) throw new Error(await errorText(fErr));
+      flush(); await load(); loadDetail(id); say("Sent. Print it from the link and mail it to the forwarding address.");
+    } else if (e.target.closest("[data-close]")) {
+      const meth = q("[data-rmethod]"), { error } = await client.rpc("moveout_staff_close", { p_id: id, p_method: meth ? meth.value : null, p_ref: q("[data-rref]") ? q("[data-rref]").value : null, p_sent_on: q("[data-rdate]") ? q("[data-rdate]").value || null : null });
+      if (error) throw new Error(await errorText(error)); await load();
+    }
+  } catch (err) { say(err.message, true); }
+});
+$("sGo").onclick = async () => {
+  const { error } = await client.rpc("moveout_staff_start", { p_lease: $("sLease").value, p_type: $("sType").value, p_date: $("sDate").value || null, p_forwarding: $("sAddr").value, p_sheriff_on: $("sSheriff").value || null, p_note: $("sNote").value });
+  $("sMsg").className = error ? "msg err" : "msg"; $("sMsg").textContent = error ? await errorText(error) : "Recorded.";
+  if (!error) { flush(); load(); }
+};
+$("signOutBtn").addEventListener("click", signOut);
+const who = await signIn($("signin"), { audience: "staff" });
+$("userBar").hidden = false;
+if (who.role !== "staff") location.replace("/association-owners/roca1/"); else load();
+</script>
+</body>
+</html>

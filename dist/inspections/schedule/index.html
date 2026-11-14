@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Inspection Schedule — 2nd Chance Housing Staff</title>
+<link rel="icon" href="/favicon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+<style>
+td.n,th.n{text-align:right;white-space:nowrap}
+.bad{color:var(--bad);font-weight:700}
+.meta{color:var(--muted);font-size:.9rem}
+.pill3{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;border-radius:20px;padding:.12rem .55rem;background:var(--accent-soft);color:var(--accent)}
+.pill3.warn{background:#fff3cd;color:#7a5200}.pill3.off{background:#e8e8e8;color:#444}.pill3.bad{background:#fde2e1;color:#8a1c1c}
+.formrow{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-top:8px}
+.formrow label{display:grid;gap:3px;font-size:.85rem;color:var(--muted)}
+.formrow input,.formrow select,.formrow textarea{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:6px;color:var(--fg);background:var(--panel)}
+.day{margin-top:12px}.day h3{margin:0 0 6px;font-size:1rem;border-bottom:2px solid var(--line);padding-bottom:3px}
+.appt{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:8px 0;border-bottom:1px solid var(--line)}
+.appt .acts{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+tr.editing td{background:var(--accent-soft)}
+@media print{.appbar,#signin,.noprint{display:none!important}body{background:#fff}.wrap{max-width:none}}
+</style>
+</head>
+<body>
+<div class="appbar" data-nav="staff"><div class="appbar-in">
+  <div class="org">2nd Chance Housing<span>Inspection schedule · Staff</span></div>
+  <div class="row" id="userBar" hidden>
+    
+    <button class="linkbtn" type="button" id="signOutBtn">Sign out</button>
+  </div>
+</div></div>
+<main class="wrap">
+  <header><h1>Inspection schedule</h1><p class="lead">How often each unit is inspected, what is due, and booked appointments. Booking an occupied unit sends the tenants the 12-hour notice to enter (Wis. Stat. § 704.05(2), ATCP 134.09(2)) — it is filed in their portal under Documents › Notices and emailed — unless you record that the tenant agreed to the entry.</p></header>
+  <div id="signin" class="narrow"></div>
+  <div id="app" hidden style="display:grid;gap:18px">
+    <section class="panel noprint">
+      <h2 style="margin-top:0">Book an inspection</h2>
+      <form id="bookForm" novalidate>
+        <div class="formrow">
+          <label>Unit<select id="bUnit"></select></label>
+          <label>Purpose<select id="bPurpose"><option value="routine">Routine</option><option value="annual">Annual</option><option value="pre_move_out">Pre-move-out</option><option value="follow_up">Follow-up</option><option value="complaint">Complaint</option><option value="other">Other</option></select></label>
+          <label>Date<input id="bDate" type="date"></label>
+          <label>From<input id="bFrom" type="time" value="10:00"></label>
+          <label>To<input id="bTo" type="time" value="13:00"></label>
+          <label>Inspector<select id="bInsp"><option value="">Unit's usual inspector</option></select></label>
+        </div>
+        <div class="formrow"><label style="flex:1;min-width:260px">Note for the tenant (optional; goes on the notice)<input id="bNote" maxlength="500" placeholder="e.g. Smoke and CO detectors"></label></div>
+        <div class="formrow" id="bEntry">
+          <label><span><input type="radio" name="bBasis" value="notice" checked> Send the 12-hour notice</span></label>
+          <label><span><input type="radio" name="bBasis" value="consent"> The tenant agreed to this entry</span></label>
+          <label id="bConsentWrap" hidden style="min-width:260px">How and when they agreed<input id="bConsent" placeholder="Agreed by phone 10/7"></label>
+        </div>
+        <p class="meta" id="bOcc"></p>
+        <div class="formrow"><button class="btn primary" type="submit" id="bGo">Book inspection</button><span class="msg" id="bMsg" role="status"></span></div>
+      </form>
+    </section>
+
+    <section>
+      <h2>Booked</h2>
+      <div class="formrow noprint"><label>Show<select id="aShow"><option value="upcoming">Upcoming</option><option value="recent">Last 30 days and upcoming</option><option value="all">Including cancelled</option></select></label>
+        <button class="btn" type="button" id="prn">Print</button></div>
+      <div id="appts"></div>
+    </section>
+
+    <section>
+      <h2>Units</h2>
+      <div class="formrow noprint">
+        <label>Set every unit to every<select id="bulkM"><option>3</option><option>6</option><option selected>12</option><option>24</option></select></label><span style="align-self:center">months</span>
+        <label><span><input type="checkbox" id="bulkOver"> also change units that already have a schedule</span></label>
+        <button class="btn" type="button" id="bulkGo">Apply</button>
+        <span style="flex:1"></span>
+        <label>Email the overdue / due-soon digest to<input id="dTo" type="email" placeholder="the office email"></label>
+        <button class="btn" type="button" id="dGo">Send digest</button>
+        <span class="msg" id="uMsg" role="status"></span>
+      </div>
+      <p class="meta" id="uNote"></p>
+      <div class="table-wrap" style="margin-top:8px"><table>
+        <thead><tr><th>Unit</th><th>Occupied</th><th>Last routine/annual</th><th>Every</th><th>Next due</th><th>Status</th><th>Inspector</th><th>Next booked</th><th class="noprint"></th></tr></thead>
+        <tbody id="units"></tbody></table></div>
+    </section>
+  </div>
+</main>
+<script type="module">
+import { client, $, esc, fmtDate, signIn, signOut, errorText } from "/assets/portal/portal.js";
+const PURPOSES = { routine: "Routine", annual: "Annual", pre_move_in: "Pre-move-in", pre_move_out: "Pre-move-out", follow_up: "Follow-up", complaint: "Complaint", other: "Other" };
+let DUE = null, LIST = null, editing = null;
+const flush = () => client.functions.invoke("outbox-flush", { body: {} }).catch(() => {});
+const ukey = (u) => u.property_id + "|" + u.unit;
+const when = (iso) => new Date(iso).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+const dayOf = (iso) => new Date(iso).toLocaleDateString("en-CA");
+const startLink = (pid, unit, purpose, appt) => `/inspections/unit/?p=${encodeURIComponent(pid)}&u=${encodeURIComponent(unit)}${purpose ? "&purpose=" + encodeURIComponent(purpose) : ""}${appt ? "&appt=" + encodeURIComponent(appt) : ""}`;
+const say = (id, t, bad) => { $(id).className = "msg " + (bad ? "err" : "ok"); $(id).textContent = t; };
+
+async function sendNotice(x) {
+  // The notices function turns the html into the PDF on letterhead, files it for the tenants and emails them.
+  const { error } = await client.functions.invoke("notices", { body: { action: "send", lease_id: x.lease_id, template_id: x.template_id,
+    subject: x.notice_subject, html: x.html, email_tenants: true, link: { kind: "inspection", id: x.id } } });
+  if (!error) return null;
+  let msg = error.message; try { msg = (await error.context.json()).error || msg; } catch { /* plain error */ }
+  return msg;
+}
+
+function renderUnits() {
+  const units = DUE.units || [];
+  $("uNote").textContent = `Units without their own schedule use the default: every ${DUE.interval_days} days. Only routine and annual inspections restart a unit's clock.`;
+  const L = { never: ["warn", "Never inspected"], overdue: ["bad", "Overdue"], soon: ["warn", "Due soon"], ok: ["", "OK"] };
+  $("units").innerHTML = units.map((u) => {
+    const k = ukey(u), st = u.paused ? ["off", "Paused"] : L[u.state], na = u.next_appt;
+    if (editing === k) return `<tr class="editing" data-k="${esc(k)}"><td><b>${esc(u.unit)}</b></td><td>${u.occupied ? "Yes" : "Vacant"}</td><td>${u.last ? fmtDate(u.last) : "never"}</td>
+      <td><select data-e="m">${[1, 2, 3, 4, 6, 12, 18, 24, 36].map((m) => `<option value="${m}"${(u.frequency_months || 12) === m ? " selected" : ""}>${m} mo</option>`).join("")}</select></td>
+      <td><input type="date" data-e="due" value="${esc(u.due_on || "")}"></td>
+      <td><label><input type="checkbox" data-e="active"${u.paused ? "" : " checked"}> active</label></td>
+      <td><select data-e="insp"><option value="">—</option>${LIST.inspectors.map((i) => `<option value="${esc(i.email)}"${i.email === u.inspector ? " selected" : ""}>${esc(i.name)}</option>`).join("")}</select></td>
+      <td><input data-e="note" placeholder="Note" value="${esc(u.schedule_note || "")}"></td>
+      <td><button class="btn primary small" type="button" data-save="${esc(k)}">Save</button> <button class="linkbtn" type="button" data-cancel-edit>Cancel</button></td></tr>`;
+    return `<tr><td><b>${esc(u.unit)}</b><div class="meta">${esc(u.address || "")}</div></td><td>${u.occupied ? "Yes" : "Vacant"}</td><td>${u.last ? fmtDate(u.last) : "never"}</td>
+      <td>${u.scheduled ? u.frequency_months + " mo" : `<span class="meta">${DUE.interval_days} days (default)</span>`}</td><td>${u.due_on ? fmtDate(u.due_on) : ""}</td>
+      <td><span class="pill3 ${st[0]}">${st[1]}</span>${u.schedule_note ? `<div class="meta">${esc(u.schedule_note)}</div>` : ""}</td><td>${esc(u.inspector || "")}</td>
+      <td>${na ? `${fmtDate(na.starts_at)} ${when(na.starts_at)}<div class="meta">${esc(PURPOSES[na.purpose] || "")}</div>` : ""}</td>
+      <td class="noprint" style="white-space:nowrap"><button class="linkbtn" type="button" data-edit="${esc(k)}">Edit</button> <button class="linkbtn" type="button" data-book="${esc(k)}">Book</button> <a href="${startLink(u.property_id, u.unit)}">Start</a></td></tr>`;
+  }).join("") || `<tr><td colspan="9" class="meta">No units.</td></tr>`;
+  const sel = $("bUnit"), cur = sel.value;
+  sel.innerHTML = units.map((u) => `<option value="${esc(ukey(u))}">Unit ${esc(u.unit)}${u.occupied ? "" : " (vacant)"}</option>`).join("");
+  if (cur) sel.value = cur;
+  bookUnitChanged();
+}
+
+function renderAppts() {
+  const show = $("aShow").value, now = Date.now();
+  const rows = (LIST.appointments || []).filter((a) => (show === "all" || a.status !== "cancelled") && (show !== "upcoming" || (a.status === "scheduled" && new Date(a.ends_at).getTime() > now - 864e5)));
+  if (!rows.length) { $("appts").innerHTML = `<p class="meta">Nothing booked.</p>`; return; }
+  const byDay = {}; rows.forEach((a) => (byDay[dayOf(a.starts_at)] = byDay[dayOf(a.starts_at)] || []).push(a));
+  $("appts").innerHTML = Object.keys(byDay).sort().map((d) => `<div class="day"><h3>${new Date(d + "T12:00:00").toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })}</h3>` +
+    byDay[d].map((a) => {
+      const noticeTxt = a.entry_basis === "notice" ? (a.notice_id ? `12-hour notice sent ${fmtDate(a.notice_sent_at)}` : `<span class="bad">12-hour notice NOT sent</span>`)
+        : a.entry_basis === "consent" ? `Tenant agreed: ${esc(a.consent_note || "")}` : "Vacant unit";
+      const pill = a.status === "done" ? `<span class="pill3">done</span>` : a.status === "cancelled" ? `<span class="pill3 off">cancelled</span>` : `<span class="pill3 warn">booked</span>`;
+      return `<div class="appt"><div><b>${when(a.starts_at)}–${when(a.ends_at)} · Unit ${esc(a.unit)}</b> · ${esc(PURPOSES[a.purpose] || a.purpose)} ${pill}
+        <div class="meta">${esc(a.tenants || "")}${a.tenants ? " · " : ""}${noticeTxt}${a.inspector_email ? " · inspector " + esc(a.inspector_email) : ""}</div>
+        ${a.note ? `<div class="meta">Note: ${esc(a.note)}</div>` : ""}${a.cancelled_reason ? `<div class="meta">Cancelled: ${esc(a.cancelled_reason)}</div>` : ""}</div>
+        <div class="acts noprint">${a.status === "scheduled" ? `<a class="btn small primary" href="${startLink(a.property_id, a.unit, a.purpose, a.id)}">Start inspection</a>
+          ${a.entry_basis === "notice" && !a.notice_id ? `<button class="btn small" type="button" data-renotice="${esc(a.id)}">Send the notice</button>` : ""}
+          <button class="btn small" type="button" data-cancel="${esc(a.id)}">Cancel</button>`
+        : a.status === "done" && a.inspection_id ? `<a class="btn small" href="/inspections/review/?id=${esc(a.inspection_id)}">Report</a>` : ""}</div></div>`;
+    }).join("") + `</div>`).join("");
+}
+
+function bookUnitChanged() {
+  const u = (DUE.units || []).find((x) => ukey(x) === $("bUnit").value);
+  $("bEntry").hidden = !u || !u.occupied;
+  $("bOcc").textContent = !u ? "" : u.occupied ? "Occupied: the tenants must get 12 hours' notice, or have agreed to the entry." : "Vacant: no notice needed.";
+}
+$("bUnit").onchange = bookUnitChanged;
+document.querySelectorAll("input[name=bBasis]").forEach((r) => (r.onchange = () => { $("bConsentWrap").hidden = document.querySelector("input[name=bBasis]:checked").value !== "consent"; }));
+
+$("bookForm").onsubmit = async (e) => {
+  e.preventDefault();
+  const [pid, unit] = $("bUnit").value.split("|"), d = $("bDate").value;
+  if (!d || !$("bFrom").value || !$("bTo").value) return say("bMsg", "Enter the date and the time window.", true);
+  const notice = document.querySelector("input[name=bBasis]:checked").value === "notice";
+  $("bGo").disabled = true; say("bMsg", "Booking…");
+  const { data, error } = await client.rpc("inspection_appointment_create", { p_property: pid, p_unit: unit, p_purpose: $("bPurpose").value,
+    p_start: new Date(`${d}T${$("bFrom").value}`).toISOString(), p_end: new Date(`${d}T${$("bTo").value}`).toISOString(),
+    p_inspector: $("bInsp").value || null, p_note: $("bNote").value, p_notice: notice, p_consent: $("bConsent").value });
+  if (error) { $("bGo").disabled = false; return say("bMsg", await errorText(error), true); }
+  if (data.notice) {
+    say("bMsg", "Booked. Making the 12-hour notice and emailing it…");
+    const err = await sendNotice(data);
+    if (err) { $("bGo").disabled = false; flush(); await load(); return say("bMsg", "Booked, but the notice wasn't sent: " + err + ' Use "Send the notice" on the appointment.', true); }
+  }
+  flush(); $("bGo").disabled = false; $("bNote").value = ""; $("bConsent").value = "";
+  say("bMsg", data.notice ? "Booked and the 12-hour notice was sent." : data.entry_basis === "consent" ? "Booked; the tenants were emailed a confirmation." : "Booked.");
+  await load();
+};
+
+$("appts").addEventListener("click", async (e) => {
+  const c = e.target.closest("[data-cancel]"), r = e.target.closest("[data-renotice]");
+  if (c) {
+    const why = prompt("Why is it cancelled? (Tenants who got a notice are told it's off.)", ""); if (why === null) return;
+    const { error } = await client.rpc("inspection_appointment_cancel", { p_id: c.dataset.cancel, p_reason: why });
+    if (error) return alert(await errorText(error));
+    flush(); return load();
+  }
+  if (r) {
+    r.disabled = true;
+    const { data, error } = await client.rpc("inspection_appointment_notice", { p_id: r.dataset.renotice });
+    if (error) { r.disabled = false; return alert(await errorText(error)); }
+    const err = await sendNotice(data);
+    if (err) { r.disabled = false; return alert("The notice wasn't sent: " + err); }
+    flush(); return load();
+  }
+});
+
+$("units").addEventListener("click", async (e) => {
+  const ed = e.target.closest("[data-edit]"), bk = e.target.closest("[data-book]"), sv = e.target.closest("[data-save]");
+  if (ed) { editing = ed.dataset.edit; return renderUnits(); }
+  if (e.target.closest("[data-cancel-edit]")) { editing = null; return renderUnits(); }
+  if (bk) { $("bUnit").value = bk.dataset.book; bookUnitChanged(); $("bookForm").scrollIntoView({ behavior: "smooth" }); $("bDate").focus(); return; }
+  if (sv) {
+    const tr = sv.closest("tr"), g = (k) => tr.querySelector(`[data-e="${k}"]`), [pid, unit] = sv.dataset.save.split("|");
+    const { error } = await client.rpc("inspection_schedule_set", { p_property: pid, p_unit: unit, p_months: Number(g("m").value), p_next_due: g("due").value || null,
+      p_inspector: g("insp").value || null, p_active: g("active").checked, p_note: g("note").value });
+    if (error) return alert(await errorText(error));
+    editing = null; return load();
+  }
+});
+
+$("bulkGo").onclick = async () => {
+  const m = Number($("bulkM").value), over = $("bulkOver").checked;
+  if (!confirm(over ? `Set EVERY unit to every ${m} months? Each unit's next due date becomes its last routine/annual inspection + ${m} months (today if never inspected).` : `Give every unit without a schedule a ${m}-month schedule?`)) return;
+  const { data, error } = await client.rpc("inspection_schedule_bulk", { p_months: m, p_overwrite: over });
+  if (error) return say("uMsg", await errorText(error), true);
+  say("uMsg", `${data} unit(s) set.`); load();
+};
+$("dGo").onclick = async () => {
+  const { data, error } = await client.rpc("inspections_digest", { p_to: $("dTo").value || null });
+  if (error) return say("uMsg", await errorText(error), true);
+  flush(); say("uMsg", `Digest sent to ${data.to}: ${data.overdue} overdue, ${data.soon} due soon, ${data.booked} booked.`);
+};
+$("aShow").onchange = renderAppts;
+$("prn").onclick = () => window.print();
+
+async function load() {
+  const today = new Date(), from = new Date(today.getTime() - 30 * 864e5).toISOString().slice(0, 10), to = new Date(today.getTime() + 365 * 864e5).toISOString().slice(0, 10);
+  const [d, l] = await Promise.all([client.rpc("inspections_due"), client.rpc("inspection_appointments_list", { p_from: from, p_to: to })]);
+  const err = d.error || l.error;
+  if (err) { $("signin").hidden = false; $("signin").innerHTML = `<div class="panel">${esc(await errorText(err))}</div>`; return; }
+  DUE = d.data; LIST = l.data;
+  const insp = $("bInsp"), cur = insp.value;
+  insp.innerHTML = `<option value="">Unit's usual inspector</option>` + LIST.inspectors.map((i) => `<option value="${esc(i.email)}">${esc(i.name)}</option>`).join("");
+  insp.value = cur;
+  $("signin").hidden = true; $("app").hidden = false;
+  renderUnits(); renderAppts();
+}
+
+$("signOutBtn").onclick = signOut;
+const who = await signIn($("signin"), { audience: "staff" });
+$("userBar").hidden = false;
+if (who.role !== "staff") { $("signin").hidden = false; $("signin").innerHTML = `<div class="panel"><p>This page is for office staff. <a href="/staff/">Go to My units</a></p></div>`; }
+else {
+  const t = new Date(Date.now() + 2 * 864e5); $("bDate").value = t.toLocaleDateString("en-CA");
+  await load();
+}
+</script>
+</body>
+</html>

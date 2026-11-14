@@ -1,0 +1,1762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Residential Rental Agreement — Fillable Template</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f4f5f7;
+    --panel: #ffffff;
+    --border: #d7dae0;
+    --text: #1c1e21;
+    --muted: #5b6270;
+    --accent: #2f5d9c;
+    --danger: #a4342a;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #16181c;
+      --panel: #1f2226;
+      --border: #33373d;
+      --text: #e7e9ec;
+      --muted: #9aa1ac;
+      --accent: #6ea0e6;
+      --danger: #e08078;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+  }
+  .layout {
+    display: grid;
+    grid-template-columns: minmax(340px, 460px) 1fr;
+    gap: 24px;
+    padding: 24px;
+    max-width: 1500px;
+    margin: 0 auto;
+    align-items: start;
+  }
+  h1 { font-size: 1.1rem; margin: 0 0 4px; }
+  .subtitle { color: var(--muted); font-size: 0.85rem; margin: 0 0 16px; }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+  }
+  fieldset {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin: 0 0 14px;
+    padding: 10px 12px 14px;
+  }
+  legend {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+    padding: 0 4px;
+  }
+  label {
+    display: block;
+    font-size: 0.8rem;
+    margin: 8px 0 3px;
+    color: var(--muted);
+  }
+  input[type="text"], input[type="date"], input[type="number"], textarea, select {
+    width: 100%;
+    font: inherit;
+    font-size: 0.85rem;
+    padding: 6px 8px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--bg);
+    color: var(--text);
+  }
+  textarea { resize: vertical; min-height: 50px; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .check-row { display: flex; align-items: flex-start; gap: 6px; margin: 8px 0; }
+  .check-row input { margin-top: 3px; }
+  .check-row label { margin: 0; font-size: 0.85rem; color: var(--text); }
+  button {
+    font: inherit;
+    font-size: 0.8rem;
+    cursor: pointer;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    padding: 6px 10px;
+  }
+  button.primary { background: var(--accent); border-color: var(--accent); color: white; }
+  button.danger-outline { color: var(--danger); border-color: var(--danger); }
+  .toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; position: sticky; bottom: 0; background: var(--bg); padding-top: 8px; }
+  .hint { font-size: 0.75rem; color: var(--muted); margin-top: -2px; margin-bottom: 6px; }
+  details.note { border: 1px dashed var(--border); border-radius: 6px; padding: 8px 10px; margin: 8px 0; font-size: 0.78rem; color: var(--muted); }
+  details.note summary { cursor: pointer; font-weight: 600; }
+
+  /* --- Letter preview --- */
+  .letter-wrap { display: flex; justify-content: center; }
+  .letter {
+    background: white;
+    color: #000;
+    width: 8.5in;
+    min-height: 11in;
+    padding: 0.7in 0.8in;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 10pt;
+    line-height: 1.3;
+  }
+  .letter h2.doc-title { text-align: center; font-weight: bold; font-size: 12pt; margin: 0 0 2px; }
+  .letter .created-on { text-align: center; margin: 0 0 14px; font-size: 9pt; }
+  .letter .intro { margin: 0 0 12px; text-align: justify; }
+  .letter .sec-title { font-weight: bold; margin: 14px 0 4px; font-size: 10.5pt; }
+  .letter table.info { width: 100%; border-collapse: collapse; margin: 4px 0 10px; }
+  .letter table.info td { border: 1px solid #000; padding: 3px 6px; vertical-align: top; }
+  .letter table.info td.label { font-weight: bold; width: 34%; }
+  .letter p { margin: 0 0 10px; text-align: justify; }
+  .letter ol.clauses { margin: 0 0 10px; padding-left: 20px; }
+  .letter ol.clauses li { margin-bottom: 8px; text-align: justify; }
+  .letter .rules-group-title { font-weight: bold; margin: 10px 0 2px; }
+  .letter ul.rules { margin: 0 0 6px; padding-left: 18px; }
+  .letter ul.rules li { margin-bottom: 4px; text-align: justify; }
+  .letter .nsp-item { margin-bottom: 8px; text-align: justify; }
+  .letter .nsp-item b { font-weight: bold; }
+  .letter .callout { border: 1px solid #000; padding: 8px 10px; margin: 8px 0 14px; background: #f7f7f7; }
+  .letter .page-break { break-before: page; page-break-before: always; margin-top: 24px; }
+  .signature-line { border-top: 1px solid #000; display: inline-block; min-width: 260px; padding-top: 2px; margin-top: 22px; }
+  .sig-row { display: flex; gap: 40px; align-items: flex-end; margin: 10px 0 4px; flex-wrap: wrap; }
+  .sig-img { display: block; height: 40px; }
+  .parking-section { margin-bottom: 10px; }
+  .parking-section b { font-weight: bold; }
+  .parking-initial { display: inline-block; border-bottom: 1px solid #000; min-width: 60px; margin-left: 8px; }
+  /* No line at all when initials aren't required: a blank line nobody is asked to fill looks unfinished. */
+  .parking-initial:empty { display: none; }
+
+  @media (max-width: 950px) {
+    .layout { grid-template-columns: 1fr; }
+  }
+
+  @media print {
+    body { background: white; }
+    .panel.form-panel, .toolbar, .no-print { display: none !important; }
+    .layout { display: block; padding: 0; }
+    .letter-wrap { display: block; }
+    .letter { box-shadow: none; width: auto; min-height: auto; padding: 0.55in 0.7in; }
+    @page { size: letter; margin: 0.4in; }
+  }
+  /* Send status: green and bold when sent, red when it could not be sent, blue while working, so the result can't be missed. */
+  #sendToTenantStatus[data-kind] { border-radius: 8px; padding: 12px 14px; font-size: 1.05rem; font-weight: 700; border: 2px solid; margin-top: 10px; }
+  #sendToTenantStatus[data-kind="ok"] { background: #e6f4ea; color: #0b6b2a; border-color: #4caf6a; }
+  #sendToTenantStatus[data-kind="err"] { background: #fdecea; color: #b3261e; border-color: #e57368; }
+  #sendToTenantStatus[data-kind="busy"] { background: #eaf1fb; color: #1a4fa0; border-color: #8db0e6; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+  <div class="panel form-panel no-print">
+    <h1>Residential Rental Agreement</h1>
+    <p class="subtitle">Covers Month-to-Month, CVI-contingent, and Annual (fixed-term) leases in one template. Choose the lease type first — it drives which clauses show up below. Fill in the rest, review the preview, then send it to the tenant for e-signature.</p>
+
+    <form id="leaseForm" autocomplete="off">
+
+      <fieldset>
+        <legend>Import applicant data</legend>
+        <p class="hint">Paste the JSON produced from a prospective tenant's rental application (ask Claude Code to generate it from the application PDF/screenshot and the unit they're applying for) and click Load — it fills in the matching Tenant/Premises fields below without touching lease business terms (rent, deposit, dates, lease type), which still need staff judgment.</p>
+        <textarea id="importJson" placeholder='{"tenant1Name": "...", "tenant1Email": "...", "unitSelect": "..."}' style="min-height:70px; font-family: monospace; font-size: 0.75rem;"></textarea>
+        <button type="button" id="importBtn" style="margin-top:6px;">Load into form</button>
+        <p class="hint" id="prospectLoadStatus"></p>
+      </fieldset>
+
+      <fieldset>
+        <legend>Lease type</legend>
+        <label for="leaseType">Which kind of lease is this?</label>
+        <select id="leaseType">
+          <option value="mtm">Month-to-Month (ROCA1)</option>
+          <option value="cvi">CVI-Contingent (ROCA1)</option>
+          <option value="annual">Annual / Fixed-Term (2nd Chance Housing)</option>
+        </select>
+        <label for="createdOnDate">Document created on</label>
+        <input type="date" id="createdOnDate">
+      </fieldset>
+
+      <fieldset>
+        <legend>Tenant 1</legend>
+        <label for="tenant1Name">Name</label>
+        <input type="text" id="tenant1Name" placeholder="e.g. Jane Doe">
+        <label for="tenant1Email">E-mail</label>
+        <input type="text" id="tenant1Email" placeholder="jane@example.com">
+        <div class="row2">
+          <div>
+            <label for="numAdults"># of Adults</label>
+            <input type="number" id="numAdults" min="0" step="1" placeholder="1">
+          </div>
+          <div>
+            <label for="numChildren"># of Children</label>
+            <input type="number" id="numChildren" min="0" step="1" placeholder="0">
+          </div>
+        </div>
+        <div class="row2">
+          <div>
+            <label for="child1Name">Child 1 name</label>
+            <input type="text" id="child1Name" placeholder="N/A">
+          </div>
+          <div>
+            <label for="child1Dob">Child 1 D.O.B.</label>
+            <input type="text" id="child1Dob" placeholder="N/A">
+          </div>
+        </div>
+        <div class="row2">
+          <div>
+            <label for="child2Name">Child 2 name</label>
+            <input type="text" id="child2Name" placeholder="N/A">
+          </div>
+          <div>
+            <label for="child2Dob">Child 2 D.O.B.</label>
+            <input type="text" id="child2Dob" placeholder="N/A">
+          </div>
+        </div>
+        <div class="row2" id="childRow3" style="display:none;">
+          <div>
+            <label for="child3Name">Child 3 name</label>
+            <input type="text" id="child3Name" placeholder="N/A">
+          </div>
+          <div>
+            <label for="child3Dob">Child 3 D.O.B.</label>
+            <input type="text" id="child3Dob" placeholder="N/A">
+          </div>
+        </div>
+        <div class="row2" id="childRow4" style="display:none;">
+          <div>
+            <label for="child4Name">Child 4 name</label>
+            <input type="text" id="child4Name" placeholder="N/A">
+          </div>
+          <div>
+            <label for="child4Dob">Child 4 D.O.B.</label>
+            <input type="text" id="child4Dob" placeholder="N/A">
+          </div>
+        </div>
+        <div class="row2" id="childRow5" style="display:none;">
+          <div>
+            <label for="child5Name">Child 5 name</label>
+            <input type="text" id="child5Name" placeholder="N/A">
+          </div>
+          <div>
+            <label for="child5Dob">Child 5 D.O.B.</label>
+            <input type="text" id="child5Dob" placeholder="N/A">
+          </div>
+        </div>
+        <div class="row2" id="childRow6" style="display:none;">
+          <div>
+            <label for="child6Name">Child 6 name</label>
+            <input type="text" id="child6Name" placeholder="N/A">
+          </div>
+          <div>
+            <label for="child6Dob">Child 6 D.O.B.</label>
+            <input type="text" id="child6Dob" placeholder="N/A">
+          </div>
+        </div>
+        <button type="button" id="addChildBtn" style="margin-top:0.5rem;">+ Add another child</button>
+      </fieldset>
+
+      <fieldset>
+        <legend>Tenant 2 (optional)</legend>
+        <div class="check-row">
+          <input type="checkbox" id="includeTenant2">
+          <label for="includeTenant2">Include a second co-signing tenant</label>
+        </div>
+        <label for="tenant2Pick" class="no-print">Fill from an application</label>
+        <select id="tenant2Pick" class="no-print"><option value="">— loads after staff sign-in —</option></select>
+        <label for="tenant2Name">Name</label>
+        <input type="text" id="tenant2Name" placeholder="e.g. John Doe">
+        <label for="tenant2Email">E-mail</label>
+        <input type="text" id="tenant2Email" placeholder="john@example.com">
+        <label for="tenant2Phone">Mobile (optional)</label>
+        <input type="tel" id="tenant2Phone" placeholder="(414) 555-0123">
+        <input type="hidden" id="tenant2AppId">
+      </fieldset>
+
+      <fieldset>
+        <legend>Tenant 3 (optional)</legend>
+        <div class="check-row">
+          <input type="checkbox" id="includeTenant3">
+          <label for="includeTenant3">Include a third co-signing tenant</label>
+        </div>
+        <label for="tenant3Pick" class="no-print">Fill from an application</label>
+        <select id="tenant3Pick" class="no-print"><option value="">— loads after staff sign-in —</option></select>
+        <label for="tenant3Name">Name</label>
+        <input type="text" id="tenant3Name" placeholder="e.g. John Doe">
+        <label for="tenant3Email">E-mail</label>
+        <input type="text" id="tenant3Email" placeholder="john@example.com">
+        <label for="tenant3Phone">Mobile (optional)</label>
+        <input type="tel" id="tenant3Phone" placeholder="(414) 555-0123">
+        <input type="hidden" id="tenant3AppId">
+      </fieldset>
+
+      <fieldset>
+        <legend>Tenant 4 (optional)</legend>
+        <div class="check-row">
+          <input type="checkbox" id="includeTenant4">
+          <label for="includeTenant4">Include a fourth co-signing tenant</label>
+        </div>
+        <label for="tenant4Pick" class="no-print">Fill from an application</label>
+        <select id="tenant4Pick" class="no-print"><option value="">— loads after staff sign-in —</option></select>
+        <label for="tenant4Name">Name</label>
+        <input type="text" id="tenant4Name" placeholder="e.g. John Doe">
+        <label for="tenant4Email">E-mail</label>
+        <input type="text" id="tenant4Email" placeholder="john@example.com">
+        <label for="tenant4Phone">Mobile (optional)</label>
+        <input type="tel" id="tenant4Phone" placeholder="(414) 555-0123">
+        <input type="hidden" id="tenant4AppId">
+      </fieldset>
+
+      <fieldset>
+        <legend>Owner &amp; agent</legend>
+        <label for="ownerName">Owner name</label>
+        <input type="text" id="ownerName" placeholder="e.g. 2nd Chance Housing Inc">
+        <p class="hint">The Agent block below auto-fills based on lease type (ROCA1 for MTM/CVI, 2nd Chance Housing for Annual) — edit freely if this deal uses a different agent.</p>
+        <label for="agentOrgName">Agent organization</label>
+        <input type="text" id="agentOrgName">
+        <label for="agentAddress">Agent address</label>
+        <input type="text" id="agentAddress">
+        <label for="agentEmail">Agent e-mail</label>
+        <input type="text" id="agentEmail">
+      </fieldset>
+
+      <fieldset>
+        <legend>Premises</legend>
+        <label for="unitSelect">Unit</label>
+        <select id="unitSelect">
+          <option value="">— Select a unit —</option>
+          <optgroup label="6622 N. Bourbon St.">
+            <option value="6622 N. Bourbon St., Unit #11">Unit #11</option>
+            <option value="6622 N. Bourbon St., Unit #12">Unit #12</option>
+            <option value="6622 N. Bourbon St., Unit #13">Unit #13</option>
+            <option value="6622 N. Bourbon St., Unit #14">Unit #14</option>
+            <option value="6622 N. Bourbon St., Unit #15">Unit #15</option>
+            <option value="6622 N. Bourbon St., Unit #16">Unit #16</option>
+            <option value="6622 N. Bourbon St., Unit #17">Unit #17</option>
+            <option value="6622 N. Bourbon St., Unit #18">Unit #18</option>
+          </optgroup>
+          <optgroup label="6626 N Bourbon St.">
+            <option value="6626 N Bourbon St., Unit #1">Unit #1</option>
+            <option value="6626 N Bourbon St., Unit #2">Unit #2</option>
+            <option value="6626 N Bourbon St., Unit #3">Unit #3</option>
+            <option value="6626 N Bourbon St., Unit #4">Unit #4</option>
+            <option value="6626 N Bourbon St., Unit #5">Unit #5</option>
+            <option value="6626 N Bourbon St., Unit #6">Unit #6</option>
+            <option value="6626 N Bourbon St., Unit #7">Unit #7</option>
+            <option value="6626 N Bourbon St., Unit #8">Unit #8</option>
+          </optgroup>
+          <option value="__custom__">Other (type manually)</option>
+        </select>
+        <input type="text" id="unitCustom" placeholder="Street address and unit" style="display:none; margin-top:6px;">
+      </fieldset>
+
+      <fieldset id="cviBanner-fieldset" style="display:none;">
+        <legend>CVI approval</legend>
+        <p class="hint">Fixed banner text shown at the top of a CVI lease: contingent on CVI approval; signee may take possession with the agency approval letter for deposit + 1st month's rent. No fields needed — this is boilerplate.</p>
+      </fieldset>
+
+      <fieldset id="annualBanner-fieldset" style="display:none;">
+        <legend>Housing authority approval (Annual lease)</legend>
+        <p class="hint">Check which agency this lease is contingent on. Tenant can't take possession until deposit + 1st month's rent are paid in full and the unit passes that agency's inspection (fixed boilerplate).</p>
+        <div class="check-row"><input type="checkbox" id="agencyHACM"><label for="agencyHACM">Housing Authority of the City of Milwaukee</label></div>
+        <div class="check-row"><input type="checkbox" id="agencyMCHA"><label for="agencyMCHA">Milwaukee County Housing Authority</label></div>
+        <div class="check-row"><input type="checkbox" id="agencyHUDVASH"><label for="agencyHUDVASH">HUDVASH</label></div>
+        <div class="check-row"><input type="checkbox" id="agencyOther"><label for="agencyOther">The agency with whom the prospective Tenant is a client</label></div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Lease terms</legend>
+        <label for="initialStartDate">Initial start date</label>
+        <input type="date" id="initialStartDate">
+
+        <div id="renewalOnWrap">
+          <label for="renewalOn">Perpetual renewal on</label>
+          <input type="text" id="renewalOn" value="The 1st day of each month">
+        </div>
+        <div id="expirationDateWrap" style="display:none;">
+          <label for="expirationDate">Expiration date</label>
+          <input type="date" id="expirationDate">
+        </div>
+
+        <label for="rentLateOn">Rent late on</label>
+        <input type="text" id="rentLateOn" value="2nd day of the month">
+        <div class="row2">
+          <div>
+            <label for="rentAmount">Rent amount ($)</label>
+            <input type="number" id="rentAmount" step="0.01" placeholder="925.00">
+          </div>
+          <div>
+            <label for="securityDeposit">Security deposit ($)</label>
+            <input type="number" id="securityDeposit" step="0.01" placeholder="1800.00">
+          </div>
+        </div>
+        <label for="rentDueOn">Rent due on</label>
+        <input type="text" id="rentDueOn" value="1st day of each month">
+        <label for="lateFee">Late rent fee ($)</label>
+        <input type="number" id="lateFee" step="0.01">
+        <label for="fiveDayNoticeOn">5-Day Notice (Wis. Stat. §704.17) issued on</label>
+        <input type="text" id="fiveDayNoticeOn" value="2nd day of the month">
+
+        <div id="moveInWrap">
+          <label for="moveInTotal">Total due to get the keys ($) (blank = security deposit + 1st month's rent)</label>
+          <input type="number" id="moveInTotal" step="0.01">
+        </div>
+
+        <div id="cviSplitWrap" style="display:none;">
+          <p class="hint" style="margin-top:12px;">Who pays the security deposit / 1st month's rent (CVI-contingent leases split cost between Tenant and CVI):</p>
+          <div class="row2">
+            <div>
+              <label for="depositSplitTenantPct">Deposit — Tenant %</label>
+              <input type="number" id="depositSplitTenantPct" step="1" placeholder="0">
+            </div>
+            <div>
+              <label for="depositSplitCviPct">Deposit — CVI %</label>
+              <input type="number" id="depositSplitCviPct" step="1" placeholder="100">
+            </div>
+          </div>
+          <div class="row2">
+            <div>
+              <label for="rentSplitTenantPct">1st rent — Tenant %</label>
+              <input type="number" id="rentSplitTenantPct" step="1" placeholder="0">
+            </div>
+            <div>
+              <label for="rentSplitCviPct">1st rent — CVI %</label>
+              <input type="number" id="rentSplitCviPct" step="1" placeholder="100">
+            </div>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Utilities (checked = Tenant pays)</legend>
+        <div class="row2">
+          <div class="check-row"><input type="checkbox" id="utilElectricity" checked><label for="utilElectricity">Electricity</label></div>
+          <div class="check-row"><input type="checkbox" id="utilGas" checked><label for="utilGas">Gas</label></div>
+          <div class="check-row"><input type="checkbox" id="utilHeat" checked><label for="utilHeat">Heat</label></div>
+          <div class="check-row"><input type="checkbox" id="utilAC" checked><label for="utilAC">Air Conditioning</label></div>
+          <div class="check-row"><input type="checkbox" id="utilSewer"><label for="utilSewer">Sewer/Water</label></div>
+          <div class="check-row"><input type="checkbox" id="utilHotWater"><label for="utilHotWater">Hot Water</label></div>
+          <div class="check-row"><input type="checkbox" id="utilTrash"><label for="utilTrash">Trash</label></div>
+          <div class="check-row"><input type="checkbox" id="utilInternet" checked><label for="utilInternet">Internet</label></div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Attachments checklist</legend>
+        <div class="row2">
+          <div class="check-row"><input type="checkbox" id="attGuarantee"><label for="attGuarantee">Guarantee/Renewal/Assignment/Sublease</label></div>
+          <div class="check-row"><input type="checkbox" id="attNonstandard" checked><label for="attNonstandard">Nonstandard Rental Provision</label></div>
+          <div class="check-row"><input type="checkbox" id="attRules" checked><label for="attRules">Rules &amp; Regulations</label></div>
+          <div class="check-row"><input type="checkbox" id="attPromises"><label for="attPromises">Promises to Repair</label></div>
+          <div class="check-row"><input type="checkbox" id="attSmoke" checked><label for="attSmoke">Smoke Detector Notice</label></div>
+          <div class="check-row"><input type="checkbox" id="attCode"><label for="attCode">Code Violations</label></div>
+          <div class="check-row"><input type="checkbox" id="attLead" checked><label for="attLead">Lead Based Paint Disclosure &amp; Pamphlet</label></div>
+          <div class="check-row"><input type="checkbox" id="attRealEstate"><label for="attRealEstate">Real Estate Agency Disclosure</label></div>
+          <div class="check-row"><input type="checkbox" id="attParkingDoc"><label for="attParkingDoc">ROCA1_Rules_Parking</label></div>
+          <div class="check-row"><input type="checkbox" id="attHud"><label for="attHud">HUD-52641-A</label></div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Pets policy</legend>
+        <label for="petsPolicy">Policy</label>
+        <select id="petsPolicy">
+          <option value="fee">Not permitted without consent — $150/month fee + written attestation</option>
+          <option value="none">Not permitted, no fee schedule (simple prohibition)</option>
+        </select>
+        <div id="petsAttestationWrap">
+          <label for="petsAttestationText">Attestation line (tenant types this in Rules &amp; Regulations)</label>
+          <input type="text" id="petsAttestationText" value="I will not bring any pets on the property.">
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Appliances clause</legend>
+        <div class="check-row">
+          <input type="checkbox" id="includeAppliancesClause" checked>
+          <label for="includeAppliancesClause">Include the "Appliances; Tenant Responsibility" nonstandard provision (present in MTM/CVI source docs; missing from the Annual source — recommended for all lease types, but confirm before relying on it for an Annual lease already in use).</label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Parking provision</legend>
+        <label for="parkingVariant">Variant</label>
+        <select id="parkingVariant">
+          <option value="full">Full 22-section Parking Agreement addendum</option>
+          <option value="short">Short reference to the Rules &amp; Regulations document</option>
+        </select>
+        <div id="parkingInitialsWrap">
+          <div class="check-row">
+            <input type="checkbox" id="parkingRequireInitials">
+            <label for="parkingRequireInitials">Require a tenant initial line after each of the 22 sections</label>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Signature block</legend>
+        <label for="signerName">Agent signer name</label>
+        <input type="text" id="signerName">
+        <label for="signerTitle">Agent signer title</label>
+        <input type="text" id="signerTitle">
+        <div class="check-row">
+          <input type="checkbox" id="includeSig">
+          <label for="includeSig">Include signature image</label>
+        </div>
+      </fieldset>
+
+    </form>
+
+    <div class="toolbar">
+      <button type="button" class="primary" id="sendToTenantBtn">Send to tenant for e-signature</button>
+      <button type="button" id="resetBtn" class="danger-outline">Clear all fields</button>
+    </div>
+    <p id="sendToTenantStatus" class="hint" style="display:none;"></p>
+    <p class="hint">Entries are saved automatically in this browser (localStorage) so you don't lose them on refresh. Use "Clear all fields" before starting the next tenant's lease.</p>
+    <details class="note">
+      <summary>Before you rely on this for a real signature</summary>
+      This template merges three previously separate lease documents (MTM, CVI, Annual) into one, with the parts that differ (approval banners, agent identity, term structure, pet clause, parking provision, appliances clause) driven by the Lease Type selector and the toggles above. Do a side-by-side check against a real filled example of each type before using this as the signed document of record.
+    </details>
+  </div>
+
+  <div class="letter-wrap">
+    <div class="letter" id="letter">
+
+      <div id="cviBanner" class="callout" style="display:none;">
+        <b>NOTE: This Agreement is contingent upon approval [by] The Center for Veterans Issues (CVI).</b><br>
+        Signee may take possession of the unit with agency approval letter for security deposit and 1st month's rent.<br>
+        The move in date IS the day after the prospective Tenant receives the key.
+      </div>
+
+      <div id="annualBanner" class="callout" style="display:none;">
+        NOTE: This Agreement is contingent upon approval by either:
+        <ul class="rules" id="annualAgencyList"></ul>
+        Signee can not take possession of the unit until security deposit and 1st month's rent are paid in full.<br>
+        Signee can not take possession of the unit until the unit has passed their agencies' inspections.<br>
+        The move in date IS the day after the prospective Tenant receives the key.
+      </div>
+
+      <h2 class="doc-title" id="p_docHeader1">Royal Orleans Condominium Addition 1 (ROCA1)</h2>
+      <h2 class="doc-title" id="p_docHeader2" style="display:none;"></h2>
+      <h2 class="doc-title">Residential Rental Agreement</h2>
+      <p class="created-on">Created On: <span id="p_createdOn">________________________________________</span></p>
+
+      <p class="intro">This Agreement for the premises identified below is entered into by and between the Landlord and Tenant (referred to in the singular whether one or more) on the following terms and conditions:</p>
+
+      <div class="sec-title">§ Tenant 1</div>
+      <table class="info">
+        <tr><td class="label"># of Adults</td><td id="p_numAdults"></td><td class="label"># of Children</td><td id="p_numChildren"></td></tr>
+        <tr><td class="label">Name</td><td colspan="3" id="p_tenant1Name"></td></tr>
+        <tr><td class="label">E-Mail</td><td colspan="3" id="p_tenant1Email"></td></tr>
+        <tr><td class="label" colspan="4">Children Information</td></tr>
+        <tr><td class="label">Name 1</td><td id="p_child1Name"></td><td class="label">D.O.B. 1</td><td id="p_child1Dob"></td></tr>
+        <tr><td class="label">Name 2</td><td id="p_child2Name"></td><td class="label">D.O.B. 2</td><td id="p_child2Dob"></td></tr>
+        <tr id="p_childRow3" style="display:none;"><td class="label">Name 3</td><td id="p_child3Name"></td><td class="label">D.O.B. 3</td><td id="p_child3Dob"></td></tr>
+        <tr id="p_childRow4" style="display:none;"><td class="label">Name 4</td><td id="p_child4Name"></td><td class="label">D.O.B. 4</td><td id="p_child4Dob"></td></tr>
+        <tr id="p_childRow5" style="display:none;"><td class="label">Name 5</td><td id="p_child5Name"></td><td class="label">D.O.B. 5</td><td id="p_child5Dob"></td></tr>
+        <tr id="p_childRow6" style="display:none;"><td class="label">Name 6</td><td id="p_child6Name"></td><td class="label">D.O.B. 6</td><td id="p_child6Dob"></td></tr>
+      </table>
+
+      <div id="tenant2Block" style="display:none;">
+        <div class="sec-title">§ Tenant 2</div>
+        <table class="info">
+          <tr><td class="label">Name</td><td id="p_tenant2Name"></td></tr>
+          <tr><td class="label">E-Mail</td><td id="p_tenant2Email"></td></tr>
+        </table>
+      </div>
+
+      <div id="tenant3Block" style="display:none;">
+        <div class="sec-title">§ Tenant 3</div>
+        <table class="info">
+          <tr><td class="label">Name</td><td id="p_tenant3Name"></td></tr>
+          <tr><td class="label">E-Mail</td><td id="p_tenant3Email"></td></tr>
+        </table>
+      </div>
+
+      <div id="tenant4Block" style="display:none;">
+        <div class="sec-title">§ Tenant 4</div>
+        <table class="info">
+          <tr><td class="label">Name</td><td id="p_tenant4Name"></td></tr>
+          <tr><td class="label">E-Mail</td><td id="p_tenant4Email"></td></tr>
+        </table>
+      </div>
+
+      <div class="sec-title">§ Owner</div>
+      <table class="info">
+        <tr><td class="label">Owner</td><td id="p_ownerName"></td></tr>
+        <tr><td colspan="2" id="p_ownerNote"></td></tr>
+      </table>
+
+      <div class="sec-title">§ Agent — for service of process, collection, maintenance and management, and collection of rents</div>
+      <p>If mailing, send rents to the Agent's address:</p>
+      <table class="info">
+        <tr><td class="label">Agent</td><td id="p_agentOrgName"></td></tr>
+        <tr><td class="label">Address</td><td id="p_agentAddress"></td></tr>
+        <tr><td class="label">E-Mail</td><td id="p_agentEmail"></td></tr>
+      </table>
+
+      <div class="sec-title">§ Premises</div>
+      <p id="p_premises">[Unit address]</p>
+
+      <div class="sec-title">§ Terms</div>
+      <table class="info">
+        <tr><td class="label">Initial Start Date</td><td id="p_initialStartDate"></td></tr>
+        <tr id="p_renewalOnRow"><td class="label">Perpetual Renewal On</td><td id="p_renewalOn"></td></tr>
+        <tr id="p_expirationDateRow" style="display:none;"><td class="label">Expiration Date</td><td id="p_expirationDate"></td></tr>
+        <tr><td class="label">Rent Late On</td><td id="p_rentLateOn"></td></tr>
+        <tr><td class="label">Rent Amount</td><td id="p_rentAmount"></td><td class="label">Security Deposit Amount</td><td id="p_securityDeposit"></td></tr>
+        <tr><td class="label">Rent Due On</td><td id="p_rentDueOn"></td><td class="label">Late Rent Fee</td><td id="p_lateFee"></td></tr>
+        <tr><td class="label">5 Day Notice, Wis. Stat. §704.17 (1) or (2)(a) and/or (2)(b) to Quit or Pay issued on</td><td colspan="3" id="p_fiveDayNoticeOn"></td></tr>
+        <tr id="p_moveInRow"><td colspan="4" id="p_moveInText"></td></tr>
+        <tr id="p_depositSplitRow" style="display:none;"><td class="label">Who pays Security Deposit?</td><td colspan="3" id="p_depositSplitText"></td></tr>
+        <tr id="p_rentSplitRow" style="display:none;"><td class="label">Who pays 1st month's rent?</td><td colspan="3" id="p_rentSplitText"></td></tr>
+      </table>
+
+      <div class="sec-title">§ Utilities</div>
+      <p>Tenant does not pay for water services. Tenant pays all other utility services.</p>
+      <table class="info">
+        <tr><td class="label">Electricity</td><td id="p_utilElectricity"></td><td class="label">Gas</td><td id="p_utilGas"></td></tr>
+        <tr><td class="label">Heat</td><td id="p_utilHeat"></td><td class="label">Air Conditioning</td><td id="p_utilAC"></td></tr>
+        <tr><td class="label">Sewer/Water</td><td id="p_utilSewer"></td><td class="label">Hot Water</td><td id="p_utilHotWater"></td></tr>
+        <tr><td class="label">Trash</td><td id="p_utilTrash"></td><td class="label">Internet</td><td id="p_utilInternet"></td></tr>
+      </table>
+      <p>Charges incurred by Landlord for Tenant's returned checks are payable by Tenant. Landlord shall provide a receipt for cash payments of rent. All tenants, if more than one, are jointly and severally liable for the full amount of any payments due under this Agreement. Acceptance of a delinquent payment does not constitute a waiver of that default or any other default under this Agreement.</p>
+
+      <div class="sec-title">§ Attachments</div>
+      <p>Attachments checked below are attached to this contract and incorporated herein by reference.</p>
+      <ul class="rules" id="p_attachmentsList"></ul>
+
+      <div class="sec-title">§ Notice of Habitability</div>
+      <p>I hereby acknowledge that Landlord has disclosed any code violations, code enforcement litigation and/or compliance board proceedings during the previous 12 months for the residence and common area and any notice of intent to terminate utility service, copies of which, if any, are listed below to this lease. No known conditions affecting habitability.</p>
+
+      <div class="sec-title">§ Notice of Foreclosure</div>
+      <p>I hereby acknowledge that Landlord has disclosed any foreclosure proceedings against the property or Landlord, copies of which, if any, are listed below. No known foreclosure proceedings.</p>
+
+      <div class="sec-title">§ Further Acknowledgement by Tenant</div>
+      <p><b>Lead Warning Statement.</b> Housing built before 1978 may contain lead-based paint. Lead from paint, paint chips, and dust can pose health hazards if not managed properly. Lead exposure is especially harmful to young children and pregnant women. Before renting pre-1978 housing, Landlord must disclose the presence of known lead-based paint and/or lead-based paint hazards in the dwelling. Tenant must also receive a federally approved pamphlet on lead poisoning prevention.</p>
+      <p><b>Landlord's Disclosure.</b> Landlord has no knowledge of lead-based paint and/or lead-based paint hazards in the housing. Landlord has no reports or records pertaining to lead-based paint and/or lead-based paint hazards in the housing.</p>
+      <p><b>Tenant's Acknowledgment.</b> Tenant hereby acknowledges that on or before <span id="p_leadAckDate">[date]</span>, he/she/they received from <span id="p_leadAckAgent">[Agent]</span>, in connection with the rental of the dwelling located at <span id="p_leadAckAddress">[unit address]</span>, the following documents: Enclosure (1) — US; Enclosure (2) — US. Tenant has received copies of all information listed above. Tenant has received the pamphlet Protect Your Family from Lead in Your Home.</p>
+
+      <p><b>Disclosure of Information on Radon Hazards — Radon Warning Statement.</b> Every tenant interested in leasing residential real property is notified that the property may present exposure to dangerous levels of indoor radon gas that may place the occupants at risk of developing radon-induced lung cancer. Radon, a Class-A human carcinogen, is the leading cause of lung cancer in non-smokers and the second leading cause overall. The landlord leasing the property has agreed to provide the tenant with any information on radon test results of the dwelling showing elevated levels of radon in the owner's possession.</p>
+      <p><b>Landlord's Disclosure.</b> Landlord has no knowledge of elevated radon concentrations in the dwelling. Landlord has no records or reports pertaining to elevated radon concentrations with the dwelling. <b>Tenant's Acknowledgment.</b> Tenant has received copies of all information listed above.</p>
+
+      <p><b>Mold Disclosure — Mold Warning Statement.</b> This mold disclosure is incorporated into and made part of the Lease executed by the Landlord and the Tenant referring to and incorporating the Leased Premises. Potential health effects and symptoms associated with mold exposures include allergic reactions, asthma, and other respiratory complaints. Mold can be found almost anywhere and can grow on virtually any substance, providing moisture is present. There is no practical way to eliminate all mold and mold spores in an indoor environment. The best way to control indoor mold growth is by controlling moisture. Tenant acknowledges that the Landlord has provided direction to the Tenant on how to obtain mold informational pamphlets that are made available to the public through the United States Environmental Protection Agency (EPA) (Mail: Protection U.S. EPA/Office of Radiation and Indoor Air Indoor Environments Division, 1200 Pennsylvania Avenue, NW, #6609J, Washington, DC 20460, Phone: (202) 343-9370). <b>Landlord's Disclosure.</b> Landlord has no knowledge of mold issues in the Leased Premises.</p>
+
+      <p><b>Asbestos Disclosure.</b> Asbestos is a common building material that may be present in many buildings constructed prior to 1981. The United States Environmental Protection Agency (EPA) has determined the mere presence of asbestos materials does not pose a health risk to residents and that such materials are safe as long as they are not disturbed or dislodged in a manner that causes the asbestos fibers to be released. Sanding, scraping, pounding and other remodeling techniques that release dust may cause asbestos particles to become airborne. EPA rules do not require the material to be removed. Federal law requires that reasonable precautions are taken to minimize the chance of damage or disturbance of asbestos containing materials. Tenant(s) acknowledge that this is a WARNING that the Leased Premises may contain asbestos and may expose him/her to a chemical known to cause cancer. Tenant(s) agree that no improvements, alterations, modifications, or repairs to the premises shall be made without the express approval of the Landlord. This approval will depend upon the acceptance of a written plan of protection from the release of or exposure to asbestos. Tenant(s) may hang only pictures and other wall ornaments with hangers that are less than ¼” diameter. Tenant(s) will notify the Landlord immediately where there exists a hole larger than ¼” diameter, evidence of a water leak, and/or any appearance of crumbling or peeling in the wallboard or ceilings. For more information on asbestos, we recommend the Environmental Protection Agency's web site at http://www.epa.gov/asbestos or contact them by calling (202) 554-1404. <b>Landlord's Disclosure.</b> Landlord has no knowledge of asbestos hazards located in or around the Leased Premises.</p>
+
+      <p><b>Disclosure of Bedbug Infestation History.</b> During the past year, the building did not have a bedbug infestation history and it has not been the subject of eradication measures.</p>
+
+      <div class="page-break"></div>
+
+      <ol class="clauses">
+        <li><b>Security Deposit.</b> Upon execution of this Agreement, Tenant shall pay a security deposit in the amount of <span id="p_clauseDeposit">[$amount]</span> to be held by Landlord or Landlord's agent. The deposit, less any amounts legally withheld, will be returned to Tenant's last known address within twenty-one (21) days after any event set forth in §704.28(4), Wis. Stats. If any portion of the deposit is withheld, Landlord must provide Tenant with a written statement accounting for amounts withheld. The statement shall describe each item of physical damage or other claim made against the security deposit, and the amount withheld as reasonable compensation for each item or claim. If repair costs are not known within twenty-one (21) days Landlord may use a good faith estimate in the written accounting. The reasonable cost for tenant damage, waste, or neglect of the premises, normal wear and tear excluded, may be deducted from Tenant's security deposit as well as any amounts set forth in §704.28(1), Wis. Stats. Tenant has seven (7) days after Tenant receives the keys to the Premises to notify Landlord of any additional damage or defects existing prior to the Tenant's occupancy and/or request in writing a list of physical damages or defects, if any, charged against the previous tenant's security deposit. No deduction from Tenant's security deposit shall be made for any such damage or defect for which written notification was given within the time stated. Damage or defects not reported by that date will be treated as not existing when Tenant took possession, unless Landlord's own pre-move-in inspection shows them, and Tenant may be charged the reasonable cost of damage beyond normal wear and tear. Tenant may not use the security deposit as payment for the last month's rent without the written permission of Landlord.</li>
+        <li><b>Deductions from Prior Tenant's Security Deposit.</b> Tenant is hereby notified that Tenant may do any of the following within seven (7) days after Tenant receives the keys to the Premises (the start of their tenancy): (a) inspect the unit and notify Landlord of any pre-existing damages or defects, and (b) request a list of physical damages or defects charged against the previous Tenant's security deposit. If such a request is made by Tenant, Landlord will supply Tenant with a list of all physical damages or defects charged against the previous tenant's security deposit regardless of whether or not those damages or defects have been repaired. Said list will be provided to Tenant within thirty (30) days from when the request was received or, within seven (7) days after Landlord notifies the previous tenant of the security deposit deductions, whichever occurs later. Landlord need not disclose the previous tenant's identity, nor the amount deducted from the previous tenant's security deposit. Landlord will provide Tenant with a Check-In / Check-Out sheet. Should Tenant fail to return it to Landlord within seven (7) days after the start of the tenancy, Tenant will be considered to have accepted the Premises without any exceptions.</li>
+        <li><b>Rules.</b> Landlord may make reasonable rules governing the use and occupancy of the Premises and the building in which it is located. Any failure by the Tenant to substantially comply with the rules will be a breach of this Agreement and may result in the eviction of the Tenant. Landlord may amend the rules to provide for newly added amenities or to meet changed circumstances or conditions adversely affecting the property. No such amendments may unreasonably interfere with Tenant's use and enjoyment of the Premises or the property of which it is part. A copy of the rules, if applicable, has been given to Tenant at the time of application and at the time of the signing of this Agreement. See Rules &amp; Regulations as a part of the Lease.</li>
+        <li><b>Notice to Vacate.</b> Lease for Term – No written notice is required to terminate a lease for term because the lease automatically ends on the last day of the term. Nonetheless, both Landlord and Tenant should discuss prior to the end of the original lease term whether or not they wish to continue the tenancy beyond the original lease term and if so, enter into a new rental agreement accordingly. Month to Month Tenancy – Written notice must be received by the other party at least twenty-eight (28) days prior to the ending of a month to month tenancy. A month to month tenancy may only be terminated at the end of a rental period. A rental period runs from the first day of a calendar month through the last day of a calendar month.</li>
+        <li><b>Controlling Law.</b> Landlord and Tenant understand their rights and obligations under this Agreement and that they are subject to the laws of Wisconsin, including Chapter 704 and Chapter 709 of the Wisconsin Statutes, Wisconsin Administrative Code Chapter ATCP 134, and applicable local ordinances. Both parties shall obey all governmental orders, rules and regulations related to the Premises, including local housing codes.</li>
+        <li><b>Condition of Premises.</b> Tenant has had the opportunity to inspect the rental unit and has determined that it will fulfill their needs and acknowledges that the unit is in good and satisfactory condition, except as noted in the Check-In / Check-Out sheet provided to them, prior to taking occupancy. Tenant agrees to maintain the premises during their tenancy and return it to Landlord in the same condition as it was received less normal wear and tear.</li>
+        <li><b>Possession and Abandonment.</b> Landlord shall give Tenant possession of the Premises as provided herein. Tenant shall vacate the Premises and return all of Landlord's property promptly upon the expiration of this Agreement, including any extension or renewal, or its termination, in accordance with its terms and the law. A Tenant will be considered to have surrendered the Premises on the last day of the tenancy provided under this Agreement, except that, (1) if the Tenant vacates before the last day of the tenancy, and gives Landlord written notice that Tenant has vacated, surrender occurs when Landlord receives the written notice that Tenant has vacated. If the Tenant mails the notice to Landlord, Landlord is deemed to have received the notice on the second day after mailing. (2) If Tenant vacates the Premises after the last day of the tenancy, surrender occurs when Landlord learns that Tenant has vacated. If Tenant abandons the Premises before expiration or termination of this Agreement or its extension or renewal, or if the tenancy is terminated for Tenant's breach of this Agreement, Landlord shall make reasonable efforts to re-rent the Premises and apply any rent received, less costs of re-renting, toward Tenant's obligations under this Agreement. Tenant shall remain liable for any deficiency. If Tenant is absent from the Premises for two (2) successive weeks without notifying Landlord in writing of this absence, Landlord may deem the Premises abandoned unless rent has been paid for the full period of the absence.</li>
+        <li><b>Abandoned Property.</b> If Tenant vacates or is evicted from the premises and leaves personal property, Landlord may presume, in the absence of a written agreement between the Landlord and Tenant to the contrary, that the Tenant has abandoned the personal property and Landlord may dispose of it in any manner that the Landlord, in his sole discretion, determines is appropriate. Landlord will not store any items of personal property that tenant leaves behind when Tenant vacates or is evicted from the premises, except for prescription medicine or prescription medical equipment, which will be held for seven (7) days from the date of discovery. If Tenant abandons a manufactured or mobile home or a titled vehicle, Landlord will give Tenant and any other secured party that Landlord is aware of, written notice of intent to dispose of property by personal service, regular mail, or certified mail to Tenant's last known address, prior to disposal.</li>
+        <li><b>Use of Premises and Guests.</b> Tenant shall use the Premises for residential purposes only. Operating a business or providing childcare for children not listed as occupants in this Agreement is prohibited. Neither party may: (1) make or knowingly permit use of the Premises for any unlawful purpose; (2) engage in activities which unduly disturb neighbors or tenants; and/or (3) do, use, or keep in or about the Premises anything which would adversely affect coverage under a standard fire and extended insurance policy. Tenant may have guests residing temporarily in Premises if their presence does not interfere with the quiet use and enjoyment of other tenants and if the number of guests is not excessive for the size and facilities of the Premises. No guest may stay overnight in the Premises for more than thirteen (13) nights in total in any twelve (12) month period without the written consent of Landlord, which will not be unreasonably withheld. Tenant shall be liable for any property damage, waste, or neglect of the Premises, building, or development in which it is located, that is caused by the negligence or improper use by Tenant or Tenant's guests and invitees.</li>
+        <li><b>Criminal Activity Prohibited.</b> Tenant, any member of Tenant's household, guest, or invitee, shall not engage in or allow others to engage in any criminal activity, including drug-related criminal activity, in the Premises or on the property.</li>
+        <li><b>Maintenance.</b> Pursuant to §704.07, Wis. Stats., Landlord shall keep the structure of the building in which the Premises are located and those portions of the building and equipment under Landlord's control in a reasonable state of repair. Tenant shall maintain the Premises under Tenant's control in a clean manner and in as good of a general condition as it was at the beginning of the term or as subsequently improved by Landlord, normal wear and tear excluded. Tenant shall not physically alter or redecorate the Premises, cause any contractor's lien to attach to the Premises, commit waste to the Premises or the property of which it is a part, or attach or display anything which substantially affects the exterior appearance of the Premises or the property in which it is located, unless otherwise allowed under the rules or unless Landlord has granted specific written approval. Landlord shall keep heating equipment in a safe and operable condition. Whichever party is obligated to provide heat for the Premises they shall maintain a reasonable level of heat to prevent damage to the Premises and the building in which it is located.</li>
+        <li><b>Breach and Termination.</b> Failure of either party to comply substantially with any material provision is a breach of this Agreement. Should Tenant neglect or fail to perform and observe any of the terms of this Agreement, Landlord shall give Tenant written notice of the breach requiring Tenant to remedy the breach or vacate the Premises on or before a date at least five (5) days after the giving of such notice, and if Tenant fails to comply with such notice, Landlord may declare the tenancy terminated and proceed to evict Tenant from the Premises, without limiting the liability of Tenant for the rent due to become due under this Agreement. If Tenant has been given such notice and remedied the breach or been permitted to remain in the Premises, and within one (1) year of such previous breach, Tenant breaches the same or any other covenant or condition of Tenant's lease, this lease may be terminated if, before the breach has been remedied, Landlord gives notice to Tenant to vacate on or before a date at least fourteen (14) days after the giving of the notice as provided in §704.17, Wis. Stats. These provisions shall apply to any lease for a specific term and do not apply to a month to month tenancy. If Landlord commits a breach, Tenant has all rights and remedies as set forth under the law, including §704.07(4) and §704.45, Wis. Stats., and Wisconsin Administrative Code Chapter ATCP 134.</li>
+        <li><b>Responsibility for Utilities.</b> Tenant must maintain utilities for the Premises until the end of the lease term or until the last day that Tenant is responsible for rent. Tenant will be responsible for the cost of all utilities through the end of the lease term or until the last day that Tenant is responsible for rent.</li>
+        <li><b>Rent.</b> The security deposit, utility charges, or any other monetary amount set forth under this Agreement, other than late fees, are to be considered and defined as "rent." A late fee is a separate charge. It is not rent and is not included in any amount of rent owed.</li>
+        <li><b>Repairs.</b> Any promise by Landlord, made before execution of this Agreement, to repair, clean, or improve the Premises, including the promised date of completion, will be listed in this Agreement or in a separate addendum to this Agreement. Time being of the essence as to the completion of repairs does not apply to any delay beyond Landlord's control. Landlord shall give timely notice of any delay to Tenant.</li>
+        <li><b>Code Violations and Adverse Conditions.</b> There are no code violations or other conditions affecting habitability of the Premises unless indicated otherwise in writing.</li>
+        <li><b>Renters Insurance Recommended.</b> Landlord recommends that Tenant purchase Renter's Insurance to protect Tenant's personal property and to protect Tenant from any liabilities while living at the property. Tenant understands that if they do not purchase Renter's Insurance that Tenant may not have any insurance coverage should Tenant's belongings be damaged, or should Tenant be held liable to a third party and/or the Landlord.</li>
+        <li><b>Notice of Domestic Abuse Protections.</b> As provided in section 106.50 (5m) (dm) of the Wisconsin statutes, a tenant has a defense to an eviction action if the tenant can prove that the landlord knew, or should have known, the tenant is a victim of domestic abuse, sexual assault, or stalking and that the eviction action is based on conduct related to domestic abuse, sexual assault, or stalking committed by either of the following: A person who was not the tenant's invited guest. A person who was the tenant's invited guest, but the tenant has done either of the following: sought an injunction barring the person from the premises, or provided a written statement to the landlord stating that the person will no longer be an invited guest of the tenant and the tenant has not subsequently invited the person to be the tenant's guest. A tenant who is a victim of domestic abuse, sexual assault, or stalking may have the right to terminate the rental agreement in certain limited situations, as provided in section 704.16 of the Wisconsin Statutes. If the tenant has safety concerns, the tenant should contact a local victim service provider or law enforcement agency. A tenant is advised that this notice is only a summary of the tenant's rights and the specific language of the statutes governs in all instances.</li>
+        <li><b>Damage by Casualty.</b> If the Premises are damaged by fire or other casualty to a degree which renders them untenantable, Tenant may terminate this Agreement or vacate the Premises and rent shall abate until the Premises are restored to a condition comparable to its condition prior to the casualty. Landlord shall have the option to repair the Premises, and if repairs are not made, this Agreement shall terminate. If the Premises are damaged to a degree which does not render them untenantable, Landlord shall repair the damages as soon as reasonably possible.</li>
+        <li><b>Entry by Landlord.</b> Landlord may enter the Premises occupied by Tenant, with or without Tenant's consent, at reasonable times upon twelve (12) hours advance notice to inspect the Premises, make repairs, show the Premises to prospective tenants or purchasers, or comply with applicable laws or regulations. Landlord may enter without advance notice when a health or safety emergency exists, or if Tenant is absent and Landlord believes entry is necessary to protect the Premises or the building from damage. Neither party shall add or change locks without providing the other party keys. Improper denial of access to the Premises is a breach of this Agreement.</li>
+        <li><b>Extermination Costs.</b> Tenant will be responsible for the costs of extermination or removal of any insects, pests, or rodents that are found on the Premises, and which are the result of the Tenant's (or any member of the Tenant's household, Tenant's guests, or invitees) acts, negligence, failure to keep the Premises clean, failure to remove garbage and waste, and/or improper use of the Premises.</li>
+        <li><b>Continuation of Agreement.</b> If Tenant continues to occupy the Premises after the expiration of this Agreement and makes a timely payment of rent, which is accepted by Landlord, Tenant shall be under a month to month tenancy with the same terms and conditions of the original rental agreement unless other arrangements have been made in writing.</li>
+        <li><b>Assignment or Sublease.</b> Tenant shall not assign this Agreement or sublet the Premises without the written consent of Landlord.</li>
+        <li><b>Modifications and Termination.</b> This Agreement may be terminated or modified by written agreement of Landlord and Tenant. The parties may terminate this Agreement and enter into a new Agreement instead of renewing it, assigning it, or subleasing the Premises.</li>
+        <li><b>Severability of Rental Agreement Provisions.</b> The provisions of this rental agreement are severable. If any provision of this rental agreement is found to be void or unenforceable, the unenforceability of that provision does not affect the other provisions that can be given effect without the invalid provisions.</li>
+        <li><b>Non-Waiver.</b> Any failure to act by Landlord with regard to any specific violation or breach of any term of this Agreement by Tenant shall be considered temporary and does not waive Landlord's right to act on any future violation or breach by Tenant. Landlord, by accepting payment from Tenant for rent or any other amount owed, is not waiving its right to enforce a violation or breach of any term of this Agreement by Tenant.</li>
+        <li><b>Time Is of The Essence.</b> As to delivery of possession of Premises to Tenant, completion of repairs promised in writing in the Agreement or before; vacating of the Premises, return of Landlord's property, payment of rent, performance of any act for which a date is set in this Agreement or by law. Time is of the essence means that a deadline must be strictly followed. Special Provisions: see Rules and Regulations.</li>
+      </ol>
+
+      <p>Landlord has given Tenant a copy of the Residential Rental Agreement as well as any Rules and Regulations, if applicable, for review prior to entering into this Agreement and prior to accepting any earnest money or security deposit.</p>
+
+      <p><b>Legal Acknowledgment &amp; Binding Effect.</b> By signing below, I, the undersigned Tenant, certify that I have read, understood, and agree to all terms, conditions, rules, and disclosures set forth in this Residential Rental Agreement, including all attached addendums and exhibits. I acknowledge that this document constitutes a legally binding contract between myself and the Landlord, and that I am entering into this agreement freely and voluntarily. I further affirm that all information provided by me in this agreement is true, complete, and accurate to the best of my knowledge. I understand that my signature below serves as my official acceptance of this lease and that I am responsible for all obligations contained herein.</p>
+
+      <div class="sig-row">
+        <div>
+          <div class="signature-line" id="p_sigTenant1Name"></div><br>
+          Tenant 1 signature &amp; date
+        </div>
+        <div id="p_sigTenant2Wrap" style="display:none;">
+          <div class="signature-line" id="p_sigTenant2Name"></div><br>
+          Tenant 2 signature &amp; date
+        </div>
+        <div id="p_sigTenant3Wrap" style="display:none;">
+          <div class="signature-line" id="p_sigTenant3Name"></div><br>
+          Tenant 3 signature &amp; date
+        </div>
+        <div id="p_sigTenant4Wrap" style="display:none;">
+          <div class="signature-line" id="p_sigTenant4Name"></div><br>
+          Tenant 4 signature &amp; date
+        </div>
+      </div>
+      <div class="sig-row">
+        <div>
+          <span id="p_sigImg" class="sig-img" style="display:inline-block;font:italic 11px sans-serif;color:#666;border:1px dashed #bbb;padding:6px 10px">Agent signature applied when the agent countersigns</span>
+          <div class="signature-line" id="p_sigAgentName"></div><br>
+          <span id="p_sigAgentTitle"></span> — Agent, signature &amp; date
+        </div>
+      </div>
+
+      <div class="page-break"></div>
+
+      <h2 class="doc-title">RULES AND REGULATIONS</h2>
+      <p><b>I/We, the undersigned, Tenant(s):</b> <span id="p_rulesTenantNames"></span>, have read and agree to adhere to the rules and regulations as detailed below.</p>
+
+      <div class="rules-group-title">GENERAL</div>
+      <ul class="rules">
+        <li>These rules and regulations are necessary to ensure the proper use and care of the property as well as to ensure the protection and safety of the landlord, his employees, other tenants, and neighbors.</li>
+        <li>Tenant will be responsible for the conduct of any and all family members, guests, invitees, and/or others under tenant's control.</li>
+        <li>The term "tenant" is defined broadly and includes all persons named in the rental agreement, their family members, guests, invitees, and/or others under their control.</li>
+        <li>Landlord will not tolerate criminal activity or any other activity that disturbs others or damages the property.</li>
+        <li>Landlord has the right to make other reasonable rules and regulations as may be necessary for the safety of others and the property.</li>
+        <li>A violation of these rules and regulations constitutes a material breach of Tenant's rental agreement and may result in termination of tenancy and eviction.</li>
+        <li>These rules and regulations will be enforced strictly and without exception.</li>
+      </ul>
+
+      <div class="rules-group-title">USE OF THE PROPERTY</div>
+      <ul class="rules">
+        <li>The term "property" is defined broadly and includes, but is not limited to, the home or apartment building, individual rental units, common areas, grounds upon which the home or apartment building is located, and any other associated physical structures.</li>
+        <li>The property is to be used as a personal residence only and is for the individuals listed on the rental agreement only.</li>
+        <li>The property shall not be used to operate any form of business for any reason, including but not limited to, a child-care facility.</li>
+        <li>The property shall not be used for any illegal activity whatsoever or for any activity that in the opinion of the landlord will damage the property.</li>
+        <li>Tenant shall not do anything in the premises or on the property that may increase the risk of fire or compromise safety, increase the landlord's insurance premiums, or which would be a violation of state or local laws or regulations.</li>
+        <li>Tenant shall not keep any hazardous items on or inside of property including, but not limited to, paint, lacquer, turpentine, paint thinner, acetone, gasoline, motor oil, pesticides, herbicides, kerosene, propane, lighter fluid or any other hazardous, flammable or combustible items.</li>
+        <li>Tenant shall not possess or use on the property the following items including, but not limited to, swimming or wading pools, trampolines, slip 'n slides or any other water recreation devices, air, pellet or BB guns/rifles, explosives, fireworks, sparklers, candles, space heaters or any other items that, in the opinion of landlord, create an unreasonable risk of injury or damage, without the prior written consent of Landlord.</li>
+        <li>No rummage sales, or sales of any kind, may be held on the property without the prior written consent of Landlord.</li>
+        <li>No car washes, for profit or otherwise, may be held on the property without the prior written consent of Landlord.</li>
+        <li>Tenant agrees to use all appliances, fixtures, and equipment in a safe manner and only for the purpose for which it was intended.</li>
+        <li>Tenant agrees not to destroy, deface, damage, or remove, any part of the property.</li>
+      </ul>
+
+      <div class="rules-group-title">APPEARANCE &amp; UPKEEP OF PROPERTY</div>
+      <ul class="rules">
+        <li>Tenant shall not allow any sign, advertisement, or notice to be placed inside or outside the rental unit or on the property without the prior written consent of Landlord.</li>
+        <li>Tenant shall use only appropriate window coverings, such as drapes or blinds. Rugs, towels, blankets, or sheets are not allowed.</li>
+        <li>Tenant agrees to keep the rental unit in a clean, safe, and sanitary condition and not litter the property.</li>
+        <li>Tenant is responsible for replacing any light bulbs within the rental unit. Tenant shall only use the proper wattage of bulb as specified on the light fixture.</li>
+        <li>Tenant is responsible for replacing any smoke alarm and carbon monoxide detectors located within the rental unit if the unit has been tampered with by Tenant.</li>
+        <li>Tenant agrees to regularly and properly dispose of garbage and recyclable materials and to place such items in the proper receptacles provided for that purpose.</li>
+        <li>Neither garbage nor recyclable materials shall be kept on the porch, common areas, or grounds. Tenant agrees to comply with any and all laws, ordinances, and/or regulations regarding the collection, sorting, separation, and recycling of materials.</li>
+        <li>If Tenant wishes to dispose of any large items, it is the responsibility of Tenant to make special arrangements in accordance with local ordinances and laws, to dispose of such items. Any charges incurred by Landlord as a result of Tenant's failure to comply with the above will be the responsibility of the tenant.</li>
+        <li>Tenant agrees to keep all personal property within the rental unit or other assigned areas. Personal property shall not be kept in common areas or on the grounds and will be immediately removed and disposed of by landlord. Any costs incurred by Landlord to remove Tenant's property will be the tenant's responsibility.</li>
+        <li>Tenant shall cooperate with the landlord to keep common areas and grounds in a safe and clean condition.</li>
+        <li>Tenant agrees to promptly notify Landlord of any maintenance or repair issues.</li>
+      </ul>
+
+      <div class="rules-group-title">MODIFICATIONS TO PROPERTY</div>
+      <ul class="rules">
+        <li>Tenant is prohibited from making any alterations, additions, or improvements to the inside or outside of the property, including but not limited to, painting, varnishing, wallpapering, or installing any fixtures, without the prior written consent of Landlord.</li>
+        <li>Should tenant make any alterations, additions or improvements in violation of the above, Landlord may immediately remove it and Tenant will be responsible for all costs incurred by Landlord to return the property to its original condition.</li>
+        <li>Tenant is not authorized to instruct any contractors hired by Landlord to provide any additional services not previously authorized by Landlord.</li>
+      </ul>
+
+      <div class="rules-group-title">DAMAGE TO THE PROPERTY</div>
+      <ul class="rules">
+        <li>If the property is damaged as a result of the intentional acts, negligence, carelessness, or misuse by Tenant, Tenant will be responsible for the repair costs incurred by Landlord.</li>
+        <li>Tenant must reimburse Landlord for any repair costs within fifteen (15) days of demand.</li>
+      </ul>
+
+      <div class="rules-group-title">CHANGING LOCKS</div>
+      <ul class="rules">
+        <li>Tenant will not install additional or different locks or gates on any doors or windows in the property without the prior written consent of Landlord.</li>
+        <li>If landlord approves tenant's request to install or change locks, tenant agrees to provide Landlord with a new key within twenty-four (24) hours.</li>
+        <li>Tenant will be responsible for any repair costs incurred by Landlord to gain entry to property if Tenant does not provide Landlord with a new key within twenty-four (24) hours.</li>
+        <li>Tenant shall not give any keys to the property to any person other than those listed on the rental agreement without the prior written consent of Landlord.</li>
+      </ul>
+
+      <div class="rules-group-title">PLUMBING</div>
+      <ul class="rules">
+        <li>Tenant will be responsible for the cost of any and all plumbing repairs resulting from the improper use of the plumbing facilities by Tenant. Tenant will not dispose of any cloth, metal, glass, wool, plastic, condoms, feminine hygiene products, or similar items in the toilet, sink, or garbage disposal.</li>
+        <li>Tenant will immediately report to Landlord in writing if any pipes or faucets are leaking or if any toilet continues to run.</li>
+        <li>Tenant will not leave the water running except during actual use.</li>
+        <li>Tenant will only do laundry in designated areas and during the posted hours unless otherwise approved by Landlord.</li>
+      </ul>
+
+      <div class="rules-group-title">SMOKING</div>
+      <ul class="rules">
+        <li>Smoking is allowed only inside Tenant's unit. No smoking in hallways, stairways, entries or any other common area, or anywhere else on the property.</li>
+        <li>Any damage to the property as a result of Tenant's smoking will be the tenant's responsibility.</li>
+      </ul>
+
+      <div class="rules-group-title">WATERBEDS</div>
+      <ul class="rules"><li>No furniture filled with liquid, including but not limited to waterbeds, is allowed on the property without the prior written approval of Landlord.</li></ul>
+
+      <div class="rules-group-title">LOITERING</div>
+      <ul class="rules"><li>Tenant will not loiter, congregate, or play in common areas of the building, including but not limited to the hallways, stairways, basement, garages, storage areas, and driveways.</li></ul>
+
+      <div class="rules-group-title">NOISES &amp; ODORS</div>
+      <ul class="rules">
+        <li>Tenant will not make or permit noises or acts that will disturb the right or comfort of other tenants and/or neighbors.</li>
+        <li>Tenant agrees to keep the volume of any radio, stereo, television, computer, musical instrument, or any other device at a level that will not disturb other tenants or neighbors.</li>
+      </ul>
+
+      <div class="rules-group-title">GUESTS</div>
+      <ul class="rules">
+        <li>Tenant is responsible for the conduct of any and all guests.</li>
+        <li>No guest shall remain overnight in the property for more than thirteen (13) nights in total in any twelve (12) month period without the prior written consent of Landlord.</li>
+        <li>No guest shall remain on the property unless Tenant is also present.</li>
+      </ul>
+
+      <div class="rules-group-title">PETS</div>
+      <ul class="rules" id="p_petsRule"></ul>
+
+      <div class="rules-group-title">GRILLING</div>
+      <ul class="rules">
+        <li>No grilling is allowed within ten (10) feet of the property.</li>
+        <li>No grilling is allowed on any balcony or porch.</li>
+        <li>Only covered grills are allowed to be used - no fire pits or bonfires allowed.</li>
+        <li>Any grilling materials must be removed from common areas and/or grounds after use.</li>
+        <li>Indoor storage of gas grills, gas tanks, charcoal, or lighter fluid is prohibited.</li>
+      </ul>
+
+      <div class="rules-group-title">SUBLETTING / ASSIGNMENT</div>
+      <ul class="rules"><li>Tenant is not allowed to sublet or assign the rental unit, or any part of it, without the prior written consent of Landlord.</li></ul>
+
+      <div class="rules-group-title">VEHICLES</div>
+      <ul class="rules"><li>Read and comply with the Parking document found on your Tenant portal.</li></ul>
+
+      <div class="rules-group-title">INSURANCE</div>
+      <ul class="rules"><li>It is Tenant's responsibility to obtain insurance coverage for their personal property stored on the property. Landlord shall not be responsible for any loss or damage to Tenant's property unless the loss or damage was the result of Landlord's negligent acts or omissions.</li></ul>
+
+      <div class="rules-group-title">NON-WAIVER</div>
+      <ul class="rules">
+        <li>Any failure to act by Landlord with regard to any specific violation or breach of these Rules and Regulations by Tenant shall be considered temporary and does not waive Landlord's right to act on any future violation or breach by Tenant.</li>
+        <li>ADDITIONAL RULES AND REGULATIONS: See the provided ROCA1 By-Laws. See the provided ROCA1 Rules and Regulations.</li>
+      </ul>
+      <p><b>A VIOLATION OF THE ABOVE RULES AND REGULATIONS SHALL CONSTITUTE A MATERIAL VIOLATION OF TENANT'S RENTAL AGREEMENT AND IS GOOD CAUSE FOR TERMINATION OF TENANCY AND EVICTION OF TENANT.</b></p>
+
+      <div class="page-break"></div>
+
+      <h2 class="doc-title">NONSTANDARD RENTAL PROVISIONS</h2>
+      <p>The Nonstandard Rental Provisions listed below are part of your rental agreement and list the various charges and costs that your Landlord may assess and withhold from your security deposit. These charges and costs supersede charges and costs detailed in the Rules and Regulations.</p>
+      <p><b>I/We, the undersigned, Tenant(s):</b> <span id="p_nspTenantNames"></span>, have read and agree to adhere to the provisions as detailed below.</p>
+
+      <div id="p_nspList"></div>
+
+      <div id="parkingFullSection" style="display:none;">
+        <div class="page-break"></div>
+        <h2 class="doc-title">PARKING AGREEMENT</h2>
+        <p style="text-align:center;">(Enforceable Under Wisconsin Chapters 703 and 704)</p>
+
+        <div class="parking-section"><b>1. LEGAL AUTHORITY</b><span class="parking-initial" id="pi-1"></span><br>
+        This Agreement is adopted pursuant to Wis. Stat. §703.10(1), §703.20(1), and §703.30, granting the Association authority to regulate common elements, including parking, and to impose and collect charges, fines, and enforcement costs. This Agreement is also a binding occupancy contract under Wis. Stat. Chapter 704, and applies to all Unit Occupants as a condition of occupancy.</div>
+
+        <div class="parking-section"><b>2. BINDING EFFECT ON UNIT OCCUPANT</b><span class="parking-initial" id="pi-2"></span><br>
+        All Unit Occupants agree to comply with this Agreement. Failure to comply constitutes: (a) a violation under Chapter 703, and (b) a material breach of occupancy rights under Chapter 704. Parking is a revocable privilege, not a right.</div>
+
+        <div class="parking-section"><b>3. ASSIGNMENT OF PARKING RIGHTS</b><span class="parking-initial" id="pi-3"></span><br>
+        Parking stalls are limited common elements controlled by the Association. Assignment of one (1) stall is conditioned upon the Unit Occupant maintaining a zero ($0.00) balance. If rent or any required payment is due on the 1st day of the month and is not paid in full, the Unit Occupant is deemed delinquent as of 12:01 a.m. on the 2nd day of the month, and all parking privileges are immediately revoked without further notice. Any vehicle remaining on the property after revocation is considered unauthorized and will be towed at the Unit Occupant's expense by the Association's designated towing provider. The Association will suspend parking rights for delinquent accounts consistent with Wis. Stat. §703.165 and §703.20. Parking is restricted to the stall corresponding to the unit number.</div>
+
+        <div class="parking-section"><b>4. RESIDENT USE ONLY</b><span class="parking-initial" id="pi-4"></span><br>
+        Parking stalls are for Unit Occupants only and will not be rented or assigned to non-residents. Temporary guest use is permitted only within the assigned stall and must comply with all provisions of this Agreement.</div>
+
+        <div class="parking-section"><b>5. VEHICLE ELIGIBILITY</b><span class="parking-initial" id="pi-5"></span><br>
+        Permitted vehicles include automobiles, vans, motorcycles, and light trucks. Prohibited vehicles include, but are not limited to: trailers of any kind; boats or recreational vehicles; vehicles requiring Class C or higher licensing; unregistered or improperly licensed vehicles; inoperable vehicles. Vehicles with expired registration beyond twenty-four (24) hours are considered non-compliant and will be subject to towing.</div>
+
+        <div class="parking-section"><b>6. STORAGE AND ABANDONMENT</b><span class="parking-initial" id="pi-6"></span><br>
+        Vehicles not moved for seven (7) consecutive days are considered stored. Storage without written approval is prohibited and will result in towing.</div>
+
+        <div class="parking-section"><b>7. PARKING POSITION AND USE</b><span class="parking-initial" id="pi-7"></span><br>
+        All vehicles must be parked fully within assigned stall lines; not touch or cross boundary markings; not obstruct sidewalks, dumpsters, or access lanes. Motorcycles must use protective material under kickstands. Violations will result in enforcement, including towing.</div>
+
+        <div class="parking-section"><b>8. COMMERCIAL VEHICLES</b><span class="parking-initial" id="pi-8"></span><br>
+        Commercial vehicles are prohibited except: (a) temporary service vehicles, or (b) vehicles assigned to approved rented stalls. Unauthorized commercial vehicles will be towed.</div>
+
+        <div class="parking-section"><b>9. VEHICLE CONDITION</b><span class="parking-initial" id="pi-9"></span><br>
+        All vehicles must be operable and in good condition. Vehicles with flat tires, leaks, or visible damage are considered inoperable and will be towed after seventy-two (72) hours or sooner if deemed necessary.</div>
+
+        <div class="parking-section"><b>10. MAINTENANCE AND CONDUCT</b><span class="parking-initial" id="pi-10"></span><br>
+        The following are prohibited and will result in enforcement action: vehicle repairs or maintenance; oil changes; car washing; cooking, sleeping, or loitering in vehicles.</div>
+
+        <div class="parking-section"><b>11. CLEANLINESS</b><span class="parking-initial" id="pi-11"></span><br>
+        Unit Occupants must maintain parking stalls free of oil or fluid stains and garbage or debris. Failure to maintain cleanliness will result in fines and/or enforcement.</div>
+
+        <div class="parking-section"><b>12. FIRE LANES AND ROADWAYS</b><span class="parking-initial" id="pi-12"></span><br>
+        All roadways are designated fire lanes. Parking, stopping, or standing for more than three (3) minutes is prohibited. Violations will result in immediate towing without notice.</div>
+
+        <div class="parking-section"><b>13. SNOW REMOVAL COMPLIANCE</b><span class="parking-initial" id="pi-13"></span><br>
+        During snow events of two (2) inches or more, vehicles must be removed from the parking lot. 7:30 a.m. is defined as 24 hours after the conclusion of the most recent snowfall event, as determined by the Association. Vehicles must not return until snow removal is complete. Noncompliance will result in towing only, at the Unit Occupant's expense.</div>
+
+        <div class="parking-section"><b>14. VEHICLE REGISTRATION REQUIREMENT</b><span class="parking-initial" id="pi-14"></span><br>
+        All vehicles must be registered with the Association (Make / Model / Plate # / VIN #). A valid parking permit must be clearly displayed in the front windshield at all times. Failure to register or display a permit constitutes unauthorized parking and will result in towing.</div>
+
+        <div class="parking-section"><b>15. UNAUTHORIZED PARKING</b><span class="parking-initial" id="pi-15"></span><br>
+        Parking in another assigned stall without written permission is prohibited. Unauthorized vehicles will be towed immediately at the Unit Occupant's expense.</div>
+
+        <div class="parking-section"><b>16. ENFORCEMENT AND PENALTIES</b><span class="parking-initial" id="pi-16"></span><br>
+        The Association will enforce this Agreement through fines and assessments under Wis. Stat. §703.165, suspension of parking privileges, towing, and legal action. All costs, including towing, administrative fees, and attorney's fees, will be charged to the Unit Occupant and assessed to the Unit.</div>
+
+        <div class="parking-section"><b>17. NOTICE AND DUE PROCESS</b><span class="parking-initial" id="pi-17"></span><br>
+        Except for immediate enforcement situations (including fire lanes, unauthorized vehicles, delinquency-based revocation, and snow removal), enforcement will follow: written notice of violation (via email and/or Tenant Portal Announcements); opportunity to cure where applicable; assessment of fines. Notice will be deemed delivered when sent electronically, posted, hand-delivered, or sent via certified mail.</div>
+
+        <div class="parking-section"><b>18. TOWING AUTHORIZATION</b><span class="parking-initial" id="pi-18"></span><br>
+        Unit Occupant authorizes the Association and its agents to tow vehicles in violation of this Agreement without prior notice where permitted by law. All towing and storage costs will be the responsibility of the Unit Occupant.</div>
+
+        <div class="parking-section"><b>19. LIABILITY</b><span class="parking-initial" id="pi-19"></span><br>
+        The Association is not liable for damage, theft, or loss of any vehicle or its contents.</div>
+
+        <div class="parking-section"><b>20. COST RECOVERY</b><span class="parking-initial" id="pi-20"></span><br>
+        The Association will recover all enforcement costs, including towing charges, fines, administrative costs, and attorney's fees. Such costs may be assessed to the Unit under Wis. Stat. §703.165.</div>
+
+        <div class="parking-section"><b>21. PRIORITY AND INCORPORATION</b><span class="parking-initial" id="pi-21"></span><br>
+        This Agreement supplements all condominium documents. The stricter provision governs in all cases.</div>
+
+        <div class="parking-section"><b>22. ACKNOWLEDGMENT</b><span class="parking-initial" id="pi-22"></span><br>
+        Unit Occupant acknowledges that they: have read and understand this Agreement; agree to be legally bound; understand violations will result in towing, fines, and legal action.</div>
+
+        <table class="info">
+          <tr><td class="label">Unit Address</td><td id="p_parkingUnitAddress"></td></tr>
+          <tr><td class="label">Unit Occupant Name(s)</td><td id="p_parkingOccupantNames"></td></tr>
+          <tr id="p_parkSigRow1"><td class="label" id="p_parkSigLabel1">Signature and date</td><td style="height:44px">&nbsp;</td></tr>
+          <tr id="p_parkSigRow2" style="display:none;"><td class="label" id="p_parkSigLabel2"></td><td style="height:44px">&nbsp;</td></tr>
+          <tr id="p_parkSigRow3" style="display:none;"><td class="label" id="p_parkSigLabel3"></td><td style="height:44px">&nbsp;</td></tr>
+          <tr id="p_parkSigRow4" style="display:none;"><td class="label" id="p_parkSigLabel4"></td><td style="height:44px">&nbsp;</td></tr>
+        </table>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+(function () {
+  // Renders `letterEl` (the .letter preview div) to a PDF Blob. Deliberately
+  // drives html2canvas + jsPDF directly instead of using html2pdf.js's own
+  // wrapper, after tracking down two real bugs in that wrapper's pipeline:
+  //   1. html2canvas can't render CSS box-shadow correctly -- it paints the
+  //      shadow's rgba color as a uniform wash across the WHOLE element
+  //      (confirmed: 255 * (1 - 0.25 alpha) = 191, exactly the flat "gray
+  //      band" color seen on every affected page) instead of a soft edge
+  //      shadow. box-shadow is purely a screen-preview affordance (makes
+  //      the "paper" look like it's floating) and has no place in the
+  //      exported PDF, so it's stripped before capture.
+  //   2. html2pdf.js's own forced-page-break handling (the `.page-break`
+  //      elements before RULES AND REGULATIONS, NONSTANDARD RENTAL
+  //      PROVISIONS, etc.) doesn't reliably start a new PDF page -- it
+  //      leaves a large blank gap mid-page instead. Padding each break to
+  //      the next page boundary ourselves, then doing plain height-based
+  //      slicing, sidesteps that unreliable code path entirely.
+  async function renderLetterPdfBlob(letterEl, opts) {
+    const scale = (opts && opts.scale) || 1;
+    const PAGE_W_IN = 8.5, PAGE_H_IN = 11;
+
+    const prevShadow = letterEl.style.boxShadow;
+    letterEl.style.boxShadow = "none";
+
+    const letterWidthPx = letterEl.scrollWidth;
+    const pageHeightPx = Math.round(letterWidthPx * PAGE_H_IN / PAGE_W_IN);
+    const breakEls = Array.from(letterEl.querySelectorAll(".page-break")).filter(el => el.offsetParent !== null);
+    const insertedSpacers = [];
+    for (const el of breakEls) {
+      const relTop = el.getBoundingClientRect().top - letterEl.getBoundingClientRect().top;
+      const mod = relTop % pageHeightPx;
+      const remainder = mod === 0 ? 0 : pageHeightPx - mod;
+      if (remainder > 0) {
+        const spacer = document.createElement("div");
+        spacer.style.height = remainder + "px";
+        spacer.setAttribute("data-pdf-spacer", "1");
+        el.parentNode.insertBefore(spacer, el);
+        insertedSpacers.push(spacer);
+      }
+    }
+
+    try {
+      // scrollY compensation: html2canvas captures based on the page's
+      // current scroll position, and by the time staff reach the "Send to
+      // tenant" button (bottom of a long form) the page is almost always
+      // scrolled down -- without this, that produces one or more blank
+      // leading pages in the generated PDF.
+      const canvas = await html2canvas(letterEl, {
+        scale, useCORS: true, scrollX: 0, scrollY: -window.scrollY,
+      });
+
+      const pxPerPage = Math.round(canvas.width * PAGE_H_IN / PAGE_W_IN);
+      const totalPages = Math.max(1, Math.ceil(canvas.height / pxPerPage));
+      const pdf = new window.jspdf.jsPDF({ unit: "in", format: "letter", orientation: "portrait" });
+
+      for (let i = 0; i < totalPages; i++) {
+        const sliceHeight = Math.min(pxPerPage, canvas.height - i * pxPerPage);
+        const pageCanvas = document.createElement("canvas");
+        pageCanvas.width = canvas.width;
+        pageCanvas.height = sliceHeight;
+        const ctx = pageCanvas.getContext("2d");
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
+        ctx.drawImage(canvas, 0, i * pxPerPage, canvas.width, sliceHeight, 0, 0, canvas.width, sliceHeight);
+        const imgData = pageCanvas.toDataURL("image/jpeg", 0.92);
+        if (i > 0) pdf.addPage();
+        pdf.addImage(imgData, "JPEG", 0, 0, PAGE_W_IN, sliceHeight * PAGE_W_IN / canvas.width);
+      }
+
+      return pdf.output("blob");
+    } finally {
+      insertedSpacers.forEach(s => s.remove());
+      letterEl.style.boxShadow = prevShadow;
+    }
+  }
+  const STORAGE_KEY = "leaseAgreementTemplate.v1";
+  const MAX_CHILDREN = 6;
+
+  function revealChildRow(n) {
+    if (n < 3 || n > MAX_CHILDREN) return;
+    el("childRow" + n).style.display = "";
+  }
+
+  function nextHiddenChildRow() {
+    for (let n = 3; n <= MAX_CHILDREN; n++) {
+      if (el("childRow" + n).style.display === "none") return n;
+    }
+    return null;
+  }
+
+  // Reveals whichever rows 3+ already have data (e.g. after a prospect/JSON
+  // import or restoring a saved draft) so nothing is silently hidden.
+  function revealChildRowsWithData() {
+    for (let n = 3; n <= MAX_CHILDREN; n++) {
+      if (el("child" + n + "Name").value || el("child" + n + "Dob").value) revealChildRow(n);
+    }
+  }
+
+  const fieldIds = [
+    "leaseType","createdOnDate",
+    "tenant1Name","tenant1Email","numAdults","numChildren",
+    "child1Name","child1Dob","child2Name","child2Dob",
+    "child3Name","child3Dob","child4Name","child4Dob","child5Name","child5Dob","child6Name","child6Dob",
+    "includeTenant2","tenant2Name","tenant2Email","tenant2AppId","includeTenant3","tenant3Name","tenant3Email","tenant3AppId","includeTenant4","tenant4Name","tenant4Email","tenant4AppId",
+    "ownerName","agentOrgName","agentAddress","agentEmail",
+    "unitSelect","unitCustom",
+    "agencyHACM","agencyMCHA","agencyHUDVASH","agencyOther",
+    "initialStartDate","renewalOn","expirationDate","rentLateOn","rentAmount","securityDeposit","rentDueOn","lateFee","fiveDayNoticeOn","moveInTotal",
+    "depositSplitTenantPct","depositSplitCviPct","rentSplitTenantPct","rentSplitCviPct",
+    "utilElectricity","utilGas","utilHeat","utilAC","utilSewer","utilHotWater","utilTrash","utilInternet",
+    "attGuarantee","attNonstandard","attRules","attPromises","attSmoke","attCode","attLead","attRealEstate","attParkingDoc","attHud",
+    "petsPolicy","petsAttestationText","includeAppliancesClause",
+    "parkingVariant","parkingRequireInitials",
+    "signerName","signerTitle","includeSig"
+  ];
+
+  const AGENT_PRESETS = {
+    mtm:    { org: "Royal Orleans Condominium – Addition 1 (ROCA1)", address: "6626 N Bourbon St, Milwaukee WI 53224", email: "royalorleansone@gmail.com", signerName: "Albert Harris", signerTitle: "President", sig: true },
+    cvi:    { org: "Royal Orleans Condominium – Addition 1 (ROCA1)", address: "6626 N Bourbon St, Milwaukee WI 53224", email: "royalorleansone@gmail.com", signerName: "Albert Harris", signerTitle: "President", sig: true },
+    annual: { org: "2nd Chance Housing, Inc", address: "6626 N Bourbon St, Milwaukee WI 53224", email: "secondchancehousingusa@gmail.com", signerName: "Albert Harris", signerTitle: "", sig: true }
+  };
+  const LATE_FEE_PRESETS = { mtm: 75, cvi: 75, annual: 75 };   // $75 on every lease (Stephen 10/7/2026)
+
+  // Per-unit association owner of record, from Association_owner_details.pdf
+  // (2nd Chance Housing, generated 08/01/2026). "2nd Chance" on unit 5 in
+  // that source normalized to "2nd Chance Housing" to match every other
+  // unit owned by the same org.
+  const UNIT_OWNERS = {
+    "6622 N. Bourbon St., Unit #11": "2nd Chance Housing",
+    "6622 N. Bourbon St., Unit #12": "Richard R Lewis",
+    "6622 N. Bourbon St., Unit #13": "Mark Postler",
+    "6622 N. Bourbon St., Unit #14": "2nd Chance Housing",
+    "6622 N. Bourbon St., Unit #15": "Mark Postler",
+    "6622 N. Bourbon St., Unit #16": "Dorotea Hogans-Blaylock",
+    "6622 N. Bourbon St., Unit #17": "Mark Postler",
+    // Unit 18: Dolly Williams is the owner of record for leasing (Stephen, 10/3/2026);
+    // 2nd Chance Housing Inc is listed for all other purposes.
+    "6622 N. Bourbon St., Unit #18": "Dolly Williams",
+    "6626 N Bourbon St., Unit #1": "Leon Frontczak",
+    "6626 N Bourbon St., Unit #2": "2nd Chance Housing",
+    "6626 N Bourbon St., Unit #3": "2nd Chance Housing",
+    "6626 N Bourbon St., Unit #4": "2nd Chance Housing",
+    "6626 N Bourbon St., Unit #5": "2nd Chance Housing",
+    "6626 N Bourbon St., Unit #6": "John Wamser",
+    "6626 N Bourbon St., Unit #7": "Doni A Palmer-Stanback",
+    "6626 N Bourbon St., Unit #8": "Frederick J Haney",
+  };
+
+  // Only fills in an empty Owner Name -- never overwrites one already typed
+  // or imported, same as the Agent block's "edit freely" convention.
+  function applyUnitOwnerDefault() {
+    if (val("ownerName")) return;
+    const owner = UNIT_OWNERS[val("unitSelect")];
+    if (owner) el("ownerName").value = owner;
+  }
+
+  function el(id) { return document.getElementById(id); }
+  function val(id) { return el(id).value; }
+  function checked(id) { return el(id).checked; }
+
+  function escapeHtml(s) {
+    return String(s || "").replace(/[&<>"']/g, c => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+    }[c]));
+  }
+
+  function money(n) {
+    if (n === "" || n === null || n === undefined || isNaN(Number(n))) return "";
+    const v = Number(n);
+    const abs = Math.abs(v);
+    const sign = v < 0 ? "-" : "";
+    return sign + "$" + abs.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function formatDate(dateStr) {
+    if (!dateStr) return "";
+    return new Date(dateStr + "T00:00:00").toLocaleDateString("en-US");
+  }
+
+  function applyLeaseTypeDefaults() {
+    const type = val("leaseType");
+    const preset = AGENT_PRESETS[type];
+    el("agentOrgName").value = preset.org;
+    el("agentAddress").value = preset.address;
+    el("agentEmail").value = preset.email;
+    el("signerName").value = preset.signerName;
+    el("signerTitle").value = preset.signerTitle;
+    el("includeSig").checked = preset.sig;
+    el("lateFee").value = LATE_FEE_PRESETS[type];
+    el("petsPolicy").value = (type === "annual") ? "none" : "fee";
+    el("parkingVariant").value = (type === "annual") ? "short" : "full";
+    // Tenants initial each of the 22 Parking Agreement sections when they sign (any lease with the full agreement).
+    el("parkingRequireInitials").checked = true;
+  }
+
+  function applyImportData(data) {
+    let applied = 0, skipped = [];
+    Object.keys(data || {}).forEach(id => {
+      const node = el(id);
+      if (!node || !fieldIds.includes(id)) { skipped.push(id); return; }
+      if (node.type === "checkbox") node.checked = !!data[id];
+      else node.value = data[id];
+      applied++;
+    });
+    el("unitCustom").style.display = val("unitSelect") === "__custom__" ? "block" : "none";
+    return { applied, skipped };
+  }
+
+  function nspItem(title, body) {
+    return `<div class="nsp-item"><b>${title}:</b> ${body}</div>`;
+  }
+
+  function buildNsp() {
+    const type = val("leaseType");
+    const lateFee = money(val("lateFee")) || "[$amount]";
+    const deposit = money(val("securityDeposit")) || "[$amount]";
+    const items = [];
+    items.push(nspItem("LATE FEE", `A late fee of ${lateFee} will be charged as set forth in the rental agreement upon all late rental payments. A late fee is not rent; it is a separate charge. These fees may be deducted from Tenant's security deposit.`));
+    items.push(nspItem("RETURNED CHECK/STOP PAYMENT FEE", `If any payment by Tenant is returned unpaid due to insufficient funds or for any other reason, Tenant will be charged a fee of $30.00 per occurrence. If Landlord incurs any other costs or fees as a result of Tenant's payment being returned due to insufficient funds or for any other reason, Tenant will also be charged the actual costs incurred by Landlord as a result. These fees and costs may be deducted from Tenant's security deposit.`));
+    items.push(nspItem("GARBAGE/TRASH REMOVAL", `If Tenant leaves garbage or trash in hallway, outside of door of unit, or in any other common area of building or grounds which is not designated for the deposit of garbage or trash, Tenant will be charged a fee of $25.00 per occurrence, plus the actual costs incurred by Landlord to remove the garbage or trash. These fees and costs may be deducted from Tenant's security deposit.`));
+    items.push(nspItem("FAILURE TO PROPERLY DISPOSE OF RECYCLABLES", `It is the Tenant's responsibility to separate all recyclable materials and deposit them in appropriate containers as required by law or local ordinance. If Tenant fails to separate recyclable materials and deposit them in the appropriate containers, Tenant will be charged a fee of $25.00 for each occurrence plus the actual costs incurred by Landlord to properly dispose of the recyclables. These fees and costs may be deducted from Tenant's security deposit.`));
+
+    if (val("parkingVariant") === "short") {
+      items.push(nspItem("PARKING", `Tenant has read and understood the provisions set forth in the Rules and Regulations document. Tenant must ensure that all visitors follow the rules or risk being charged the fees stated in the Rules and Regulations document. These fees may be deducted from Tenant's security deposit.`));
+    }
+
+    items.push(nspItem("FAILURE TO PERMIT ACCESS TO UNIT", `If Tenant fails to permit access to the unit after Landlord has properly complied with all notice provisions set forth in Wis. Stat. ch. 704 and Wis. Admin. Code § ATCP 134, Tenant will be charged a fee of $30.00 for each occurrence. Tenant will also be charged for any damages and/or costs incurred by Landlord as a result of Tenant's failure to allow access to unit. These fees and costs may be deducted from Tenant's security deposit.`));
+    items.push(nspItem("RETURN OF KEYS", `If Tenant fails to return all keys including, but not limited to, building entry, unit entry, mailbox, laundry, and storage keys upon vacating, Tenant will be charged a fee of $75.00. These fees may be deducted from Tenant's security deposit.`));
+    items.push(nspItem("DAMAGE, WASTE OR NEGLECT", `Tenant is responsible for any damage, waste or neglect to the Premises including but not limited to the building, grounds upon which the building sits, rental unit, and any common areas. The Premises should be left in the same condition that it was received less any normal wear and tear. If there is any damage, waste or neglect to the Premises, Tenant will be charged the actual costs incurred by Landlord up to $21.00 per hour plus the costs of any materials. These fees and costs may be deducted from Tenant's security deposit.`));
+    items.push(nspItem("MODIFICATIONS TO UNIT", `Tenant is not allowed to make any modifications to the unit without the prior written consent of Landlord. If Tenant makes modifications to the unit without the prior written consent of Landlord, then Tenant will be charged the actual costs to return the unit to its original condition. These costs may be deducted from Tenant's security deposit.`));
+    items.push(nspItem("REMOVAL OF ABANDONED PROPERTY", `If Tenant leaves behind any personal property after vacating or if Tenant's personal property is removed by the Sheriff and/or a moving company pursuant to an eviction, Tenant will be charged the actual costs incurred by Landlord to remove and/or dispose of Tenant's personal property. These fees and costs may be deducted from Tenant's security deposit.`));
+
+    if (checked("includeAppliancesClause")) {
+      items.push(nspItem("APPLIANCES; TENANT RESPONSIBILITY; DEFAULT; SECURITY DEPOSIT",
+        `(a) No Landlord Obligation. Landlord does not supply, maintain, repair, or replace appliances. Any appliance located in the Premises at the commencement of tenancy is provided, if at all, strictly "AS-IS," without representation or warranty, and without any obligation of Landlord. `
+        + `(b) Tenant Assumption of Duty. Tenant accepts all existing appliances in their present condition and shall, at Tenant's sole cost and expense, maintain, service, repair, and replace any and all appliances located in or used at the Premises during the tenancy, whether originally present or later installed by Tenant. `
+        + `(c) Prohibition on Removal or Disposal. Tenant shall not remove, discard, sell, transfer, or replace any appliance that was present in the Premises at move-in ("Original Appliances") without Landlord's prior written consent. Unauthorized removal or disposal constitutes a material breach of this Lease. `
+        + `(d) Tenant-Owned Appliances. Any appliance brought onto the Premises by Tenant is at Tenant's sole risk. Tenant is responsible for proper installation, code compliance, and any damage caused thereby. `
+        + `(e) Surrender Condition. Upon vacating, Tenant shall leave all Original Appliances in the Premises and return them in substantially the same condition as at move-in, ordinary wear and tear excepted; if any is missing or not in the required condition, Tenant shall, at Landlord's election, return the same appliance or pay the reasonable cost to replace it, including delivery and installation. `
+        + `(f) Default; Cure; Remedies. Any violation of this Section is a material noncompliance with the Lease, subject to notice-and-cure and eviction as permitted by Wisconsin law. `
+        + `(g) Security Deposit; Deductions. To the extent permitted by Wisconsin law, Landlord may deduct from the security deposit amounts reasonably necessary to repair, replace, or clean appliances as described above, and to cover any other unpaid amounts lawfully chargeable.`
+      ));
+    }
+
+    items.push(nspItem("RE-RENTAL COSTS", `If Tenant vacates the unit without proper notice or is removed from the property for failure to pay rent or any other breach of the rental agreement, Tenant will be responsible for all charges permitted under Wis. Stat. § 704.29 including, but not limited to, all costs incurred to re-rent the vacated unit and all utilities for which Tenant is responsible through the end of the term of the rental agreement, subject to Landlord's duty to mitigate. These charges may be deducted from Tenant's security deposit.`));
+    items.push(nspItem("FAILURE TO VACATE AT END OF LEASE OR AFTER NOTICE", `If Tenant remains in possession of the premises without the consent of Landlord after expiration of lease or termination of tenancy by notice given by either Landlord or Tenant, or after termination by valid agreement of the parties, Tenant shall be liable for any damages suffered by Landlord because of Tenant's failure to vacate within the time required. In absence of proof of greater damages, Landlord shall recover as minimum damages twice the rental value apportioned on a daily basis for the time Tenant remains in possession. These charges may be deducted from Tenant's security deposit.`));
+    items.push(nspItem("RENTAL PROMOTION/CONCESSION", `If Tenant vacates the rental unit prior to the end of the rental term, is evicted prior to the end of the rental term, or if Tenant's tenancy is terminated for any reason prior to the end of the rental term, Tenant will forfeit any rent promotion/concession received. Any forfeited rent promotion/concession will be treated as unpaid rent and will immediately become due and payable by Tenant, and may be deducted from Tenant's security deposit. Tenant acknowledges that Landlord or Landlord's agent has specifically identified each nonstandard rental provision with Tenant prior to entering into a rental agreement.`));
+    items.push(nspItem("DEDUCTED CHARGES", `Charges will be deducted on the last day of the month within which the infraction was adjudicated. If full payment is not made on or before the 14th day of the month, charges will be deducted on the 15th day of the month. Tenant must maintain a security deposit of ${deposit} on file at all times.`));
+
+    el("p_nspList").innerHTML = items.join("");
+  }
+
+  function update() {
+    const type = val("leaseType");
+    const isMtm = type === "mtm", isCvi = type === "cvi", isAnnual = type === "annual";
+
+    // Header / banners
+    el("p_docHeader1").style.display = isAnnual ? "none" : "block";
+    el("p_docHeader2").style.display = isAnnual ? "block" : "none";
+    if (isAnnual) {
+      el("p_docHeader2").innerHTML = "2nd Chance Housing Inc for<br>Royal Orleans Condominium Association – Addition 1 (ROCA1)";
+    }
+    el("cviBanner").style.display = isCvi ? "block" : "none";
+    el("annualBanner").style.display = isAnnual ? "block" : "none";
+    el("cviBanner-fieldset").style.display = isCvi ? "block" : "none";
+    el("annualBanner-fieldset").style.display = isAnnual ? "block" : "none";
+
+    const agencies = [];
+    if (checked("agencyHACM")) agencies.push("Housing Authority of the City of Milwaukee");
+    if (checked("agencyMCHA")) agencies.push("Milwaukee County Housing Authority");
+    if (checked("agencyHUDVASH")) agencies.push("HUDVASH");
+    if (checked("agencyOther")) agencies.push("The agency with whom the prospective Tenant is a client");
+    el("annualAgencyList").innerHTML = agencies.map(a => `<li>${escapeHtml(a)}</li>`).join("") || "<li>[select an agency]</li>";
+
+    el("p_createdOn").textContent = val("createdOnDate") ? formatDate(val("createdOnDate")) : "________________________________________";
+
+    // Tenant 1 / children
+    el("p_numAdults").textContent = val("numAdults") || "";
+    el("p_numChildren").textContent = val("numChildren") || "";
+    el("p_tenant1Name").textContent = val("tenant1Name") || "[Tenant Name]";
+    el("p_tenant1Email").textContent = val("tenant1Email") || "";
+    el("p_child1Name").textContent = val("child1Name") || "N/A";
+    el("p_child1Dob").textContent = val("child1Dob") || "N/A";
+    el("p_child2Name").textContent = val("child2Name") || "N/A";
+    el("p_child2Dob").textContent = val("child2Dob") || "N/A";
+    for (let n = 3; n <= MAX_CHILDREN; n++) {
+      const hasRow = el("childRow" + n).style.display !== "none";
+      el("p_childRow" + n).style.display = hasRow ? "table-row" : "none";
+      if (hasRow) {
+        el("p_child" + n + "Name").textContent = val("child" + n + "Name") || "N/A";
+        el("p_child" + n + "Dob").textContent = val("child" + n + "Dob") || "N/A";
+      }
+    }
+
+    // Tenants 2 to 4
+    for (const n of [2, 3, 4]) {
+      const has = checked("includeTenant" + n);
+      el("tenant" + n + "Block").style.display = has ? "block" : "none";
+      el("p_sigTenant" + n + "Wrap").style.display = has ? "block" : "none";
+      if (has) {
+        el("p_tenant" + n + "Name").textContent = val("tenant" + n + "Name") || "[Tenant " + n + " Name]";
+        el("p_tenant" + n + "Email").textContent = val("tenant" + n + "Email") || "";
+        el("p_sigTenant" + n + "Name").textContent = val("tenant" + n + "Name") || "[Tenant " + n + " Name]";
+      }
+    }
+
+    // Owner
+    el("p_ownerName").textContent = val("ownerName") || "[Owner Name]";
+    const agentOrgDisplay = val("agentOrgName") || "[Agent]";
+    el("p_ownerNote").textContent = "The Owner listed above is not permitted to directly rent their unit; all rentals are managed by " + agentOrgDisplay + ".";
+
+    // Agent
+    el("p_agentOrgName").textContent = val("agentOrgName") || "";
+    el("p_agentAddress").textContent = val("agentAddress") || "";
+    el("p_agentEmail").textContent = val("agentEmail") || "";
+
+    // Premises
+    const unitValue = val("unitSelect") === "__custom__" ? val("unitCustom") : val("unitSelect");
+    const premisesText = unitValue || "[Unit address]";
+    el("p_premises").textContent = premisesText;
+    el("p_parkingUnitAddress").textContent = premisesText;
+
+    // Terms
+    el("p_initialStartDate").textContent = formatDate(val("initialStartDate")) || "[date]";
+    el("p_renewalOnRow").style.display = (isMtm || isCvi) ? "table-row" : "none";
+    el("p_expirationDateRow").style.display = isAnnual ? "table-row" : "none";
+    el("renewalOnWrap").style.display = (isMtm || isCvi) ? "block" : "none";
+    el("expirationDateWrap").style.display = isAnnual ? "block" : "none";
+    el("p_renewalOn").textContent = val("renewalOn");
+    el("p_expirationDate").textContent = formatDate(val("expirationDate")) || "[date]";
+    el("p_rentLateOn").textContent = val("rentLateOn");
+    el("p_rentAmount").textContent = money(val("rentAmount")) || "[$amount]";
+    el("p_securityDeposit").textContent = money(val("securityDeposit")) || "[$amount]";
+    el("p_rentDueOn").textContent = val("rentDueOn");
+    el("p_lateFee").textContent = money(val("lateFee")) || "[$amount]";
+    el("p_fiveDayNoticeOn").textContent = val("fiveDayNoticeOn");
+
+    el("moveInWrap").style.display = (isMtm || isCvi) ? "block" : "none";
+    el("p_moveInRow").style.display = (isMtm || isCvi) ? "table-row" : "none";
+    if (isMtm || isCvi) {
+      const name = val("tenant1Name") || "[Tenant Name]";
+      const moveIn = Number(val("moveInTotal")) || (Number(val("securityDeposit")) + Number(val("rentAmount"))) || 0;   // blank = deposit + first month's rent
+      el("p_moveInText").textContent = moveIn ? `${name} needs ${money(moveIn)} to get the keys.` : "";
+      el("p_moveInRow").style.display = moveIn ? "table-row" : "none";
+    }
+
+    el("cviSplitWrap").style.display = isCvi ? "block" : "none";
+    el("p_depositSplitRow").style.display = isCvi ? "table-row" : "none";
+    el("p_rentSplitRow").style.display = isCvi ? "table-row" : "none";
+    if (isCvi) {
+      el("p_depositSplitText").textContent = `Tenant ${val("depositSplitTenantPct") || "0"}% / CVI ${val("depositSplitCviPct") || "100"}%`;
+      el("p_rentSplitText").textContent = `Tenant ${val("rentSplitTenantPct") || "0"}% / CVI ${val("rentSplitCviPct") || "100"}%`;
+    }
+
+    // Utilities
+    ["Electricity","Gas","Heat","AC","Sewer","HotWater","Trash","Internet"].forEach(key => {
+      const tenantPays = checked("util" + key);
+      el("p_util" + key).textContent = tenantPays ? "Tenant" : "Landlord";
+    });
+
+    // Attachments
+    const attachments = [
+      ["attGuarantee", "Guarantee/Renewal/Assignment/Sublease"],
+      ["attNonstandard", "Nonstandard Rental Provision"],
+      ["attRules", "Rules & Regulations"],
+      ["attPromises", "Promises to Repair"],
+      ["attSmoke", "Smoke Detector Notice"],
+      ["attCode", "Code Violations"],
+      ["attLead", "Lead Based Paint Disclosure & Pamphlet"],
+      ["attRealEstate", "Real Estate Agency Disclosure"],
+      ["attParkingDoc", "Rules & Parking document"],
+      ["attHud", "HUD-52641-A"]
+    ];
+    el("p_attachmentsList").innerHTML = attachments
+      .map(([id, label]) => `<li>${checked(id) || (id === "attParkingDoc" && val("parkingVariant") === "full") ? "☑" : "☐"} ${escapeHtml(label)}</li>`)
+      .join("");
+
+    // Lead ack
+    el("p_leadAckDate").textContent = formatDate(val("initialStartDate")) || "[date]";
+    el("p_leadAckAgent").textContent = val("agentOrgName") || "[Agent]";
+    el("p_leadAckAddress").textContent = premisesText;
+
+    // Clause 1 deposit reference
+    el("p_clauseDeposit").textContent = money(val("securityDeposit")) || "[$amount]";
+
+    // Signatures
+    el("p_sigTenant1Name").textContent = val("tenant1Name") || "[Tenant 1 Name]";
+    el("p_sigAgentName").textContent = val("signerName") || "[Agent Signer Name]";
+    el("p_sigAgentTitle").textContent = val("signerTitle") || "Agent";
+    el("p_sigImg").style.display = checked("includeSig") ? "block" : "none";
+
+    // Rules & Regs / Nonstandard tenant name line
+    const names = [val("tenant1Name") || "[Tenant Name]"];
+    for (const n of [2, 3, 4]) if (checked("includeTenant" + n) && val("tenant" + n + "Name")) names.push(val("tenant" + n + "Name"));
+    const nameList = names.length > 1 ? names.slice(0, -1).join(", ") + " and " + names[names.length - 1] : names[0];
+    el("p_rulesTenantNames").textContent = nameList;
+    el("p_nspTenantNames").textContent = nameList;
+
+    // Pets
+    el("petsAttestationWrap").style.display = val("petsPolicy") === "fee" ? "block" : "none";
+    if (val("petsPolicy") === "fee") {
+      el("p_petsRule").innerHTML = `<li><b>Pets are not permitted on the property at any time without the prior written consent of Landlord. Tenant will be charged a fee of $150.00 per month for every month the pet is on the property. These fees may be deducted from Tenant's security deposit if not paid by the 10th day of the month. Tenant types the following attestation:</b> "${escapeHtml(val("petsAttestationText") || "I will not bring any pets on the property.")}"</li>`;
+    } else {
+      el("p_petsRule").innerHTML = `<li>Pets are not permitted on the property at any time without the prior written consent of Landlord.</li>`;
+    }
+
+    // Nonstandard provisions
+    buildNsp();
+
+    // Parking
+    const parkingFull = val("parkingVariant") === "full";
+    el("parkingFullSection").style.display = parkingFull ? "block" : "none";
+    el("parkingInitialsWrap").style.display = parkingFull ? "block" : "none";
+    document.querySelectorAll(".parking-initial").forEach(spanEl => {
+      spanEl.textContent = checked("parkingRequireInitials") ? "Initial: ______" : "";
+    });
+    el("p_parkingOccupantNames").textContent = nameList;
+    // One signature box per tenant. The signed PDF places each tenant's own signature and date in their box (the "Signature and date of NAME" text is what it looks for).
+    [1, 2, 3, 4].forEach((n) => {
+      el("p_parkSigRow" + n).style.display = n <= names.length ? "" : "none";
+      el("p_parkSigLabel" + n).textContent = n <= names.length ? "Signature and date of " + names[n - 1] : "";
+    });
+
+    save();
+  }
+
+  function save() {
+    const data = {};
+    fieldIds.forEach(id => {
+      const node = el(id);
+      data[id] = node.type === "checkbox" ? node.checked : node.value;
+    });
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  }
+
+  function load() {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    try {
+      const data = JSON.parse(raw);
+      fieldIds.forEach(id => {
+        if (!(id in data)) return;
+        const node = el(id);
+        if (node.type === "checkbox") node.checked = data[id];
+        else node.value = data[id];
+      });
+    } catch (e) { /* ignore corrupt storage */ }
+  }
+
+  function attachListeners() {
+    fieldIds.forEach(id => {
+      el(id).addEventListener("input", update);
+      el(id).addEventListener("change", update);
+    });
+
+    el("leaseType").addEventListener("change", () => {
+      applyLeaseTypeDefaults();
+      update();
+    });
+
+    el("unitSelect").addEventListener("change", () => {
+      const isCustom = val("unitSelect") === "__custom__";
+      el("unitCustom").style.display = isCustom ? "block" : "none";
+      if (isCustom) el("unitCustom").focus();
+      applyUnitOwnerDefault();
+      update();
+    });
+
+    el("importBtn").addEventListener("click", () => {
+      let data;
+      try {
+        data = JSON.parse(val("importJson"));
+      } catch (e) {
+        alert("Couldn't parse that as JSON: " + e.message);
+        return;
+      }
+      const result = applyImportData(data);
+      revealChildRowsWithData();
+      if (nextHiddenChildRow() === null) el("addChildBtn").style.display = "none";
+      applyUnitOwnerDefault();
+      update();
+      if (!window.__quietImport) alert(`Loaded ${result.applied} field(s).` + (result.skipped.length ? ` Ignored unknown key(s): ${result.skipped.join(", ")}` : ""));
+    });
+
+    el("resetBtn").addEventListener("click", () => {
+      if (!confirm("Clear all fields and start a new lease? This cannot be undone.")) return;
+      localStorage.removeItem(STORAGE_KEY);
+      window.location.reload();
+    });
+
+    el("addChildBtn").addEventListener("click", () => {
+      const n = nextHiddenChildRow();
+      if (n === null) return;
+      revealChildRow(n);
+      el("child" + n + "Name").focus();
+      if (n === MAX_CHILDREN) el("addChildBtn").style.display = "none";
+      update();
+    });
+
+    el("sendToTenantBtn").addEventListener("click", sendToTenant);
+  }
+
+  // Sends through the 2nd Chance Housing system (lease-signing function):
+  // staff two-step sign-in, a frozen snapshot of the lease exactly as shown,
+  // and a private signing link + emailed code for each tenant. The module at
+  // the end of this page (window.leaseSystem) does the sign-in and sending.
+  async function sendToTenant() {
+    const statusEl = el("sendToTenantStatus");
+    statusEl.style.display = "block";
+
+    const tenantName = val("tenant1Name").trim();
+    const tenantEmail = val("tenant1Email").trim();
+    const ownerName = val("ownerName").trim();
+    const initialStartDate = val("initialStartDate").trim();
+    const unitLabel = (val("unitSelect") === "__custom__" ? val("unitCustom") : val("unitSelect")).trim();
+    const rentAmount = val("rentAmount").trim();
+    const securityDeposit = val("securityDeposit").trim();
+
+    // Blocks the exact mistake that already happened once: a lease sent
+    // (and in one case, signed) with Owner Name and Initial Start Date left
+    // blank. These, plus the basics below, must be filled before sending.
+    const missing = [];
+    if (!tenantName) missing.push("Tenant 1 Name");
+    if (!tenantEmail) missing.push("Tenant 1 E-mail");
+    if (!unitLabel) missing.push("Unit");
+    if (!ownerName) missing.push("Owner Name");
+    if (!initialStartDate) missing.push("Initial Start Date");
+    if (!rentAmount) missing.push("Rent Amount");
+    if (!securityDeposit) missing.push("Security Deposit Amount");
+    for (const n of [2, 3, 4]) if (el("includeTenant" + n).checked && (!val("tenant" + n + "Name").trim() || !val("tenant" + n + "Email").trim())) missing.push("Tenant " + n + " Name and E-mail");
+    if (missing.length) {
+      statusEl.textContent = `Please fill in before sending: ${missing.join(", ")}.`;
+      return;
+    }
+    if (!window.leaseSystem) {
+      statusEl.textContent = "The 2nd Chance system didn't load. Open this page from the local server (python serve.py → http://localhost:8000/leasing/prepare/).";
+      return;
+    }
+
+    const data = {};
+    fieldIds.forEach(id => {
+      const node = el(id);
+      data[id] = node.type === "checkbox" ? node.checked : node.value;
+    });
+    const signers = [{ name: tenantName, email: tenantEmail, phone: (el("tenant1Phone") || {}).value || "" }];
+    for (const n of [2, 3, 4]) if (el("includeTenant" + n).checked) signers.push({ name: val("tenant" + n + "Name").trim(), email: val("tenant" + n + "Email").trim(), phone: (el("tenant" + n + "Phone") || {}).value || "", appId: val("tenant" + n + "AppId") || "" });
+    {
+      const seen = new Set();
+      for (const t of signers) { const k = t.name.toLowerCase() + "|" + t.email.toLowerCase(); if (seen.has(k)) { statusEl.textContent = `${t.name} is listed twice. Remove the duplicate tenant.`; return; } seen.add(k); }
+    }
+
+    const btn = el("sendToTenantBtn");
+    btn.disabled = true;
+    try {
+      update();
+      const r = await window.leaseSystem.send({ data, letterEl: el("letter"), unitLabel, signers, statusEl });
+      statusEl.textContent = `Sent! ${signers.map(s => s.name).join(" and ")} will get an email with a private link to review and sign, unlocked by a code emailed to them when they tap "Email me a code". Track it on the Applications page (document ${String(r.id).slice(0, 8)}).`;
+    } catch (e) {
+      statusEl.textContent = `Couldn't send: ${e.message}`;
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  // A lease prepared from an application (?application=) starts from a clean form. The browser keeps the last
+  // lease's fields, and loading an application on top of them carried over the previous tenant's rent, deposit,
+  // dates, owner, Tenant 2 and children (gap #2). Reloading the SAME application keeps the edits made to it.
+  const APP_KEY = STORAGE_KEY + ".application";
+  const appParam = new URLSearchParams(window.location.search).get("application");
+  try {
+    if (appParam && localStorage.getItem(APP_KEY) !== appParam) localStorage.removeItem(STORAGE_KEY);
+    if (appParam) localStorage.setItem(APP_KEY, appParam); else localStorage.removeItem(APP_KEY);
+  } catch (e) { /* storage blocked: the form simply starts empty */ }
+  const hasSavedData = !!localStorage.getItem(STORAGE_KEY);
+  load();
+  if (!hasSavedData) applyLeaseTypeDefaults();
+  attachListeners();
+  el("unitCustom").style.display = val("unitSelect") === "__custom__" ? "block" : "none";
+  revealChildRowsWithData();
+  if (nextHiddenChildRow() === null) el("addChildBtn").style.display = "none";
+  applyUnitOwnerDefault();
+  update();
+})();
+</script>
+
+
+<!-- 2nd Chance system: staff sign-in, load from application, send for signature -->
+<div id="staffSignin" class="no-print" hidden style="position:fixed;inset:0;background:rgba(15,25,40,.45);z-index:50;display:none;align-items:center;justify-content:center;padding:16px">
+  <div style="background:#fff;border-radius:12px;max-width:440px;width:100%;padding:18px 20px;font-family:Segoe UI,Arial,sans-serif">
+    <b>Staff sign-in</b><p style="margin:.3rem 0 .6rem;color:#555;font-size:.9rem">Sign in with your email code to send leases.</p>
+    <div id="staffSigninBox"></div>
+  </div>
+</div>
+<script type="module">
+import { client, signIn } from "/owners/portal.js";
+
+const $ = (id) => document.getElementById(id);
+let who = null;
+async function staff() {
+  if (who) return who;
+  const wrap = $("staffSignin"); wrap.hidden = false; wrap.style.display = "flex";
+  who = await signIn($("staffSigninBox"), { audience: "staff" });
+  wrap.hidden = true; wrap.style.display = "none";
+  if (who.role !== "staff") { who = null; throw new Error("This account isn't on the staff list."); }
+  return who;
+}
+
+// Tenant mobile numbers (optional, kept on the tenant record; signing is confirmed by an emailed code).
+const sendBtn = $("sendToTenantBtn");
+sendBtn.insertAdjacentHTML("beforebegin", `<div class="no-print" style="margin:8px 0">
+  <label for="tenant1Phone">Tenant 1 mobile (optional)</label><input type="tel" id="tenant1Phone" placeholder="(414) 555-0123">
+  <label for="agentPick" style="margin-top:6px">Countersigning agent (signs after the tenants)</label>
+  <select id="agentPick"><option value="">— loads after staff sign-in —</option></select>
+  <p class="hint">The lease goes out without the agent's signature. After every tenant signs, the agent signs in (email code) and countersigns; the signature on file is applied then.</p></div>`);
+sendBtn.textContent = "Send for signature";
+{
+  // Colour the send result (see the CSS above), bring it into view, and lock the button after a successful send (a second click only makes the server refuse a duplicate).
+  const st = $("sendToTenantStatus");
+  new MutationObserver(() => {
+    const t = st.textContent || "";
+    const kind = /^Sent!/.test(t) ? "ok" : /^(Couldn't|Please fill|The 2nd Chance system)|is listed twice/.test(t) ? "err" : t ? "busy" : "";
+    if (kind) st.dataset.kind = kind; else delete st.dataset.kind;
+    if (kind === "ok" || kind === "err") st.scrollIntoView({ behavior: "smooth", block: "center" });
+    if (kind === "ok") { sendBtn.disabled = true; sendBtn.textContent = "Sent ✓"; }
+  }).observe(st, { childList: true, characterData: true, subtree: true });
+}
+
+// ---- Snapshot: the lease exactly as shown, as standalone HTML + text blocks.
+async function toDataUrl(src) {
+  const res = await fetch(src); const blob = await res.blob();
+  return await new Promise((ok) => { const r = new FileReader(); r.onload = () => ok(r.result); r.readAsDataURL(blob); });
+}
+const visible = (n) => n.nodeType !== 1 || (getComputedStyle(n).display !== "none" && getComputedStyle(n).visibility !== "hidden");
+
+async function snapshot(letterEl) {
+  const imgs = new Map();
+  for (const img of letterEl.querySelectorAll("img")) if (visible(img) && img.src && !img.src.startsWith("data:")) imgs.set(img.src, await toDataUrl(img.src));
+  // Text blocks, walking only what's visible.
+  const blocks = [];
+  const walk = (node) => {
+    for (const n of node.children) {
+      if (!visible(n)) continue;
+      const tag = n.tagName;
+      if (n.classList.contains("page-break")) { blocks.push({ t: "pb" }); continue; }
+      if (tag === "IMG") { blocks.push({ t: "img", src: imgs.get(n.src) || n.src }); continue; }
+      if (/^H[1-6]$/.test(tag)) { blocks.push({ t: tag === "H1" ? "h1" : tag === "H2" ? "h2" : "h3", text: n.innerText.trim() }); continue; }
+      if (tag === "LI") { blocks.push({ t: "li", text: n.innerText.trim() }); continue; }
+      if (tag === "TABLE") { for (const tr of n.querySelectorAll("tr")) { if (!visible(tr)) continue; const cells = [...tr.children].map((c) => c.innerText.trim()).filter(Boolean); if (cells.length) blocks.push({ t: "p", text: cells.join("  ·  ") }); } continue; }
+      const hasBlockKids = [...n.children].some((c) => /^(P|DIV|UL|OL|LI|H[1-6]|TABLE|SECTION|IMG)$/.test(c.tagName) && visible(c));
+      if (hasBlockKids) walk(n);
+      else { const text = n.innerText.trim(); if (text) blocks.push({ t: "p", text }); }
+    }
+  };
+  walk(letterEl);
+  // Standalone HTML with the page's styles, visible content only, images inlined.
+  const clone = letterEl.cloneNode(true);
+  const live = [letterEl, ...letterEl.querySelectorAll("*")], copy = [clone, ...clone.querySelectorAll("*")];
+  live.forEach((n, i) => { if (!visible(n)) copy[i].setAttribute("data-hidden", "1"); });
+  clone.querySelectorAll("[data-hidden]").forEach((n) => n.remove());
+  clone.querySelectorAll("img").forEach((img) => { const abs = new URL(img.getAttribute("src"), location.href).href; if (imgs.has(abs)) img.setAttribute("src", imgs.get(abs)); });
+  clone.querySelectorAll("script, input, button, textarea, select").forEach((n) => n.remove());
+  const css = [...document.querySelectorAll("style")].map((s) => s.textContent).join("\n");
+  const html = `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><style>${css}
+    body{background:#fff;margin:0;padding:12px} .letter, #letter{box-shadow:none!important;margin:0 auto!important}</style></head><body>${clone.outerHTML}</body></html>`;
+  return { html, blocks };
+}
+
+async function loadAgents() {
+  const pick = $("agentPick");
+  if (pick.dataset.loaded) return;
+  const { data, error } = await client.rpc("lease_agents_list");
+  if (error) throw new Error(error.message);
+  const want = ($("signerName").value || "").trim().toLowerCase();
+  pick.innerHTML = `<option value="">— choose the agent —</option>` + (data || []).map((a) =>
+    `<option value="${a.id}" ${a.has_signature ? "" : "disabled"} ${a.name.toLowerCase() === want ? "selected" : ""}>${a.name}${a.title ? ", " + a.title : ""}${a.org ? " (" + a.org + ")" : ""}${a.has_signature ? "" : " — no signature on file"}</option>`).join("");
+  pick.dataset.loaded = "1";
+}
+
+window.leaseSystem = {
+  async send({ data, letterEl, unitLabel, signers, statusEl }) {
+    statusEl.textContent = "Signing in…";
+    await staff();
+    await loadAgents();
+    const agent_id = $("agentPick").value;
+    if (!agent_id) throw new Error("Choose the countersigning agent (below the mobile numbers), then send again.");
+    statusEl.textContent = "Preparing the lease snapshot…";
+    const { html, blocks } = await snapshot(letterEl);
+    statusEl.textContent = "Sending…";
+    const application_id = new URLSearchParams(location.search).get("application") || null;
+    const { data: r, error } = await client.functions.invoke("lease-signing", {
+      body: { action: "send", unit_label: unitLabel, title: "Residential Rental Agreement", html, blocks, lease_data: data, application_id, co_application_ids: signers.slice(1).map((t) => t.appId).filter(Boolean), signers, agent_id },
+    });
+    if (error) { let m = error.message; try { m = (await error.context.json()).error || m; } catch {} throw new Error(m); }
+    return r;
+  },
+};
+
+// ---- Rent and deposit from the listing (/data/listings.json, the same file as the landing page).
+// Filled only into empty boxes, so nothing typed by hand is overwritten.
+let LISTINGS = null;
+async function fillFromListing() {
+  LISTINGS = LISTINGS || await fetch("/data/listings.json", { cache: "no-cache" }).then((r) => r.json()).then((j) => j.units).catch(() => []);
+  const v = $("unitSelect").value, n = (v.match(/Unit #(\d+)$/) || [])[1];
+  const u = n && LISTINGS.find((x) => x.unit === n && x.street.split(" ")[0] === v.split(" ")[0]);
+  if (!u) return false;
+  let filled = false;
+  for (const [id, amt] of [["rentAmount", u.rent], ["securityDeposit", u.deposit]]) {
+    if ($(id).value || amt == null) continue;
+    $(id).value = Number(amt).toFixed(2); $(id).dispatchEvent(new Event("input", { bubbles: true })); filled = true;
+  }
+  return filled;
+}
+$("unitSelect").addEventListener("change", () => { fillFromListing(); });
+
+// ---- Other tenants (2 to 4): chosen from their own applications, so name, email and mobile are never retyped.
+let applicantChoices = null;
+async function loadApplicantChoices() {
+  if (applicantChoices) return applicantChoices;
+  await staff();
+  const { data, error } = await client.rpc("apply_staff_list");
+  if (error) throw new Error(error.message);
+  applicantChoices = (data || []).filter((a) => !a.superseded_by && !["declined", "withdrawn"].includes(a.status)).map((a) => ({
+    id: a.id, name: (a.applicant && a.applicant.name) || "", email: (a.applicant && a.applicant.email) || "", phone: (a.applicant && a.applicant.phone) || "",
+    status: a.status, units: ((a.applicant && a.applicant.units) || []).join(", "), created: String(a.created_at || "").slice(0, 10),
+  })).filter((c) => c.name && c.email).sort((x, y) => x.name.localeCompare(y.name));
+  return applicantChoices;
+}
+const TENANT_SLOTS = [2, 3, 4];
+const primaryAppId = () => new URLSearchParams(location.search).get("application") || "";
+const usedAppIds = (except) => [primaryAppId(), ...TENANT_SLOTS.filter((n) => n !== except).map((n) => $("tenant" + n + "AppId").value)].filter(Boolean);
+function setField(id, v) { const n = $(id); if (n.type === "checkbox") n.checked = !!v; else n.value = v; n.dispatchEvent(new Event("input", { bubbles: true })); }
+function fillTenant(n, c) {
+  setField("includeTenant" + n, true); setField("tenant" + n + "Name", c.name); setField("tenant" + n + "Email", c.email);
+  setField("tenant" + n + "Phone", c.phone || $("tenant" + n + "Phone").value); setField("tenant" + n + "AppId", c.id);
+  const count = 1 + TENANT_SLOTS.filter((k) => $("includeTenant" + k).checked).length;
+  if ((Number($("numAdults").value) || 0) < count) setField("numAdults", String(count));
+  $("tenant" + n + "Pick").value = c.id;
+}
+function fillPickers() {
+  for (const n of TENANT_SLOTS) {
+    const sel = $("tenant" + n + "Pick"), cur = $("tenant" + n + "AppId").value;
+    sel.innerHTML = `<option value="">— choose an applicant —</option>` + applicantChoices.map((c) =>
+      `<option value="${c.id}">${c.name} (${c.status}${c.units ? ", unit " + c.units : ""}, applied ${c.created})</option>`).join("");
+    sel.value = applicantChoices.some((c) => c.id === cur) ? cur : "";
+  }
+}
+for (const n of TENANT_SLOTS) {
+  const sel = $("tenant" + n + "Pick");
+  sel.addEventListener("focus", async () => {
+    if (applicantChoices) return;
+    try { sel.options[0].textContent = "Loading applicants…"; await loadApplicantChoices(); fillPickers(); }
+    catch (e) { sel.options[0].textContent = "Couldn't load: " + e.message; }
+  });
+  sel.addEventListener("change", () => {
+    const c = (applicantChoices || []).find((x) => x.id === sel.value);
+    if (!c) { setField("tenant" + n + "AppId", ""); return; }
+    if (usedAppIds(n).includes(c.id)) { alert(c.name + " is already on this lease."); sel.value = $("tenant" + n + "AppId").value; return; }
+    fillTenant(n, c);
+  });
+  // Typing a different name or email breaks the link to the application (the lease would otherwise record the wrong person's application).
+  for (const k of ["Name", "Email"]) $("tenant" + n + k).addEventListener("input", () => {
+    const c = (applicantChoices || []).find((x) => x.id === $("tenant" + n + "AppId").value);
+    if (c && ($("tenant" + n + "Name").value !== c.name || $("tenant" + n + "Email").value.toLowerCase() !== c.email.toLowerCase())) { $("tenant" + n + "AppId").value = ""; sel.value = ""; }
+  });
+}
+
+// ---- Load from an application: ?application=<id>
+const appId = new URLSearchParams(location.search).get("application");
+if (appId) {
+  const status = $("prospectLoadStatus");
+  status.textContent = "Sign in to load the application…";
+  try {
+    await staff();
+    loadAgents().catch(() => {});
+    const { data: a, error } = await client.rpc("apply_staff_get", { p_id: appId });
+    if (error) throw new Error(error.message);
+    const p = a.applicant || {}, hh = a.household || [];
+    const unit = (p.units || []).find((u) => /^\d+$/.test(u));
+    const adults = hh.filter((h) => !h.minor), kids = hh.filter((h) => h.minor);
+    const imp = { tenant1Name: p.name || "", tenant1Email: p.email || "", numAdults: String(1 + adults.length), numChildren: String(kids.length) };
+    // Match the dropdown's own option ("6626 N Bourbon St., Unit #5" has no period after N; gap #3).
+    const opt = unit && [...$("unitSelect").options].find((o) => o.value.endsWith(`Unit #${unit}`));
+    if (opt) imp.unitSelect = opt.value;
+    if (p.move_in) imp.initialStartDate = p.move_in;
+    kids.slice(0, 6).forEach((k, i) => { imp[`child${i + 1}Name`] = k.name; imp[`child${i + 1}Dob`] = k.dob || ""; });
+    adults.slice(0, 3).forEach((ad, i) => { imp["includeTenant" + (i + 2)] = true; imp["tenant" + (i + 2) + "Name"] = ad.name; });
+    $("importJson").value = JSON.stringify(imp, null, 1);
+    // The lease the applicant asked for (month-to-month unless their agency needs annual or CVI); sets that lease's defaults.
+    if (["mtm", "annual", "cvi"].includes(p.lease_term)) { $("leaseType").value = p.lease_term; $("leaseType").dispatchEvent(new Event("change")); }
+    window.__quietImport = true; $("importBtn").click(); window.__quietImport = false;
+    const fromListing = await fillFromListing();
+    $("tenant1Phone").value = p.phone || "";
+    // Each adult listed in the household who also applied (same name, one application) is filled in with their own email and mobile.
+    let matched = 0;
+    try {
+      await loadApplicantChoices(); fillPickers();
+      const norm = (x) => String(x || "").toLowerCase().replace(/[^a-z]/g, "");
+      adults.slice(0, 3).forEach((ad, i) => {
+        const hits = applicantChoices.filter((c) => norm(c.name) === norm(ad.name) && !usedAppIds(i + 2).includes(c.id));
+        if (hits.length === 1) { fillTenant(i + 2, hits[0]); matched++; }
+      });
+    } catch (e) { /* the pickers still work by hand */ }
+    status.textContent = `Loaded from the application of ${p.name}${p.phone ? ` (${p.phone})` : ""}. Lease: ${({ mtm: "month-to-month", annual: "annual", cvi: "CVI" })[p.lease_term] || "month-to-month"}${p.agency ? ` (agency: ${p.agency})` : ""}.` +
+      (unit && !opt ? ` Unit ${unit} isn't in the unit list; choose it by hand.` : "") +
+      (fromListing ? ` Rent and deposit came from the listing; check them. Dates and lease type still need your decision.` : ` Rent, deposit, dates and lease type still need your decision.`) +
+      (matched ? ` ${matched} other adult${matched === 1 ? "" : "s"} matched to their own application (name, email and mobile filled in).` : "") +
+      (adults.slice(0, 3).length > matched ? ` ${adults.slice(0, 3).length - matched} other adult${adults.slice(0, 3).length - matched === 1 ? "" : "s"} still need${adults.slice(0, 3).length - matched === 1 ? "s" : ""} an email: choose their application under Tenants 2 to 4.` : "") +
+      (adults.length > 3 ? ` Only four tenants fit on one lease; ${adults.length - 3} more adult(s) are not included.` : "");
+  } catch (e) { status.textContent = `Couldn't load the application: ${e.message}`; }
+}
+</script>
+</body>
+</html>

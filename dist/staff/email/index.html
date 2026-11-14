@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Email a unit — 2nd Chance Housing Staff</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+<style>
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-bottom: 12px; max-width: 760px; }
+  .meta { color: var(--muted); font-size: 0.9rem; }
+  .form { display: grid; gap: 12px; }
+  .form label { display: grid; gap: 4px; font-size: 0.9rem; color: var(--muted); }
+  .form input, .form select, .form textarea { font: inherit; padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); color: inherit; width: 100%; box-sizing: border-box; }
+  .who label { display: flex; gap: 8px; align-items: center; color: inherit; font-size: 1rem; }
+  .who input { width: auto; }
+</style>
+</head>
+<body>
+<div class="appbar" data-nav="staff">
+  <div class="appbar-in">
+    <div class="org">2nd Chance Housing<span>Email a unit · Staff</span></div>
+    <div class="row" id="userBar" hidden>
+      <button class="linkbtn" type="button" id="signOutBtn">Sign out</button>
+    </div>
+  </div>
+</div>
+<main class="wrap">
+  <header><h1>Email a unit</h1><p class="lead">Write to a unit's owner, its tenants, or both. It goes out from the office address, replies come to the office, and it is saved in the person's Communications history.</p></header>
+  <div id="signin" class="narrow"></div>
+  <div id="app" hidden>
+    <div class="card"><div class="form">
+      <label>Unit<select id="unit"></select></label>
+      <div class="who" id="who"></div>
+      <label>Subject<input id="subject" maxlength="150"></label>
+      <label>Message<textarea id="message" rows="9" maxlength="8000"></textarea></label>
+      <div><button class="btn primary" type="button" id="send">Send email</button></div>
+      <div class="meta" id="msg" role="status"></div>
+    </div></div>
+  </div>
+</main>
+<script type="module">
+import { client, $, esc, signIn, signOut, errorText } from "/assets/portal/portal.js";
+let U = [];
+const say = (t, bad) => { $("msg").textContent = t; $("msg").style.color = bad ? "var(--bad)" : ""; };
+const cur = () => U.find((u) => u.unit === $("unit").value);
+function drawWho() {
+  const u = cur(); if (!u) return;
+  const opts = [["owner", "Owner", u.owners], ["tenant", "Tenant" + (u.tenants.length > 1 ? "s" : ""), u.tenants], ["both", "Owner and tenant", [].concat(u.owners, u.tenants)]]
+    .filter(([k, , n]) => n.length && !(k === "both" && (!u.owners.length || !u.tenants.length)));
+  $("who").innerHTML = opts.length ? opts.map(([k, l, n], i) => `<label><input type="radio" name="who" value="${k}" ${i === 0 ? "checked" : ""}> ${esc(l)} <span class="meta">(${esc(n.join(", "))})</span></label>`).join("")
+    : `<p class="meta">Nobody with an email address is on file for this unit.</p>`;
+}
+async function load() {
+  const { data, error } = await client.rpc("staff_mail_targets");
+  if (error) { say(await errorText(error), true); return; }
+  U = data;
+  $("unit").innerHTML = U.map((u) => `<option value="${esc(u.unit)}">Unit ${esc(u.unit)} · ${esc(u.address || "")}</option>`).join("");
+  const q = new URLSearchParams(location.search).get("unit"); if (q && U.some((u) => u.unit === q)) $("unit").value = q;
+  drawWho();
+}
+$("unit").addEventListener("change", drawWho);
+$("send").addEventListener("click", async () => {
+  const who = document.querySelector('input[name="who"]:checked');
+  if (!who) { say("Choose who gets it.", true); return; }
+  $("send").disabled = true; say("Sending…");
+  try {
+    const { data, error } = await client.rpc("staff_email_unit", { p_unit: $("unit").value, p_who: who.value, p_subject: $("subject").value, p_message: $("message").value });
+    if (error) throw new Error(await errorText(error));
+    await client.functions.invoke("outbox-flush", { body: {} }).catch(() => {});
+    say(`Sent to ${data.names.join(", ")}.`); $("subject").value = ""; $("message").value = "";
+  } catch (err) { say(err.message, true); }
+  $("send").disabled = false;
+});
+$("signOutBtn").addEventListener("click", signOut);
+const who = await signIn($("signin"), { audience: "staff" });
+$("userBar").hidden = false;
+if (who.role !== "staff") location.replace("/association-owners/roca1/"); else { $("app").hidden = false; load(); }
+</script>
+</body>
+</html>

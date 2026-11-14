@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>My Services | The Human Mirror</title>
+<link rel="icon" href="/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Source+Serif+4:opsz,wght@8..60,600&display=swap">
+<link rel="stylesheet" href="/mirror/assets/mirror.css?v=20261113l">
+</head>
+<body data-area="my">
+<!-- Phase 8 (T8.4, D-34): the services the person gets from organizations they work with. They see every one, with its history, and can
+     say they stopped getting one. The organization records the rest. Nothing is removed one by one. -->
+<main id="main" class="mm-main">
+  <div class="mm-read">
+    <p class="mm-eyebrow"><a href="/mirror/my-mirror/">My Mirror</a></p>
+    <h1>My services</h1>
+    <p class="mm-lead">What you get from the organizations you work with, such as a food pantry, rides or a class. Each organization sees only its own.</p>
+  </div>
+  <div id="mmBox"><p role="status">Loading…</p></div>
+</main>
+<script type="module" src="/mirror/assets/mirror-ui.js?v=20261113h"></script>
+<script type="module">
+import { requireArea, rpc } from "/mirror/assets/mirror-client.js?v=20261113p";
+import { esc, notice, toast } from "/mirror/assets/mirror-ui.js?v=20261113h";
+import { voiceAll } from "/mirror/assets/mirror-voice.js?v=20261113c";
+
+const ENR = { active: "Getting it", paused: "On hold", completed: "Finished", ended: "Stopped" };
+const msg = (e) => (e instanceof Error ? e.message : String(e));
+const day = (d) => (d ? new Date(d.length === 10 ? d + "T12:00:00" : d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "");
+const by = (r) => (r === "self" ? "you" : "the organization");
+
+await requireArea("my");
+const box = /** @type {HTMLElement} */ (document.getElementById("mmBox"));
+
+async function load(note = "") {
+  let E, G = { received: [] };
+  try { E = await rpc("mirror_enrollments"); }
+  catch (e) { box.innerHTML = notice("urgent", `<p>${esc(msg(e))}</p>`); return; }
+  try { G = await rpc("mirror_received"); } catch { G = { received: [] }; }   // T8.7: things I received
+  const card = (x) => `<li class="mm-card" style="list-style:none;margin-bottom:var(--mm-space-3)" data-enr="${esc(x.id)}">
+    <p class="mm-muted mm-small" style="margin:0">${esc(x.organization)}${x.area ? " · " + esc(x.area) : ""}${x.private ? ' <span class="mm-tag mm-tag-info">private</span>' : ""}</p>
+    <strong>${esc(x.service)}</strong> <span class="mm-small">· ${esc(ENR[x.status] || x.status)}</span>
+    ${x.description ? `<p class="mm-small" style="margin:var(--mm-space-1) 0">${esc(x.description)}</p>` : ""}
+    <p class="mm-small mm-muted" style="margin:var(--mm-space-1) 0">Since ${esc(day(x.started_on))}${x.ended_on ? `, until ${esc(day(x.ended_on))}` : ""}.${x.note ? " " + esc(x.note) : ""}</p>
+    <details class="mm-small"><summary>History</summary><ul>${x.history.map((h) => `<li>${esc(day(h.at))}: ${h.from && h.from !== h.to ? esc(ENR[h.from] || h.from) + " → " : ""}${esc(ENR[h.to] || h.to)}${h.from ? "" : " (enrolled)"}, by ${esc(by(h.by_role))}${h.note ? ": " + esc(h.note) : ""}</li>`).join("")}</ul></details>
+    ${x.status === "active" || x.status === "paused" ? `<form data-stop novalidate style="margin-top:var(--mm-space-2)">
+      <div class="mm-field" style="margin-bottom:var(--mm-space-2)"><label for="st-${esc(x.id)}">I stopped getting this <span class="mm-muted">(a note, if you like; ${esc(x.organization)} sees it)</span></label>
+        <input class="mm-input" id="st-${esc(x.id)}" maxlength="1000"></div>
+      <button class="mm-btn mm-btn-secondary" type="submit">I stopped getting this</button></form>` : ""}</li>`;
+  const open = E.enrollments.filter((x) => x.status === "active" || x.status === "paused");
+  const rest = E.enrollments.filter((x) => !open.includes(x));
+  box.innerHTML = `${note}
+    ${E.enrollments.length ? `${open.length ? `<h2>Getting now (${open.length})</h2><ul style="padding:0">${open.map(card).join("")}</ul>` : ""}
+      ${rest.length ? `<h2>Finished or stopped (${rest.length})</h2><ul style="padding:0">${rest.map(card).join("")}</ul>` : ""}`
+      : notice("info", "<p>Nothing yet. When an organization you work with signs you up for one of its services, it shows here.</p>")}
+    <h2>Things I received</h2>
+    ${G.received.length ? `<ul style="padding-left:1.2rem">${G.received.map((g) => `<li>${esc(day(g.given_on))}: ${g.quantity} × ${esc(g.item)}${g.size ? " (" + esc(g.size) + ")" : ""}, from ${esc(g.organization)}${g.note ? ": " + esc(g.note) : ""}${g.returned ? ' <span class="mm-tag">Taken off: recorded by mistake</span>' : ""}</li>`).join("")}</ul>`
+      : '<p class="mm-muted">Nothing yet. Clothing, furniture and other donated items an organization gives you show here.</p>'}
+    <p class="mm-small mm-muted mm-read">A service in a private part of life (health, feelings, safety, legal, money) is set up only while you share that
+      part with the organization (<a href="/mirror/my-mirror/settings/">Settings</a>). If you stop sharing it, they no longer see it; it stays here for you.
+      Programs from other organizations are under <a href="/mirror/my-mirror/resources/">Help I could get</a>.</p>`;
+  voiceAll(box);
+  box.querySelectorAll("[data-stop]").forEach((f) => f.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const id = f.closest("[data-enr]").dataset.enr;
+    const b = f.querySelector("button");
+    if (!b.dataset.sure) { b.dataset.sure = "1"; b.textContent = "Press again to say you stopped"; return; }
+    b.disabled = true;
+    try { await rpc("mirror_enrollment_save", { p: { id, status: "ended", note: f.querySelector("input").value } }); toast("Saved. The organization sees it."); load(); }
+    catch (err) { b.disabled = false; toast(msg(err)); }
+  }));
+}
+load();
+</script>
+</body>
+</html>

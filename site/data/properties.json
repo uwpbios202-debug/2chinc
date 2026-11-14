@@ -1,0 +1,47 @@
+{
+  "_note": "MASTER LIST of properties. Add one here and Inspections, Properties and Property Owners pick it up automatically. type: 'association' (units belong to an association) or 'owner' (a property with its own owner). units: [] means inspect the property as a whole.",
+  "properties": [
+    {
+      "id": "6626-n-bourbon",
+      "name": "6626 N Bourbon St",
+      "type": "association",
+      "association": "roca1",
+      "address": "6626 N Bourbon St, Milwaukee, WI 53224",
+      "units": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8"
+      ]
+    },
+    {
+      "id": "6622-n-bourbon",
+      "name": "6622 N Bourbon St",
+      "type": "association",
+      "association": "roca1",
+      "address": "6622 N Bourbon St, Milwaukee, WI 53224",
+      "units": [
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18"
+      ]
+    },
+    {
+      "id": "3446-n-12th",
+      "name": "3446 N 12th St",
+      "type": "owner",
+      "association": null,
+      "address": "3446 N 12th St, Milwaukee, WI",
+      "units": []
+    }
+  ]
+}

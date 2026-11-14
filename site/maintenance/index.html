@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Maintenance — 2nd Chance Housing Staff</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+<style>
+  .reqs { display: grid; gap: 14px; }
+  .rq { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+  .rq-head { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: baseline; }
+  .rq-head h2 { margin: 0; font-size: 1.15rem; }
+  .meta { color: var(--muted); font-size: 0.9rem; }
+  .pillx { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 0.8rem; font-weight: 700; background: var(--accent-soft); color: var(--accent); }
+  .pillx.deferred { background: var(--warn-soft); color: var(--warn); }
+  .pillx.completed, .pillx.closed { background: var(--off-soft); color: var(--off); }
+  .photos { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+  .photos img { width: 120px; height: 90px; object-fit: cover; border-radius: 6px; cursor: zoom-in; }
+  .row2 { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 10px; }
+  .row2 textarea { flex: 1; min-width: 240px; min-height: 54px; }
+  .hist { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size: 0.88rem; }
+  .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+  .filters button[aria-pressed="true"] { background: var(--accent); color: #fff; }
+  .pillx.scheduled { background: var(--ok-soft); color: var(--ok); }
+  .pillx.new { background: var(--bad-soft); color: var(--bad); }
+  .cat { font-weight: 700; }
+  .flagx { color: var(--bad); font-weight: 700; }
+  details.panel2 { border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; margin-top: 10px; }
+  details.panel2 summary { cursor: pointer; font-weight: 600; }
+  .formrow { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; margin-top: 8px; }
+  .formrow label { display: grid; gap: 3px; font-size: 0.85rem; color: var(--muted); }
+  .formrow input[type=text] { min-width: 260px; }
+  .hist li.res { color: var(--text); }
+</style>
+</head>
+<body>
+<div class="appbar" data-nav="staff">
+  <div class="appbar-in">
+    <div class="org">2nd Chance Housing<span>Maintenance · Staff</span></div>
+    <div class="row" id="userBar" hidden>
+      
+      
+      
+      
+      
+      <button class="linkbtn" type="button" id="signOutBtn">Sign out</button>
+    </div>
+  </div>
+</div>
+<main class="wrap">
+  <header><h1>Maintenance requests</h1><p class="lead">Repair requests from the resident portal. Received → Scheduled → In progress → Done; the tenant is emailed at each step and confirms when it is fixed. Schedule a visit to send the 12-hour notice to enter.</p></header>
+  <div id="signin" class="narrow"></div>
+  <div id="app" hidden><div id="waitMount"></div><div id="hvacMount"></div><div class="filters" id="filters"></div><div class="reqs" id="reqs"></div></div>
+</main>
+<script type="module">
+import { client, $, esc, fmtDate, money, signIn, signOut, errorText } from "/assets/portal/portal.js";
+import { mountHvac } from "/assets/portal/hvac.js?v=20261105b";
+// Received -> Scheduled -> In progress -> Done; the tenant confirms Done (Closed).
+const LABEL = { new: "Received", scheduled: "Scheduled", in_progress: "In progress", completed: "Done", closed: "Closed", deferred: "On hold" };
+const ORDER = ["new", "scheduled", "in_progress", "completed", "closed", "deferred"];
+const ENTRY = { yes: "may enter", no: "only when home", call_first: "call first" };
+let reqs = [], vendors = [], filter = "open";
+const flush = () => client.functions.invoke("outbox-flush", { body: {} }).catch(() => {});
+const when = (r) => r.scheduled_start ? new Date(r.scheduled_start).toLocaleString("en-US", { weekday: "short", month: "numeric", day: "numeric", hour: "numeric", minute: "2-digit" }) + "–" +
+  new Date(r.scheduled_end).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) : "";
+const vendorOpts = (sel) => `<option value="">— contractor —</option>${vendors.map((v) => `<option value="${v.id}" ${v.id === sel ? "selected" : ""}>${esc(v.name)}${v.category ? " (" + esc(v.category) + ")" : ""}</option>`).join("")}`;
+
+function card(r) {
+  const canSchedule = !["completed", "closed"].includes(r.status);
+  const canBill = ["completed", "closed"].includes(r.status) && r.lease_id && r.billed_amount == null;
+  const tomorrow = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
+  return `<article class="rq" data-id="${r.id}">
+    <div class="rq-head"><h2>#${r.number} · ${esc(r.subject)} <span class="pillx ${r.status}">${LABEL[r.status] || esc(r.status)}</span></h2>
+      <span class="meta">${fmtDate(r.created_at)} · ${esc(r.unit_label || "")}</span></div>
+    <div class="meta"><span class="cat">${esc(r.category_label)}</span> · ${esc(r.tenant?.name || "")} · ${esc(r.tenant?.phone || "")} · ${esc(r.tenant?.email || "")}</div>
+    <div class="meta">Entry: <b>${ENTRY[r.entry_permission]}</b> · Animals: ${r.has_pets == null ? "not asked" : r.has_pets ? `<span class="flagx">yes — ${esc(r.pets_note || "")}</span>` : "none"}
+      ${r.vendor ? " · Contractor: <b>" + esc(r.vendor) + "</b>" : ""}${r.scheduled_start ? " · Visit: <b>" + esc(when(r)) + "</b>" : ""}
+      ${r.notice ? ` · <a href="#" data-notice="${esc(r.notice.pdf_path)}">12-hour notice</a> sent ${fmtDate(r.notice.sent_at)}` : ""}
+      ${r.billed_amount != null ? ` · Billed to tenant: <b>${money(r.billed_amount)}</b>` : ""}${r.resident_confirmed_at ? ` · Tenant confirmed fixed ${fmtDate(r.resident_confirmed_at)}` : ""}</div>
+    <p>${esc(r.description)}</p>
+    ${r.photos.length ? `<div class="photos" data-photos='${esc(JSON.stringify(r.photos))}'><button class="btn" type="button" data-show>Show ${r.photos.length} photo(s)</button></div>` : ""}
+    ${(r.videos || []).length ? `<div class="photos" data-videos='${esc(JSON.stringify(r.videos))}'><button class="btn" type="button" data-showv>▶ Play ${r.videos.length} video(s)</button></div>` : ""}
+    ${r.video_requested_at && !(r.videos || []).length ? `<div class="meta">🎥 Video asked for ${fmtDate(r.video_requested_at)}: ${esc(r.video_request_note || "")} (none yet)</div>` : ""}
+    ${!["completed", "closed"].includes(r.status) ? `<details class="panel2"><summary>🎥 Ask the tenant for a short video</summary>
+      <div class="formrow"><label style="flex:1">What should the video show? (the tenant is emailed)<input type="text" data-vnote maxlength="1000" placeholder="e.g. Turn on the light switch and show that nothing happens. The manufacturer needs it."></label>
+      <button class="btn primary" type="button" data-askvideo>Ask for the video</button></div></details>` : ""}
+    <ul class="hist">${(r.updates || []).map((u) => `<li class="${u.from_resident ? "res" : ""}">${fmtDate(u.at)} — ${u.from_resident ? "<b>Tenant</b>" : esc(u.by_email || "")}${u.status ? " · " + esc(LABEL[u.status] || u.status) : ""}${u.note ? ": " + esc(u.note) : ""}${u.visible_to_resident ? "" : " (staff only)"}</li>`).join("")}</ul>
+    ${canSchedule ? `<details class="panel2" ${r.status === "new" ? "open" : ""}><summary>📅 ${r.scheduled_start ? "Reschedule visit" : "Schedule visit"}</summary>
+      <div class="formrow">
+        <label>Contractor<select data-svendor>${vendorOpts(r.vendor_id)}</select></label>
+        <label>Date<input type="date" data-sdate value="${tomorrow}"></label>
+        <label>From<input type="time" data-sfrom value="10:00"></label>
+        <label>To<input type="time" data-sto value="13:00"></label>
+        <label>Purpose (goes on the notice)<input type="text" data-spurpose maxlength="300" value="${esc(r.entry_purpose || r.subject)}"></label></div>
+      <div class="formrow"><label style="display:flex;gap:6px;align-items:center;color:inherit"><input type="checkbox" data-snotice checked>
+        Send the 12-hour notice to enter${r.entry_permission === "yes" ? " (optional: the tenant gave permission to enter)" : " (required: no permission to enter)"}</label>
+        <button class="btn primary" type="button" data-schedule>Schedule${r.entry_permission === "yes" ? "" : " & send notice"}</button></div></details>` : ""}
+    <div class="row2">
+      <select data-status>${ORDER.filter((s) => s !== "scheduled" || r.status === "scheduled").map((s) => `<option value="${s}" ${s === r.status ? "selected" : ""}>${LABEL[s]}</option>`).join("")}</select>
+      <select data-vendor>${vendorOpts(r.vendor_id)}</select>
+      <textarea data-note placeholder="Note (optional)"></textarea>
+      <label><input type="checkbox" data-visible checked> tenant sees it (emailed)</label>
+      <button class="btn primary" type="button" data-save>Save</button></div>
+    ${canBill ? `<details class="panel2"><summary>💲 Bill the tenant (tenant caused the damage)</summary>
+      <div class="formrow"><label>Amount<input type="number" min="1" step="0.01" data-bamt></label>
+        <label>How the tenant caused it (the tenant sees this)<input type="text" data-breason maxlength="200"></label>
+        <button class="btn" type="button" data-bill>Add charge to tenant's account</button></div></details>` : ""}
+    <span class="msg" data-msg></span></article>`;
+}
+
+function render() {
+  const open = (r) => !["completed", "closed"].includes(r.status);
+  const counts = { open: reqs.filter(open).length, all: reqs.length };
+  $("filters").innerHTML = [["open", "Open"], ...ORDER.map((s) => [s, LABEL[s]]), ["all", "All"]]
+    .map(([k, l]) => `<button class="btn" type="button" data-f="${k}" aria-pressed="${k === filter}">${l} (${counts[k] ?? reqs.filter((r) => r.status === k).length})</button>`).join("");
+  const shown = reqs.filter((r) => filter === "all" ? true : filter === "open" ? open(r) : r.status === filter);
+  $("reqs").innerHTML = shown.map(card).join("") || `<p class="sub">No requests here.</p>`;
+}
+
+// Waiting repairs (open, nobody but the tenant has posted): red banner, URGENT for heat Oct-Apr (Stephen, 11/5/2026).
+async function loadWaiting() {
+  const { data } = await client.rpc("repair_alerts_staff");
+  const w = data || [], hrs = (t) => Math.floor((Date.now() - new Date(t)) / 36e5);
+  $("waitMount").innerHTML = w.length ? `<div style="background:#fde7e7;border:3px solid #b3261e;border-radius:12px;padding:12px 16px;margin:0 0 14px;color:#5c0f0a">
+    <b>${w.some((x) => x.urgent) ? "🔥 URGENT: " : ""}${w.length} repair${w.length > 1 ? "s" : ""} waiting for a first response</b>
+    <ul style="margin:6px 0 0 18px;padding:0">${w.map((x) => `<li>${x.urgent ? "<b>NO HEAT</b> · " : ""}Unit ${esc(x.unit || "?")} · #${esc(x.number)} ${esc(x.subject)} · ${hrs(x.since)} h ·
+      ${x.owner_handles ? "<b>owner handles</b>: call the owner if there is no update" : "2nd Chance handles: text the technician, then post an update"}${x.escalated_at ? " · office emailed" : ""}</li>`).join("")}</ul>
+    <p style="margin:6px 0 0;font-size:.9rem">It clears when an update is posted or the status changes. An urgent heat repair with no response after 4 hours emails the office.</p></div>` : "";
+}
+async function load() {
+  loadWaiting();
+  const [{ data, error }, v] = await Promise.all([client.rpc("maintenance_staff_list"), client.rpc("vendors_staff_list")]);
+  if (error) { $("signin").innerHTML = `<div class="banner bad">${esc(await errorText(error))}</div>`; return; }
+  reqs = data || []; vendors = v.data || [];
+  render(); $("app").hidden = false;
+}
+$("filters").addEventListener("click", (e) => { const b = e.target.closest("[data-f]"); if (b) { filter = b.dataset.f; render(); } });
+$("reqs").addEventListener("click", async (e) => {
+  const c = e.target.closest(".rq"); if (!c) return;
+  const q = (sel) => c.querySelector(sel), m = q("[data-msg]");
+  const say = (t, bad) => { m.className = bad ? "msg err" : "msg"; m.textContent = t; };
+  if (e.target.closest("[data-notice]")) {
+    e.preventDefault();
+    const { data, error } = await client.storage.from("notices").createSignedUrl(e.target.closest("[data-notice]").dataset.notice, 300);
+    if (!error) window.open(data.signedUrl, "_blank", "noopener");
+    return;
+  }
+  if (e.target.closest("[data-showv]")) {
+    const box = e.target.closest("[data-videos]"), paths = JSON.parse(box.dataset.videos);
+    const urls = await Promise.all(paths.map((p) => client.storage.from("maintenance").createSignedUrl(p, 3600)));
+    box.innerHTML = urls.map((u) => u.data ? `<video controls playsinline preload="metadata" src="${u.data.signedUrl}" style="max-width:320px;max-height:240px;border-radius:6px"></video> <a href="${u.data.signedUrl}" target="_blank" rel="noopener" download>Download</a>` : "").join("");
+    return;
+  }
+  if (e.target.closest("[data-askvideo]")) {
+    const note = (q("[data-vnote]").value || "").trim();
+    if (note.length < 5) { say("Say what the video should show.", true); return; }
+    say("Sending…");
+    const { error } = await client.rpc("maintenance_staff_ask_video", { p_id: c.dataset.id, p_note: note });
+    if (error) { say(await errorText(error), true); return; }
+    flush(); await load(); return;
+  }
+  if (e.target.closest("[data-show]")) {
+    const box = e.target.closest("[data-photos]"), paths = JSON.parse(box.dataset.photos);
+    const urls = await Promise.all(paths.map((p) => client.storage.from("maintenance").createSignedUrl(p, 600)));
+    box.innerHTML = urls.map((u) => u.data ? `<a href="${u.data.signedUrl}" target="_blank" rel="noopener"><img src="${u.data.signedUrl}" alt=""></a>` : "").join("");
+    return;
+  }
+  if (e.target.closest("[data-save]")) {
+    say("Saving…");
+    const { error } = await client.rpc("maintenance_staff_update", { p_id: c.dataset.id, p_status: q("[data-status]").value,
+      p_note: q("[data-note]").value, p_visible: q("[data-visible]").checked, p_vendor: q("[data-vendor]").value || null });
+    if (error) return say(await errorText(error), true);
+    flush(); await load(); return;
+  }
+  if (e.target.closest("[data-schedule]")) {
+    const d = q("[data-sdate]").value, f = q("[data-sfrom]").value, t = q("[data-sto]").value;
+    if (!d || !f || !t) return say("Enter the date and time window.", true);
+    const btn = e.target.closest("[data-schedule]"); btn.disabled = true; say("Scheduling…");
+    const notice = q("[data-snotice]").checked;
+    const { data, error } = await client.rpc("maintenance_staff_schedule", { p_id: c.dataset.id, p_vendor: q("[data-svendor]").value || null,
+      p_start: new Date(`${d}T${f}`).toISOString(), p_end: new Date(`${d}T${t}`).toISOString(), p_purpose: q("[data-spurpose]").value, p_notice: notice });
+    if (error) { btn.disabled = false; return say(await errorText(error), true); }
+    if (notice) {
+      say("Making the 12-hour notice and emailing it…");
+      const { error: nErr } = await client.functions.invoke("notices", { body: { action: "send", lease_id: data.lease_id, template_id: data.template_id,
+        subject: data.subject, html: data.html, email_tenants: true, request_id: c.dataset.id } });
+      if (nErr) { let msg = nErr.message; try { msg = (await nErr.context.json()).error || msg; } catch {} btn.disabled = false; return say("The visit is saved, but the notice wasn't sent: " + msg + " Try Reschedule to send it again.", true); }
+    }
+    flush(); await load(); return;
+  }
+  if (e.target.closest("[data-bill]")) {
+    const amt = Number(q("[data-bamt]").value);
+    if (!confirm(`Add a charge of ${money(amt)} to the tenant's account?`)) return;
+    say("Billing…");
+    const { error } = await client.rpc("maintenance_staff_bill", { p_id: c.dataset.id, p_amount: amt, p_reason: q("[data-breason]").value });
+    if (error) return say(await errorText(error), true);
+    flush(); await load();
+  }
+});
+$("signOutBtn").addEventListener("click", signOut);
+const who = await signIn($("signin"), { audience: "staff" });
+$("userBar").hidden = false;
+if (who.role !== "staff") location.replace("/association-owners/roca1/"); else { load(); mountHvac($("hvacMount")); }
+</script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Properties — 2nd Chance Housing</title>
+<link rel="icon" href="/favicon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+<style>
+.hub{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.hub a.card{display:block;border:1px solid var(--line);border-radius:8px;padding:16px;background:var(--panel);text-decoration:none;color:var(--fg)}
+.hub a.card:hover{border-color:var(--accent)}
+.hub .card h3{margin:0 0 4px;font-size:1.05rem;color:var(--accent)}
+.hub .card p{margin:0;color:var(--muted);font-size:.92rem}
+.crumbs{font-size:.9rem;color:var(--muted);margin-bottom:6px}
+.crumbs a{color:var(--accent)}
+ol.flow{padding-left:20px;display:grid;gap:6px}
+.chip{display:inline-block;padding:1px 8px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-size:.8rem;font-weight:600}
+.soon{color:var(--muted);font-style:italic}
+</style>
+</head>
+<body>
+<div class="appbar"><div class="appbar-in">
+  <a class="org" href="/" style="color:inherit;text-decoration:none">2nd Chance Housing<span>Staff &amp; portals</span></a>
+  <div class="row" style="flex-wrap:wrap"><a class="linkbtn" href="/properties/">Properties</a><a class="linkbtn" href="/association-owners/">Association Owners</a><a class="linkbtn" href="/property-owners/">Property Owners</a><a class="linkbtn" href="/leasing/">Leasing</a><a class="linkbtn" href="/accounting/">Accounting</a><a class="linkbtn" href="/maintenance/">Maintenance</a><a class="linkbtn" href="/inspections/">Inspections</a><a class="linkbtn" href="/documents/">Documents</a><a class="linkbtn" href="/sitemap/">Site map</a></div>
+</div></div>
+<main class="wrap">
+  <header><div class="crumbs"><a href="/">Home</a> › Properties</div><h1>Properties</h1><p class="lead">Every property and unit we manage. Inspections and Property Owners use this same list.</p></header>
+<div id="list" class="hub"></div><noscript>Turn on JavaScript to see the list.</noscript>
+</main>
+<script>
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+fetch("/data/properties.json").then(r=>r.json()).then(({properties})=>{
+  document.getElementById("list").innerHTML=properties.map(p=>`<div style="border:1px solid var(--line);border-radius:8px;padding:16px;background:var(--panel)">
+    <h3 style="margin:0">${esc(p.name)}</h3>
+    <p class="sub">${esc(p.address)}</p>
+    <p><span class="chip">${p.type==="association"?"Association: "+esc((p.association||"").toUpperCase()):"Owner-held property"}</span></p>
+    <p class="sub">${p.units.length?("Units "+esc(p.units[0])+"–"+esc(p.units[p.units.length-1])+" ("+p.units.length+")"):"Whole property"}</p>
+    <p><a href="/inspections/#${esc(p.id)}">Inspections</a> · ${p.type==="association"?`<a href="/association-owners/${esc(p.association)}/">Association</a>`:`<a href="/property-owners/p/?id=${esc(p.id)}">Owner page</a>`}</p></div>`).join("");
+});
+</script>
+</body>
+</html>

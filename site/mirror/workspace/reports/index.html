@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Outcomes and Reports | The Human Mirror</title>
+<link rel="icon" href="/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Source+Serif+4:opsz,wght@8..60,600&display=swap">
+<link rel="stylesheet" href="/mirror/assets/mirror.css?v=20261113l">
+<style>@media print { .mm-noprint { display: none !important; } }</style>
+</head>
+<body data-area="workspace">
+<main id="main" class="mm-main">
+  <p class="mm-eyebrow mm-noprint"><a href="/mirror/workspace/">Workspace</a></p>
+  <h1>Outcomes and reports</h1>
+  <p class="mm-lead">What your organization did with the people you work with, as counts. No names and no score of anyone.</p>
+  <div id="mmRep"><p role="status">Loading…</p></div>
+</main>
+<script type="module" src="/mirror/assets/mirror-ui.js?v=20261113h"></script>
+<script type="module">
+// Phase 8 T8.8 (11/13/2026, D-39): one report per organization and period from mirror_org_report. Counts only; people in safety mode are
+// left out (P2-06); private topics only where people share them. "For sharing" shows numbers under 5 as "fewer than 5".
+import { requireArea, rpc } from "/mirror/assets/mirror-client.js?v=20261113p";
+import { esc, notice, toast } from "/mirror/assets/mirror-ui.js?v=20261113h";
+
+const KIND = { clothing: "Clothing", shoes: "Shoes", coats: "Coats", bedding: "Bedding", furniture: "Furniture", kitchen: "Kitchen", hygiene: "Hygiene",
+  baby: "Baby", school: "School", household: "Household", other: "Other" };
+const iso = (d) => d.toLocaleDateString("en-CA");
+const nice = (s) => new Date(s + "T12:00:00").toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+const w = await requireArea("workspace");
+const orgs = w.memberships.filter((m) => m.role === "org_admin" || m.role === "coordinator");
+const box = document.getElementById("mmRep");
+let org = orgs[0] && orgs[0].organization_id;
+const today = new Date();
+let from = iso(new Date(today.getFullYear(), today.getMonth(), 1)), to = iso(today);
+let sharing = true;
+let R = null;
+
+const PRESETS = {
+  this_month: () => [new Date(today.getFullYear(), today.getMonth(), 1), today],
+  last_month: () => [new Date(today.getFullYear(), today.getMonth() - 1, 1), new Date(today.getFullYear(), today.getMonth(), 0)],
+  this_year: () => [new Date(today.getFullYear(), 0, 1), today],
+  last_year: () => [new Date(today.getFullYear() - 1, 0, 1), new Date(today.getFullYear() - 1, 11, 31)],
+  last_12: () => [new Date(today.getFullYear() - 1, today.getMonth(), today.getDate() + 1), today],
+};
+
+if (!orgs.length) box.innerHTML = notice("info", "<p>Volunteers don't see reports. Ask your organization's coordinator.</p>");
+else { controls(); run(); }
+
+function controls() {
+  box.innerHTML = `<form class="mm-card mm-noprint" id="mmForm" novalidate>
+      ${orgs.length > 1 ? `<div class="mm-field" style="max-width:24rem"><label for="mmOrg">Organization</label>
+        <select class="mm-select" id="mmOrg">${orgs.map((o) => `<option value="${esc(o.organization_id)}">${esc(o.organization)}</option>`).join("")}</select></div>` : ""}
+      <div class="mm-row" style="gap:var(--mm-space-3);align-items:flex-end">
+        <div class="mm-field" style="margin:0"><label for="mmPreset">Period</label><select class="mm-select" id="mmPreset">
+          <option value="this_month">This month</option><option value="last_month">Last month</option><option value="this_year">This year</option>
+          <option value="last_year">Last year</option><option value="last_12">Last 12 months</option><option value="custom">Choose dates</option></select></div>
+        <div class="mm-field" style="margin:0"><label for="mmFrom">From</label><input class="mm-input" type="date" id="mmFrom" value="${from}" data-mm-no-voice></div>
+        <div class="mm-field" style="margin:0"><label for="mmTo">To</label><input class="mm-input" type="date" id="mmTo" value="${to}" data-mm-no-voice></div>
+        <button class="mm-btn" type="submit">Show the report</button></div>
+      <div class="mm-field" style="margin-top:var(--mm-space-3)"><label class="mm-choice"><input type="checkbox" id="mmShare" checked> For sharing outside the organization:
+        show numbers from 1 to 4 as "fewer than 5", so no one can be recognized</label></div>
+    </form>
+    <div id="mmOut" aria-live="polite"></div>`;
+  const f = box.querySelector("#mmForm");
+  f.querySelector("#mmPreset").addEventListener("change", (e) => {
+    const p = PRESETS[e.target.value];
+    if (p) { const [a, b] = p(); f.querySelector("#mmFrom").value = iso(a); f.querySelector("#mmTo").value = iso(b); }
+  });
+  ["#mmFrom", "#mmTo"].forEach((s) => f.querySelector(s).addEventListener("change", () => { f.querySelector("#mmPreset").value = "custom"; }));
+  f.querySelector("#mmShare").addEventListener("change", (e) => { sharing = e.target.checked; if (R) show(); });
+  f.querySelector("#mmOrg")?.addEventListener("change", (e) => { org = e.target.value; });
+  f.addEventListener("submit", (e) => { e.preventDefault(); from = f.querySelector("#mmFrom").value; to = f.querySelector("#mmTo").value; run(); });
+}
+
+async function run() {
+  const out = box.querySelector("#mmOut");
+  out.innerHTML = '<p role="status">Counting…</p>';
+  try { R = await rpc("mirror_org_report", { p_org: org, p_from: from, p_to: to }); }
+  catch (e) { R = null; out.innerHTML = notice("urgent", `<p>${esc(e.message)}</p>`); return; }
+  show();
+}
+
+/** the shown value of one count */
+const val = (n) => { n = Number(n) || 0; return sharing && n > 0 && n < 5 ? "fewer than 5" : String(n); };
+
+function sections() {
+  const N = R.needs, P = R.plans, A = R.appointments, C = R.contacts, G = R.goods;
+  return [
+    ["People", [["People you worked with in this period", R.people.worked_with], ["Started with you", R.people.started], ["Ended", R.people.ended], ["Working with you now", R.people.active_now]]],
+    ["Needs", [["Needs noted", N.noted], ["Needs met (the person got it)", N.met], ["Confirmed met by your organization", N.confirmed_by_you], ["Still open now", N.open_now]]],
+    ["Needs by area of life", N.by_area.map((x) => [`${x.area}: noted / met`, null, [x.noted, x.met]])],
+    ["Goals and steps", [["Goals reached", P.goals_reached], ["Steps done", P.steps_done], ["Milestones", P.milestones], ["Milestones confirmed by your organization", P.milestones_confirmed_by_you]]],
+    ["Services", R.services.map((s) => [`${s.service}: started / finished / getting it now`, null, [s.started, s.finished, s.getting_it_now]])],
+    ["Appointments in this period", [["All", A.total], ["Happened", A.happened], ["Cancelled", A.cancelled], ["Didn't happen", A.did_not_happen], ["Still coming up", A.coming_up]]],
+    ["Contacts", [["All", C.total], ["Visits", C.visits], ["Calls", C.calls], ["Messages", C.messages], ["Meetings", C.meetings], ["Other", C.other]]],
+    ["Referrals", [["Referrals made", R.referrals.made], ["People who agreed to a referral", R.referrals.agreed]]],
+    ["Benefits (people who share Money with you)", [["Applications made", R.benefits.applied], ["Approved", R.benefits.approved]]],
+    ["Questions gone over together", [["Answers saved with the person", R.questions_together]]],
+    ["Donated goods given", [["To people you work with", G.to_people], ["To people not in the Mirror", G.outside_the_mirror], ...G.by_kind.map((k) => [KIND[k.kind] || k.kind, k.items])]],
+  ];
+}
+
+function show() {
+  const out = box.querySelector("#mmOut");
+  const cell = (row) => row[2] ? row[2].map(val).join(" / ") : val(row[1]);
+  out.innerHTML = `
+    <p><strong>${esc(nice(R.from))} to ${esc(nice(R.to))}</strong>${orgs.length > 1 ? " · " + esc((orgs.find((o) => o.organization_id === org) || {}).organization || "") : ""}</p>
+    <div class="mm-read">${notice("info", `<p>Counts only, never a score. ${Number(R.safety_left_out) ? `<strong>${esc(val(R.safety_left_out))}</strong> ${Number(R.safety_left_out) === 1 ? "person" : "people"} in safety mode ${Number(R.safety_left_out) === 1 ? "is" : "are"} left out of every count.` : "People in safety mode are left out of every count."}
+      Private parts of life are counted only for people who share them with you.${sharing ? " Numbers from 1 to 4 show as \"fewer than 5\"." : ""}</p>`)}</div>
+    ${sections().filter(([, rows]) => rows.length).map(([h, rows]) => `<h2>${esc(h)}</h2>
+      <div class="mm-table-wrap"><table class="mm-table"><caption class="mm-sr">${esc(h)}</caption><tbody>
+        ${rows.map((row) => `<tr><th scope="row">${esc(row[0])}</th><td class="mm-num">${esc(cell(row))}</td></tr>`).join("")}</tbody></table></div>`).join("")}
+    <p class="mm-row mm-noprint" style="margin-top:var(--mm-space-6)"><button class="mm-btn mm-btn-secondary" type="button" id="mmPrint">Print</button>
+      <button class="mm-btn mm-btn-secondary" type="button" id="mmCsv">Download a spreadsheet (CSV)</button></p>
+    <p class="mm-small mm-muted mm-read">Each time a report is made it is written to your organization's record of who looked and changed what, without any person named.</p>`;
+  out.querySelector("#mmPrint").addEventListener("click", () => window.print());
+  out.querySelector("#mmCsv").addEventListener("click", () => {
+    const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
+    const lines = [["Section", "Count", "Value"].map(q).join(",")];
+    sections().forEach(([h, rows]) => rows.forEach((row) => lines.push([h, row[0], cell(row)].map(q).join(","))));
+    lines.push([q("Note"), q("People in safety mode left out"), q(val(R.safety_left_out))].join(","));
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([lines.join("\r\n")], { type: "text/csv" }));
+    a.download = `mirror-report-${R.from}-to-${R.to}${sharing ? "-for-sharing" : ""}.csv`;
+    document.body.appendChild(a); a.click(); a.remove();
+    toast("Downloaded.");
+  });
+}
+</script>
+</body>
+</html>

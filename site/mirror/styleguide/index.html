@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Components | The Human Mirror</title>
+<link rel="icon" href="/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Source+Serif+4:opsz,wght@8..60,600&display=swap">
+<link rel="stylesheet" href="/mirror/assets/mirror.css?v=20261113l">
+</head>
+<body data-area="public">
+<main id="main" class="mm-main">
+  <p class="mm-eyebrow">Design system</p>
+  <h1>Components</h1>
+  <p class="mm-lead">Every piece the Mirror's pages are built from. Not linked from anywhere; for checking the look on a phone and a computer.</p>
+
+  <h2>Text</h2>
+  <div class="mm-read">
+    <h3>A heading at the third level</h3>
+    <p>Body text is 18 pixels with generous line spacing, so it reads easily on a phone. <a href="#">This is a link.</a></p>
+    <p class="mm-muted">Secondary text explains or adds detail.</p>
+  </div>
+
+  <h2>Buttons</h2>
+  <div class="mm-row">
+    <button class="mm-btn" type="button">Save and continue</button>
+    <button class="mm-btn mm-btn-secondary" type="button">Come back later</button>
+    <button class="mm-btn mm-btn-quiet" type="button">Skip this question</button>
+    <button class="mm-btn" type="button" disabled>Not available</button>
+  </div>
+
+  <h2>Cards</h2>
+  <div class="mm-grid">
+    <a class="mm-card" href="#">
+      <div class="mm-card-num">Perspective 1</div>
+      <h3>Who am I today?</h3>
+      <p class="mm-muted">My present reality: where I live, what I have, what makes me happy.</p>
+      <div class="mm-count">
+        <div class="mm-count-label"><span>4 of 14 questions answered</span></div>
+        <div class="mm-count-bar" role="img" aria-label="4 of 14 questions answered"><span style="width:29%"></span></div>
+      </div>
+    </a>
+    <a class="mm-card" href="#">
+      <div class="mm-card-num">Perspective 4</div>
+      <h3>What do I have within me?</h3>
+      <p class="mm-muted">My abilities, skills, knowledge and what people appreciate about me.</p>
+    </a>
+    <div class="mm-card">
+      <div class="mm-figure-label">Daily Number (example)</div>
+      <div class="mm-figure">$75.62</div>
+      <p class="mm-muted">$2,300.00 a month, $27,600.00 a year.</p>
+    </div>
+  </div>
+
+  <h2>A question</h2>
+  <!-- Display-only sample question: nothing to submit. -->
+  <!-- [html-validate-disable-next wcag/h32] -->
+  <form class="mm-read" onsubmit="return false">
+    <fieldset class="mm-choices">
+      <legend class="mm-legend">What is your current access to laundry?</legend>
+      <span class="mm-hint">Choose one. You can change this any time.</span>
+      <label class="mm-choice"><input type="radio" name="q1"> Washer and dryer at home</label>
+      <label class="mm-choice"><input type="radio" name="q1"> Shared laundry where I live</label>
+      <label class="mm-choice"><input type="radio" name="q1"> I use a laundromat</label>
+      <label class="mm-choice"><input type="radio" name="q1"> I have no reliable access</label>
+      <div class="mm-choices-other">
+        <label class="mm-choice"><input type="radio" name="q1"> I don't know</label>
+        <label class="mm-choice"><input type="radio" name="q1"> Doesn't apply</label>
+        <label class="mm-choice"><input type="radio" name="q1"> Prefer not to answer</label>
+        <label class="mm-choice"><input type="radio" name="q1"> I'd like help with this</label>
+      </div>
+    </fieldset>
+    <div class="mm-field" data-invalid>
+      <label for="amt">How much do you spend on laundry each week?</label>
+      <span class="mm-hint" id="amt-hint">In dollars. An estimate is fine.</span>
+      <input class="mm-input" type="text" id="amt" inputmode="decimal" aria-describedby="amt-hint amt-err" value="twelve">
+      <span class="mm-error" id="amt-err">Enter a number, for example 12 or 12.50.</span>
+    </div>
+    <div class="mm-field">
+      <label for="note">Anything else you want to add? <span class="mm-muted">(optional)</span></label>
+      <textarea class="mm-textarea" id="note"></textarea>
+    </div>
+    <div class="mm-field" data-mm-sensitive>
+      <label for="safe">Is there anything about your safety you want us to know? <span class="mm-muted">(private, optional)</span></label>
+      <span class="mm-hint">A private question: before you speak, the page says where your voice would go.</span>
+      <textarea class="mm-textarea" id="safe"></textarea>
+    </div>
+  </form>
+
+  <h2>Speaking instead of typing: your setting</h2>
+  <p class="mm-muted mm-read">This panel goes on My Mirror &gt; Settings. Change it here and press Speak above to see each choice.</p>
+  <div class="mm-read" data-mm-voice-settings></div>
+
+  <h2>Notices and tags</h2>
+  <div class="mm-read">
+    <div class="mm-notice" role="status">Your answers are saved as you go.</div>
+    <div class="mm-notice mm-notice-ok" role="status">Your state ID is marked as obtained.</div>
+    <div class="mm-notice mm-notice-caution" role="status">This resource is a suggestion. Nobody has confirmed you qualify yet.</div>
+    <div class="mm-notice mm-notice-urgent" role="status">A safe place to sleep tonight is marked urgent.</div>
+    <p class="mm-row"><span class="mm-tag">Needed</span><span class="mm-tag mm-tag-urgent">Urgent</span><span class="mm-tag mm-tag-ok">Verified</span><span class="mm-tag mm-tag-suggested">Suggested</span><span class="mm-tag mm-tag-info">In progress</span></p>
+  </div>
+
+  <h2>Table</h2>
+  <div class="mm-table-wrap mm-stack">
+    <table class="mm-table">
+      <caption class="mm-sr">Example clothing and laundry costs</caption>
+      <thead><tr><th scope="col">Item</th><th scope="col">How often</th><th scope="col" class="mm-num">Monthly</th><th scope="col" class="mm-num">Per day</th></tr></thead>
+      <tbody>
+        <tr><td data-label="Item">Laundry</td><td data-label="How often">Weekly</td><td class="mm-num" data-label="Monthly">$32.00</td><td class="mm-num" data-label="Per day">$1.05</td></tr>
+        <tr><td data-label="Item">Detergent and supplies</td><td data-label="How often">Monthly</td><td class="mm-num" data-label="Monthly">$10.00</td><td class="mm-num" data-label="Per day">$0.33</td></tr>
+        <tr><td data-label="Item">Clothing replacement</td><td data-label="How often">Reserve</td><td class="mm-num" data-label="Monthly">$30.00</td><td class="mm-num" data-label="Per day">$0.99</td></tr>
+        <tr><td data-label="Item">Bus to the laundromat</td><td data-label="How often">Weekly</td><td class="mm-num" data-label="Monthly">$8.00</td><td class="mm-num" data-label="Per day">$0.26</td></tr>
+      </tbody>
+      <tfoot><tr><td data-label="Item">Total</td><td data-label="How often"></td><td class="mm-num" data-label="Monthly">$80.00</td><td class="mm-num" data-label="Per day">$2.63</td></tr></tfoot>
+    </table>
+  </div>
+</main>
+<script type="module" src="/mirror/assets/mirror-ui.js?v=20261113h"></script>
+<script type="module" src="/mirror/assets/mirror-voice.js?v=20261113c"></script>
+</body>
+</html>

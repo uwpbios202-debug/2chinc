@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="referrer" content="no-referrer" />
+  <title>Review &amp; Sign Your Lease — 2nd Chance Housing</title>
+  <link rel="icon" href="/favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/site.css" />
+  <style>
+    .wrap { max-width: 860px; margin: 0 auto; padding: 1.5rem 1rem 4rem; }
+    .panel { background: var(--white); border: 1px solid var(--border); border-radius: 14px; padding: 1.4rem; margin-bottom: 1rem; }
+    .panel h1 { font-family: var(--serif); font-weight: 400; font-size: 1.8rem; margin-bottom: 0.4rem; }
+    .panel h2 { font-family: var(--serif); font-weight: 400; font-size: 1.3rem; margin-bottom: 0.5rem; }
+    .muted { color: var(--gray); line-height: 1.6; }
+    label.f { display: block; font-size: 0.85rem; font-weight: 600; margin: 0.9rem 0 0.35rem; }
+    input.t { width: 100%; max-width: 360px; padding: 0.8rem 0.9rem; border: 1px solid var(--border); border-radius: 10px; font: 500 1.05rem var(--sans); }
+    .actions { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 1rem; }
+    .b { padding: 0.85rem 1.2rem; border-radius: 10px; border: 0; font: 700 1rem var(--sans); cursor: pointer; background: var(--green); color: #fff; }
+    .b.alt { background: var(--soon-bg); color: var(--text); }
+    .b:disabled { opacity: 0.45; cursor: not-allowed; }
+    .msg { margin-top: 0.8rem; min-height: 1.2em; font-size: 0.92rem; }
+    .msg.err { color: #b03a2e; } .msg.ok { color: var(--green-dk); }
+    .signers { list-style: none; display: grid; gap: 0.35rem; margin-top: 0.6rem; }
+    .signers li { display: flex; justify-content: space-between; background: var(--cream); border-radius: 8px; padding: 0.5rem 0.75rem; font-size: 0.92rem; }
+    .doc-frame { width: 100%; height: 70vh; border: 1px solid var(--border); border-radius: 10px; background: #fff; }
+    .progress-note { font-size: 0.85rem; color: var(--gray); margin-top: 0.4rem; }
+    .pad-wrap { position: relative; border: 2px dashed var(--border); border-radius: 12px; background: #fff; touch-action: none; max-width: 520px; }
+    canvas#pad { width: 100%; height: 170px; display: block; cursor: crosshair; }
+    .pad-wrap .x { position: absolute; left: 14px; bottom: 34px; color: var(--gray); font-size: 1.3rem; pointer-events: none; }
+    .pad-wrap .line { position: absolute; left: 12px; right: 12px; bottom: 34px; border-bottom: 1px solid var(--border); pointer-events: none; }
+    .consent { display: flex; gap: 0.6rem; align-items: flex-start; margin-top: 1rem; font-size: 0.92rem; line-height: 1.5; }
+    .consent input { margin-top: 0.3rem; width: 18px; height: 18px; accent-color: var(--green); }
+    .done { text-align: center; padding: 2rem 1rem; }
+    .done .big { font-size: 3rem; }
+    .lock { font-size: 0.82rem; color: var(--gray); margin-top: 0.8rem; }
+    .ini-box { background: #fff8e1; border: 1px solid #e8c766; border-radius: 10px; padding: 0.8rem 1rem; margin: 0.6rem 0 0.8rem; }
+    .ini-row { display: flex; flex-wrap: wrap; gap: 0.5rem 0.8rem; align-items: center; }
+    .ini-row .b { padding: 0.6rem 0.9rem; }
+    .ini-sample { background: #ffe58a; border: 1px dashed #b38600; border-radius: 4px; padding: 0 5px; font-weight: 600; font-size: 0.85rem; white-space: nowrap; }
+  </style>
+</head>
+<body>
+<header class="site-header">
+  <div class="inner">
+    <a href="/" class="brand"><img src="/logo-192.png" alt="" width="56" height="56" />
+      <div><strong>2nd Chance Housing</strong><span>Lease signing</span></div></a>
+  </div>
+</header>
+
+<main class="wrap" id="app" aria-live="polite"><div class="panel"><p class="muted">Loading your lease…</p></div></main>
+
+<footer style="text-align:center;font-size:0.82rem;padding:18px 16px 28px;color:#5f6b63"><a href="/privacy/" style="color:inherit">Privacy policy</a> · 2nd Chance Housing Inc.</footer>
+
+<script type="module">
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from "/assets/portal/config.js";
+
+const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: false } });
+// Keep the private token out of the address bar (and browser history) once read; this tab remembers it,
+// so a reload doesn't send the tenant back to their email for the link. Phones often reload or discard this page
+// while the tenant is in their email app copying the code, so a 2-hour copy also lives in localStorage (same
+// window as the server's verify window) and the "code sent" step is remembered too.
+const TOKEN_KEY = "sch-sign-token", KEEP_KEY = "sch-sign-keep", KEEP_MS = 2 * 60 * 60 * 1000, CODE_TTL_MS = 10 * 60 * 1000;
+let token = new URLSearchParams(location.hash.slice(1)).get("t") || "";
+const keepGet = () => { try { const k = JSON.parse(localStorage.getItem(KEEP_KEY) || "null"); return k && Date.now() - k.at < KEEP_MS ? k : null; } catch { return null; } };
+const keepSet = (o) => { try { const k = keepGet() || {}; localStorage.setItem(KEEP_KEY, JSON.stringify({ ...k, ...o, at: k.at || Date.now() })); } catch {} };
+try { if (token) sessionStorage.setItem(TOKEN_KEY, token); else token = sessionStorage.getItem(TOKEN_KEY) || ""; } catch {}
+{ const k = keepGet(); if (token) { if (!k || k.token !== token) { try { localStorage.setItem(KEEP_KEY, JSON.stringify({ token, at: Date.now() })); } catch {} } } else if (k && k.token) token = k.token; }
+if (location.hash) history.replaceState(null, "", location.pathname);
+const app = document.getElementById("app");
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+let info = null;
+
+async function api(body) {
+  const { data, error } = await client.functions.invoke("lease-signing", { body: { token, ...body } });
+  if (error) { let m = "Something went wrong. Try again."; try { m = (await error.context.json()).error || m; } catch {} throw new Error(m); }
+  return data;
+}
+const msg = (t, kind = "err") => { const m = app.querySelector(".msg"); if (m) { m.className = "msg " + kind; m.textContent = t; } };
+const signerList = (s) => `<ul class="signers">${s.signers.map((o) => `<li><span>${esc(o.name)}${o.you ? " (you)" : ""}</span><span>${o.signed ? "✓ signed" : "not signed yet"}</span></li>`).join("")}</ul>`;
+
+function done(executed, awaitingAgent) {
+  app.innerHTML = `<div class="panel done"><div class="big">✓</div><h1 style="font-family:var(--serif);font-weight:400">You've signed your lease</h1>
+    <p class="muted">${executed ? "Everyone has signed. Your signed copy is on its way to your email."
+      : awaitingAgent ? "All tenants have signed. 2nd Chance Housing will countersign, and then the signed copy comes to your email."
+      : "We'll email everyone the signed copy once the other tenant(s) sign and 2nd Chance Housing countersigns."}</p>
+    <p class="muted" style="margin-top:1rem">Questions? <a href="mailto:info@2ndchinc.org">info@2ndchinc.org</a></p></div>`;
+}
+
+async function start() {
+  if (!token) { app.innerHTML = `<div class="panel"><h1>Signing link needed</h1><p class="muted">Open the link from your email to review and sign your lease.</p></div>`; return; }
+  try { info = await api({ action: "open" }); }
+  catch (e) { app.innerHTML = `<div class="panel"><h1>We couldn't open this lease</h1><p class="muted">${esc(e.message)}</p></div>`; return; }
+  if (info.signed) return done(info.executed, info.awaiting_agent);
+  // Nothing is sent until the tenant taps the button: email security scanners open links too.
+  app.innerHTML = `<div class="panel">
+    <h1>${esc(info.title)}</h1>
+    <p class="muted"><b>${esc(info.unit_label)}</b> · for ${esc(info.signer_name)}</p>
+    ${signerList(info)}
+    <h2 style="margin-top:1.2rem">First, confirm it's you</h2>
+    <p class="muted" id="codeNote">We'll email a 6-digit code to ${esc(info.email_hint)}.</p>
+    <div class="actions" id="sendRow"><button class="b" id="send">Email me a code</button></div>
+    <div id="codeBox" hidden>
+      <label class="f" for="code">Code from the email</label>
+      <input class="t" id="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="123456">
+      <div class="actions"><button class="b" id="go">Open my lease</button><button class="b alt" id="resend" type="button">Send a new code</button></div>
+    </div>
+    <div class="msg"></div>
+    <p class="lock">🔒 This page is private to you. Don't share your link or code.</p>
+  </div>`;
+  const $ = (id) => document.getElementById(id);
+  let cooldown = null;
+  const lock = (from = 60) => {
+    let left = from; const b = $("resend"); clearInterval(cooldown);
+    const tick = () => { b.disabled = left > 0; b.textContent = left > 0 ? `Send a new code in ${left}s` : "Send a new code"; if (left-- <= 0) clearInterval(cooldown); };
+    tick(); cooldown = setInterval(tick, 1000);
+  };
+  const send = async (btn) => {
+    btn.disabled = true;
+    try {
+      const r = await api({ action: "send_code" });
+      $("sendRow").hidden = true; $("codeBox").hidden = false; $("code").focus();
+      $("codeNote").textContent = `We emailed a 6-digit code to ${r.email_hint}. It can take a minute; check spam too.`;
+      msg("Code sent. Check your email, then come back to this page; it will wait for you.", "ok"); lock(); keepSet({ sentAt: Date.now() });
+    } catch (e) {
+      msg(e.message); btn.disabled = false;
+      if (/just sent/.test(e.message)) { $("sendRow").hidden = true; $("codeBox").hidden = false; $("code").focus(); lock(); keepSet({ sentAt: Date.now() }); }   // e.g. after a reload
+    }
+  };
+  $("send").onclick = () => send($("send"));
+  $("resend").onclick = () => send($("resend"));
+  let verifying = false;
+  const go = async () => {
+    if (verifying) return;
+    const code = $("code").value.replace(/\D/g, "");
+    if (code.length !== 6) return msg("Enter all 6 digits from the email.");
+    verifying = true; $("go").disabled = true;
+    try { clearInterval(cooldown); review(await api({ action: "verify", code })); }
+    catch (e) { msg(e.message); $("go").disabled = false; verifying = false; }
+  };
+  $("go").onclick = go;
+  $("code").addEventListener("input", () => { if ($("code").value.replace(/\D/g, "").length === 6) go(); });
+  // Back from the email app (or the page was reloaded): go straight to the code box if a code is still good.
+  const k = keepGet();
+  if (k && k.sentAt && Date.now() - k.sentAt < CODE_TTL_MS) {
+    $("sendRow").hidden = true; $("codeBox").hidden = false;
+    $("codeNote").textContent = `Welcome back. Enter the 6-digit code we emailed to ${info.email_hint}.`;
+    const left = Math.ceil((60000 - (Date.now() - k.sentAt)) / 1000);
+    if (left > 0) lock(left); else $("resend").disabled = false;
+  }
+}
+
+function review(d) {
+  app.innerHTML = `<div class="panel">
+      <h1>${esc(d.title)}</h1><p class="muted"><b>${esc(d.unit_label)}</b> · read the whole lease, then sign below.</p>
+      <div class="ini-box" id="iniBox" hidden>
+        <p class="muted" style="margin:0 0 0.4rem"><b>Initial each section.</b> Some lines in the lease need your initials. Check your initials below, then tap each yellow <span class="ini-sample">Initial here</span> in the lease.</p>
+        <div class="ini-row">
+          <label class="f" for="ini" style="margin:0">Your initials</label>
+          <input class="t" id="ini" maxlength="8" autocomplete="off" style="max-width:110px;text-transform:uppercase">
+          <button class="b alt" id="iniNext" type="button">Next initial</button>
+          <span class="progress-note" id="iniNote" style="margin:0"></span>
+        </div>
+      </div>
+      <iframe class="doc-frame" id="doc" title="Your lease" sandbox="allow-same-origin"></iframe>
+      <p class="progress-note" id="readNote">Scroll to the end of the lease to continue.</p>
+    </div>
+    <div class="panel" id="signPanel">
+      <h2>Sign</h2>
+      ${signerList(d)}
+      <label class="f">Draw your signature</label>
+      <div class="pad-wrap"><canvas id="pad"></canvas><span class="x">✕</span><span class="line"></span></div>
+      <div class="actions" style="margin-top:0.5rem"><button class="b alt" id="clear" type="button">Clear</button></div>
+      <label class="f" for="typed">Type your full name: <span class="muted">${esc(d.signer_name)}</span></label>
+      <input class="t" id="typed" autocomplete="name">
+      <label class="consent"><input type="checkbox" id="consent">
+        <span>I have read this lease. I agree to sign it electronically, and that my electronic signature is as legally binding as signing on paper. I can ask 2nd Chance Housing for a paper copy at any time.</span></label>
+      <div class="msg"></div>
+      <div class="actions"><button class="b" id="sign" disabled>Sign my lease</button></div>
+      <p class="lock">Document fingerprint: <code style="word-break:break-all">${esc(d.fingerprint)}</code></p>
+    </div>`;
+
+  const frame = document.getElementById("doc");
+  frame.srcdoc = d.html;
+  let readToEnd = false;
+  const check = () => {
+    const doc = frame.contentDocument; if (!doc) return;
+    const el = doc.scrollingElement || doc.documentElement;
+    if (el.scrollTop + el.clientHeight >= el.scrollHeight - 40) {
+      readToEnd = true; document.getElementById("readNote").textContent = "✓ You've reached the end of the lease."; update();
+    }
+  };
+  // Initial lines (the Parking Agreement's sections): each becomes a yellow "Initial here" tag in the lease.
+  // Tapping one stamps the tenant's initials there; signing stays locked until every line is initialed.
+  // The lease itself isn't changed: the server checks the list and prints the initials in the signed PDF.
+  const iniInput = document.getElementById("ini"), iniNote = document.getElementById("iniNote");
+  let spots = [];
+  const initialed = new Set();
+  const iniVal = () => iniInput.value.trim().toUpperCase();
+  const iniOk = () => /^[A-Z][A-Z. -]{0,7}$/.test(iniVal());
+  iniInput.value = d.signer_name.split(/\s+/).filter(Boolean).map((w) => w[0]).join("").toUpperCase().slice(0, 4);
+  const paintSpot = (sp) => {
+    const done = initialed.has(sp.dataset.ini);
+    sp.textContent = done ? iniVal() : "Initial here";
+    sp.className = "parking-initial " + (done ? "ini-done" : "ini-tag");
+    sp.setAttribute("aria-label", done ? `Initialed ${iniVal()}` : "Initial here");
+  };
+  const iniUpdate = () => {
+    spots.forEach(paintSpot);
+    iniNote.textContent = initialed.size === spots.length ? `✓ All ${spots.length} initialed.` : `Initialed ${initialed.size} of ${spots.length}.`;
+    update();
+  };
+  const nextSpot = () => spots.find((sp) => !initialed.has(sp.dataset.ini));
+  document.getElementById("iniNext").onclick = () => { const sp = nextSpot(); if (sp) sp.scrollIntoView({ block: "center", behavior: "smooth" }); };
+  iniInput.oninput = iniUpdate;
+  const setupInitials = () => {
+    const doc = frame.contentDocument;
+    spots = [...doc.querySelectorAll(".parking-initial")].filter((sp) => /Initial:/.test(sp.textContent) && /^pi-\d+$/.test(sp.id));
+    if (!spots.length) return;
+    const style = doc.createElement("style");
+    style.textContent = `.ini-tag{background:#ffe58a!important;border:1px dashed #b38600!important;border-radius:4px;padding:0 6px;cursor:pointer;font:600 12px Arial,sans-serif;color:#5c4200}
+      .ini-done{background:#e5f3eb!important;border:1px solid #237347!important;border-radius:4px;padding:0 6px;cursor:pointer;font:italic 700 13px Georgia,serif;color:#14532d}`;
+    doc.head.appendChild(style);
+    spots.forEach((sp) => {
+      sp.dataset.ini = sp.id.slice(3);
+      sp.setAttribute("role", "button"); sp.tabIndex = 0;
+      const tap = () => {
+        if (!iniOk()) { iniInput.focus(); return msg("Enter your initials first (letters only)."); }
+        if (initialed.has(sp.dataset.ini)) initialed.delete(sp.dataset.ini); else initialed.add(sp.dataset.ini);
+        msg(""); iniUpdate();
+      };
+      sp.addEventListener("click", tap);
+      sp.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); tap(); } });
+    });
+    document.getElementById("iniBox").hidden = false;
+    iniUpdate();
+  };
+  frame.onload = () => { frame.contentDocument.addEventListener("scroll", check, { passive: true }); setupInitials(); check(); };
+
+  const typed = document.getElementById("typed"), consent = document.getElementById("consent"), btn = document.getElementById("sign");
+  let drawing = false, inked = 0, last = null;
+  function update() {
+    const initialsDone = !spots.length || (iniOk() && initialed.size === spots.length);
+    btn.disabled = !(readToEnd && initialsDone && inked > 60 && typed.value.trim().length > 1 && consent.checked);
+    if (spots.length && !initialsDone && readToEnd) document.getElementById("readNote").textContent = `✓ You've reached the end of the lease. Initial the ${spots.length - initialed.size} remaining line(s) to sign.`;
+    else if (readToEnd) document.getElementById("readNote").textContent = "✓ You've reached the end of the lease.";
+  }
+  typed.oninput = update; consent.onchange = update;
+
+  // Signature pad
+  // The strokes are kept, so the signature survives a resize. Phones fire "resize" when the address bar hides
+  // while scrolling (height only); that used to wipe the signature. Only a width change resizes, and the
+  // strokes are redrawn scaled to the new width.
+  const pad = document.getElementById("pad"), ctx = pad.getContext("2d");
+  let strokes = [], padW = 0;
+  const redraw = () => { ctx.clearRect(0, 0, pad.width, pad.height);
+    for (const s of strokes) { ctx.beginPath(); s.forEach((p, i) => (i ? ctx.lineTo(...p) : ctx.moveTo(...p))); if (s.length === 1) ctx.lineTo(s[0][0] + 0.1, s[0][1]); ctx.stroke(); } };
+  const size = () => { const r = pad.getBoundingClientRect(); if (!r.width || r.width === padW) return;
+    const k = padW ? r.width / padW : 1; strokes = strokes.map((s) => s.map(([x, y]) => [x * k, y * k])); inked *= k; padW = r.width;
+    const dpr = window.devicePixelRatio || 1; pad.width = r.width * dpr; pad.height = r.height * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.lineWidth = 2.4; ctx.lineCap = "round"; ctx.lineJoin = "round"; ctx.strokeStyle = "#111"; redraw(); update(); };
+  size(); window.addEventListener("resize", size);
+  const pt = (e) => { const r = pad.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+  pad.addEventListener("pointerdown", (e) => { drawing = true; last = pt(e); strokes.push([last]); pad.setPointerCapture(e.pointerId); });
+  pad.addEventListener("pointermove", (e) => { if (!drawing) return; const p = pt(e); ctx.beginPath(); ctx.moveTo(...last); ctx.lineTo(...p); ctx.stroke();
+    strokes[strokes.length - 1].push(p); inked += Math.hypot(p[0] - last[0], p[1] - last[1]); last = p; update(); });
+  ["pointerup", "pointercancel", "pointerleave"].forEach((t) => pad.addEventListener(t, () => { drawing = false; }));
+  document.getElementById("clear").onclick = () => { strokes = []; ctx.clearRect(0, 0, pad.width, pad.height); inked = 0; update(); };
+
+
+  btn.onclick = async () => {
+    btn.disabled = true; btn.textContent = "Signing…";
+    try {
+      const r = await api({ action: "sign", typed_name: typed.value, signature: pad.toDataURL("image/png"), consent: consent.checked,
+        ...(spots.length ? { initials: iniVal(), initialed: [...initialed] } : {}) });
+      done(r.executed, r.awaiting_agent);
+    } catch (e) { msg(e.message); btn.textContent = "Sign my lease"; update(); }
+  };
+}
+
+start();
+</script>
+<script src="/assets/report.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>My Mirror | The Human Mirror</title>
+<link rel="icon" href="/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Source+Serif+4:opsz,wght@8..60,600&display=swap">
+<link rel="stylesheet" href="/mirror/assets/mirror.css?v=20261113l">
+</head>
+<body data-area="my">
+<main id="main" class="mm-main">
+  <div id="mmMy"><p role="status">Loading…</p></div>
+</main>
+<script type="module" src="/mirror/assets/mirror-ui.js?v=20261113h"></script>
+<script type="module">
+import { requireArea, rpc, signOut } from "/mirror/assets/mirror-client.js?v=20261113p";
+import { esc, notice, countBar } from "/mirror/assets/mirror-ui.js?v=20261113h";
+import { PAGES, suggestNext, lifeHref } from "/mirror/assets/reflection-page.js?v=20261113p";
+
+const w = await requireArea("my");
+const box = document.getElementById("mmMy");
+let sets = [];
+try { sets = await rpc("mirror_sets", { p_kind: "reflection" }); }
+catch (e) { box.innerHTML = notice("urgent", `<p>${esc(e.message)}</p>`); }
+/** "I'd like help with this" answers. Nobody is alerted yet (Phase 8), so the person keeps their own list here. */
+let help = [];
+try { help = await rpc("mirror_my_help_requests"); } catch { /* the list is optional */ }
+const helpHref = (h) => h.kind === "dimension" ? lifeHref(h.dimension) : `/mirror/my-mirror/${PAGES[h.reflection] || ""}/`;
+const helpBox = help.length ? `
+  <h2>Things you asked for help with</h2>
+  <div class="mm-card mm-read">
+    <p class="mm-muted mm-small">Nobody is told about these yet. When you work with an organization, they will see them (if you share that topic).
+      Until then, you can bring this list to someone you trust.</p>
+    <ul>${help.map((h) => `<li><a href="${helpHref(h)}">${esc(h.prompt)}</a> <span class="mm-muted mm-small">(${esc(h.set_title)})</span>${h.note ? `<br><span class="mm-small">Help you'd like: ${esc(h.note)}</span>` : ""}</li>`).join("")}</ul>
+  </div>` : "";
+/** Waiting invitations (Phase 2 fix 1): the person decides whether an organization may work with their Mirror. */
+let invites = [];
+if (w.invitations) { try { invites = await rpc("mirror_my_invitations"); } catch { /* shown again next time */ } }
+const inviteBox = invites.map((i) => `
+  <div class="mm-card mm-read mm-suggest" style="margin-bottom:var(--mm-space-4)" data-invite="${esc(i.organization_id)}">
+    <h2 style="margin-top:0">${esc(i.organization)} would like to work with you</h2>
+    <p>${i.coordinator ? `${esc(i.coordinator)} added you` : "You were added"} on ${esc(new Date(i.since).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }))}.
+      If you accept, they can see your answers in general and help you with your plan.</p>
+    <p class="mm-small">Private topics (health, how you feel, safety, legal matters, money, ID papers) stay private unless you choose to share them in
+      <a href="/mirror/my-mirror/settings/">Settings</a>. You can stop working with them at any time.</p>
+    <div class="mm-row"><button class="mm-btn" type="button" data-accept>Accept</button>
+      <button class="mm-btn mm-btn-secondary" type="button" data-decline>Decline</button>
+      <button class="mm-btn mm-btn-quiet" type="button" data-later>Decide later</button></div>
+    <div data-msg aria-live="polite"></div>
+  </div>`).join("");
+const total = sets.reduce((n, s) => n + s.questions, 0), done = sets.reduce((n, s) => n + s.answered, 0);
+const next = suggestNext(sets);
+const nextSet = sets.find((s) => s.reflection === next);
+const card = (s) => `<a class="mm-card${s.reflection === next ? " mm-suggest" : ""}" href="/mirror/my-mirror/${PAGES[s.reflection]}/">
+    <div class="mm-card-num">${s.reflection === next ? "Suggested next" : "Reflection"}</div>
+    <h3>${esc(s.title)}</h3>
+    <p class="mm-muted">${esc(s.intro || "")}</p>
+    ${countBar(s.answered, s.questions, "answered")}</a>`;
+box.innerHTML = `
+  <div class="mm-read">
+    <p class="mm-eyebrow">My Mirror</p>
+    <h1>Hello, ${esc(w.person.preferred_name)}</h1>
+    <p class="mm-lead">This is your space. Answer at your own pace, in any order, by speaking or typing. Skip anything. Come back any time.</p>
+    ${done === 0 ? notice("info", "<p>A good place to start is <strong>Who am I today?</strong> There are no wrong answers, and every question can be skipped.</p>") : ""}
+  </div>
+  ${inviteBox}
+  ${nextSet ? `<p class="mm-row"><a class="mm-btn" href="/mirror/my-mirror/${PAGES[next]}/">${done === 0 ? "Start" : "Continue"}: ${esc(nextSet.title)}</a></p>` : ""}
+  ${helpBox}
+  <h2>Eight ways of looking at your life</h2>
+  ${countBar(done, total, "questions answered so far")}
+  <div class="mm-grid">${sets.map(card).join("")}</div>
+  <h2>My Daily Number</h2>
+  <p class="mm-read">What does one day of your life cost, and what would it take to meet it? Today, survival, stability and the life you want.</p>
+  <p><a class="mm-btn mm-btn-secondary" href="/mirror/my-mirror/daily-number/">My Daily Number</a></p>
+  <h2>Fifteen areas of your life</h2>
+  <p class="mm-read">Housing, health, work, money, family, safety and more: for each area, what you have, what's missing and what would help.</p>
+  <p><a class="mm-btn mm-btn-secondary" href="/mirror/my-mirror/life/">Areas of life</a></p>
+  <h2>A conversation</h2>
+  <p class="mm-read">A few open questions about how things are going, by speaking or typing. You see what we heard and choose what your coordinator or Navigator may see.</p>
+  <p><a class="mm-btn mm-btn-secondary" href="/mirror/my-mirror/conversation/">A conversation</a></p>
+  <h2>My needs</h2>
+  <p class="mm-read">Each thing you need, one at a time, from "noted" to "got it". You decide what goes on the list.</p>
+  <p><a class="mm-btn mm-btn-secondary" href="/mirror/my-mirror/my-needs/">My needs list</a></p>
+  <h2>My strengths</h2>
+  <p class="mm-read">Your skills, talents, experience, papers and training, languages, interests and the people in your corner. Your answers suggest some; you choose.</p>
+  <p><a class="mm-btn mm-btn-secondary" href="/mirror/my-mirror/my-strengths/">My strengths list</a></p>
+  <h2>Help I could get</h2>
+  <p class="mm-read">Programs from the housing resource directory that may help with your needs. Each one is a suggestion until someone checks with the program.</p>
+  <p class="mm-row"><a class="mm-btn mm-btn-secondary" href="/mirror/my-mirror/resources/">Help I could get</a>
+    <a class="mm-btn mm-btn-secondary" href="/mirror/my-mirror/referrals/">My referrals</a>
+    <a class="mm-btn mm-btn-secondary" href="/mirror/my-mirror/services/">My services</a></p>
+  <h2>My appointments</h2>
+  <p class="mm-read">Appointments with the organizations you work with, and your own (they stay yours). Also every note an organization writes about a visit or call with you.</p>
+  <p class="mm-row"><a class="mm-btn mm-btn-secondary" href="/mirror/my-mirror/appointments/">My appointments</a>
+    <a class="mm-btn mm-btn-secondary" href="/mirror/my-mirror/notes/">Notes about me</a></p>
+  <h2>My documents</h2>
+  <p class="mm-read">Keep photos or PDFs of your ID, birth certificate, benefit letters and other papers, so you have them when a program asks. Only you see them, unless you share Documents in Settings.</p>
+  <p><a class="mm-btn mm-btn-secondary" href="/mirror/my-mirror/documents/">My documents</a></p>
+  <h2>My plan</h2>
+  <p class="mm-read">The goals you choose, sorted by stage (labels, not deadlines), the steps toward them, and the milestones you reach along the way.</p>
+  <p class="mm-row"><a class="mm-btn mm-btn-secondary" href="/mirror/my-mirror/plan/">My plan</a>
+    <a class="mm-btn mm-btn-secondary" href="/mirror/my-mirror/actions/">My steps</a>
+    <a class="mm-btn mm-btn-secondary" href="/mirror/my-mirror/milestones/">My milestones</a></p>
+  <h2>My progress</h2>
+  <p class="mm-read">What you have noted, done and reached, counted for each part of life and month by month. Counts only, never a score.</p>
+  <p><a class="mm-btn mm-btn-secondary" href="/mirror/my-mirror/progress/">My progress</a></p>
+  <h2>Where and how I'd like to live</h2>
+  <p class="mm-read">Where you live now, the ways of living you'd like to learn about, and how everyday activities go for you. You choose; it is never a diagnosis.</p>
+  <p class="mm-row"><a class="mm-btn mm-btn-secondary" href="/mirror/my-mirror/living/">Where I live</a>
+    <a class="mm-btn mm-btn-secondary" href="/mirror/my-mirror/abilities/activities/">Everyday activities</a>
+    <a class="mm-btn mm-btn-secondary" href="/mirror/my-mirror/clothing/">Clothes and laundry</a></p>
+  <p class="mm-muted" style="margin-top:var(--mm-space-6)">There is no score. These counts only show where you've been so far.</p>
+  <p class="mm-row"><a class="mm-btn mm-btn-quiet" href="/mirror/my-mirror/settings/">Who can see my answers</a>
+    ${w.memberships && w.memberships.length ? '<a class="mm-btn mm-btn-quiet" href="/mirror/workspace/">Go to the workspace</a>' : ""}
+    <button class="mm-btn mm-btn-quiet" type="button" id="mmOut">Sign out</button></p>`;
+document.getElementById("mmOut").addEventListener("click", signOut);
+box.querySelectorAll("[data-invite]").forEach((card) => {
+  const org = card.dataset.invite, msg = card.querySelector("[data-msg]");
+  const answer = async (yes, b) => {
+    card.querySelectorAll("button").forEach((x) => { x.disabled = true; });
+    try {
+      await rpc("mirror_my_invitation_answer", { p_org: org, p_accept: yes });
+      card.innerHTML = notice(yes ? "ok" : "info", yes
+        ? "<p>Accepted. They can now see your answers in general. Private topics stay private unless you share them in <a href=\"/mirror/my-mirror/settings/\">Settings</a>.</p>"
+        : "<p>Declined. They can't see your Mirror.</p>");
+    } catch (e) { card.querySelectorAll("button").forEach((x) => { x.disabled = false; }); msg.innerHTML = notice("urgent", `<p>${esc(e.message)}</p>`); }
+  };
+  card.querySelector("[data-accept]").addEventListener("click", (e) => answer(true, e.target));
+  card.querySelector("[data-decline]").addEventListener("click", (e) => {
+    const b = e.target;
+    if (!b.dataset.sure) { b.dataset.sure = "1"; b.textContent = "Press again to decline"; return; }
+    answer(false, b);
+  });
+  card.querySelector("[data-later]").addEventListener("click", () => { card.hidden = true; });
+});
+</script>
+</body>
+</html>

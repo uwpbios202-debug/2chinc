@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Living Options | The Human Mirror</title>
+<meta name="description" content="Ways to live and the help that can come with them, from your own place to supportive housing. Information only; you choose.">
+<link rel="icon" href="/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Source+Serif+4:opsz,wght@8..60,600&display=swap">
+<link rel="stylesheet" href="/mirror/assets/mirror.css?v=20261113l">
+</head>
+<body data-area="public">
+<!-- Phase 5 (T5.2). The options come from /mirror/assets/living-options.js, the same file as the database seed. -->
+<main id="main" class="mm-main" data-mm-listen>
+  <p class="mm-eyebrow">Living options</p>
+  <h1>Ways to live, and the help that can come with them</h1>
+  <p class="mm-lead">There are many ways to live, with more or less help. This page explains the main ones so you can explore them. You choose.</p>
+
+  <div class="mm-read">
+    <div class="mm-notice" role="note">
+      <p><strong>This is not a diagnosis, and nothing here is a recommendation.</strong> The Mirror never picks a place for you,
+        and it never sends anyone to assisted living or a nursing home. What you can do, what you would like, and where you want to live
+        are yours to say.</p>
+    </div>
+
+    <h2>How to use this page</h2>
+    <ul>
+      <li>Read about any option. Most people mix and match: their own place, plus some help that comes to them.</li>
+      <li>In your own Mirror, under <strong>Where I live</strong>, you can tick the options you would like to learn more about.</li>
+      <li>Sometimes someone helping you marks <strong>"professional review needed"</strong>. That means a trained professional, such as a nurse,
+        a social worker or an options counselor, could help you look at your choices. It is not a decision, it does not move you anywhere,
+        and you still choose.</li>
+    </ul>
+
+    <h2>Where to ask, at no cost</h2>
+    <ul>
+      <li><strong>2-1-1</strong> (call or text 211): help finding housing and support programs.</li>
+      <li><strong>Aging and Disability Resource Center (ADRC) of Milwaukee County</strong>: for older adults and adults with disabilities,
+        free advice about living options, help at home, and programs such as Family Care and IRIS.</li>
+      <li>Your coordinator at the organization you work with.</li>
+    </ul>
+  </div>
+
+  <h2>The options</h2>
+  <!-- Fallback when JavaScript does not run. livingOptionsPublic() replaces it with the full cards.
+       Titles and summaries are copied from OPTIONS in /mirror/assets/living-options.js: change both together.
+       tools/mirror-checks/living-options-fallback.mjs fails if they differ. -->
+  <div id="mmOptions">
+    <ul class="mm-read">
+      <li><strong>Living on my own.</strong> Your own apartment or house, rented or owned, run your way.</li>
+      <li><strong>My own place, with support that comes to me.</strong> Your own home, with help that visits you there.</li>
+      <li><strong>Assisted living.</strong> A home with your own room or apartment, where help is there every day.</li>
+      <li><strong>Nursing home (skilled nursing care).</strong> Nursing care around the clock, for a short stay or longer.</li>
+      <li><strong>Accessible housing.</strong> A home built or changed to fit your body and your needs.</li>
+      <li><strong>Permanent supportive housing.</strong> Your own lease, with rent help and support services, and no time limit.</li>
+      <li><strong>Other specialized housing.</strong> Homes for a particular group or purpose.</li>
+    </ul>
+    <p class="mm-muted mm-read">For what each option is, what help comes with it, how it is paid for and questions to ask, turn on JavaScript,
+      or ask 2-1-1 or your coordinator.</p>
+  </div>
+
+  <p class="mm-muted mm-read">The words "who it may suit" describe who often chooses an option. They are not rules, and only a program itself can say who qualifies.</p>
+</main>
+<script type="module" src="/mirror/assets/mirror-ui.js?v=20261113h"></script>
+<script type="module">
+import { livingOptionsPublic } from "/mirror/assets/living-options.js?v=20261113a";
+livingOptionsPublic();
+</script>
+<script type="module" src="/mirror/assets/mirror-voice.js?v=20261113c"></script>
+</body>
+</html>

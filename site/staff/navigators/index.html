@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Housing Navigators — 2nd Chance Housing Staff</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+<style id="navcss"></style>
+</head>
+<body>
+<div class="appbar" data-nav="staff">
+  <div class="appbar-in">
+    <div class="org">2nd Chance Housing<span>Housing Navigators · Staff</span></div>
+    <div class="row" id="userBar" hidden><button class="linkbtn" type="button" id="signOutBtn">Sign out</button></div>
+  </div>
+</div>
+<main class="wrap">
+  <header><h1>Community Housing Partnership</h1><p class="lead">Housing Navigators run their own housing business on this system. Each Navigator's people, landlords and units are private to her: other Navigators never see them, the office sees everything here. After both agreements are dated on the Navigators tab she works on her own (no office acceptance or approval). Everyone shares the resource directory. Navigators sign in at <a href="https://2ndchinc.org/navigator/">https://2ndchinc.org/navigator/</a> .</p></header>
+  <div id="signin" class="narrow"></div>
+  <div id="app" hidden>
+    <nav class="tabs" id="tabs">
+      <a href="#dashboard" data-tab="dashboard">Dashboard</a><a href="#referrals" data-tab="referrals">Referrals</a><a href="#network" data-tab="network">Housing network</a><a href="#navigators" data-tab="navigators">Navigators</a>
+    </nav>
+    <div class="msg" id="msg" role="status" style="margin:10px 0"></div>
+    <section data-pane="dashboard"></section>
+    <section data-pane="referrals" hidden></section>
+    <section data-pane="network" hidden></section>
+    <section data-pane="navigators" hidden></section>
+    <section data-pane="pay" hidden></section>
+  </div>
+</main>
+<script type="module">
+import { $, esc, money, fmtDate, signIn, signOut } from "/assets/portal/portal.js";
+import { rpc, NAV_CSS, refList, refDetail, wireRef, refFields, formHtml, readForm, networkHtml, wireNetwork, MARKS, PATHWAYS, STATUS, flush } from "/assets/portal/nav-common.js?v=20261113d";
+$("navcss").textContent = NAV_CSS;
+
+const pane = (n) => document.querySelector(`[data-pane="${n}"]`);
+const say = (t, bad) => { $("msg").className = "msg " + (bad ? "err" : "ok"); $("msg").textContent = t || ""; };
+let O = null, NET = [], refFilter = "open";
+
+$("signOutBtn").addEventListener("click", signOut);
+const who = await signIn($("signin"), { audience: "staff" });
+$("userBar").hidden = false;
+if (who.role !== "staff") location.replace("/");
+else {
+  $("app").hidden = false;
+  wireNetwork(pane("network"), { role: "staff", list: () => NET, say, refresh: loadNet });
+  await load();
+  show(location.hash.slice(1) || "dashboard");
+}
+window.addEventListener("hashchange", () => show(location.hash.slice(1)));
+
+let SAMPLES = 0;
+async function load() { [O, SAMPLES] = await Promise.all([rpc("nav_staff_overview"), rpc("nav_sample_count")]); }
+
+function show(tab) {
+  const [t, id] = tab.split("/");
+  const name = ["dashboard", "referrals", "network", "navigators", "pay"].includes(t) ? t : "dashboard";
+  document.querySelectorAll("[data-pane]").forEach((p) => { p.hidden = p.dataset.pane !== name; });
+  document.querySelectorAll("#tabs a").forEach((a) => a.classList.toggle("on", a.dataset.tab === name));
+  if (name === "dashboard") renderDash();
+  if (name === "referrals") id === "new" ? newRef() : id ? openRef(id) : renderRefs();
+  if (name === "network") loadNet();
+  if (name === "navigators") renderNavs();
+  if (name === "pay") renderPay();
+}
+
+// ---------------------------------------------------------------- dashboard
+function renderDash() {
+  const s = O.stats, pct = (a, b) => b ? Math.round((100 * a) / b) + "%" : "—";
+  const needs = [
+    ...O.navigators.filter((n) => ["preview", "pilot", "active"].includes(n.status) && (!n.chk_agreement || !n.chk_confidentiality)).map((n) => `<li><a href="#navigators">${esc(n.name)}</a>: agreements not dated yet, so she cannot add people</li>`),
+    ...O.followups_due.map((f) => `<li><a href="#referrals/${esc(f.referral_id)}">${esc(f.label)}</a>: ${esc(MARKS[f.mark])} check-in due ${fmtDate(f.due_on)} (${esc(f.navigator || "office")})</li>`),
+  ];
+  pane("dashboard").innerHTML = `${SAMPLES ? '<div class="banner warn"><b>Sample data is loaded</b> for a walkthrough: the numbers below include it. Remove it on the Navigators tab when you are done.</div>' : ""}<div class="stats">
+      <div><span>Referrals</span><b>${s.referrals}</b></div><div><span>Open now</span><b>${s.open}</b></div>
+      <div><span>Housed</span><b>${s.placed}</b></div><div><span>Average days to housing</span><b>${s.avg_days_to_place ?? "—"}</b></div>
+      <div><span>Still housed at 90 days</span><b>${pct(s.retained_90, s.checked_90)}</b><span>${s.retained_90} of ${s.checked_90} checked</span></div>
+      <div><span>Still housed at 12 months</span><b>${pct(s.retained_365, s.checked_365)}</b><span>${s.retained_365} of ${s.checked_365} checked</span></div>
+      <div><span>Network units available</span><b>${s.units_available}</b><span>of ${s.units_total}; ${s.units_occupied} housing our people</span></div>
+      <div><span>Landlords</span><b>${s.landlords_active}</b><span>active, of ${s.landlords_total}</span></div>
+      <div><span>Navigators active</span><b>${s.navigators_active}</b></div>
+      <div><span>Check-ins overdue</span><b>${s.followups_overdue}</b></div>
+    </div>
+    <div class="panel"><h2 style="margin:0">Needs the office</h2>${needs.length ? `<ul>${needs.join("")}</ul>` : '<p class="sub">Nothing waiting.</p>'}</div>
+    <div class="panel"><h2 style="margin:0">Referrals by pathway</h2>${Object.keys(s.by_pathway).length ? `<ul>${Object.entries(s.by_pathway).map(([k, v]) => `<li>${esc(PATHWAYS[k] || k)}: ${v}</li>`).join("")}</ul>` : '<p class="sub">None yet.</p>'}
+      <p class="sub">Pathways are for program reporting and outreach only, never a reason to turn someone away.</p></div>
+    <div class="panel" id="ownRooms"><h2 style="margin:0">Matches to rooms a Navigator runs</h2><p class="sub">Loading ...</p></div>`;
+  ownRoomList();
+}
+
+// TN.4 (migration 20261119640000): every file matched to, or housed in, a home its own Navigator runs, with the person's confirmation.
+async function ownRoomList() {
+  const el = pane("dashboard").querySelector("#ownRooms");
+  let L;
+  try { L = await rpc("nav_own_room_matches"); } catch (e) { el.querySelector(".sub").textContent = e.message; return; }
+  el.innerHTML = `<h2 style="margin:0">Matches to rooms a Navigator runs</h2>
+    <p class="sub">The person must confirm on screen that they know their Navigator runs the home and chose it before the placement is confirmed.</p>
+    ${L.length ? `<ul>${L.map((x) => `<li><a href="#referrals/${esc(x.id)}">${esc(x.label)}</a>${x.is_sample ? " (sample)" : ""}: ${esc(x.place || "")} · ${esc(x.navigator || "")} · ${esc(STATUS[x.status] || x.status)} ·
+      ${x.confirmed ? `confirmed by <b>${esc(x.confirmed.name)}</b> ${fmtDate(String(x.confirmed.at).slice(0, 10))}` : "<b>not confirmed yet</b>"}</li>`).join("")}</ul>` : '<p class="sub">None.</p>'}`;
+}
+
+// ---------------------------------------------------------------- referrals
+function renderRefs() {
+  const open = ["submitted", "reviewing", "searching", "matched", "approved"];
+  const list = O.referrals.filter((r) => refFilter === "all" || (refFilter === "open" ? open.includes(r.status) : r.status === refFilter));
+  pane("referrals").innerHTML = `<div class="row"><a class="btn primary" href="#referrals/new">Add a referral (office)</a>
+    <label class="chk">Show <select class="field" id="rf" style="width:auto">${[["open", "Open"], ["all", "All"], ...Object.entries(STATUS)].map(([k, t]) => `<option value="${k}"${k === refFilter ? " selected" : ""}>${esc(t)}</option>`).join("")}</select></label></div>${refList(list, true)}`;
+  $("rf").onchange = () => { refFilter = $("rf").value; renderRefs(); };
+  pane("referrals").querySelectorAll("[data-open]").forEach((el) => el.addEventListener("click", (e) => { e.preventDefault(); location.hash = "referrals/" + el.dataset.open; }));
+}
+
+function newRef() {
+  pane("referrals").innerHTML = `<div class="panel"><h2 style="margin:0">Add a referral</h2><p class="sub">For someone who comes to the office directly, or to enter one for a Navigator.</p>
+    ${formHtml(refFields("staff", O.navigators), { pathway: "other" })}
+    <div class="banner warn"><b>Consent:</b> the person must sign the consent. Save first, then open Edit details with the person present (or record their typed name from a signed paper form).</div>
+    <div class="row"><button class="btn primary" id="saveNew">Save</button><a class="linkbtn" href="#referrals">Cancel</a></div></div>`;
+  $("saveNew").onclick = async () => {
+    $("saveNew").disabled = true; say("Saving ...");
+    try { const id = await rpc("nav_referral_save", { p: readForm(pane("referrals")) }); await load(); say("Saved."); location.hash = "referrals/" + id; }
+    catch (e) { say(e.message, true); $("saveNew").disabled = false; }
+  };
+}
+
+async function openRef(id) {
+  try {
+    const r = await rpc("nav_referral_get", { p_id: id });
+    pane("referrals").innerHTML = `<p><a href="#referrals">← All referrals</a></p>` + refDetail(r, { role: "staff" });
+    wireRef(r, { role: "staff", root: pane("referrals"), say, navigators: O.navigators, ourUnits: O.our_units, consentText: CONSENT,
+      network: async () => (NET = await rpc("nav_network")),
+      refresh: async (rid) => { await load(); await openRef(rid); } });
+  } catch (e) { say(e.message, true); }
+}
+const CONSENT = "I agree that 2nd Chance Housing Inc and my Housing Navigator may collect the information on this form and share it with each other, with my support worker named here, and with the landlords I choose to apply to, only to help me find and keep a home. Landlords see only what my rental application needs, never my case notes. I can stop this sharing at any time by telling my Navigator or the office (info@2ndchinc.org). I do not pay my Navigator or 2nd Chance Housing anything for this help.";
+
+// ---------------------------------------------------------------- housing network
+async function loadNet() {
+  try { NET = await rpc("nav_network"); pane("network").innerHTML = `<p class="sub">Every landlord and unit. A Navigator sees only the ones she added (plus office landlords marked "show to every Navigator"); never another Navigator's.</p>` + networkHtml(NET, "staff"); }
+  catch (e) { say(e.message, true); }
+}
+
+// ---------------------------------------------------------------- navigators
+const NAV_STATUS = { prospect: "Prospect (no sign-in)", preview: "Signed up (can sign in; people open once both agreements are dated)", pilot: "Pilot (can sign in; same as Active)", active: "Active (can sign in)", paused: "Paused (no sign-in)", ended: "Ended (no sign-in)" };
+const NAV_FIELDS = [
+  "Navigator", ["name", "Name", "text"], ["email", "Email (sign-in)", "email"], ["phone", "Phone", "tel"], ["mailing_address", "Mailing address", "text"],
+  "Business", ["business_name", "Business name", "text"], ["dfi_entity_id", "Wisconsin DFI entity ID", "text"], ["dfi_status", "DFI status", "text"], ["dfi_checked_on", "DFI checked on", "date"],
+  "Status", ["status", "Status", "select", NAV_STATUS],
+  "Checklist (date each one is done; both agreements dated = she can add people)", ["chk_meeting", "Partnership meeting", "date"], ["chk_agreement", "Housing Navigator Agreement signed", "date"], ["chk_confidentiality", "Confidentiality Agreement signed", "date"], ["chk_insurance", "Insurance certificate (if required)", "date"], ["chk_business_good_standing", "Business in good standing / reinstated", "date"],
+  ["notes", "Office notes (never shown to the Navigator)", "area"],
+];
+function renderNavs(editId) {
+  const cards = O.navigators.map((n) => {
+    const chk = [["chk_meeting", "Meeting"], ["chk_agreement", "Agreement"], ["chk_confidentiality", "Confidentiality"], ["chk_insurance", "Insurance"], ["chk_business_good_standing", "Good standing"]]
+      .map(([k, t]) => `<span class="pill ${n[k] ? "ok" : "warn"}">${n[k] ? "✓" : "○"} ${t}</span>`).join(" ");
+    return `<div class="panel"><div class="row" style="justify-content:space-between"><h3 style="margin:0">${esc(n.name)}${n.business_name ? ` <span class="sub">${esc(n.business_name)}</span>` : ""}</h3><span class="pill ${["preview", "pilot", "active"].includes(n.status) ? "ok" : "off"}">${esc(NAV_STATUS[n.status])}</span></div>
+      <div class="sub">${esc(n.email)}${n.phone ? " · " + esc(n.phone) : ""}${n.dfi_status ? ` · DFI: ${esc(n.dfi_status)}${n.dfi_checked_on ? " (" + fmtDate(n.dfi_checked_on) + ")" : ""}` : ""}</div>
+      <div>${chk}</div>
+      <div class="sub">${n.open_referrals} open · ${n.placed} housed${n.invited_at ? ` · sign-in steps sent ${fmtDate(n.invited_at)}` : ""}</div>
+      ${n.notes ? `<div class="sub"><b>Notes:</b> ${esc(n.notes)}</div>` : ""}
+      <div class="row"><button class="btn small" data-edit="${esc(n.id)}">Edit</button><button class="btn small" data-sample="${esc(n.id)}">Load sample data</button>${["preview", "pilot", "active"].includes(n.status) ? `<button class="btn small" data-invite="${esc(n.id)}">${n.invited_at ? "Send the sign-in steps again" : "Give access (email the sign-in steps)"}</button>` : ""}</div></div>`;
+  }).join("");
+  const n = O.navigators.find((x) => x.id === editId) || (editId === "new" ? { status: "prospect", max_open_referrals: 5 } : null);
+  pane("navigators").innerHTML = `<div class="row"><button class="btn primary" data-edit="new">Add a Navigator</button>${SAMPLES ? '<button class="btn" id="sampleClear">Remove all sample data</button><span class="sub">Sample data is loaded (marked SAMPLE).</span>' : ""}</div>
+    ${n ? `<div class="panel" id="navForm"><h2 style="margin:0">${n.id ? "Edit " + esc(n.name) : "Add a Navigator"}</h2>${formHtml(NAV_FIELDS, n)}
+      <p class="sub">Preview lets the Navigator sign in and look around (emailed sign-in button or code) without adding anything. Pilot or Active opens everything; both agreements must be dated first.</p>
+      <div class="row"><button class="btn primary" id="navSave">Save</button><button class="linkbtn" data-edit="">Cancel</button></div></div>` : ""}
+    ${cards || '<p class="sub">No Navigators yet.</p>'}`;
+  pane("navigators").querySelectorAll("[data-sample]").forEach((b) => b.onclick = async () => {
+    const x = O.navigators.find((y) => y.id === b.dataset.sample);
+    if (!confirm(`Load a SAMPLE landlord, a 3-room unit with money, budget and rooms, and 4 sample people for ${x.name}, to walk through the system? No emails are sent. Remove it all later with "Remove all sample data".`)) return;
+    b.disabled = true; say("Loading sample data ...");
+    try { await rpc("nav_sample_load", { p_navigator: x.id }); await load(); renderNavs(); say("Sample data loaded. Everything is marked SAMPLE."); } catch (e) { say(e.message, true); b.disabled = false; }
+  });
+  if ($("sampleClear")) $("sampleClear").onclick = async () => {
+    if (!confirm("Remove ALL sample landlords, units, rooms, money, people and their inspections?")) return;
+    $("sampleClear").disabled = true; say("Removing ...");
+    try { const r = await rpc("nav_sample_clear"); await load(); renderNavs(); say(`Removed ${r.referrals} sample people, ${r.units} units, ${r.landlords} landlords, ${r.inspections} inspections.`); } catch (e) { say(e.message, true); $("sampleClear").disabled = false; }
+  };
+  pane("navigators").querySelectorAll("[data-edit]").forEach((b) => b.onclick = () => renderNavs(b.dataset.edit || null));
+  pane("navigators").querySelectorAll("[data-invite]").forEach((b) => b.onclick = async () => {
+    const x = O.navigators.find((y) => y.id === b.dataset.invite);
+    if (!confirm(`Email ${x.name} (${x.email}) the steps to sign in to the Navigator portal?`)) return;
+    b.disabled = true; say("Sending ...");
+    try { await rpc("nav_staff_invite", { p_id: x.id }); flush(); await load(); renderNavs(); say("Sign-in steps sent to " + x.email + "."); } catch (e) { say(e.message, true); b.disabled = false; }
+  });
+  if ($("navSave")) {
+    $("navForm").scrollIntoView({ behavior: "smooth", block: "start" });
+    $("navSave").onclick = async () => {
+      $("navSave").disabled = true; say("Saving ...");
+      try { await rpc("nav_staff_navigator_save", { p: { ...readForm($("navForm")), id: n.id || "" } }); await load(); renderNavs(); say("Saved."); }
+      catch (e) { say(e.message, true); $("navSave").disabled = false; }
+    };
+  }
+}
+
+// ---------------------------------------------------------------- pay
+function renderPay() {
+  const plan = O.plan.map((p) => `<tr data-key="${esc(p.key)}"><td><b>${esc(p.label)}</b></td><td><input class="field" data-f="amount" inputmode="decimal" value="${esc(p.amount)}" style="width:7rem"></td>
+    <td><label class="chk"><input type="checkbox" data-f="active"${p.active ? " checked" : ""}> Paid</label></td><td><input class="field" data-f="description" value="${esc(p.description || "")}"></td>
+    <td><button class="btn small" data-plan="${esc(p.key)}">Save</button></td></tr>`).join("");
+  const ST = { earned: '<span class="pill warn">Earned</span>', approved: '<span class="pill info">Approved</span>', paid: '<span class="pill ok">Paid</span>', void: '<span class="pill off">Void</span>' };
+  const earn = O.earnings.map((e) => `<tr data-e="${esc(e.id)}"><td>${esc(e.navigator)}</td><td>${esc(e.label)}${e.referral ? ` · <a href="#referrals/${esc(e.referral_id)}">${esc(e.referral)}</a>` : ""}</td><td>${money(e.amount)}</td><td>${fmtDate(e.earned_on)}</td>
+    <td>${ST[e.status]}${e.paid_on ? `<div class="sub">${fmtDate(e.paid_on)} · ${esc(e.paid_method || "")} ${esc(e.paid_ref || "")}</div>` : ""}${e.note ? `<div class="sub">${esc(e.note)}</div>` : ""}</td>
+    <td>${e.status === "earned" ? '<button class="btn small" data-ea="approve">Approve</button> <button class="linkbtn" data-ea="void">Void</button>' : ""}
+        ${e.status === "approved" ? '<button class="btn small" data-ea="pay">Record payment</button> <button class="linkbtn" data-ea="unapprove">Undo approval</button> <button class="linkbtn" data-ea="void">Void</button>' : ""}</td></tr>`).join("");
+  pane("pay").innerHTML = `<div class="panel"><h2 style="margin:0">Pay plan (amounts to be agreed with the Navigator)</h2>
+    <p class="sub">No figures are set yet. A milestone pays only when it has an amount and <b>Paid</b> is ticked; until then nothing is earned.</p>
+    <p class="sub">2nd Chance Housing Inc pays the Navigator directly, as an independent contractor (W-9 first, 1099 at year end), for housing-navigation services at each milestone. The person housed never pays anything. A change applies to milestones earned from now on.</p>
+    <div class="table-wrap"><table class="t"><thead><tr><th>Milestone</th><th>Amount</th><th></th><th>What it covers</th><th></th></tr></thead><tbody>${plan}</tbody></table></div></div>
+    <div class="panel"><h2 style="margin:0">Payments to Navigators</h2><p class="sub">Earned → you approve → you pay (Zelle, check ...) from 2nd Chance Housing Inc's account and record it here. Nothing is paid by this page.</p>
+    ${earn ? `<div class="table-wrap"><table class="t"><thead><tr><th>Navigator</th><th>For</th><th>Amount</th><th>Earned</th><th>Status</th><th></th></tr></thead><tbody>${earn}</tbody></table></div>` : '<p class="sub">Nothing earned yet.</p>'}</div>`;
+  pane("pay").querySelectorAll("[data-plan]").forEach((b) => b.onclick = async () => {
+    const tr = b.closest("tr"), v = (f) => tr.querySelector(`[data-f="${f}"]`);
+    b.disabled = true;
+    try { await rpc("nav_staff_plan_save", { p_key: tr.dataset.key, p_amount: Number(v("amount").value.replace(/[^0-9.]/g, "")), p_active: v("active").checked, p_description: v("description").value }); await load(); renderPay(); say("Pay plan saved."); }
+    catch (e) { say(e.message, true); b.disabled = false; }
+  });
+  pane("pay").querySelectorAll("[data-ea]").forEach((b) => b.onclick = async () => {
+    const id = b.closest("tr").dataset.e, a = b.dataset.ea, args = { p_id: id, p_action: a };
+    if (a === "pay") {
+      const method = prompt("How was it paid? (Zelle, check ...)"); if (!method) return;
+      args.p_method = method; args.p_ref = prompt("Check number or confirmation (optional)") || "";
+    }
+    if (a === "void") { const note = prompt("Why is it voided?"); if (!note) return; args.p_note = note; }
+    b.disabled = true;
+    try { await rpc("nav_staff_earning", args); flush(); await load(); renderPay(); say(a === "pay" ? "Payment recorded; the Navigator was emailed." : "Saved."); }
+    catch (e) { say(e.message, true); b.disabled = false; }
+  });
+}
+</script>
+</body>
+</html>

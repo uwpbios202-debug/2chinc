@@ -1,0 +1,25 @@
+import fs from "node:fs";
+const ed = (f, a, b) => { let s = fs.readFileSync(f, "utf8"); if (s.split(a).length !== 2) { console.log("MISS", f, a.slice(0, 50)); return; } fs.writeFileSync(f, s.replace(a, b)); console.log("ok", f); };
+ed("docs/human-mirror/MASTER_ROADMAP.md", "Security: a Navigator sees only what the person granted to that Navigator's organization (D-20).",
+  "Security: a Navigator sees only what the person granted to that Navigator's organization (D-20). Status: BUILT + LIVE 11/13/2026 (migration 20261119610000, check tn1 6/6, D-36 DEFAULT): \"Sharing beyond housing\" on the Navigator's person screen (/navigator/ and /staff/navigators/): per private topic not shared / can see / can see and change, exact words, typed full name; table nav_whole_consents; ends with the housing consent; mirror.nav_whole_consent_to_mirror copies it into mirror.consents for the Navigator's organization (called by TN.2).");
+ed("docs/human-mirror/NAVIGATOR.md", "| TN.1: consent per dimension and category through `mirror.consents` (T2.2). Consents already signed stay as they were. |",
+  "| TN.1: consent per dimension and category through `mirror.consents` (T2.2). Consents already signed stay as they were. BUILT 11/13/2026: \"Sharing beyond housing\" (migration 20261119610000); copied into mirror.consents when TN.2 links the person. |");
+ed("docs/human-mirror/DECISIONS.md", "| D-35 | **Appointments and contact notes",
+  "| D-36 | **Navigator people: sharing beyond housing (TN.1, 11/13/2026).** Defaults chosen by Claude, for Stephen to confirm: (a) the housing-only consent and every one already signed stay unchanged; the new consent is a separate, optional second step after it; (b) the person chooses for each of the 7 private Mirror topics (physical health, how they feel inside, safety, ID/papers/legal, immigration, money and the Daily Number, documents): not shared, can see, or can see and change; name, goals and strengths need no choice (an organization working with the person sees them, SECURITY_PLAN 1.4) and the words say so; (c) they read the exact sentence and type their full name as on file, on the Navigator's screen; the Navigator or the office records it; a new signing replaces the old one, which is kept; (d) it goes to the Navigator's own Mirror organization (D-20) only, never to 2nd Chance's; (e) withdrawing the housing consent ends it; (f) it reaches the Mirror (mirror.consents, method online, with a note) when TN.2 links the person to a Mirror; (g) no email. Table nav_whole_consents (migration 20261119610000). | DEFAULT (confirm) |\n| D-35 | **Appointments and contact notes");
+ed("docs/human-mirror/DATABASE_DESIGN.md", "| document_types |", "| nav_whole_consents (public) | nav_referral_id, topics (category -> none/view/edit), consent_name, consent_text, version, recorded_by(_role), signed_at, replaced_at, withdrawn_on | Navigator person's sharing beyond housing (TN.1, migration 20261119610000, D-36); copied into mirror.consents by mirror.nav_whole_consent_to_mirror when TN.2 links the person. |\n| document_types |");
+ed("docs/BUG-CHECK-ROTATION.md", "no admin has more than 5 in a day.", "no admin has more than 5 in a day. TN.1 (migration 20261119610000): nav_whole_consents has row security and no anon/authenticated grants; 0 current rows for a person whose housing consent is withdrawn but the row is not ended; 0 rows on a person with no housing consent (counts only); tn1 still 6/6 (rolled back); /navigator/ and /staff/navigators/ load nav-common.js?v=20261113a.");
+let s = fs.readFileSync("docs/human-mirror/DEVELOPMENT_STATUS.md", "utf8");
+s = s.trimEnd() + `
+
+### 11/13/2026 — Phase N step 18, TN.1: sharing beyond housing for Navigator people (Stephen: "GO")
+- Migration 20261119610000_nav_whole_person_consent.sql: table public.nav_whole_consents (row security, service_role only); functions
+  nav_whole_consent (what the screen shows), nav_whole_consent_save (the person's choice per private topic + typed full name, exact words kept,
+  logged in the person's history), trigger: withdrawing the housing consent ends it; mirror.nav_whole_consent_to_mirror (for TN.2: copies into
+  mirror.consents for the Navigator's own organization). The housing consent (nav_consent_text, nav-consent-2026-11) is unchanged. D-36 DEFAULT.
+- Page: "Sharing beyond housing" on the person's file in https://2ndchinc.org/navigator/ and https://2ndchinc.org/staff/navigators/
+  (nav-common.js ?v=20261113a), shown once the housing consent is signed.
+- Checks: tn1 6/6 rolled back on live; all 32 Mirror checks pass with the migration (0 failed). 0 real Navigator people today (4 samples).
+`;
+fs.writeFileSync("docs/human-mirror/DEVELOPMENT_STATUS.md", s + "\n"); console.log("ok status");
+const h = "Claude outputs/Human-Mirror-Remaining-Work-Handoff.txt"; let t = fs.readFileSync(h, "utf8");
+t = t.replace("18.   TN.1 Whole-person consent", "18.   [DONE 11/13/2026, migration 20261119610000] TN.1 Whole-person consent"); fs.writeFileSync(h, t); console.log("ticked");

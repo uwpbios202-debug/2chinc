@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Association Dues — 2nd Chance Housing Staff</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+<style id="stmtCss"></style>
+<style>
+  tr.clickable { cursor: pointer; }
+  tr.sel td { background: var(--accent-soft); }
+  td.n, th.n { text-align: right; white-space: nowrap; }
+  .owes { color: var(--bad); font-weight: 700; }
+  .meta { color: var(--muted); font-size: 0.9rem; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-top: 14px; }
+  .card h3 { margin: 0 0 4px; }
+  details { margin-top: 10px; border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; }
+  summary { cursor: pointer; font-weight: 600; }
+  .formrow { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; margin-top: 8px; }
+  .formrow label { display: grid; gap: 3px; font-size: 0.85rem; color: var(--muted); }
+  .formrow input, .formrow select { font: inherit; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; color: var(--fg); background: var(--panel); }
+  .formrow input.wide { min-width: 260px; }
+  .ledger { max-height: 520px; overflow: auto; }
+  .ledger td { font-size: 0.92rem; }
+  .origin { font-size: 0.75rem; color: var(--muted); }
+  .rev { text-decoration: line-through; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="appbar" data-nav="staff">
+  <div class="appbar-in">
+    <div class="org">2nd Chance Housing<span>Association Dues · Staff</span></div>
+    <div class="row" id="userBar" hidden>
+      
+      
+      
+      
+      <button class="linkbtn" type="button" id="signOutBtn">Sign out</button>
+    </div>
+  </div>
+</div>
+<main class="wrap">
+  <header><h1>Association dues</h1><p class="lead" id="policy">Royal Orleans Condominium – Addition One</p></header>
+  <div id="signin" class="narrow"></div>
+  <div id="app" hidden style="display:grid;gap:18px">
+    <div class="strip" id="strip"></div>
+    <section>
+      <h2>Units</h2>
+      <p class="sub">Balance = everything the current owner owes on the unit (all their accounts). Click a unit for its ledger, to record a payment, and for collections.</p>
+      <div class="table-wrap" style="margin-top:8px"><table>
+        <thead><tr><th>Unit</th><th>Owner</th><th class="n">Dues</th><th class="n">Balance</th><th class="n">Months behind</th><th>Last payment</th><th class="n">Late fees (12 mo)</th><th>Collections</th><th class="n">Former owners owe</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table></div>
+    </section>
+    <section id="detail" hidden></section>
+    <section>
+      <h2>Owner documents</h2>
+      <p class="sub">Files owners can open under Documents in their portal. Leave Unit blank to share with every owner (bylaws, rules, minutes).</p>
+      <div class="card"><div class="formrow">
+        <label>Unit (optional)<input id="dUnit" style="width:90px" placeholder="e.g. 7"></label>
+        <label>Title<input id="dTitle" class="wide" maxlength="120"></label>
+        <label>Category<input id="dCat" list="dCats" value="General" maxlength="40"><datalist id="dCats"><option>General</option><option>Bylaws &amp; rules</option><option>Meeting minutes</option><option>Insurance</option><option>Notices</option></datalist></label>
+        <label>File<input id="dFile" type="file"></label>
+        <button class="btn primary" type="button" id="dAdd">Upload</button><span class="msg" id="dMsg" role="status"></span></div>
+        <div id="dList" style="margin-top:10px"></div></div>
+    </section>
+  </div>
+</main>
+<script type="module">
+import { client, $, esc, fmtDate, money, signIn, signOut, errorText } from "/assets/portal/portal.js";
+import { balAmt } from "/assets/portal/balance.js";
+import { printStatement, STATEMENT_CSS } from "/assets/portal/statement.js";
+$("stmtCss").textContent = STATEMENT_CSS;
+
+const STEPS = { note: "Note", reminder: "Reminder sent", demand_letter: "Demand letter", payment_plan: "Payment plan", attorney: "Sent to attorney",
+  lien: "Lien recorded", foreclosure: "Foreclosure filed", judgment: "Judgment", resolved: "Resolved", written_off: "Written off" };
+const METHODS = { check: "Check", money_order: "Money order", cashiers_check: "Cashier's check", cash: "Cash", eft: "EFT / bank transfer", zelle: "Zelle", card: "Card", other: "Other" };
+const today = () => new Date().toLocaleDateString("en-CA", { timeZone: "America/Chicago" });
+let overview = null, current = null, accounts = [], steps = [];
+
+function renderOverview() {
+  const s = overview.settings || {}, units = overview.units;
+  $("policy").textContent = `Dues are posted on the 1st. A ${money(s.dues_late_flat)} late fee is added on the ${s.dues_late_flat_day}th if anything is owed, then ${s.dues_late_pct_base === "assessments_simple" ? `interest of ${s.dues_interest_annual_pct || "4.5"}% a year (By-Laws §1500(3); Wis. Stat. § 703.165) on unpaid dues and special assessments only, not on late fees or earlier interest, starting ${s.dues_interest_effective || "10/8/2026"} (earlier charges stay as posted),` : `${s.dues_late_pct}% of the ${s.dues_late_pct_base === "charges" ? "balance (not counting earlier late fees)" : "whole balance"}`} on the ${s.dues_late_pct_day}th. Past-due emails: ${s.dues_past_due_email === "on" ? "on" : "off"}.`;
+  const owed = units.filter((u) => u.balance > 0);
+  const total = owed.reduce((t, u) => t + Number(u.balance), 0);
+  const former = units.reduce((t, u) => t + Math.max(0, Number(u.former_owner_balance)), 0);
+  const fees = units.reduce((t, u) => t + Number(u.late_fees_12mo), 0);
+  $("strip").innerHTML = [["Owed by current owners", money(total)], ["Units past due", `${owed.length} of ${units.length}`], ["Late fees charged, 12 months", money(fees)], ["Owed by former owners", money(former)]]
+    .map(([k, v]) => `<div class="stat"><div class="k">${esc(k)}</div><div class="v">${esc(v)}</div></div>`).join("");
+  $("rows").innerHTML = units.map((u) => {
+    const behind = u.balance > 0 ? (u.balance / u.dues) : 0;
+    return `<tr class="clickable ${current === u.unit_number ? "sel" : ""}" data-unit="${esc(u.unit_number)}" tabindex="0">
+      <td><b>${esc(u.unit_number)}</b></td><td>${esc(u.owner)}</td><td class="n">${money(u.dues)}</td>
+      <td class="n">${balAmt(u.balance)}</td><td class="n">${behind >= 1 ? behind.toFixed(1) : u.balance > 0 ? "&lt; 1" : ""}</td>
+      <td>${u.last_payment ? `${fmtDate(u.last_payment.date)} · ${money(u.last_payment.amount)}` : "—"}</td><td class="n">${Number(u.late_fees_12mo) ? money(u.late_fees_12mo) : ""}</td>
+      <td>${u.collection ? `${esc(STEPS[u.collection.step] || u.collection.step)} · ${fmtDate(u.collection.date)}` : ""}</td>
+      <td class="n">${Number(u.former_owner_balance) > 0 ? money(u.former_owner_balance) : ""}</td></tr>`;
+  }).join("");
+}
+
+function ledgerTable(a) {
+  const rows = a.entries.slice().reverse();
+  return `<div class="table-wrap ledger"><table><thead><tr><th>Date</th><th>Type</th><th>Description</th><th class="n">Amount</th><th class="n">Balance</th><th></th></tr></thead><tbody>
+    ${rows.map((e) => `<tr class="${e.reversed ? "rev" : ""}"><td>${fmtDate(e.date)}</td><td>${esc(e.type)}<div class="origin">${esc(e.gl)} · ${e.origin === "opening" ? "opening record" : e.origin === "billing" ? "auto billing" : "staff" + (e.entered_by ? " · " + esc(e.entered_by) : "")}</div></td>
+      <td>${esc(e.description || "")}${e.note ? `<div class="origin">${esc(e.note)}</div>` : ""}</td>
+      <td class="n">${money(e.amount)}</td><td class="n">${money(e.balance)}</td>
+      <td>${e.reversed || e.reverses ? "" : `<button class="linkbtn" type="button" data-reverse="${e.id}">Reverse</button>`}</td></tr>`).join("")}
+  </tbody></table></div>`;
+}
+
+function renderDetail() {
+  const u = overview.units.find((x) => x.unit_number === current);
+  const billing = accounts.find((a) => a.billing_account) || accounts[0];
+  const accOpts = accounts.filter((a) => !a.excluded).map((a) => `<option value="${a.account_id}" ${a === billing ? "selected" : ""}>${esc(a.owner)}${a.owner_label !== a.owner ? ` (billed as: ${esc(a.owner_label)})` : ""} — ${money(a.balance)}</option>`).join("");
+  $("detail").hidden = false;
+  $("detail").innerHTML = `<h2>Unit ${esc(u.unit_number)} · ${esc(u.owner)}</h2>
+    <p class="meta">${esc(u.address || "")} · Account # ${esc(u.pin || "")} · ${u.owner_email ? esc(u.owner_email) : "no email on file"}</p>
+    <div class="card"><h3>Record an entry</h3>
+      <div class="formrow">
+        <label>Account<select id="eAcct">${accOpts}</select></label>
+        <label>Type<select id="eKind"><option value="payment">Payment received</option><option value="charge">Charge</option><option value="credit">Credit</option>
+          <option value="waive_late_fee">Waive a late fee</option><option value="refund">Refund paid out</option></select></label>
+        <label>Date<input type="date" id="eDate" value="${today()}"></label>
+        <label>Amount<input type="number" id="eAmt" step="0.01" min="0.01" style="width:120px"></label>
+        <label data-pay>Paid by<select id="eMethod">${Object.entries(METHODS).map(([k, v]) => `<option value="${k}">${v}</option>`).join("")}</select></label>
+        <label data-pay>Check / ref #<input type="text" id="eCheck" style="width:110px"></label>
+        <label data-gl>Income account<select id="eGl"><option>Association Fee Income</option><option>Late Fee Income</option><option>Repairs Income</option><option>Legal</option><option>Leasing fine</option><option>Parking Income</option><option>Cleaning and Maint Income</option><option>Other Income</option></select></label>
+        <label data-desc>Description<input type="text" id="eDesc" class="wide" maxlength="200"></label>
+        <label>Note (why — required for credits and waivers)<input type="text" id="eNote" class="wide" maxlength="400"></label>
+        <button class="btn primary" type="button" id="ePost">Record</button></div>
+      <span class="msg" id="eMsg"></span></div>
+    <div class="card"><h3>Statement</h3>
+      <div class="formrow"><label>From<input type="date" id="sFrom" value="${new Date().getFullYear()}-01-01"></label><label>To<input type="date" id="sTo" value="${today()}"></label>
+        <button class="btn" type="button" id="sPrint">Print statement</button><button class="linkbtn" type="button" id="sAll">All history</button></div></div>
+    <div class="card"><h3>Collections</h3>
+      ${steps.length ? `<div class="table-wrap"><table><thead><tr><th>Date</th><th>Step</th><th class="n">Amount</th><th>Note</th><th>By</th></tr></thead><tbody>
+        ${steps.map((c) => `<tr><td>${fmtDate(c.date)}</td><td>${esc(STEPS[c.step] || c.step)}</td><td class="n">${c.amount != null ? money(c.amount) : ""}</td><td>${esc(c.note || "")}</td><td class="meta">${esc(c.entered_by || "")}</td></tr>`).join("")}
+      </tbody></table></div>` : `<p class="meta">No collection steps recorded.</p>`}
+      <div class="formrow"><label>Step<select id="cStep">${Object.entries(STEPS).map(([k, v]) => `<option value="${k}">${v}</option>`).join("")}</select></label>
+        <label>Date<input type="date" id="cDate" value="${today()}"></label><label>Amount (optional)<input type="number" id="cAmt" step="0.01" style="width:120px"></label>
+        <label>Note<input type="text" id="cNote" class="wide" maxlength="1000"></label><button class="btn" type="button" id="cAdd">Add</button></div>
+      <span class="msg" id="cMsg"></span></div>
+    ${accounts.map((a) => `<div class="card"><h3>${esc(a.owner)}${a.billing_account ? ` <span class="pill info">billed here</span>` : ""}${!a.is_current_owner ? ` <span class="pill off">former owner</span>` : ""}${a.excluded ? ` <span class="pill off">excluded</span>` : ""}</h3>
+      <p class="meta">Billed as: ${esc(a.owner_label)} · balance now <b>${money(a.balance)}</b>
+        ${a.correction_note ? `<br>Correction: ${esc(a.correction_note)}` : ""}${a.excluded_reason ? `<br>Excluded: ${esc(a.excluded_reason)}` : ""}</p>
+      ${ledgerTable(a)}</div>`).join("")}`;
+  const toggle = () => { const k = $("eKind").value; document.querySelectorAll("[data-pay]").forEach((x) => x.hidden = k !== "payment"); document.querySelectorAll("[data-gl]").forEach((x) => x.hidden = k === "waive_late_fee"); };
+  $("eKind").addEventListener("change", toggle); toggle();
+}
+
+async function loadOverview() {
+  const { data, error } = await client.rpc("condo_staff_dues_overview");
+  if (error) { $("signin").innerHTML = `<div class="banner bad">${esc(await errorText(error))}</div>`; return; }
+  overview = data; renderOverview(); $("app").hidden = false;
+}
+async function openUnit(n) {
+  current = n; renderOverview();
+  const [l, c] = await Promise.all([client.rpc("condo_staff_unit_ledger", { p_unit_number: n }), client.rpc("condo_staff_collections", { p_unit_number: n })]);
+  if (l.error || c.error) { $("detail").hidden = false; $("detail").innerHTML = `<div class="banner bad">${esc(await errorText(l.error || c.error))}</div>`; return; }
+  accounts = l.data; steps = c.data; renderDetail();
+}
+async function refresh() { await loadOverview(); await openUnit(current); }
+
+$("rows").addEventListener("click", (e) => { const tr = e.target.closest("tr[data-unit]"); if (tr) openUnit(tr.dataset.unit).then(() => $("detail").scrollIntoView({ behavior: "smooth" })); });
+$("rows").addEventListener("keydown", (e) => { if (e.key === "Enter") e.target.closest("tr[data-unit]")?.click(); });
+$("detail").addEventListener("click", async (e) => {
+  const say = (id, t, bad) => { $(id).className = bad ? "msg err" : "msg ok"; $(id).textContent = t; };
+  try {
+    if (e.target.id === "ePost") {
+      const kind = $("eKind").value, amt = Number($("eAmt").value);
+      if (!(amt > 0)) return say("eMsg", "Enter the amount.", true);
+      if (!confirm(`Record ${$("eKind").selectedOptions[0].text.toLowerCase()} of ${money(amt)} on Unit ${current}?`)) return;
+      const { error } = await client.rpc("condo_staff_post_entry", { p_account: $("eAcct").value, p_kind: kind, p_date: $("eDate").value, p_amount: amt,
+        p_gl: kind === "waive_late_fee" ? null : $("eGl").value, p_method: kind === "payment" ? $("eMethod").value : null, p_check_number: $("eCheck").value,
+        p_description: $("eDesc").value, p_note: $("eNote").value });
+      if (error) return say("eMsg", await errorText(error), true);
+      await refresh(); say("eMsg", "Recorded.");
+    } else if (e.target.dataset.reverse) {
+      const note = prompt("Why is this entry being reversed? (e.g. check bounced, posted to the wrong unit)");
+      if (!note) return;
+      const { error } = await client.rpc("condo_staff_reverse_entry", { p_entry: Number(e.target.dataset.reverse), p_note: note });
+      if (error) return alert(await errorText(error));
+      await refresh();
+    } else if (e.target.id === "cAdd") {
+      const amt = $("cAmt").value;
+      const { error } = await client.rpc("condo_staff_add_collection_step", { p_unit_number: current, p_step: $("cStep").value, p_date: $("cDate").value, p_amount: amt === "" ? null : Number(amt), p_note: $("cNote").value });
+      if (error) return say("cMsg", await errorText(error), true);
+      await refresh();
+    } else if (e.target.id === "sPrint" || e.target.id === "sAll") {
+      const u = overview.units.find((x) => x.unit_number === current);
+      const all = e.target.id === "sAll";
+      printStatement({ unit_number: u.unit_number, address: u.address, pin: u.pin, owner: u.owner, pay_instructions: overview.settings.dues_pay_instructions,
+        accounts: accounts.filter((a) => a.is_current_owner && !a.excluded) }, all ? null : $("sFrom").value, all ? null : $("sTo").value);
+    }
+  } catch (err) { alert(err.message); }
+});
+// ---- Owner documents ----
+async function loadDocs() {
+  const { data, error } = await client.rpc("condo_staff_documents");
+  if (error) { $("dList").textContent = await errorText(error); return; }
+  $("dList").innerHTML = (data || []).map((d) => `<div style="display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-top:1px solid var(--line)">
+    <span><b>${esc(d.title)}</b> <span class="meta">${esc(d.category)} · ${d.unit_number ? "Unit " + esc(d.unit_number) : "all owners"} · ${fmtDate(d.uploaded_at)}</span></span>
+    <button class="btn small" type="button" data-deldoc="${d.id}" data-path="${esc(d.storage_path)}">Delete</button></div>`).join("") || `<p class="meta">None yet.</p>`;
+}
+document.addEventListener("click", async (e) => {
+  const say = (t, bad) => { $("dMsg").className = "msg" + (bad ? " err" : t.endsWith(".") ? " ok" : ""); $("dMsg").textContent = t; };
+  if (e.target.id === "dAdd") {
+    const f = $("dFile").files[0], title = $("dTitle").value.trim();
+    if (!f || !title) return say("Choose a file and give it a title.", true);
+    e.target.disabled = true; say("Uploading…");
+    const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${f.name.replace(/[^\w.-]+/g, "_")}`;
+    const up = await client.storage.from("owner-docs").upload(path, f, { contentType: f.type || "application/octet-stream" });
+    if (up.error) { e.target.disabled = false; return say(up.error.message, true); }
+    const { error } = await client.rpc("condo_staff_add_document", { p_unit_number: $("dUnit").value, p_title: title, p_category: $("dCat").value, p_path: path });
+    e.target.disabled = false;
+    if (error) { await client.storage.from("owner-docs").remove([path]); return say(await errorText(error), true); }
+    $("dTitle").value = ""; $("dFile").value = ""; say("Uploaded."); loadDocs();
+  }
+  const d = e.target.closest("[data-deldoc]");
+  if (d && confirm("Delete this document for all owners?")) {
+    const { error } = await client.rpc("condo_staff_delete_document", { p_id: Number(d.dataset.deldoc) });
+    if (error) return say(await errorText(error), true);
+    await client.storage.from("owner-docs").remove([d.dataset.path]); loadDocs();
+  }
+});
+$("signOutBtn").addEventListener("click", signOut);
+const who = await signIn($("signin"), { audience: "staff" });
+$("userBar").hidden = false;
+if (who.role !== "staff") location.replace("/association-owners/roca1/"); else { loadOverview(); loadDocs(); }
+</script>
+</body>
+</html>

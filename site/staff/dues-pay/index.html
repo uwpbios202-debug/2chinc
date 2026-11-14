@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Pay Dues — 2nd Chance Housing Staff</title>
+<link rel="icon" href="/favicon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+<style>
+.dues{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.du{border:1px solid var(--line);border-radius:8px;background:var(--panel);padding:14px 16px;display:grid;gap:8px;align-content:start}
+.du h2{margin:0;font-size:1.15rem}
+.du .meta{color:var(--muted);font-size:.9rem}
+.du .row2{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.du input{width:9em;font:inherit;padding:7px 9px;border:1px solid var(--line);border-radius:3px}
+.du ul{margin:0;padding-left:1.1em;font-size:.88rem;color:var(--muted)}
+.ok-banner{background:var(--ok-soft);border:1px solid var(--line);border-left:3px solid var(--ok);border-radius:4px;padding:10px 14px;margin-bottom:14px}
+</style>
+</head>
+<body>
+<div class="appbar" data-nav="staff"><div class="appbar-in">
+  <a class="org" href="/staff/" style="color:inherit;text-decoration:none">2nd Chance Housing<span>Pay dues · Staff</span></a>
+  <div class="row" id="userBar" hidden><button class="linkbtn" type="button" id="signOutBtn">Sign out</button></div>
+</div></div>
+<main class="wrap">
+  <header><h1>Pay association dues: 2nd Chance-owned units</h1>
+    <p class="lead">ROCA1 dues for the units 2nd Chance Housing Inc owns, paid from 2nd Chance's bank account through ROCA1's secure Stripe page (bank account only).
+    Pay any amount at any time, up to one year of dues per payment; to pay ahead further, make another payment. Anything beyond what is owed stays as a credit on the unit.
+    This page is for the company's own units only. Tenants always pay their own rent, on their own device.</p></header>
+  <div id="signin" class="narrow"></div>
+  <div id="app" hidden></div>
+</main>
+<script type="module">
+import { client, $, esc, fmtDate, money, signIn, signOut, errorText } from "/assets/portal/portal.js";
+const who = await signIn($("signin"), { audience: "field" });
+$("userBar").hidden = false; $("signOutBtn").onclick = signOut;
+if (!["staff", "field"].includes(who.role)) {
+  $("signin").hidden = false; $("signin").innerHTML = `<div class="panel"><p>This page is for staff. <a href="/">Back to the home page</a></p></div>`;
+} else await load();
+
+async function load() {
+  const { data, error } = await client.rpc("staff_dues_units");
+  $("signin").hidden = true; $("app").hidden = false;
+  if (error) { $("app").innerHTML = `<div class="panel"><p class="msg err">${esc(await errorText(error))}</p></div>`; return; }
+  const paid = /[?&]paid=1/.test(location.search);
+  const units = data.units || [];
+  if (!units.length) { $("app").innerHTML = `<div class="panel"><p>None of your assigned units is owned by 2nd Chance Housing Inc, so there are no dues for you to pay here.</p></div>`; return; }
+  $("app").innerHTML = (paid ? `<div class="ok-banner"><b>Payment started.</b> A bank payment takes a few business days to clear; it posts to the unit's dues ledger when it does.</div>` : "") +
+    (data.enabled ? "" : `<p class="banner warn">Online dues payment is switched off right now.</p>`) +
+    `<div class="dues">${units.map((u) => {
+      const bal = Number(u.balance) || 0, max = Number(u.max) || 0;
+      const suggest = Math.min(bal > 0 ? bal : Number(u.dues), max);
+      const recent = (u.recent || []).map((p) => `<li>${esc(fmtDate(p.at))}: ${money(p.amount)}, ${esc(p.status)}${p.by ? " (" + esc(p.by) + ")" : ""}</li>`).join("");
+      return `<section class="du"><h2>Unit ${esc(u.unit)}</h2><div class="meta">${esc(u.address || "")}</div>
+        <div>Monthly dues ${money(u.dues)} · <b>${bal > 0.004 ? money(bal) + " owed" : bal < -0.004 ? money(-bal) + " credit" : "Paid up"}</b></div>
+        <div class="row2"><label>Amount $<input type="number" min="1" max="${max}" step="0.01" value="${suggest.toFixed(2)}" data-amt="${esc(u.unit)}"></label>
+          <button class="btn primary" type="button" data-pay="${esc(u.unit)}"${data.enabled ? "" : " disabled"}>Pay</button></div>
+        <div class="meta">Up to ${money(max)} (one year) per payment.</div>
+        <span class="msg" data-msg="${esc(u.unit)}" role="status"></span>
+        ${recent ? `<div class="meta">Recent online payments:</div><ul>${recent}</ul>` : ""}</section>`;
+    }).join("")}</div>`;
+  $("app").onclick = async (e) => {
+    const unit = e.target.dataset && e.target.dataset.pay;
+    if (!unit) return;
+    const u = units.find((x) => x.unit === unit), m = document.querySelector(`[data-msg="${unit}"]`);
+    const amt = Math.round(Number(document.querySelector(`[data-amt="${unit}"]`).value) * 100) / 100;
+    if (!(amt >= 1 && amt <= Number(u.max))) { m.className = "msg err"; m.textContent = `Enter an amount between $1 and ${money(u.max)}. To pay more than a year, make a second payment.`; return; }
+    e.target.disabled = true; m.className = "msg"; m.textContent = "Opening secure payment page…";
+    const { data: r, error: err } = await client.functions.invoke("stripe-pay", { body: { action: "staff_dues_checkout", unit_number: unit, amount: amt } });
+    if (err || !r?.url) { e.target.disabled = false; m.className = "msg err"; m.textContent = err ? await errorText(err) : "We couldn't start the payment."; return; }
+    location.href = r.url;
+  };
+}
+</script>
+</body>
+</html>

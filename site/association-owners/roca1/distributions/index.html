@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Rent Deductions — ROCA1 Staff</title>
+<link rel="icon" href="/favicon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+<style>
+.card2{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:14px}
+.card2 h2{margin:0 0 6px;font-size:1.15rem}
+.meta{color:var(--muted);font-size:.9rem}
+td.n,th.n{text-align:right;white-space:nowrap}
+.pill3{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;border-radius:20px;padding:.12rem .55rem;background:var(--accent-soft);color:var(--accent)}
+.pill3.warn{background:#fff3cd;color:#7a5200}.pill3.off{background:#e8e8e8;color:#444}
+.formrow{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-top:8px}
+.formrow label{display:grid;gap:3px;font-size:.85rem;color:var(--muted)}
+.formrow input,.formrow select{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:6px;color:var(--fg);background:var(--panel)}
+.notice{background:#fff3cd;border:1px solid #e0a800;color:#5c4200;border-radius:8px;padding:10px 12px;margin-bottom:14px}
+.ded{font-size:.85rem;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="appbar" data-nav="staff"><div class="appbar-in">
+  <div class="org">ROCA1<span>Rent deductions · Staff</span></div>
+  <div class="row" id="userBar" hidden>
+    
+    <button class="linkbtn" type="button" id="signOutBtn">Sign out</button>
+  </div>
+</div></div>
+<main class="wrap">
+  <header><h1>Rent deductions and owner statements</h1><p class="lead">For every condo unit 2nd Chance leases, each month: rent collected, minus what the unit owes ROCA1 (fines and fees first, then special assessments, this month's dues, then older balance — Rules &amp; Regulations 2024 §11), minus the manager's fee in that unit's management agreement, = net to the owner. Property taxes are not deducted.</p></header>
+  <div class="notice"><b>Two bank accounts.</b> Rent is in 2nd Chance Housing's account; dues belong to ROCA1. Approving a statement changes nothing on the owner's account. Only when you record the <b>transfer to ROCA1</b> (with its bank reference) are the payments posted to the owner's association ledger.</div>
+  <div id="signin" class="narrow"></div>
+  <div id="app" hidden>
+    <div class="card2"><div class="formrow"><label>Month<input id="m" type="month"></label><button class="btn" type="button" id="calc">Calculate this month</button><span class="msg" id="cMsg"></span></div>
+      <p class="meta" id="order"></p><p class="meta" id="without"></p></div>
+    <div class="card2" id="zelleCard"><h2>Pay owners (rent paid straight into ROCA1's account)</h2>
+      <p class="meta">When a tenant's rent for a unit like 16 clears, what the owner owes ROCA1 is applied to her association account automatically. The rest is the owner's: send it by Zelle, then click Sent and enter the date and reference. Unit 15's owner withdraws his portion from ROCA1's account himself: give him the printed statement (Print statement) and click Withdrawn when it shows on the bank account.</p>
+      <div class="table-wrap"><table><thead><tr><th>Unit</th><th>Owner</th><th>Pay to</th><th class="n">Rent paid</th><th class="n">Applied to ROCA1</th><th class="n">Send to owner</th><th>Cleared</th><th></th></tr></thead><tbody id="zrows"></tbody></table></div>
+      <p class="msg err" id="zMsg" role="alert"></p><div id="zRecent" class="meta"></div></div>
+    <div class="card2"><h2>Statements</h2><div class="table-wrap"><table><thead><tr><th>Unit</th><th>Owner</th><th class="n">Rent collected</th><th class="n">Owed ROCA1</th><th class="n">Paid to ROCA1</th><th class="n">Fees / other</th><th class="n">Net to owner</th><th>Status</th><th></th></tr></thead><tbody id="rows"></tbody></table></div></div>
+    <div class="card2"><details><summary><b>Management agreement terms by unit</b></summary>
+      <p class="meta">From each unit's signed Property Management Agreement. Units not listed use 0%. The 2020 ROCA1 PMA template: 0% management fee and a 3.0% collection fee only on card payments; the March 2020 Unit 1 agreement (prior owner): 3.1% and a $150 operating reserve. The Unit 16 agreement (7/24/2023) is encrypted and hasn't been read. For rent paid into ROCA1's account, the fee taken from each tenant payment is Mgmt % of every payment plus Stripe % of payments made through Stripe (none on check, money order or Zelle). Unit 15: 3.5% of every payment (Mgmt %), to cover Stripe and administrative fees (11/10/2026).</p>
+      <div class="table-wrap"><table><thead><tr><th>Unit</th><th class="n">Mgmt % (all payments)</th><th class="n">Stripe % (bank or card)</th><th class="n">Reserve</th><th>Source</th></tr></thead><tbody id="terms"></tbody></table></div>
+      <div class="formrow"><label>Unit<input id="tU" style="width:60px"></label><label>Mgmt %<input id="tM" type="number" step="0.001" style="width:80px"></label><label>Stripe %<input id="tC" type="number" step="0.001" style="width:80px"></label>
+        <label>Reserve $<input id="tR" type="number" step="0.01" style="width:90px"></label><label>Signed agreement (file)<input id="tS" style="min-width:240px"></label><button class="btn" type="button" id="tSave">Save terms</button><span class="msg" id="tMsg"></span></div></details></div>
+  </div>
+</main>
+<script type="module">
+import { client, $, esc, fmtDate, money, signIn, signOut, errorText } from "/assets/portal/portal.js";
+const CAT = { fines_fees: "fines & fees", assessments: "special assessments", dues_current: "this month's dues", older_balance: "past-due dues" };
+const ST = { calculated: ["calculated", "warn"], approved: ["approved — transfer due", "warn"], transferred: ["sent to ROCA1 — owner not paid", "warn"], paid: ["done", ""], reversed: ["reversed", "off"] };
+const flush = () => client.functions.invoke("outbox-flush", { body: {} }).catch(() => {});
+const month = () => ($("m").value || new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1).toISOString().slice(0, 7)) + "-01";
+function row(d) {
+  const [lbl, cls] = ST[d.status] || [d.status, ""];
+  const fees = Number(d.mgmt_fee) + Number(d.card_fee) + Number(d.other_total);
+  const acts = d.status === "calculated" ? `<button class="btn small primary" data-a="approve" data-id="${d.id}">Approve</button><button class="btn small" data-a="other" data-id="${d.id}">Other deduction</button><button class="btn small" data-a="recalc" data-u="${esc(d.unit_number)}">Recalculate</button>`
+    : d.status === "approved" ? `<button class="btn small primary" data-a="transfer" data-id="${d.id}">Record transfer to ROCA1</button><button class="btn small" data-a="unapprove" data-id="${d.id}">Un-approve</button>`
+    : d.status === "transferred" ? `<button class="btn small primary" data-a="paid" data-id="${d.id}">Owner paid</button><button class="btn small" data-a="reverse" data-id="${d.id}">Reverse</button>`
+    : d.status === "paid" ? `<button class="btn small" data-a="reverse" data-id="${d.id}">Reverse</button>` : "";
+  return `<tr><td><b>${esc(d.unit_number)}</b></td><td>${esc(d.owner_name || "")}${d.owner_is_2ch ? ' <span class="meta">(net stays with 2nd Chance)</span>' : ""}</td>
+    <td class="n">${money(Number(d.rent_collected) + Number(d.agency_collected))}${Number(d.agency_collected) ? `<div class="ded">incl. agency ${money(d.agency_collected)}</div>` : ""}</td>
+    <td class="n">${money(d.balance_due)}</td>
+    <td class="n">${money(d.deduction_total)}${(d.deductions || []).map((x) => `<div class="ded">${esc(CAT[x.category] || x.category)} (${esc(x.gl_account)}) ${money(x.amount)}</div>`).join("")}${Number(d.shortfall) ? `<div class="ded" style="color:#8a1c1c">still owed ${money(d.shortfall)}</div>` : ""}</td>
+    <td class="n">${money(fees)}${(d.other_deductions || []).map((x) => `<div class="ded">${esc(x.label)} ${money(x.amount)}</div>`).join("")}${Number(d.reserve_held) ? `<div class="ded">reserve ${money(d.reserve_held)}</div>` : ""}</td>
+    <td class="n"><b>${money(d.net_to_owner)}</b></td>
+    <td><span class="pill3 ${cls}">${esc(lbl)}</span>${d.transfer_date ? `<div class="ded">to ROCA1 ${fmtDate(d.transfer_date)} · ${esc(d.transfer_reference || "")}</div>` : ""}${d.paid_date && !d.owner_is_2ch ? `<div class="ded">owner paid ${fmtDate(d.paid_date)} · ${esc(d.paid_method || "")} ${esc(d.paid_reference || "")}</div>` : ""}</td>
+    <td style="white-space:nowrap">${acts}</td></tr>`;
+}
+let DUE = [];
+// Printed statement for an owner who withdraws his portion at the bank (Unit 15, Stephen 11/11/2026).
+function printStatement(p) {
+  const w = window.open("", "_blank"); if (!w) { alert("Allow pop-ups for this site to print."); return; }
+  const fee = Number(p.mgmt_fee) || 0;
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Statement Unit ${esc(p.unit_number)}</title><style>@page{size:letter;margin:.75in}body{font:11pt/1.45 Georgia,serif;color:#111}table{border-collapse:collapse;width:100%}td{border:1px solid #999;padding:6px 8px}td.n{text-align:right;white-space:nowrap}.s{font-size:9.5pt;color:#333}</style></head><body>
+    <p class="s">Royal Orleans Condominium – Addition One (ROCA1) · 2nd Chance Housing Inc, management partner · 6626 N Bourbon St, Milwaukee, WI 53224</p>
+    <h2 style="margin:6px 0">Owner statement: Unit ${esc(p.unit_number)}</h2>
+    <p>${esc(p.owner_name || "")}<br>${esc(p.mail_to || "")}</p>
+    <table><tr><td>Tenant rent payment received (cleared ${fmtDate(p.paid_on)})</td><td class="n">${money(p.rent_amount)}</td></tr>
+    ${(p.deductions || []).map((x) => `<tr><td>Paid to ROCA1 for your association account: ${esc(CAT[x.category] || x.category)}</td><td class="n">− ${money(x.amount)}</td></tr>`).join("")}
+    ${fee ? `<tr><td>Payment processing and administrative fee</td><td class="n">− ${money(fee)}</td></tr>` : ""}
+    <tr><td><b>Your portion, to withdraw from ROCA1's account at the bank</b></td><td class="n"><b>${money(p.net_to_owner)}</b></td></tr></table>
+    <p>Please withdraw no more than this amount. If you owe ROCA1 more than the rent covers, deposit it with your ROCA1 deposit card and give us the receipt.</p>
+    <p class="s">Printed ${new Date().toLocaleDateString("en-US")}. Questions: 2nd Chance Housing, for ROCA1.</p></body></html>`);
+  w.document.close(); w.focus(); setTimeout(() => w.print(), 300);
+}
+async function loadZelle() {
+  const { data, error } = await client.rpc("roca_rent_payouts_staff_list");
+  if (error) { $("zrows").innerHTML = `<tr><td colspan="8" class="msg err">${esc(await errorText(error))}</td></tr>`; return; }
+  DUE = data.due;
+  $("zrows").innerHTML = data.due.map((p) => `<tr><td><b>${esc(p.unit_number)}</b></td><td>${esc(p.owner_name || "")}</td><td>${p.payout_method === "withdraw" ? `<b>Owner withdraws at the bank</b><div class="ded">Give the printed statement (by hand, or mail: ${esc(p.mail_to || "no mailing address on file")})</div>` : p.payout_method === "check" ? `<b>Mail a check</b><div class="ded">${esc(p.mail_to || "no mailing address on file")}</div>` : `Zelle: ${esc(p.owner_phone || "no phone")}<div class="ded">${esc(p.owner_email || "no email")}</div>`}</td>
+    <td class="n">${money(p.rent_amount)}</td><td class="n">${money(p.to_roca1)}${(p.deductions || []).map((x) => `<div class="ded">${esc(CAT[x.category] || x.category)} ${money(x.amount)}</div>`).join("")}</td>
+    <td class="n"><b>${money(p.net_to_owner)}</b></td><td>${fmtDate(p.paid_on)}</td><td style="white-space:nowrap">${p.payout_method === "withdraw" ? `<button class="btn small" data-st="${p.id}">Print statement</button> ` : ""}<button class="btn small primary" data-z="${p.id}" data-m="${esc(p.payout_method || "zelle")}">${p.payout_method === "withdraw" ? "Withdrawn" : p.payout_method === "check" ? "Mailed" : "Sent"}</button></td></tr>`).join("")
+    || `<tr><td colspan="8" class="meta">No owner payments waiting.</td></tr>`;
+  const rec = (data.recovery || []).map((p) => `<div class="msg err">Unit ${esc(p.unit_number)}: the payment was reversed after the ${p.payout_method === "withdraw" ? "owner withdrew his portion (he deposits it back, or it comes out of his next portion)" : p.payout_method === "check" ? "check was mailed (stop it if not cashed)" : "Zelle went out"}. Recover ${money(p.recovery_due)} from ${esc(p.owner_name || "the owner")}.</div>`).join("");
+  $("zRecent").innerHTML = rec + (data.recent.length ? "Recent: " + data.recent.map((p) => `Unit ${esc(p.unit_number)} ${money(p.net_to_owner)} ${p.status === "sent" ? (p.payout_method === "withdraw" ? "withdrawn " : p.payout_method === "check" ? "check mailed " : "sent ") + fmtDate(p.sent_date) : p.status === "reversed" ? "reversed" : "nothing to send"}`).join(" · ") : "");
+}
+$("zrows").addEventListener("click", async (e) => {
+  const st = e.target.closest("[data-st]"); if (st) { const p = DUE.find((x) => x.id === st.dataset.st); if (p) printStatement(p); return; }
+  const b = e.target.closest("[data-z]"); if (!b) return;
+  const chk = b.dataset.m === "check";
+  if (b.dataset.m === "withdraw") {
+    const d = prompt("Date the owner withdrew it (YYYY-MM-DD)", new Date().toISOString().slice(0, 10)); if (!d) return;
+    const ref = prompt("Note (optional), e.g. seen on bank statement", "") ?? "";
+    const { error } = await client.rpc("roca_rent_payout_sent", { p_id: b.dataset.z, p_date: d, p_reference: ref });
+    if (error) { $("zMsg").textContent = await errorText(error); return; }
+    $("zMsg").textContent = ""; loadZelle(); return;
+  }
+  const d = prompt(chk ? "Date you mailed the check (YYYY-MM-DD)" : "Date you sent the Zelle (YYYY-MM-DD)", new Date().toISOString().slice(0, 10)); if (!d) return;
+  const ref = prompt(chk ? "Check number" : "Zelle confirmation or reference", ""); if (!ref) return;
+  const { error } = await client.rpc("roca_rent_payout_sent", { p_id: b.dataset.z, p_date: d, p_reference: ref });
+  if (error) { $("zMsg").textContent = await errorText(error); return; }
+  $("zMsg").textContent = ""; flush(); loadZelle();
+});
+async function load() {
+  loadZelle();
+  const { data, error } = await client.rpc("roca_distributions_staff_list", { p_month: month() });
+  if (error) { $("rows").innerHTML = `<tr><td colspan="9" class="msg err">${esc(await errorText(error))}</td></tr>`; return; }
+  $("rows").innerHTML = data.statements.map(row).join("") || `<tr><td colspan="9" class="meta">No statements for this month yet. Calculate them.</td></tr>`;
+  $("without").textContent = data.units_without.length ? "Not calculated yet: units " + data.units_without.join(", ") + "." : "";
+  $("order").textContent = "Deduction order: " + String(data.order || "").split(",").map((c) => CAT[c] || c).join(" → ") + ".";
+  $("terms").innerHTML = data.terms.map((t) => `<tr><td>${esc(t.unit_number)}</td><td class="n">${t.mgmt_fee_pct}</td><td class="n">${t.card_fee_pct}</td><td class="n">${money(t.operating_reserve)}</td><td class="meta">${esc(t.source_document || "")}</td></tr>`).join("") || `<tr><td colspan="5" class="meta">None entered: every unit at 0%.</td></tr>`;
+}
+$("calc").onclick = async () => {
+  const { error } = await client.rpc("roca_distribution_calc_staff", { p_month: month(), p_unit: null });
+  $("cMsg").className = error ? "msg err" : "msg ok"; $("cMsg").textContent = error ? await errorText(error) : "Calculated.";
+  load();
+};
+$("rows").addEventListener("click", async (e) => {
+  const b = e.target.closest("[data-a]"); if (!b) return;
+  const a = b.dataset.a, id = b.dataset.id; let r;
+  if (a === "approve" || a === "unapprove") r = await client.rpc("roca_distribution_approve", { p_id: id, p_approve: a === "approve" });
+  else if (a === "recalc") r = await client.rpc("roca_distribution_calc_staff", { p_month: month(), p_unit: b.dataset.u });
+  else if (a === "other") { const l = prompt("Deduction (e.g. repair invoice #123, per the management agreement). To remove one, enter its exact label and amount 0.", ""); if (!l) return;
+    const amt = prompt("Amount", ""); if (amt === null) return; r = await client.rpc("roca_distribution_other", { p_id: id, p_label: l, p_amount: Number(amt) }); }
+  else if (a === "transfer") { const d = prompt("Date the money moved to ROCA1's account (YYYY-MM-DD)", new Date().toISOString().slice(0, 10)); if (!d) return;
+    const ref = prompt("Bank reference or check number", ""); if (!ref) return; r = await client.rpc("roca_distribution_transfer", { p_id: id, p_date: d, p_reference: ref }); }
+  else if (a === "paid") { const d = prompt("Date the owner was paid (YYYY-MM-DD)", new Date().toISOString().slice(0, 10)); if (!d) return;
+    const m = prompt("How (check, Zelle, ACH…)", ""); if (m === null) return; const ref = prompt("Reference", ""); if (ref === null) return;
+    r = await client.rpc("roca_distribution_paid", { p_id: id, p_date: d, p_method: m, p_reference: ref }); }
+  else if (a === "reverse") { const n = prompt("Reverse this statement? Reversal lines are added to the owner's ledger (nothing is deleted). Why?", ""); if (!n) return;
+    r = await client.rpc("roca_distribution_reverse", { p_id: id, p_reason: n }); }
+  if (r && r.error) return alert(await errorText(r.error));
+  flush(); load();
+});
+$("tSave").onclick = async () => {
+  const { error } = await client.rpc("roca_pma_terms_save", { p_unit: $("tU").value.trim(), p_mgmt: Number($("tM").value || 0), p_card: Number($("tC").value || 0), p_reserve: Number($("tR").value || 0), p_source: $("tS").value, p_note: null });
+  $("tMsg").className = error ? "msg err" : "msg ok"; $("tMsg").textContent = error ? await errorText(error) : "Saved. Recalculate open statements.";
+  if (!error) load();
+};
+$("m").onchange = load;
+$("signOutBtn").onclick = signOut;
+const who = await signIn($("signin"), { audience: "staff" });
+$("userBar").hidden = false;
+if (who.role !== "staff") { $("signin").hidden = false; $("signin").innerHTML = `<div class="panel"><p>This page is for office staff. <a href="/staff/">Go to My units</a></p></div>`; }
+else { const d = new Date(); d.setDate(1); d.setMonth(d.getMonth() - 1); $("m").value = d.toISOString().slice(0, 7); $("signin").hidden = true; $("app").hidden = false; load(); }
+</script>
+</body>
+</html>

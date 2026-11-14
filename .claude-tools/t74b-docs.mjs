@@ -1,0 +1,6 @@
+import fs from "node:fs";
+const ed = (f, a, b) => { let s = fs.readFileSync(f, "utf8"); if (!s.includes(a)) { console.log("MISS", f); return; } fs.writeFileSync(f, s.replace(a, b)); console.log("ok", f); };
+ed("docs/human-mirror/MASTER_ROADMAP.md", "When the 30-day deletion (D-18) is built to actually remove a person, it must also remove their files in mirror-docs through the Storage API (the database cannot delete storage files).",
+  "Follow-up (migration 20261119415000, check t74b 4/4): when a person is removed (e.g. the 30-day deletion D-18, once built) or any document's details go away, its file is queued and the hourly job mirror-docs-sweep has mirror-files remove it through the Storage API; stray files without details over a day old too.");
+ed("docs/BUG-CHECK-ROTATION.md", "t74 still 6/6 (rolled back);", "t74 still 6/6 and t74b 4/4 (rolled back); job `mirror-docs-sweep` exists and its last runs succeeded (cron.job_run_details); `mirror.document_removals` has no row older than 2 hours (count only);");
+ed("docs/human-mirror/DATABASE_DESIGN.md", "No document numbers stored. |", "No document numbers stored. When a row goes away while its file exists (a person removed), the path is queued in document_removals and the hourly job mirror-docs-sweep removes the file through mirror-files (migration 20261119415000). |");

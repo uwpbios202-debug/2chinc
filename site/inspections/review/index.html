@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Inspection Reports — 2nd Chance Housing Staff</title>
+<link rel="icon" href="/favicon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+<style>
+td.n,th.n{text-align:right;white-space:nowrap}
+tr.clickable{cursor:pointer}tr.clickable:hover td{background:var(--accent-soft)}
+.bad{color:var(--bad);font-weight:700}
+.rep h2{margin:0}
+.rep .meta{color:var(--muted);font-size:.92rem}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}
+.stat2{border:1px solid var(--line);border-radius:8px;padding:8px 14px;background:var(--panel)}
+.stat2 b{display:block;font-size:1.4rem}
+.area{margin-top:14px}
+.area h3{margin:0 0 6px;font-size:1.05rem;border-bottom:2px solid var(--line);padding-bottom:4px}
+.it{display:grid;grid-template-columns:150px 110px 1fr;gap:8px 12px;padding:6px 0;border-bottom:1px solid var(--line);align-items:start}
+.st{font-weight:700;font-size:.85rem}.st.ok{color:var(--accent)}.st.rep{color:var(--bad)}.st.na{color:var(--muted)}
+.thumbs{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.thumbs img{width:110px;height:80px;object-fit:cover;border-radius:6px;border:1px solid var(--line)}
+.formrow{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-top:8px}
+.formrow label{display:grid;gap:3px;font-size:.85rem;color:var(--muted)}
+.formrow input,.formrow select{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:6px;color:var(--fg);background:var(--panel);min-width:240px}
+@media (max-width:640px){.it{grid-template-columns:1fr}}
+@media print{.appbar,#signin,#list,.noprint,.formrow{display:none!important}body{background:#fff}.wrap{max-width:none}.thumbs img{width:90px;height:65px}}
+</style>
+</head>
+<body>
+<div class="appbar" data-nav="staff"><div class="appbar-in">
+  <div class="org">2nd Chance Housing<span>Inspection reports · Staff</span></div>
+  <div class="row" id="userBar" hidden>
+    
+    <button class="linkbtn" type="button" id="signOutBtn">Sign out</button>
+  </div>
+</div></div>
+<main class="wrap">
+  <header><h1>Inspections</h1><p class="lead">Every unit inspection. Open one for the full report. A "Needs repair" item creates a maintenance request when the inspection is submitted.</p></header>
+  <div id="signin" class="narrow"></div>
+  <div id="app" hidden style="display:grid;gap:18px">
+    <section id="duebox" class="panel" hidden><h2>Inspections due</h2><p class="meta noprint">Set each unit's frequency, book appointments and send the 12-hour notice on the <a href="/inspections/schedule/">Inspection schedule</a>.</p><p class="meta" id="dueNote"></p><div class="table-wrap"><table><thead><tr><th>Unit</th><th>Address</th><th>Last inspected</th><th>Due</th><th>Status</th><th></th></tr></thead><tbody id="dueRows"></tbody></table></div></section>
+    <section id="list">
+      <div class="formrow"><label>Unit contains<input id="fUnit" placeholder="e.g. 8" style="min-width:120px"></label>
+        <label>Show<select id="fStatus" style="min-width:160px"><option value="">All</option><option value="submitted">Submitted</option><option value="draft">Drafts</option><option value="repair">Needs repair</option></select></label></div>
+      <div class="table-wrap" style="margin-top:8px"><table>
+        <thead><tr><th>Date</th><th>Property</th><th>Unit</th><th>Purpose</th><th>Inspector</th><th>Status</th><th class="n">Checked</th><th class="n">Needs repair</th><th class="n">Requests</th></tr></thead>
+        <tbody id="rows"></tbody></table></div>
+    </section>
+    <section id="report" hidden></section>
+  </div>
+</main>
+<script type="module">
+import { client, $, esc, fmtDate, signIn, signOut, errorText } from "/assets/portal/portal.js";
+import { unitTemplate } from "/assets/portal/inspection-unit.js";
+let list = [], props = {}, tpl = null;
+const pname = (id) => id === "nav" ? "Housing network unit" : (props[id] && props[id].name) || id;
+const keyOf = (a, it) => `${a.id}|${it.name}`;
+const PURPOSES = { routine: "Routine", annual: "Annual", pre_move_in: "Pre-move-in", pre_move_out: "Pre-move-out", follow_up: "Follow-up", complaint: "Complaint", other: "Other" };
+
+function renderList() {
+  const u = $("fUnit").value.trim().toLowerCase(), s = $("fStatus").value;
+  const rows = list.filter((i) => (!u || String(i.unit).toLowerCase().includes(u)) && (!s || (s === "repair" ? i.needs_repair > 0 : i.status === s)));
+  $("rows").innerHTML = rows.map((i) => `<tr class="clickable" data-id="${esc(i.id)}" tabindex="0"><td>${fmtDate(i.inspected_on)}</td><td>${esc(pname(i.property_id))}</td><td><b>${i.unit === "_" ? "Whole property" : esc(i.unit)}</b></td><td>${esc(PURPOSES[i.purpose] || "Routine")}</td>
+    <td>${esc(i.inspector)}</td><td>${esc(i.status)}</td><td class="n">${i.checked}</td><td class="n ${i.needs_repair ? "bad" : ""}">${i.needs_repair || ""}</td><td class="n">${i.requests || ""}</td></tr>`).join("")
+    || `<tr><td colspan="9" class="meta">No inspections yet.</td></tr>`;
+}
+
+function renderDue(d) {
+  const rows = (d.units || []).filter((u) => u.state !== "ok");
+  $("duebox").hidden = false;
+  $("dueNote").textContent = `Default: every ${d.interval_days} days; a unit with its own schedule uses that. ${rows.length ? rows.length + " unit(s) need an inspection soon or are overdue." : "Every unit is up to date."}`;
+  const L = { never: "Never inspected", overdue: "Overdue", soon: "Due soon" };
+  $("dueRows").innerHTML = rows.map((u) => `<tr><td><b>${esc(u.unit)}</b>${u.occupied ? "" : ` <span class="meta">vacant</span>`}</td><td>${esc(u.address || "")}</td><td>${u.last ? fmtDate(u.last) : "never"}</td><td>${u.due_on ? fmtDate(u.due_on) : ""}</td>
+    <td class="${u.state === "soon" ? "" : "bad"}">${L[u.state]}</td><td><a href="/inspections/unit/?p=${encodeURIComponent(u.property_id)}&u=${encodeURIComponent(u.unit)}">Start</a></td></tr>`).join("") || `<tr><td colspan="6" class="meta">Nothing due.</td></tr>`;
+}
+async function openReport(id) {
+  const { data: r, error } = await client.rpc("inspections_staff_get", { p_id: id });
+  if (error || !r) { alert(error ? await errorText(error) : "Not found"); return; }
+  const items = (r.data && r.data.items) || {}, reqs = r.requests || {};
+  let ok = 0, bad = 0, na = 0, total = 0;
+  const tplU = await unitTemplate(tpl, r.property_id, r.unit);
+  const body = tplU.areas.filter((a) => !a.only || a.only.includes(r.purpose)).map((a) => {
+    const rows = a.items.map((it) => {
+      const k = keyOf(a, it); total++; const x = items[k] || {};   // x.s is OK / Needs repair / N/A; x.l is the label picked
+      if (x.s === "OK") ok++; else if (x.s === "Needs repair") bad++; else if (x.s === "N/A") na++;
+      const cls = x.s === "OK" ? "ok" : x.s === "Needs repair" ? "rep" : "na";
+      const rq = reqs[k];
+      return `<div class="it" data-k="${esc(k)}"><div>${esc(it.name)}${it.expect ? `<div class="meta">Count: ${x.c == null ? "not entered" : x.c} (should be ${it.expect})</div>` : ""}${it.fact ? `<div class="meta">${esc(it.fact)}</div>` : ""}${it.stamp ? `<div class="meta">Stamped: ${esc(x.stamp || "not entered")}${it.expectStamp ? " (should be " + esc(it.expectStamp) + ")" : ""}</div>` : ""}${it.locations ? `<div class="meta">Where: ${(x.loc || []).length ? esc(x.loc.join(", ")) : "not entered"}</div>` : ""}</div><div class="st ${cls}">${esc(x.l || x.s || "Not checked")}</div>
+        <div>${esc(x.n || "")}${rq ? `<div class="meta">Maintenance request <a href="/maintenance/" target="_blank">#${esc(rq.number)}</a> (${esc(rq.status)})</div>` : ""}<div class="thumbs" data-thumbs></div></div></div>`;
+    }).join("");
+    return `<div class="area"><h3>${esc(a.name)}</h3>${rows}</div>`;
+  }).join("");
+  const label = `${pname(r.property_id)}${r.unit === "_" ? "" : ", unit " + r.unit}`;
+  $("report").hidden = false;
+  $("report").innerHTML = `<div class="panel rep"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><div><h2>${esc(label)}</h2>
+    <div class="meta">${esc(r.purpose_label || "Routine inspection")} · inspected ${fmtDate(r.inspected_on)} by ${esc(r.inspector)} · ${esc(r.status)}${r.submitted_at ? " " + fmtDate(r.submitted_at) : ""}</div></div>
+    <div class="noprint"><button class="btn" type="button" id="prn">Print / save as PDF</button> <button class="linkbtn" type="button" id="closeRep">Close</button></div></div>
+    <div class="stats"><div class="stat2"><b>${total}</b>items</div><div class="stat2"><b>${ok}</b>OK</div><div class="stat2"><b class="${bad ? "bad" : ""}">${bad}</b>need repair</div><div class="stat2"><b>${na}</b>N/A</div><div class="stat2"><b>${total - ok - bad - na}</b>not checked</div></div>
+    <div class="formrow noprint"><label>Email a summary to<input id="eTo" type="email" placeholder="name@example.com"></label><button class="btn" type="button" id="eSend">Email summary</button><span class="msg" id="eMsg"></span></div>
+    ${body}</div>`;
+  $("report").scrollIntoView({ behavior: "smooth" });
+  $("prn").onclick = () => window.print();
+  $("closeRep").onclick = () => { $("report").hidden = true; };
+  $("eSend").onclick = async () => {
+    const m = $("eMsg"); m.className = "msg"; m.textContent = "Sending…";
+    const { error: e1 } = await client.rpc("inspections_staff_email", { p_id: id, p_to: $("eTo").value, p_label: label });
+    if (e1) { m.className = "msg err"; m.textContent = await errorText(e1); return; }
+    client.functions.invoke("outbox-flush", { body: {} }).catch(() => {});
+    m.className = "msg ok"; m.textContent = "Sent.";
+  };
+  for (const el of $("report").querySelectorAll(".it")) {
+    const paths = (items[el.dataset.k] || {}).photos || [];
+    if (!paths.length) continue;
+    const { data } = await client.storage.from("inspections").createSignedUrls(paths, 3600);
+    el.querySelector("[data-thumbs]").innerHTML = (data || []).map((x, n) => x.signedUrl ? `<a href="${esc(x.signedUrl)}" target="_blank" rel="noopener"><img src="${esc(x.signedUrl)}" alt="Photo ${n + 1}"></a>` : "").join("");
+  }
+}
+
+$("rows").addEventListener("click", (e) => { const tr = e.target.closest("tr[data-id]"); if (tr) openReport(tr.dataset.id); });
+$("rows").addEventListener("keydown", (e) => { if (e.key === "Enter") e.target.closest("tr[data-id]")?.click(); });
+$("fUnit").oninput = renderList; $("fStatus").onchange = renderList;
+$("signOutBtn").onclick = signOut;
+const who = await signIn($("signin"), { audience: "staff" });
+$("userBar").hidden = false;
+if (who.role !== "staff") { $("signin").hidden = false; $("signin").innerHTML = `<div class="panel"><p>This page is for office staff. <a href="/staff/">Go to My units</a></p></div>`; }
+else {
+  const [t, p, l] = await Promise.all([fetch("/data/inspection-template.json").then((r) => r.json()), fetch("/data/properties.json").then((r) => r.json()), client.rpc("inspections_staff_list")]);
+  tpl = t; (p.properties || []).forEach((x) => (props[x.id] = x));
+  if (l.error) { $("signin").hidden = false; $("signin").innerHTML = `<div class="panel">${esc(await errorText(l.error))}</div>`; }
+  else { list = l.data || []; $("signin").hidden = true; $("app").hidden = false; renderList(); client.rpc("inspections_due").then(({ data }) => data && renderDue(data)); const id = new URLSearchParams(location.search).get("id"); if (id) openReport(id); }
+}
+</script>
+</body>
+</html>

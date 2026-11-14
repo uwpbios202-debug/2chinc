@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>System costs — 2nd Chance Housing Staff</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+<style>
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-bottom: 14px; }
+  .meta { color: var(--muted); font-size: 0.9rem; }
+  .views { display: flex; gap: 8px; flex-wrap: wrap; margin: 4px 0 16px; }
+  .views button { font: inherit; font-weight: 600; padding: 9px 16px; border-radius: 999px; border: 1px solid var(--line); background: var(--panel); cursor: pointer; }
+  .views button[aria-pressed="true"] { background: #1f3a5f; border-color: #1f3a5f; color: #fff; }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin-bottom: 14px; }
+  .tile { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+  .tile .v { font-size: 1.6rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .tile .l { color: var(--muted); font-size: 0.85rem; }
+  .tile.warn .v { color: #b42318; } .tile.good .v { color: #1a7f37; }
+  .scroll { overflow-x: auto; }
+  table.t { width: 100%; border-collapse: collapse; font-size: 0.93rem; }
+  table.t th { text-align: left; font-size: 0.75rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); padding: 6px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  table.t td { padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  table.t td.n, table.t th.n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  table.t tr.total td { font-weight: 700; border-top: 2px solid var(--line); }
+  table.t td.hi { background: #fdecea; } table.t td.lo { background: #e6f4ea; }
+  .tag { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 0.78rem; font-weight: 700; background: var(--off-soft); color: var(--off); white-space: nowrap; }
+  .tag.paying { background: #e7f0fb; color: #0b5cad; } .tag.free, .tag.no_paid_version { background: #e6f4ea; color: #1a7f37; } .tag.per_payment { background: #fff4e5; color: #8a4b00; }
+  .formrow { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; margin-top: 8px; }
+  .formrow label { display: grid; gap: 3px; font-size: 0.85rem; color: var(--muted); }
+  .formrow input, .formrow select { font: inherit; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); }
+  [data-view][hidden] { display: none; }
+</style>
+</head>
+<body>
+<div class="appbar" data-nav="staff">
+  <div class="appbar-in">
+    <div class="org">2nd Chance Housing<span>System costs · Staff</span></div>
+    <div class="row" id="userBar" hidden>
+      <button class="linkbtn" type="button" id="signOutBtn">Sign out</button>
+    </div>
+  </div>
+</div>
+<main class="wrap">
+  <header><h1>System costs</h1><p class="lead">What it costs each month to run the portals, payments and email: what we actually pay <b>today</b>, what it would be if <b>every tenant paid by card</b>, and if <b>nothing were free</b>.</p></header>
+  <div id="signin" class="narrow"></div>
+  <div id="app" hidden>
+    <div class="views" role="group" aria-label="View">
+      <button type="button" data-show="summary" aria-pressed="true">Summary: today vs. all by card</button>
+      <button type="button" data-show="paid" aria-pressed="false">Nothing is free (every service paid)</button>
+      <button type="button" data-show="lc" aria-pressed="false">12th St land contract</button>
+      <button type="button" data-show="details" aria-pressed="false">Details &amp; editing</button>
+      <button type="button" data-show="subs" aria-pressed="false">All services subscribed</button>
+    </div>
+
+    <div id="needed"></div>
+    <section data-view="summary">
+      <div class="tiles" id="tiles"></div>
+      <h2>2nd Chance's cost a month</h2>
+      <div class="card scroll"><table class="t" id="compare"></table>
+        <p class="meta" id="compareNote" style="margin-bottom:0"></p></div>
+      <h2>Stripe fees by account, a month</h2>
+      <div class="card scroll"><table class="t" id="byAcct"></table>
+        <p class="meta" style="margin-bottom:0">2nd Chance pays the fees on its own account. Fees on the Yawdcour and ROCA1 accounts come out of their money.</p></div>
+    </section>
+
+    <section data-view="paid" hidden>
+      <div class="tiles" id="paidTiles"></div>
+      <h2>Every service the system uses, on a paid plan</h2>
+      <div class="card scroll"><table class="t" id="paidTable"></table>
+        <p class="meta" style="margin-bottom:0">This is the full list of outside services the system uses (checked 11/5/2026 against the code and the stored keys). Paid-plan prices are from each company's public pricing, 11/5/2026; change them with <b>Details &amp; editing</b>. None of the paid plans is needed today; Supabase Pro is recommended for daily backups.</p></div>
+    </section>
+
+    <section data-view="lc" hidden>
+      <div id="lcBox"></div>
+    </section>
+
+    <section data-view="details" hidden>
+      <h2>Services</h2>
+      <div class="card scroll"><table class="t" id="items"></table>
+        <details style="margin-top:10px"><summary><b>Add a service</b></summary><div id="addForm"></div></details></div>
+      <h2>Stripe fees, month by month</h2>
+      <div class="card">
+        <p class="meta" style="margin-top:0">Read from Stripe (it only reads). <button class="btn small" type="button" id="refresh">Refresh from Stripe</button> <span id="refreshed" class="meta"></span></p>
+        <div class="scroll"><table class="t" id="months"></table></div>
+      </div>
+      <h2>What if every tenant paid by card: unit by unit</h2>
+      <div class="card">
+        <p class="meta" style="margin-top:0">The monthly share each tenant pays themselves (agency shares come by check or bank transfer, not through Stripe), and the land contract payment. Stripe's US rates: card 2.9% + 30¢; bank account 0.8%, at most $5.</p>
+        <div class="scroll"><table class="t" id="whatif"></table></div>
+      </div>
+    </section>
+    <section data-view="subs" hidden>
+      <div class="tiles" id="subTiles"></div>
+      <h2>Services, every one on its paid plan</h2>
+      <div class="card scroll"><table class="t" id="subItems"></table>
+        <p class="meta" style="margin-bottom:0"><b>Subscribe ↗</b> opens that service's billing page (subscribing is done there, by you; nothing here buys anything). When it is done, press <b>Mark as subscribed</b>: the service moves to what we pay, at the paid-plan price, monthly.</p></div>
+      <h2>Month by month, if subscribed to everything</h2>
+      <div class="card scroll"><table class="t" id="subMonths"></table>
+        <p class="meta" style="margin-bottom:0">Services on their paid plans plus Stripe's real fees on 2nd Chance's account for that month.</p></div>
+      <h2>If subscribed to everything and every tenant paid by card</h2>
+      <div class="card scroll"><table class="t" id="subWhatif"></table></div>
+    </section>
+    <div class="meta" id="msg" role="status"></div>
+  </div>
+</main>
+<script type="module">
+import { client, $, esc, signIn, signOut, errorText } from "/assets/portal/portal.js";
+let D = null, EDIT = null, VIEW = "summary";
+const say = (t, bad) => { $("msg").textContent = t; $("msg").style.color = bad ? "var(--bad)" : ""; };
+const $$ = (n) => (n < 0 ? "−$" : "$") + Math.abs(Number(n || 0)).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const r2 = (x) => Math.round(x * 100) / 100;
+const ACCT = { main: "2nd Chance", yawdcour: "Yawdcour", roca1: "ROCA1" };
+const STATUS = { paying: "Paying", free: "Free", per_payment: "Per payment", no_paid_version: "Free (no paid version)", not_bought: "Not bought", stopped: "Not used" };
+const PLAN = (m) => m === 1 ? "monthly" : m === 12 ? "yearly" : m % 12 === 0 ? `${m / 12}-year plan` : `${m}-month plan`;
+const monthName = (d) => new Date(d + "T12:00:00").toLocaleDateString("en-US", { month: "long", year: "numeric" });
+const cardFee = (x) => x > 0 ? r2(x * 0.029 + 0.30) : 0;
+const bankFee = (x) => x > 0 ? Math.min(r2(x * 0.008), 5) : 0;
+const paypalFee = (x) => x > 0 ? r2(x * 0.0349 + 0.49) : 0;
+
+function calc() {
+  const items = D.items;
+  const fixed = r2(items.filter((i) => i.status === "paying").reduce((t, i) => t + Number(i.monthly), 0));
+  const allPaid = r2(items.reduce((t, i) => t + (i.status === "paying" ? Number(i.monthly) : i.paid_amount != null ? Number(i.paid_amount) : 0), 0));
+  const months = [...new Set(D.stripe.map((s) => s.month))].sort().reverse();
+  const fee = (m, a) => Number((D.stripe.find((s) => s.month === m && s.account === a) || {}).fees || 0);
+  const rows = D.whatif.map((w) => { const s = Number(w.share); return { ...w, share: s, card: cardFee(s), bank: bankFee(s) }; });
+  const sum = (a, k) => r2(a.reduce((t, r) => t + r[k], 0));
+  const ours = rows.filter((r) => r.account === "main");
+  const payers = rows.filter((r) => r.share > 0).length;
+  return { items, fixed, allPaid, months, fee, rows, sum, ours, payers, thisM: months[0], lastM: months[1] };
+}
+
+function renderSummary(c) {
+  const cardO = c.sum(c.ours, "card"), bankO = c.sum(c.ours, "bank");
+  const lastFee = c.lastM ? c.fee(c.lastM, "main") : 0, thisFee = c.thisM ? c.fee(c.thisM, "main") : 0;
+  $("tiles").innerHTML = [
+    ["Fixed costs a month (today)", $$(c.fixed), `${$$(c.fixed * 12)} a year`],
+    [c.lastM ? `Last full month (${monthName(c.lastM).split(" ")[0]})` : "Last full month", $$(c.fixed + lastFee), `fixed ${$$(c.fixed)} + Stripe ${$$(lastFee)}`],
+    ["If every tenant paid by card", $$(c.fixed + cardO), `fixed + ${$$(cardO)} card fees · ${$$((c.fixed + cardO) * 12)} a year`, "warn"],
+    ["If every tenant paid from a bank", $$(c.fixed + bankO), `fixed + ${$$(bankO)} bank fees · ${$$((c.fixed + bankO) * 12)} a year`, "good"],
+  ].map(([l, v, s, k]) => `<div class="tile ${k || ""}"><div class="l">${esc(l)}</div><div class="v">${v}</div><div class="meta">${esc(s)}</div></div>`).join("");
+  const cols = [
+    ["Today: last full month", c.fixed, lastFee, ""],
+    [`Today: ${c.thisM ? monthName(c.thisM).split(" ")[0] : "this month"} so far`, c.fixed, thisFee, ""],
+    ["All tenants from a bank", c.fixed, bankO, "lo"],
+    ["All tenants by card", c.fixed, cardO, "hi"],
+    ["Nothing free + all by card", c.allPaid, cardO, "hi"],
+  ];
+  $("compare").innerHTML = `<tr><th></th>${cols.map(([h]) => `<th class="n">${esc(h)}</th>`).join("")}</tr>`
+    + `<tr><td>Services (fixed)</td>${cols.map(([, f]) => `<td class="n">${$$(f)}</td>`).join("")}</tr>`
+    + `<tr><td>Stripe fees (2nd Chance)</td>${cols.map(([, , s]) => `<td class="n">${$$(s)}</td>`).join("")}</tr>`
+    + `<tr class="total"><td>Total a month</td>${cols.map(([, f, s, k]) => `<td class="n ${k}">${$$(f + s)}</td>`).join("")}</tr>`
+    + `<tr><td class="meta">A year</td>${cols.map(([, f, s]) => `<td class="n meta">${$$((f + s) * 12)}</td>`).join("")}</tr>`;
+  $("compareNote").textContent = `Based on ${c.ours.length} payments a month into 2nd Chance's account (${c.ours.filter((r) => r.share > 0).length} with a tenant share; agency shares are not paid through Stripe). The "today" columns are Stripe's real fees.`;
+  $("byAcct").innerHTML = `<tr><th>Account</th><th class="n">Payments</th><th class="n">Tenants pay</th><th class="n">All from a bank</th><th class="n">All by card</th><th class="n">Card costs more by</th></tr>`
+    + ["main", "yawdcour", "roca1"].map((a) => { const r = c.rows.filter((x) => x.account === a); if (!r.length) return "";
+        return `<tr><td>${ACCT[a]}</td><td class="n">${r.length}</td><td class="n">${$$(c.sum(r, "share"))}</td><td class="n lo">${$$(c.sum(r, "bank"))}</td><td class="n hi">${$$(c.sum(r, "card"))}</td><td class="n">${$$(c.sum(r, "card") - c.sum(r, "bank"))}</td></tr>`; }).join("")
+    + `<tr class="total"><td>All accounts</td><td class="n">${c.rows.length}</td><td class="n">${$$(c.sum(c.rows, "share"))}</td><td class="n">${$$(c.sum(c.rows, "bank"))}</td><td class="n">${$$(c.sum(c.rows, "card"))}</td><td class="n">${$$(c.sum(c.rows, "card") - c.sum(c.rows, "bank"))}</td></tr>`;
+}
+
+function renderPaid(c) {
+  const cardO = c.sum(c.ours, "card");
+  $("paidTiles").innerHTML = [
+    ["Services today", $$(c.fixed), `${$$(c.fixed * 12)} a year`, "good"],
+    ["Services, nothing free", $$(c.allPaid), `${$$(c.allPaid * 12)} a year (+${$$(c.allPaid - c.fixed)} a month)`, "warn"],
+    ["Nothing free + all by card", $$(c.allPaid + cardO), `${$$((c.allPaid + cardO) * 12)} a year: the most it could cost today`, "warn"],
+  ].map(([l, v, s, k]) => `<div class="tile ${k}"><div class="l">${esc(l)}</div><div class="v">${v}</div><div class="meta">${esc(s)}</div></div>`).join("");
+  const list = c.items.filter((i) => i.status !== "not_bought");
+  $("paidTable").innerHTML = `<tr><th>Service</th><th>Today</th><th class="n">Today a month</th><th>Paid plan</th><th class="n">Paid a month</th></tr>`
+    + list.map((i) => { const today = i.status === "paying" ? Number(i.monthly) : 0, paid = i.status === "paying" ? today : i.paid_amount != null ? Number(i.paid_amount) : 0;
+        return `<tr><td><b>${esc(i.name)}</b><div class="meta">${esc(i.what || "")}</div></td><td><span class="tag ${i.status}">${STATUS[i.status] || i.status}</span></td>
+          <td class="n">${$$(today)}</td><td>${i.status === "paying" ? `<span class="meta">already paying</span>` : i.status === "per_payment" ? `<span class="meta">fees per payment (Summary)</span>` : esc(i.paid_plan || "—")}</td>
+          <td class="n ${paid > today ? "hi" : ""}">${$$(paid)}</td></tr>`; }).join("")
+    + `<tr class="total"><td colspan="2">Total a month</td><td class="n">${$$(c.fixed)}</td><td></td><td class="n">${$$(c.allPaid)}</td></tr>`
+    + `<tr><td colspan="2" class="meta">A year</td><td class="n meta">${$$(c.fixed * 12)}</td><td></td><td class="n meta">${$$(c.allPaid * 12)}</td></tr>`;
+}
+
+function renderLc(c) {
+  if (!D.land_contracts.length) { $("lcBox").innerHTML = `<div class="card meta">No active land contract.</div>`; return; }
+  const share = c.payers ? r2(c.fixed / c.payers) : 0;
+  $("lcBox").innerHTML = D.land_contracts.map((lc) => {
+    const p = Number(lc.monthly), pct = Number(lc.fee_pct), feeAmt = r2(p * pct / 100);
+    const m = [["Zelle", 0], ["Bank account (Stripe)", bankFee(p)], ["Debit or credit card (Stripe)", cardFee(p)], ["PayPal / Venmo", paypalFee(p)]];
+    const worst = Math.max(...m.map((x) => x[1]));
+    return `<h2>${esc(lc.street || "Land contract")}</h2>
+      <div class="tiles"><div class="tile"><div class="l">Monthly payment</div><div class="v">${$$(p)}</div><div class="meta">${$$(p * 12)} a year</div></div>
+        <div class="tile"><div class="l">2nd Chance fee (${pct}%)</div><div class="v">${$$(feeAmt)}</div><div class="meta">${$$(feeAmt * 12)} a year</div></div>
+        <div class="tile"><div class="l">Zelle to ${esc(lc.seller || "the seller")}</div><div class="v">${$$(p - feeAmt)}</div><div class="meta">each payment</div></div></div>
+      <div class="card scroll"><h3 style="margin-top:0">Cost of each way to pay, and what the ${pct}% fee leaves for 2nd Chance</h3>
+        <table class="t"><tr><th>They pay by</th><th class="n">Fee a payment</th><th class="n">Fee a year</th><th class="n">Share of system costs*</th><th class="n">Left from the ${pct}% fee</th></tr>
+        ${m.map(([n, f]) => `<tr><td>${n}${f === worst && f > 0 ? ` <span class="tag" style="background:#fdecea;color:#b42318">most expensive</span>` : ""}</td><td class="n ${f === worst ? "hi" : f === 0 ? "lo" : ""}">${$$(f)}</td><td class="n">${$$(f * 12)}</td><td class="n">${$$(share)}</td><td class="n"><b>${$$(feeAmt - f - share)}</b></td></tr>`).join("")}</table>
+        <p class="meta" style="margin-bottom:0">*Today's fixed services (${$$(c.fixed)} a month) shared across ${c.payers} paying households. The 11/1/2026 payment was $600.00 by debit card (Stripe fee $17.70). PayPal at its standard rate (3.49% + 49¢); its nonprofit rate applies to donations only. info@ gets an email for every payment with the amount, the fee and the balance to send.</p></div>`;
+  }).join("");
+}
+
+function itemForm(it) {
+  const v = it || { name: "", what: "", amount: "", months: 1, status: "paying", notes: "", paid_plan: "", paid_amount: "" };
+  return `<div class="formrow" data-form="${it ? it.id : ""}">
+    <label>Name<input data-f="name" value="${esc(v.name)}" maxlength="80"></label>
+    <label>What it is<input data-f="what" value="${esc(v.what || "")}" maxlength="120"></label>
+    <label>Amount paid<input data-f="amount" type="number" step="0.01" min="0" value="${esc(String(v.amount))}" style="width:7em"></label>
+    <label>Covers (months)<input data-f="months" type="number" min="1" max="240" value="${v.months}" style="width:5em" title="1 = monthly, 12 = yearly, 36 = 3 years"></label>
+    <label>Status<select data-f="status">${Object.entries(STATUS).map(([k, l]) => `<option value="${k}"${v.status === k ? " selected" : ""}>${l}</option>`).join("")}</select></label>
+    <label>Paid plan (if not paying)<input data-f="paid_plan" value="${esc(v.paid_plan || "")}" maxlength="120"></label>
+    <label>Paid plan a month<input data-f="paid_amount" type="number" step="0.01" min="0" value="${v.paid_amount == null ? "" : esc(String(v.paid_amount))}" style="width:7em"></label>
+    <label style="flex:1;min-width:200px">Notes<input data-f="notes" value="${esc(v.notes || "")}" maxlength="300"></label>
+    <button class="btn primary" type="button" data-save>Save</button>${it ? ` <button class="btn" type="button" data-cancel>Cancel</button>` : ""}</div>`;
+}
+function renderDetails(c) {
+  const line = (i) => EDIT === i.id ? `<tr><td colspan="6">${itemForm(i)}</td></tr>` : `<tr><td><b>${esc(i.name)}</b><div class="meta">${esc(i.what || "")}</div></td>
+      <td><span class="tag ${i.status}">${STATUS[i.status] || i.status}</span></td>
+      <td class="n">${Number(i.amount) ? $$(i.amount) + `<div class="meta">${PLAN(i.months)}</div>` : "$0"}</td>
+      <td class="n"><b>${$$(i.status === "paying" ? i.monthly : 0)}</b></td><td class="meta">${esc(i.notes || "")}${i.paid_plan && i.status !== "paying" ? `<br>Paid plan: ${esc(i.paid_plan)}${i.paid_amount != null ? " · " + $$(i.paid_amount) + " a month" : ""}` : ""}</td>
+      <td><button class="btn small" type="button" data-edit="${i.id}">Edit</button></td></tr>`;
+  $("items").innerHTML = `<tr><th>Service</th><th>Status</th><th class="n">Paid</th><th class="n">Per month</th><th>Notes</th><th></th></tr>` + c.items.map(line).join("")
+    + `<tr class="total"><td colspan="3">Fixed total (paying)</td><td class="n">${$$(c.fixed)}</td><td colspan="2" class="meta">${$$(c.fixed * 12)} a year</td></tr>`;
+  if (!$("addForm").innerHTML) $("addForm").innerHTML = itemForm(null);
+  $("months").innerHTML = `<tr><th>Month</th>${["main", "yawdcour", "roca1"].map((a) => `<th class="n">${ACCT[a]} fees</th>`).join("")}<th class="n">2nd Chance total</th></tr>`
+    + (c.months.length ? c.months.map((m) => {
+      const cell = (a) => { const s = D.stripe.find((x) => x.month === m && x.account === a); return s ? `${$$(s.fees)}<div class="meta">${s.payments} payment${s.payments === 1 ? "" : "s"}, ${$$(s.collected)}</div>` : `<span class="meta">—</span>`; };
+      return `<tr><td>${monthName(m)}${m === c.thisM ? ` <span class="meta">(so far)</span>` : ""}</td>${["main", "yawdcour", "roca1"].map((a) => `<td class="n">${cell(a)}</td>`).join("")}<td class="n"><b>${$$(c.fixed + c.fee(m, "main"))}</b></td></tr>`;
+    }).join("") : `<tr><td colspan="5" class="meta">No Stripe figures yet. Press Refresh from Stripe.</td></tr>`);
+  const last = D.stripe.reduce((t, s) => (s.refreshed_at > t ? s.refreshed_at : t), "");
+  $("refreshed").textContent = last ? "Last read " + new Date(last).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "";
+  $("whatif").innerHTML = `<tr><th>Unit</th><th>Paid into</th><th class="n">Tenant pays</th><th class="n">Fee from a bank</th><th class="n">Fee by card</th></tr>`
+    + c.rows.map((r) => `<tr><td>${esc(r.label.replace(" North Bourbon Street - ", " N Bourbon · Unit "))}</td><td>${ACCT[r.account] || esc(r.account)}</td>
+        <td class="n">${r.share > 0 ? $$(r.share) : `<span class="meta">$0 (agency pays)</span>`}</td><td class="n">${$$(r.bank)}</td><td class="n">${$$(r.card)}</td></tr>`).join("")
+    + `<tr class="total"><td colspan="2">A month</td><td class="n">${$$(c.sum(c.rows, "share"))}</td><td class="n">${$$(c.sum(c.rows, "bank"))}</td><td class="n">${$$(c.sum(c.rows, "card"))}</td></tr>`;
+}
+
+function renderSubs(c) {
+  const $ = $$, byId = (id) => document.getElementById(id);   // in this function $ formats money; boxes are found with byId
+  const cardO = c.sum(c.ours, "card"), bankO = c.sum(c.ours, "bank"), lastFee = c.lastM ? c.fee(c.lastM, "main") : 0;
+  const todo = c.items.filter((i) => i.status !== "paying" && Number(i.paid_amount) > 0);
+  byId("subTiles").innerHTML = [
+    ["Services, all subscribed", $(c.allPaid), `${$(c.allPaid * 12)} a year (today ${$(c.fixed)})`, ""],
+    [c.lastM ? `Last full month (${monthName(c.lastM).split(" ")[0]}), subscribed` : "Last full month", $(c.allPaid + lastFee), `services + Stripe ${$(lastFee)}`, ""],
+    ["All subscribed + every tenant by card", $(c.allPaid + cardO), `${$((c.allPaid + cardO) * 12)} a year`, "warn"],
+    ["All subscribed + every tenant from a bank", $(c.allPaid + bankO), `${$((c.allPaid + bankO) * 12)} a year`, "good"],
+    ["Still to subscribe", String(todo.length), todo.length ? todo.map((i) => i.name).join(", ") : "All done", todo.length ? "" : "good"],
+  ].map(([l, v, sub, k]) => `<div class="tile ${k}"><div class="l">${esc(l)}</div><div class="v">${v}</div><div class="meta">${esc(sub)}</div></div>`).join("");
+  const paidOf = (i) => i.status === "paying" ? Number(i.monthly) : i.paid_amount != null ? Number(i.paid_amount) : 0;
+  byId("subItems").innerHTML = `<tr><th>Service</th><th>Plan</th><th class="n">Per month</th><th>Now</th><th></th></tr>`
+    + c.items.filter((i) => i.status !== "not_bought").map((i) => {
+      const can = i.status !== "paying" && Number(i.paid_amount) > 0;
+      const plan = i.status === "paying" ? (Number(i.months) > 1 ? `${$(i.amount)} ${PLAN(i.months)}` : "Current plan") : i.status === "per_payment" ? "No monthly fee (per payment)" : i.paid_plan || "—";
+      return `<tr><td><b>${esc(i.name)}</b><div class="meta">${esc(i.what || "")}</div></td><td>${esc(plan)}</td><td class="n"><b>${$(paidOf(i))}</b></td>
+        <td>${i.status === "paying" ? '<span class="tag paying">Subscribed</span>' : can ? '<span class="tag">Free now</span>' : `<span class="tag ${i.status}">${STATUS[i.status] || i.status}</span>`}</td>
+        <td style="white-space:nowrap">${can ? `${i.upgrade_url ? `<a class="btn small" href="${esc(i.upgrade_url)}" target="_blank" rel="noopener">Subscribe ↗</a> ` : ""}<button class="btn small primary" type="button" data-sub="${i.id}">Mark as subscribed</button>` : ""}</td></tr>`;
+    }).join("")
+    + `<tr class="total"><td colspan="2">Total a month, all subscribed</td><td class="n">${$(c.allPaid)}</td><td colspan="2" class="meta">${$(c.allPaid * 12)} a year</td></tr>`;
+  byId("subMonths").innerHTML =`<tr><th>Month</th><th class="n">Services (all paid)</th><th class="n">Stripe fees (2nd Chance)</th><th class="n">Total</th><th class="n">Today's real total</th></tr>`
+    + (c.months.length ? c.months.map((m) => `<tr><td>${monthName(m)}${m === c.thisM ? ' <span class="meta">(so far)</span>' : ""}</td><td class="n">${$(c.allPaid)}</td><td class="n">${$(c.fee(m, "main"))}</td>
+        <td class="n"><b>${$(c.allPaid + c.fee(m, "main"))}</b></td><td class="n meta">${$(c.fixed + c.fee(m, "main"))}</td></tr>`).join("") : `<tr><td colspan="5" class="meta">No Stripe figures yet.</td></tr>`);
+  byId("subWhatif").innerHTML =`<tr><th>Account</th><th class="n">All from a bank</th><th class="n">All by card</th></tr>`
+    + ["main", "yawdcour", "roca1"].map((a) => { const r = c.rows.filter((x) => x.account === a); return r.length ? `<tr><td>${ACCT[a]} Stripe fees</td><td class="n lo">${$(c.sum(r, "bank"))}</td><td class="n hi">${$(c.sum(r, "card"))}</td></tr>` : ""; }).join("")
+    + `<tr><td>2nd Chance services (all subscribed)</td><td class="n">${$(c.allPaid)}</td><td class="n">${$(c.allPaid)}</td></tr>`
+    + `<tr class="total"><td>2nd Chance total a month</td><td class="n lo">${$(c.allPaid + bankO)}</td><td class="n hi">${$(c.allPaid + cardO)}</td></tr>`
+    + `<tr><td class="meta">A year</td><td class="n meta">${$((c.allPaid + bankO) * 12)}</td><td class="n meta">${$((c.allPaid + cardO) * 12)}</td></tr>`;
+}
+
+function renderNeeded(c) {
+  const need = c.items.filter((i) => i.needed);
+  document.getElementById("needed").innerHTML = need.length ? `<details class="card" style="background:#fff8e1;border-color:#f0c36d">
+    <summary><b>Numbers Claude cannot see (${need.length})</b> <span class="meta">— taken as given; everything else was read from Stripe, the database or the code</span></summary>
+    <ol style="margin:8px 0 0;padding-left:20px">${need.map((i) => `<li style="margin-bottom:6px"><b>${esc(i.name)}:</b> ${esc(i.needed)}</li>`).join("")}</ol></details>` : "";
+}
+
+function render() {
+  const c = calc();
+  renderNeeded(c);
+  renderSummary(c); renderPaid(c); renderLc(c); renderDetails(c); renderSubs(c);
+  document.querySelectorAll("[data-view]").forEach((s) => s.hidden = s.dataset.view !== VIEW);
+  document.querySelectorAll("[data-show]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.show === VIEW)));
+}
+async function load() {
+  const { data, error } = await client.rpc("system_costs_view");
+  if (error) { say(await errorText(error), true); return; }
+  D = data; render();
+}
+document.addEventListener("click", async (e) => {
+  try {
+    const v = e.target.closest("[data-show]");
+    if (v) { VIEW = v.dataset.show; history.replaceState(null, "", "#" + VIEW); render(); return; }
+    const sb = e.target.closest("[data-sub]");
+    if (sb) {
+      const it = D.items.find((x) => x.id === sb.dataset.sub);
+      if (!confirm(`Record ${it.name} as subscribed (${it.paid_plan || "paid plan"}, ${$$(it.paid_amount)} a month)? Only do this after subscribing on their billing page.`)) return;
+      const { error } = await client.rpc("system_cost_mark_subscribed", { p_id: it.id });
+      if (error) throw new Error(await errorText(error));
+      say(`${it.name} recorded as subscribed.`); await load(); return;
+    }
+    const ed = e.target.closest("[data-edit]");
+    if (ed) { EDIT = ed.dataset.edit; render(); return; }
+    if (e.target.closest("[data-cancel]")) { EDIT = null; render(); return; }
+    if (e.target.closest("[data-save]")) {
+      const f = e.target.closest("[data-form]"), g = (k) => f.querySelector(`[data-f="${k}"]`).value;
+      const { error } = await client.rpc("system_cost_item_save", { p_id: f.dataset.form || null, p_name: g("name"), p_what: g("what"), p_amount: Number(g("amount")),
+        p_months: Number(g("months")), p_status: g("status"), p_notes: g("notes"), p_paid_plan: g("paid_plan"), p_paid_amount: g("paid_amount") === "" ? null : Number(g("paid_amount")) });
+      if (error) throw new Error(await errorText(error));
+      EDIT = null; if (!f.dataset.form) $("addForm").innerHTML = ""; say("Saved."); await load();
+    }
+    if (e.target.closest("#refresh")) {
+      $("refresh").disabled = true; say("Reading Stripe…");
+      const { data, error } = await client.functions.invoke("system-costs", { body: { action: "refresh" } });
+      $("refresh").disabled = false;
+      if (error) { let m = error.message; try { m = (await error.context.json()).error || m; } catch {} throw new Error(m); }
+      say(`Updated ${data.months} month${data.months === 1 ? "" : "s"} from Stripe.`); await load();
+    }
+  } catch (err) { say(err.message, true); }
+});
+if (["summary", "paid", "lc", "details", "subs"].includes(location.hash.slice(1))) VIEW = location.hash.slice(1);
+$("signOutBtn").addEventListener("click", signOut);
+const who = await signIn($("signin"), { audience: "staff" });
+$("userBar").hidden = false;
+if (who.role !== "staff") { $("signin").hidden = false; $("signin").innerHTML = `<div class="panel"><p>This page is for office staff. <a href="/staff/">Go to My units</a></p></div>`; }
+else { $("app").hidden = false; load(); }
+</script>
+</body>
+</html>

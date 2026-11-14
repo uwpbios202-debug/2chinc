@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Apply — 2nd Chance Housing Inc.</title>
+  <meta name="description" content="Apply to 2nd Chance Housing by audio or video. Tell us your plan, by audio, video or in writing. No background check, no credit check, no judgment." />
+  <meta name="robots" content="noindex" />
+  <link rel="icon" href="/favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/site.css" />
+  <style>
+    body { background: var(--ink); color: #fff; }
+    .bar { position: sticky; top: 0; z-index: 5; background: var(--ink); padding: 0.75rem 1rem 0.6rem; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .bar .row { max-width: 640px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; }
+    .bar a.home { display: flex; align-items: center; gap: 0.55rem; color: #fff; text-decoration: none; font-family: var(--serif); font-size: 1.05rem; }
+    .bar a.home img { width: 34px; height: 34px; border-radius: 50%; background: #fff; }
+    .bar .count { font-size: 0.78rem; color: rgba(255,255,255,0.6); font-weight: 600; }
+    .progress { max-width: 640px; margin: 0.6rem auto 0; display: flex; gap: 4px; }
+    .progress i { flex: 1; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.15); }
+    .progress i.done { background: var(--green-lt); }
+    .progress i.now { background: #fff; }
+
+    .stage { max-width: 640px; margin: 0 auto; padding: 1.5rem 1rem 6rem; }
+    .card { background: var(--ink-2); border: 1px solid rgba(255,255,255,0.08); border-radius: 18px; padding: 1.5rem; color: #fff; }
+    .card:hover { border-color: rgba(255,255,255,0.08); box-shadow: none; }
+    .kicker { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--green-lt); margin-bottom: 0.6rem; }
+    h1.big { font-family: var(--serif); font-weight: 400; font-size: clamp(2.1rem, 7vw, 3rem); line-height: 1.1; margin-bottom: 1rem; }
+    h1.big em { color: var(--green-lt); }
+    h2.q { font-family: var(--serif); font-weight: 400; font-size: 1.6rem; line-height: 1.25; margin-bottom: 0.8rem; }
+    .muted { color: rgba(255,255,255,0.7); line-height: 1.6; }
+    #wtbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 50; display: flex; gap: 0.75rem; justify-content: center; align-items: center; flex-wrap: wrap; background: #fff3cd; color: #5c4200; border-top: 3px solid #e0a800; padding: 0.6rem 1rem calc(0.6rem + env(safe-area-inset-bottom, 0px)); font-size: 0.9rem; }
+    #wtbar button { background: #1c1c1c; color: #fff; border: 0; border-radius: 8px; padding: 0.55rem 1.1rem; font: inherit; font-weight: 700; cursor: pointer; }
+    body:has(#wtbar) main { padding-bottom: 5rem; }
+    .free-badge { display: inline-block; background: var(--green-lt); color: #0c1a14; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.85rem; padding: 0.3rem 0.8rem; border-radius: 6px; margin: 0 0 0.75rem; }
+    .small { font-size: 0.84rem; }
+    h2.need-head { font-family: var(--serif); font-weight: 400; font-size: 1.35rem; color: #fff; margin: 1.1rem 0 0; }
+    ul.need { list-style: none; margin: 0.6rem 0 1rem; display: grid; gap: 0.6rem; }
+    ul.need li { display: flex; gap: 0.6rem; align-items: flex-start; color: rgba(255,255,255,0.85); }
+    ul.need li b { color: var(--green-lt); font-family: var(--serif); font-weight: 400; font-size: 1.2rem; line-height: 1; min-width: 1.2rem; }
+
+    label.f { display: block; font-size: 0.8rem; font-weight: 600; color: rgba(255,255,255,0.75); margin: 1rem 0 0.35rem; }
+    input.t, select.t, textarea.t { width: 100%; padding: 0.85rem 0.9rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.18); background: rgba(255,255,255,0.06); color: #fff; font: 500 1rem var(--sans); }
+    select.t option { color: #000; }
+    textarea.t { min-height: 90px; resize: vertical; }
+    input.t:focus, select.t:focus, textarea.t:focus { outline: 2px solid var(--green-lt); border-color: transparent; }
+    .checks { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.4rem; }
+    .checks label { display: flex; align-items: center; gap: 0.45rem; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); padding: 0.55rem 0.85rem; border-radius: 999px; font-size: 0.9rem; cursor: pointer; }
+    .checks input { accent-color: var(--green-lt); }
+
+    .actions { display: flex; gap: 0.6rem; margin-top: 1.4rem; flex-wrap: wrap; }
+    .b { flex: 1; min-width: 140px; padding: 0.95rem 1.1rem; border-radius: 12px; border: 0; font: 700 1rem var(--sans); cursor: pointer; text-align: center; }
+    .b.go { background: var(--green-lt); color: var(--ink); }
+    .b.go:hover { background: #7fc23f; }
+    .b.alt { background: rgba(255,255,255,0.1); color: #fff; }
+    .b.rec { background: #d33b2c; color: #fff; }
+    .b:disabled { opacity: 0.45; cursor: not-allowed; }
+    .msg { margin-top: 0.9rem; font-size: 0.9rem; min-height: 1.2em; }
+    .msg.err { color: #ff9b8f; } .msg.ok { color: var(--green-lt); }
+
+    .clause { background: rgba(255,255,255,0.05); border-left: 4px solid var(--green-lt); border-radius: 0 10px 10px 0; padding: 0.9rem 1rem; margin: 1rem 0; }
+    .clause .src { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--green-lt); margin-bottom: 0.35rem; }
+    .clause p { font-family: Georgia, serif; font-size: 0.98rem; line-height: 1.55; color: rgba(255,255,255,0.92); }
+    .scenario { background: #fff; color: var(--text); border-radius: 14px; padding: 1rem 1.1rem; margin: 1rem 0; }
+    .scenario .src { font-size: 0.7rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: var(--green-dk); margin-bottom: 0.35rem; }
+    .scenario p { font-size: 1.05rem; line-height: 1.5; font-weight: 500; }
+    .prompt { font-weight: 600; margin: 0.6rem 0 0.2rem; }
+
+    .cam { position: relative; background: #000; border-radius: 14px; overflow: hidden; aspect-ratio: 3 / 4; max-height: 62vh; margin: 1rem auto 0; width: 100%; }
+    .voice { background: #0e1a14; border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; padding: 1rem; margin: 1rem 0; }
+    .voice .cue { color: #fff; font-weight: 600; margin-bottom: 0.6rem; }
+    .voice .hud2 { display: flex; gap: 0.75rem; align-items: center; color: rgba(255,255,255,0.7); font-size: 0.9rem; margin-bottom: 0.5rem; }
+    .voice audio { width: 100%; margin-top: 0.4rem; }
+    .cam video { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .cam video.mirror { transform: scaleX(-1); }
+    .cam .hud { position: absolute; left: 0; right: 0; top: 0; display: flex; justify-content: space-between; padding: 0.7rem 0.8rem; font: 700 0.85rem var(--sans); }
+    .cam .dot { display: inline-flex; align-items: center; gap: 0.4rem; background: rgba(0,0,0,0.55); padding: 0.3rem 0.65rem; border-radius: 999px; }
+    .cam .dot::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: #ff4b3a; animation: blink 1s infinite; }
+    .cam .cue { position: absolute; left: 0; right: 0; bottom: 0; padding: 0.9rem; background: linear-gradient(transparent, rgba(0,0,0,0.75)); font-size: 0.92rem; line-height: 1.4; }
+    @keyframes blink { 50% { opacity: 0.25; } }
+    .saved { display: flex; align-items: center; gap: 0.5rem; color: var(--green-lt); font-weight: 600; margin-top: 0.8rem; }
+    .reveal { background: var(--green-dk); border-radius: 14px; padding: 1rem 1.1rem; margin-top: 1rem; }
+    .reveal .src { font-size: 0.7rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: #cfe8b8; margin-bottom: 0.35rem; }
+    .reveal p { line-height: 1.55; }
+
+    .person-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; background: rgba(255,255,255,0.04); border-radius: 12px; padding: 0.8rem; margin-top: 0.6rem; }
+    .person-row .full { grid-column: 1 / -1; display: flex; justify-content: flex-end; }
+    .linkbtn { background: none; border: 0; color: var(--green-lt); font: 600 0.9rem var(--sans); cursor: pointer; padding: 0.3rem 0; }
+
+    .photos { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 1rem; }
+    .photo { aspect-ratio: 1; border: 2px dashed rgba(255,255,255,0.25); border-radius: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 0.6rem; cursor: pointer; position: relative; overflow: hidden; font-size: 0.9rem; }
+    .photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .photo input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+
+    .lock { display: flex; gap: 0.6rem; align-items: flex-start; background: rgba(255,255,255,0.05); border-radius: 12px; padding: 0.85rem 1rem; margin-top: 1.1rem; font-size: 0.84rem; color: rgba(255,255,255,0.75); line-height: 1.5; }
+    .lock svg { width: 20px; height: 20px; fill: var(--green-lt); flex-shrink: 0; margin-top: 2px; }
+    .review-list { list-style: none; margin-top: 1rem; display: grid; gap: 0.4rem; }
+    .review-list li { display: flex; justify-content: space-between; gap: 0.75rem; background: rgba(255,255,255,0.05); padding: 0.65rem 0.85rem; border-radius: 10px; font-size: 0.92rem; }
+    .review-list .ok { color: var(--green-lt); font-weight: 700; }
+    .review-list .no { color: #ff9b8f; font-weight: 700; }
+    a { color: var(--green-lt); }
+      .savebtn { background: transparent; color: #fff; border: 1px solid rgba(255,255,255,0.5); border-radius: 8px; padding: 0.35rem 0.8rem; font: inherit; font-size: 0.8rem; font-weight: 700; cursor: pointer; }
+      .savebtn:hover { background: rgba(255,255,255,0.12); }
+      .sa { margin: 1rem 0; border: 1px solid rgba(255,255,255,0.18); border-radius: 10px; padding: 0.7rem 1rem; }
+      .sa summary { cursor: pointer; font-weight: 700; color: var(--green-lt); }
+      .sa ul { margin: 0.5rem 0 0.5rem 1.2rem; } .sa li { margin: 0.25rem 0; }
+      .linkish { background: none; border: 0; padding: 0; color: inherit; text-decoration: underline; cursor: pointer; font: inherit; }
+  </style>
+</head>
+<body>
+
+<div class="bar">
+  <div class="row">
+    <a class="home" href="/"><img src="/logo-192.png" alt="" />2nd Chance Housing</a>
+    <span class="count" id="count"></span>
+    <button type="button" class="savebtn" id="savebtn" hidden>Save &amp; finish later</button>
+  </div>
+  <div class="progress" id="progress" aria-hidden="true"></div>
+</div>
+
+<main class="stage" id="stage" aria-live="polite"></main>
+
+<footer style="text-align:center;font-size:0.82rem;padding:18px 16px 28px;color:#b9c4bc"><a href="/privacy/" style="color:inherit">Privacy policy</a> · 2nd Chance Housing Inc.</footer>
+
+<script type="module">
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from "/assets/portal/config.js";
+import { turnstileToken } from "/assets/turnstile.js";
+
+const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: false } });
+const SCENE_VERSION = "2026-10-a";
+const MAX_SECONDS = 90;
+
+// Lease scenes. Clause text is quoted from the 2nd Chance lease template
+// (templates/lease-agreement). ids must match REQUIRED_VIDEO in the
+// rental-apply edge function.
+const SCENES = [
+  { id: "rent", title: "Paying rent",
+    clause: "Rent is due on the date in your lease. Rent paid after the late date is charged the late rent fee in your lease. Unpaid rent can lead to a 5-Day Notice to pay or vacate (Wis. Stat. §704.17).",
+    src: "Lease terms · Rent",
+    scenario: "It's the 3rd of the month. Your paycheck got pushed back to the 10th.",
+    prompt: "What happens with your rent, and what do you do?",
+    truth: "The rent is still due. After the late date the late fee is added, and if rent stays unpaid you can receive a 5-day notice to pay or move out. What helps most: reach out to us early, before the due date, with a plan and a date." },
+  { id: "guests", title: "Guests",
+    clause: "No guest shall remain overnight in the property for more than thirteen (13) nights in total in any twelve (12) month period without the prior written consent of Landlord. Tenant is responsible for the conduct of any and all guests.",
+    src: "Rules & Regulations · Guests",
+    scenario: "Your cousin has already stayed 13 nights this year. She just lost her place and asks to stay \"one more weekend.\"",
+    prompt: "What does the lease say, and what happens if she stays?",
+    truth: "Night 14 without our written OK is a lease violation. Ask us first: we may approve it in writing, or she can apply to be added to the lease. If not, you'd get a written notice to correct it, and under Wisconsin law repeated violations can end your lease." },
+  { id: "pets", title: "Pets",
+    clause: "No pets. Service animals and emotional support animals are not pets: they are always welcome, with no pet fees and no deposits.",
+    src: "Pets policy",
+    scenario: "Six months after you move in, a neighbor's dog has puppies and offers you one for free.",
+    prompt: "Do you have a pet today? And what happens if you take that puppy?",
+    truth: "Bringing in a pet without written permission violates the lease. You'd get a written notice to remove it, you can be charged for any damage, and if it isn't resolved the lease can be ended. If you need a service or support animal, tell us: that's an accommodation, not a pet." },
+  { id: "sublet", title: "Subletting",
+    clause: "Tenant is not allowed to sublet or assign the rental unit, or any part of it, without the prior written consent of Landlord.",
+    src: "Rules & Regulations · Subletting / Assignment",
+    scenario: "You have to be away for three months. A friend offers to live in your unit and pay your rent while you're gone.",
+    prompt: "Can your friend move in? What happens if they do?",
+    truth: "Not without our written consent. Letting someone live there in your place is subletting and violates the lease, even if the rent gets paid. Talk to us first; there may be a way that works." },
+  { id: "noise", title: "Noise & neighbors",
+    clause: "Tenant will not make or permit noises or acts that will disturb the right or comfort of other tenants and/or neighbors.",
+    src: "Rules & Regulations · Noises & Odors",
+    scenario: "It's your birthday. Friends are over, the music is up, it's 11 pm, and a neighbor knocks on your door.",
+    prompt: "How would you handle it in the moment? And if neighbors still have concerns later, what do you think happens next?",
+    truth: "Turn it down and be kind to your neighbors, especially at night. Disturbing neighbors breaks the lease, and you're responsible for your guests too. Milwaukee also has its own noise rules, and the city can fine whoever is making the noise. Owners can be billed for repeated violations at the same unit, so we take complaints seriously. Repeated complaints lead to written notices, and they can end a lease." },
+  { id: "conduct", title: "Conduct at the property",
+    clause: "Tenant, any member of Tenant's household, guest, or invitee, shall not engage in or allow others to engage in any criminal activity, including drug-related criminal activity, in the Premises or on the property.",
+    src: "Lease · Criminal Activity Prohibited",
+    scenario: "A friend visiting your apartment pulls out drugs. (This is about the property from move-in forward, not about anyone's past.)",
+    prompt: "What does the lease say, and what do you do?",
+    truth: "You're responsible for what your guests do in your home. Allowing criminal activity, including drugs, at the property is a serious violation that can end your lease. Ask them to stop or leave." },
+];
+
+// ---------------------------------------------------------------------------
+// State (form fields are kept in this tab only; nothing personal is stored
+// in the browser beyond the current session).
+// ---------------------------------------------------------------------------
+const S = {
+  token: "", applicant: { name: "", email: "", units: [], move_in: "", heard: "", accommodation: "", lease_term: "mtm", agency: "" },
+  household: [], answers: {}, media: {}, photos: {},
+  animal: null, offender: null, assistance: { kind: "", species: "", service_dog_task: "", support_letter: false }, petAck: false,
+  docs: {}, identity: { first: "", middle: "", last: "", dob: "", id_number: "", id_state: "", id_expires: "", from_barcode: false },
+};
+const steps = ["welcome", "email", "animals", "id", "about", "household", "pledge", ...SCENES.map((s) => "scene:" + s.id), "photos", "review", "done"];
+let at = 0;
+
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const stage = $("stage");
+const LOCK = `<div class="lock"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM9 6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9V6z"/></svg>
+  <span>Your recordings and photos are encrypted, stored privately, and seen only by 2nd Chance Housing staff after a two-step sign-in. Every view is logged. They are never shared or posted.</span></div>`;
+
+const WT = new URLSearchParams(location.search).get("walkthrough") === "1"; // staff walkthrough: nothing is saved or sent
+async function api(body) {
+  if (WT) return { ok: true, token: "walkthrough", ref: "WALKTHROUGH" };
+  const { data, error } = await client.functions.invoke("rental-apply", { body });
+  if (error) {
+    let m = "Something went wrong. Try again.";
+    try { m = (await error.context.json()).error || m; } catch {}
+    throw new Error(m);
+  }
+  return data;
+}
+
+function paint() {
+  const total = steps.length - 1;
+  $("progress").innerHTML = steps.slice(0, -1).map((_, i) => `<i class="${i < at ? "done" : i === at ? "now" : ""}"></i>`).join("");
+  $("count").textContent = at > 0 && at < total ? `Step ${at} of ${total - 1}` : "";
+  const key = steps[at];
+  stopCamera();
+  if (key.startsWith("scene:")) return sceneStep(SCENES.find((s) => "scene:" + s.id === key));
+  ({ welcome, email: emailStep, animals, id: idStep, about, household, pledge, photos, review, done })[key]();
+  walkthroughBar(key);
+  $("savebtn").hidden = WT || !S.token || key === "done";
+  window.scrollTo(0, 0);
+}
+function walkthroughBar(key) {
+  document.querySelectorAll("#wtbar").forEach((x) => x.remove());
+  if (!WT) return;
+  const bar = document.createElement("div"); bar.id = "wtbar";
+  const last = key === "done";
+  bar.innerHTML = `<span><b>Walkthrough:</b> nothing you enter is saved or sent.</span>${last ? "" : `<button type="button" id="wtskip">Skip this step &rarr;</button>`}`;
+  document.body.appendChild(bar);
+  if (!last) $("wtskip").onclick = next;
+}
+// ---------------------------------------------------------------------------
+// Save and resume. Progress is saved to the server after every step, and on "Save & finish later". Coming back = verify the
+// same email; the form restores your answers and the files you already uploaded.
+// ---------------------------------------------------------------------------
+function draftState() {
+  const strip = (o) => Object.fromEntries(Object.entries(o).map(([k, { preview, ...m }]) => [k, m]));
+  return { applicant: S.applicant, household: S.household, answers: S.answers, media: strip(S.media), photos: strip(S.photos), docs: strip(S.docs),
+    animal: S.animal, offender: S.offender, assistance: S.assistance, petAck: S.petAck, identity: S.identity, size: S.size };
+}
+let saving = Promise.resolve(), saveError = "";
+function saveDraft() {
+  if (WT || !S.token || steps[at] === "done") return saving;
+  saving = saving.then(() => api({ action: "save_draft", token: S.token, step: steps[at], state: draftState() }))
+    .then(() => { saveError = ""; }, (e) => { saveError = e.message || "It could not be saved."; });
+  return saving;
+}
+function restoreDraft(d) {
+  const st = d.state || {};
+  for (const k of ["household", "answers", "media", "photos", "docs", "animal", "offender", "assistance", "petAck", "size"]) if (st[k] !== undefined) S[k] = st[k];
+  if (st.applicant) S.applicant = { ...S.applicant, ...st.applicant, email: S.applicant.email };
+  if (st.identity) S.identity = { ...S.identity, ...st.identity };
+  let i = Math.max(steps.indexOf(d.step), steps.indexOf("animals"));
+  at = i; paint();
+}
+$("savebtn").onclick = async () => {
+  const b = $("savebtn"); b.disabled = true; b.textContent = "Saving…";
+  await saveDraft();
+  b.disabled = false; b.textContent = "Save & finish later";
+  if (saveError) { b.textContent = "Not saved: " + saveError + " Tap to try again."; return; }
+  savedScreen();
+};
+function savedScreen() {
+  stopCamera();
+  stage.innerHTML = `<div class="card">
+    <div class="kicker">Saved</div>
+    <h1 class="big">Your place is saved. <em>Come back anytime.</em></h1>
+    <p class="muted">Everything you've done so far is saved, including the recordings and photos you already added. To pick up where you left off, open the application page again, tap <strong>Already started?</strong>, and enter ${esc(S.applicant.email)}. We'll email you a new code.</p>
+    <p class="muted">Saved applications are kept for 45 days after your last visit, then deleted.</p>
+    <div class="actions"><button class="b alt" id="goon">Keep going now</button><a class="b go" href="/" style="text-decoration:none;text-align:center">Back to home</a></div>
+  </div>`;
+  $("goon").onclick = paint;
+  window.scrollTo(0, 0);
+}
+
+const next = () => { at = Math.min(at + 1, steps.length - 1); paint(); saveDraft(); };
+const back = () => { at = Math.max(at - 1, 0); paint(); };
+const msg = (t, kind = "err") => { const m = stage.querySelector(".msg"); if (m) { m.className = "msg " + kind; m.textContent = t; } };
+
+// ---------------------------------------------------------------------------
+// Steps
+// ---------------------------------------------------------------------------
+function welcome() {
+  stage.innerHTML = `<div class="card">
+    <div class="kicker">Apply · Chicago &amp; Milwaukee</div>
+    <h1 class="big">Tell us <em>your plan.</em></h1>
+    <p class="free-badge">FREE application</p>
+    <p class="muted">No background check. No credit check. No judgment. Instead of a long form, you just talk with us, the way you would to a neighbor. Short answers, by audio or video. You can write an answer instead, redo any answer, skip ahead, and save and come back anytime. There are no wrong answers, and nobody is grading how you sound.</p>
+    <h2 class="need-head">What you need to start</h2>
+    <ul class="need">
+      <li><b>1</b><span>Your email address, to get a code</span></li>
+      <li><b>2</b><span>A microphone (a camera is optional; your phone works best) and a quiet spot</span></li>
+      <li><b>3</b><span>Your driver's license or state ID</span></li>
+      <li><b>4</b><span>About 15 minutes: 7 short answers of up to 90 seconds each. Audio, video or writing: your choice.</span></li>
+    </ul>
+    <h2 class="need-head">Before you start</h2>
+    <label class="f" for="size">How many people will live in the home, counting you and any children?</label>
+    <select class="t" id="size"><option value="">Choose…</option>${[1, 2, 3, 4, 5].map((n) => `<option value="${n}" ${S.size === n ? "selected" : ""}>${n === 1 ? "Just me" : n + " people"}</option>`).join("")}<option value="6" ${S.size === 6 ? "selected" : ""}>6 or more</option></select>
+    <p class="muted small">Our homes fit up to ${MAX_PEOPLE} people in all, following the City of Milwaukee's bedroom-size rules.</p>
+    <div class="msg"></div>
+    ${LOCK}
+    <p class="muted small" style="margin-top:1rem">Need a different way to apply because of a disability (for example, you're deaf or have a speech disability)? Email <a href="mailto:info@2ndchinc.org?subject=Application%20accommodation">info@2ndchinc.org</a> and we'll arrange it.</p>
+    <div class="actions"><button class="b go" id="go">Let's start</button></div>
+    <p class="muted small" style="margin-top:0.9rem">Already started? <button class="linkish" type="button" id="resume">Pick up where you left off</button></p>
+  </div>`;
+  $("go").onclick = () => {
+    const n = +$("size").value;
+    if (!n) return msg("Please choose how many people will live in the home.");
+    S.size = n;
+    if (n > MAX_PEOPLE) return sizeStop();
+    next();
+  };
+  $("resume").onclick = () => { at = steps.indexOf("email"); paint(); };
+}
+
+function emailStep() {
+  stage.innerHTML = `<div class="card">
+    <div class="kicker">Step 1 · Your email</div>
+    <h2 class="q">First, let's make sure we can reach you.</h2>
+    <p class="muted">We'll email you a 6-digit code. We use this email to contact you about your application.</p>
+    <label class="f" for="em0">Email address</label>
+    <input class="t" id="em0" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com" value="${esc(S.applicant.email)}">
+    <div id="codeBox" hidden>
+      <label class="f" for="code">Code from the email</label>
+      <input class="t" id="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="123456">
+      <p class="muted small">It can take a minute. Check your spam folder too. <button class="linkish" type="button" id="resend">Send a new code</button></p>
+    </div>
+    <div class="msg"></div>
+    <div class="actions"><button class="b alt" id="bk">Back</button><button class="b go" id="send">Email me a code</button></div>
+  </div>`;
+  $("bk").onclick = back;
+  let sent = false;
+  const sendCode = async () => {
+    S.applicant.email = $("em0").value.trim().toLowerCase();
+    await api({ action: "start", email: S.applicant.email, turnstile: WT ? "" : await turnstileToken() });
+    sent = true; $("codeBox").hidden = false; $("code").focus(); $("send").textContent = "Verify";
+    msg("Code sent. Check your email.", "ok");
+  };
+  $("resend").onclick = async () => { try { await sendCode(); } catch (e) { msg(e.message); } };
+  $("send").onclick = async () => {
+    const btn = $("send"); btn.disabled = true;
+    try {
+      if (!sent) await sendCode();
+      else { const r = await api({ action: "verify", email: S.applicant.email, code: $("code").value }); S.token = r.token; if (r.draft) restoreDraft(r.draft); else next(); }
+    } catch (e) { msg(e.message); } finally { btn.disabled = false; }
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Animals (spec rules 5 and 6)
+// ---------------------------------------------------------------------------
+const CAUTION = "If the answer about pets is not truthful, eviction begins the day the untruth is discovered.";
+function animals() {
+  const a = S.assistance;
+  stage.innerHTML = `<div class="card">
+    <div class="kicker">Step 2 · Animals</div>
+    <h2 class="q">Will any animal live with you?</h2>
+    <div class="checks" style="flex-direction:column;align-items:stretch">
+      <label><input type="radio" name="an" value="none" ${S.animal === "none" ? "checked" : ""}> No animals</label>
+      <label><input type="radio" name="an" value="assistance" ${S.animal === "assistance" ? "checked" : ""}> A service animal or assistance animal for a disability</label>
+      <label><input type="radio" name="an" value="pet" ${S.animal === "pet" ? "checked" : ""}> A pet, or I plan to get one</label>
+    </div>
+    <div id="assist" ${S.animal === "assistance" ? "" : "hidden"}>
+      <p class="muted small" style="margin-top:1rem">Service and assistance animals are not pets. They're welcome with no fees, deposits or breed limits. We don't ask about your disability.</p>
+      <label class="f" for="aaKind">Which kind?</label>
+      <select class="t" id="aaKind"><option value="">Choose…</option><option value="service_dog" ${a.kind === "service_dog" ? "selected" : ""}>Service dog (trained to do work or tasks)</option>
+        <option value="support_animal" ${a.kind === "support_animal" ? "selected" : ""}>Assistance / emotional support animal</option></select>
+      <label class="f" for="aaSpecies">What kind of animal?</label><input class="t" id="aaSpecies" value="${esc(a.species)}" placeholder="Dog, cat…">
+      <div id="aaDog" ${a.kind === "service_dog" ? "" : "hidden"}><label class="f" for="aaTask">What work or task is the dog trained to perform?</label><input class="t" id="aaTask" value="${esc(a.service_dog_task)}"></div>
+      <div id="aaEsa" ${a.kind === "support_animal" ? "" : "hidden"}><label class="checks" style="margin-top:0.8rem"><label><input type="checkbox" id="aaLetter" ${a.support_letter ? "checked" : ""}> I have a letter from a health care provider (we may ask to see it)</label></label></div>
+    </div>
+    <h2 class="q" style="margin-top:1.6rem">Are you required to register as a sex offender?</h2>
+    <div class="checks" style="flex-direction:column;align-items:stretch">
+      <label><input type="radio" name="so" value="no" ${S.offender === "no" ? "checked" : ""}> No</label>
+      <label><input type="radio" name="so" value="yes" ${S.offender === "yes" ? "checked" : ""}> Yes</label>
+    </div>
+    <p class="muted small" style="margin-top:0.5rem">Want to check the registry yourself? Registry information is available from the Wisconsin Department of Corrections: <a href="https://wistaysafe.gov/" target="_blank" rel="noopener">wistaysafe.gov</a>. <a href="/registry/" target="_blank" rel="noopener">More</a>.</p>
+    <div class="clause" style="margin-top:1.2rem"><div class="src">Please read</div><p>${CAUTION}</p></div>
+    <label class="checks" style="display:flex;gap:0.6rem;align-items:flex-start"><input type="checkbox" id="ack" ${S.petAck ? "checked" : ""} style="margin-top:0.25rem"><span class="muted small">I understand. My answer about animals is true.</span></label>
+    <div class="msg"></div>
+    <div class="actions"><button class="b alt" id="bk">Back</button><button class="b go" id="nx">Next</button></div>
+  </div>`;
+  const sync = () => {
+    S.animal = (stage.querySelector('input[name="an"]:checked') || {}).value || null;
+    S.offender = (stage.querySelector('input[name="so"]:checked') || {}).value || null;
+    $("assist").hidden = S.animal !== "assistance";
+    a.kind = $("aaKind").value; a.species = $("aaSpecies").value.trim(); a.service_dog_task = ($("aaTask") || {}).value?.trim() || ""; a.support_letter = !!($("aaLetter") || {}).checked;
+    $("aaDog").hidden = a.kind !== "service_dog"; $("aaEsa").hidden = a.kind !== "support_animal"; S.petAck = $("ack").checked;
+  };
+  stage.querySelectorAll("input, select").forEach((x) => x.addEventListener("change", sync));
+  $("bk").onclick = back;
+  $("nx").onclick = () => {
+    sync();
+    if (!S.animal) return msg("Please choose an answer about animals.");
+    if (!S.offender) return msg("Please answer the sex offender question.");
+    if (!S.petAck) return msg("Please read the caution and check the box.");
+    if (S.animal === "pet") { api({ action: "pet_stop" }).catch(() => {}); return petStop(); }
+    if (S.animal === "assistance" && (!a.kind || !a.species || (a.kind === "service_dog" && !a.service_dog_task))) return msg("Please answer the assistance animal questions.");
+    next();
+  };
+}
+const MAX_PEOPLE = 5; // listings.json: 2 bedrooms (156 + 120 sq ft) = 5 people under Milwaukee Code ch. 275
+function sizeStop() {
+  stage.innerHTML = `<div class="card">
+    <div class="kicker">We're sorry</div>
+    <h2 class="q">Our homes fit up to ${MAX_PEOPLE} people.</h2>
+    <p class="muted">The City of Milwaukee sets how many people can live in a home by the size of its bedrooms. Our two-bedroom homes fit up to ${MAX_PEOPLE} people in all, counting adults and children, so an application for more people can't go forward.</p>
+    <p class="muted">If your household changes, or you counted someone who won't be living here, go back and change your answer.</p>
+    <div class="actions"><button class="b alt" id="bk">Go back</button><a class="b alt" href="/" style="text-decoration:none">Home</a></div>
+  </div>`;
+  $("bk").onclick = () => { S.size = null; paint(); };
+}
+function petStop() {
+  stage.innerHTML = `<div class="card">
+    <div class="kicker">We're sorry</div>
+    <h2 class="q">We can't move forward with a pet.</h2>
+    <p class="muted">2nd Chance Housing has a no-pets policy, so an application with a pet (or a plan to get one) can't go forward.</p>
+    <p class="muted" style="margin-top:0.8rem">Service animals and assistance animals for a disability are <b>not</b> pets and are always welcome. If that's your situation, go back and choose that answer.</p>
+    <div class="actions"><button class="b alt" id="bk">Go back</button><a class="b alt" href="/" style="text-decoration:none">Home</a></div>
+  </div>`;
+  $("bk").onclick = () => { S.animal = null; paint(); };
+}
+
+// ---------------------------------------------------------------------------
+// ID: photos of the front and back; the barcode on the back fills the details
+// (AAMVA PDF417, read in this browser; nothing is sent until you upload).
+// ---------------------------------------------------------------------------
+let zxing = null;
+async function readIdBarcode(file) {
+  zxing = zxing || await import("https://esm.sh/zxing-wasm@2/reader");
+  const read = zxing.readBarcodes || zxing.readBarcodesFromImageFile;
+  const res = await read(file, { formats: ["PDF417"], tryHarder: true, textMode: "Plain" });
+  return (res && res[0] && res[0].text) || "";
+}
+function parseAamva(text) {
+  text = text.replace(/<LF>/g, "\n").replace(/<CR>/g, "\r").replace(/<RS>/g, "\x1e");
+  const get = (code) => { const m = new RegExp("(?:^|[\\n\\r\\x1e]|DL|ID)" + code + "([^\\n\\r\\x1e]*)").exec(text); return m ? m[1].trim() : ""; };
+  const first = get("DAC") || get("DCT").split(/[ ,]/)[0] || "";
+  const date = (s) => { if (!/^\d{8}$/.test(s)) return ""; return Number(s.slice(0, 4)) > 1900 ? `${s.slice(0, 4)}-${s.slice(4, 6)}-${s.slice(6)}` : `${s.slice(4)}-${s.slice(0, 2)}-${s.slice(2, 4)}`; };
+  return { first: cap(first), middle: cap(get("DAD")).charAt(0), last: cap(get("DCS")), dob: date(get("DBB")),
+    id_number: get("DAQ"), id_state: get("DAJ"), id_expires: date(get("DBA")) };
+}
+const cap = (s) => (s || "").toLowerCase().replace(/\b([a-z])/g, (m) => m.toUpperCase()).replace(/\bMc([a-z])/g, (m, c) => "Mc" + c.toUpperCase());
+
+async function uploadDoc(scene, f) {
+  const type = f.type || "image/jpeg";
+  const u = await api({ action: "upload", token: S.token, kind: "photo", scene, mime: type, bytes: f.size });
+  const { error } = await client.storage.from("applications").uploadToSignedUrl(u.path, u.uploadToken, f, { contentType: type });
+  if (error) throw new Error("Upload failed. Check your connection and try again.");
+  S.docs[scene] = { kind: "photo", scene, path: u.path, mime: type, bytes: f.size, preview: URL.createObjectURL(f) };
+}
+const docSlot = (scene, label) => `<label class="photo">${S.docs[scene] ? (S.docs[scene].preview ? `<img src="${S.docs[scene].preview}" alt="">` : `<span>✅<br>${label}<br>saved</span>`) : `<span>🪪<br>${label}</span>`}<input type="file" accept="image/*" capture="environment" data-doc="${scene}" aria-label="${label}"></label>`;
+
+function idStep() {
+  const d = S.identity;
+  const fld = (k, label, type = "text", ph = "") => `<div><label class="f" for="id_${k}">${label}</label><input class="t" id="id_${k}" type="${type}" value="${esc(d[k])}" placeholder="${ph}"${k === "middle" ? ' maxlength="1" autocomplete="off"' : ""}></div>`;
+  stage.innerHTML = `<div class="card">
+    <div class="kicker">Step 3 · Your ID</div>
+    <h2 class="q">Snap your driver's license or state ID.</h2>
+    <p class="muted">Take a clear photo of the front and the back. We read the barcode on the back to fill in your details, then you check them.</p>
+    <div class="photos">${docSlot("id_front", "Front of ID")}${docSlot("id_back", "Back of ID (barcode)")}</div>
+    <div class="msg" id="bcMsg"></div>
+    <div class="grid2" style="display:grid;grid-template-columns:1fr 1fr;gap:0 10px">
+      ${fld("first", "First name")}${fld("last", "Last name")}${fld("middle", "Middle initial", "text", "A")}${fld("dob", "Date of birth", "date")}
+      ${fld("id_number", "ID number")}
+    </div>
+    <p class="muted small" style="margin-top:0.6rem">This is only a spelling check. Your ID photos are removed from our website once we've verified them.</p>
+    ${LOCK}<div class="msg"></div>
+    <div class="actions"><button class="b alt" id="bk">Back</button><button class="b go" id="nx">Next</button></div>
+  </div>`;
+  const keep = () => { for (const k of ["first", "middle", "last", "dob", "id_number"]) d[k] = $("id_" + k).value.trim(); d.middle = d.middle.charAt(0).toUpperCase(); };
+  stage.querySelectorAll("[data-doc]").forEach((inp) => inp.onchange = async () => {
+    const f = inp.files[0]; if (!f) return; keep();
+    const bm = $("bcMsg"); bm.className = "msg ok"; bm.textContent = "Saving securely…";
+    try {
+      await uploadDoc(inp.dataset.doc, f);
+      if (inp.dataset.doc === "id_back") {
+        bm.textContent = "Reading the barcode…";
+        let text = ""; try { text = await readIdBarcode(f); } catch { text = ""; }
+        if (text) { Object.assign(d, parseAamva(text), { from_barcode: true }); idStep(); $("bcMsg").className = "msg ok"; $("bcMsg").textContent = "We read your ID. Check every detail below and fix anything that's wrong."; return; }
+        idStep(); $("bcMsg").className = "msg err"; $("bcMsg").textContent = "We couldn't read the barcode. Type your details exactly as they appear on your ID (or retake the photo of the back).";
+        return;
+      }
+      idStep();
+    } catch (e) { bm.className = "msg err"; bm.textContent = e.message; }
+  });
+  $("bk").onclick = () => { keep(); back(); };
+  $("nx").onclick = () => {
+    keep();
+    if (!S.docs.id_front || !S.docs.id_back) return msg("Please add photos of the front and the back of your ID.");
+    if (!d.first || !d.last || !d.dob) return msg("Please fill in your name and date of birth as on your ID.");
+    if (!S.applicant.name) S.applicant.name = [d.first, d.last].join(" ");
+    next();
+  };
+}
+
+function about() {
+  const a = S.applicant;
+  const unit = (u, label) => `<label><input type="checkbox" name="unit" value="${u}" ${a.units.includes(u) ? "checked" : ""}> ${label}</label>`;
+  stage.innerHTML = `<div class="card">
+    <div class="kicker">Step 4 · About you</div>
+    <h2 class="q">Who are we saying yes to?</h2>
+    <label class="f" for="nm">Full name</label>
+    <input class="t" id="nm" autocomplete="name" value="${esc(a.name)}">
+    <label class="f" for="em">Email (verified)</label>
+    <input class="t" id="em" type="email" value="${esc(a.email)}" readonly>
+    <label class="f" for="ph">Mobile phone (optional, so we can text you)</label>
+    <input class="t" id="ph" type="tel" inputmode="tel" autocomplete="tel" placeholder="(414) 555-0123" value="${esc(a.phone || "")}">
+    <label class="f">Which home are you interested in?</label>
+    <div class="checks">${LISTED.map((u) => unit(u.unit, `Unit ${u.unit}${u.status === "ready" ? "" : u.status === "under_contract" ? " (under contract: only for another adult on that lease)" : " (not move-in ready yet: applications accepted)"}${STAIRS.includes(String(u.unit)) ? " · 2nd floor, stairs only" : ""}`)).join("")}${unit("any", "Any available")}</div>
+    ${LISTED.some((u) => STAIRS.includes(String(u.unit))) && STAIRS_NOTE ? `<p class="hint" style="background:#fff8e1;border-left:4px solid #e0a800;padding:8px 10px;border-radius:6px"><strong>Caution:</strong> ${LISTED.filter((u) => STAIRS.includes(String(u.unit))).length > 1 ? "Units" : "Unit"} ${esc(LISTED.filter((u) => STAIRS.includes(String(u.unit))).map((u) => u.unit).join(", "))}: ${esc(STAIRS_NOTE)}</p>` : ""}
+    <label class="f" for="lt">Which lease do you need?</label>
+    <select class="t" id="lt">
+      <option value="mtm" ${a.lease_term === "mtm" || !a.lease_term ? "selected" : ""}>Month-to-month (most residents)</option>
+      <option value="annual" ${a.lease_term === "annual" ? "selected" : ""}>Annual, 12 months (my housing agency requires it)</option>
+      <option value="cvi" ${a.lease_term === "cvi" ? "selected" : ""}>CVI program (CVI pays the deposit and first month)</option>
+    </select>
+    <label class="f" for="ag">Housing agency or program helping with rent (optional)</label>
+    <input class="t" id="ag" value="${esc(a.agency || "")}" placeholder="HACM, Milwaukee County, HUD-VASH, CVI…">
+    <label class="f" for="cwn">Caseworker or case manager (optional)</label>
+    <input class="t" id="cwn" value="${esc(a.cw_name || "")}" placeholder="Name of the person helping you with housing">
+    <label class="f" for="cwe">Caseworker's email (optional)</label>
+    <input class="t" id="cwe" type="email" value="${esc(a.cw_email || "")}" placeholder="name@agency.org">
+    <label class="f" for="cwp">Caseworker's phone (optional)</label>
+    <input class="t" id="cwp" type="tel" value="${esc(a.cw_phone || "")}">
+    <div class="meta">If you give an email, we will send your caseworker a copy of any notice about your lease so they can help you with it.</div>
+    <label class="f" for="mi">When would you like to move in?</label>
+    <input class="t" id="mi" type="date" value="${esc(a.move_in)}">
+    <label class="f" for="hd">How did you hear about us? (optional)</label>
+    <input class="t" id="hd" value="${esc(a.heard)}" placeholder="Friend, case manager, social media…">
+    <div class="msg"></div>
+    <div class="actions"><button class="b alt" id="bk">Back</button><button class="b go" id="nx">Next</button></div>
+  </div>`;
+  $("bk").onclick = back;
+  $("nx").onclick = () => {
+    a.name = $("nm").value.trim(); a.phone = $("ph").value.trim(); a.move_in = $("mi").value; a.heard = $("hd").value.trim(); a.lease_term = $("lt").value; a.agency = $("ag").value.trim();
+    a.cw_name = $("cwn").value.trim(); a.cw_email = $("cwe").value.trim().toLowerCase(); a.cw_phone = $("cwp").value.trim();
+    if (a.cw_email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(a.cw_email)) return msg("Please check your caseworker's email address.");
+    a.units = [...stage.querySelectorAll('input[name="unit"]:checked')].map((x) => x.value);
+    if (a.name.length < 2) return msg("Please enter your full name.");
+    next();
+  };
+}
+
+function household() {
+  const row = (p, i) => `<div class="person-row" data-i="${i}">
+      <input class="t" data-k="name" placeholder="Name" value="${esc(p.name)}" aria-label="Name">
+      <select class="t" data-k="relation" aria-label="Relationship">
+        ${["Adult", "Spouse / partner", "Child", "Grandchild", "Parent", "Other family", "Other"].map((r) => `<option ${p.relation === r ? "selected" : ""}>${r}</option>`).join("")}
+      </select>
+      <label class="f" style="margin:0;grid-column:1/-1">Date of birth</label>
+      <input class="t" data-k="dob" type="date" value="${esc(p.dob)}" aria-label="Date of birth" style="grid-column:1/-1">
+      <div class="full"><button class="linkbtn" data-rm="${i}">Remove</button></div>
+    </div>`;
+  // Start with one blank row per person counted on the welcome screen.
+  while (S.size && S.household.length < Math.min(S.size, MAX_PEOPLE) - 1) S.household.push({ name: "", relation: "Adult", dob: "" });
+  const draw = () => {
+    stage.innerHTML = `<div class="card">
+      <div class="kicker">Step 5 · Your household</div>
+      <h2 class="q">Who will live with you, including children?</h2>
+      <p class="muted">Add everyone who will live in the home besides you: adults <b>and children</b>, each with their date of birth. Children go on your lease by name, so please don't leave anyone out. Up to ${MAX_PEOPLE} people in all, counting you.</p>
+      <div id="people">${S.household.map(row).join("")}</div>
+      <button class="linkbtn" id="add" style="margin-top:0.8rem">+ Add a person</button>
+      <div class="msg"></div>
+      <div class="actions"><button class="b alt" id="bk">Back</button><button class="b go" id="nx">Next</button></div>
+    </div>`;
+    const sync = () => stage.querySelectorAll(".person-row").forEach((r) => {
+      const p = S.household[+r.dataset.i];
+      r.querySelectorAll("[data-k]").forEach((el) => { p[el.dataset.k] = el.value; });
+    });
+    $("add").onclick = () => { sync(); if (S.household.length + 1 >= MAX_PEOPLE) return msg(`That's ${MAX_PEOPLE} people with you. Our homes fit up to ${MAX_PEOPLE}.`); S.household.push({ name: "", relation: "Adult", dob: "" }); draw(); };
+    stage.querySelectorAll("[data-rm]").forEach((b) => b.onclick = () => { sync(); S.household.splice(+b.dataset.rm, 1); draw(); });
+    $("bk").onclick = () => { sync(); back(); };
+    $("nx").onclick = () => {
+      sync();
+      S.household = S.household.filter((p) => p.name.trim());
+      if (S.household.length + 1 > MAX_PEOPLE) return msg(`Our homes fit up to ${MAX_PEOPLE} people in all, counting you. Please remove ${S.household.length + 1 - MAX_PEOPLE}.`);
+      if (S.household.some((p) => !p.dob)) { draw(); return msg("Please add the date of birth for each person. It tells us who is a child on your lease."); }
+      S.size = S.household.length + 1;
+      S.household.forEach((p) => { const age = p.dob ? (Date.now() - new Date(p.dob)) / 31557600000 : null; p.minor = age !== null && age < 18; });
+      next();
+    };
+  };
+  draw();
+}
+
+function pledge() {
+  videoStep({
+    id: "pledge", kicker: "Step 6 · Your plan",
+    title: "Tell us your plan.",
+    body: `<p class="muted">Take your time. Nobody can predict the future, so we are not asking for a promise. We want to hear your plan. Talk, or write, in your own words.</p>
+      <div class="scenario"><div class="src">Two things to tell us</div><p><b>1.</b> How will you get your rent paid each month?<br><b>2.</b> If something changes (your work, a bill, a hard month), what will you do, and who will you tell?</p></div>
+      <p class="muted small">If you like, also tell us what a stable home would mean for you. You don't have to share anything you're not comfortable sharing. Telling us early is always the best plan, and we can work with a lot when we hear about it before the 1st.</p>`,
+    cue: "How will you get your rent paid each month? If something changes, what will you do, and who will you tell?",
+  });
+}
+
+function sceneStep(sc) {
+  const n = SCENES.indexOf(sc) + 1;
+  videoStep({
+    id: sc.id, kicker: `Lease scene ${n} of ${SCENES.length} · ${sc.title}`,
+    title: "What would happen if…",
+    body: `<div class="clause"><div class="src">${esc(sc.src)}</div><p>“${esc(sc.clause)}”</p></div>
+      <div class="scenario"><div class="src">The situation</div><p>${esc(sc.scenario)}</p></div>
+      <p class="prompt">${esc(sc.prompt)}</p>
+      <p class="muted small">Answer in your own words, by audio or video. There are no trick questions and no wrong answers. We just want to hear how you would handle it.</p>`,
+    cue: sc.prompt,
+    truth: sc.truth,
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Video recording: in-browser camera (MediaRecorder), with a phone camera /
+// file fallback. Each recording uploads right after "Use this recording".
+// ---------------------------------------------------------------------------
+let stream = null, recorder = null, chunks = [], timer = null;
+function stopCamera() {
+  clearInterval(timer);
+  if (recorder && recorder.state !== "inactive") { try { recorder.stop(); } catch {} }
+  if (stream) stream.getTracks().forEach((t) => t.stop());
+  stream = null; recorder = null;
+}
+function pickAudioMime() {
+  const opts = ["audio/webm;codecs=opus", "audio/webm", "audio/mp4", "audio/ogg;codecs=opus"];
+  return window.MediaRecorder ? opts.find((m) => MediaRecorder.isTypeSupported(m)) || "" : "";
+}
+function pickMime() {
+  const opts = ["video/webm;codecs=vp9,opus", "video/webm;codecs=vp8,opus", "video/webm", "video/mp4;codecs=avc1,mp4a", "video/mp4"];
+  return window.MediaRecorder ? opts.find((m) => MediaRecorder.isTypeSupported(m)) || "" : "";
+}
+
+function videoStep(o) {
+  const saved = S.media[o.id];
+  stage.innerHTML = `<div class="card">
+    <div class="kicker">${esc(o.kicker)}</div>
+    <h2 class="q">${esc(o.title)}</h2>
+    ${o.body}
+    <div class="cam" id="cam" hidden><video id="v" playsinline muted></video>
+      <div class="hud"><span class="dot" id="rt" hidden>0:00</span><span id="lim"></span></div>
+      <div class="cue" id="cue">${esc(o.cue)}</div></div>
+    <div class="voice" id="voice" hidden>
+      <div class="cue">${esc(o.cue)}</div>
+      <div class="hud2"><span class="dot" id="rt2" hidden>0:00</span><span id="lim2"></span></div>
+      <audio id="au" controls hidden></audio></div>
+    <div id="savedBox">${saved ? `<div class="saved">✓ Recording saved (${saved.seconds}s)</div>` : ""}</div>
+    ${o.truth && saved ? `<div class="reveal"><div class="src">Here's what actually happens</div><p>${esc(o.truth)}</p></div>` : ""}
+    <label class="f" for="note">Prefer to write? Type your answer here instead (a few sentences). You can also add to a recording.</label>
+    <textarea class="t" id="note">${esc(S.answers[o.id] || "")}</textarea>
+    <div class="msg"></div>
+    <div class="actions" id="act"></div>
+    <input type="file" id="file" accept="audio/*,video/*" hidden>
+  </div>`;
+  const act = $("act"), v = $("v");
+  const keepNote = () => { S.answers[o.id] = $("note").value.trim(); };
+  $("note").addEventListener("input", () => { keepNote(); if (curState === "idle") buttons("idle"); });
+  let blob = null, seconds = 0, mime = "", mode = S.mode || "audio";
+  const au = $("au");
+  const rtEl = () => (mode === "audio" ? $("rt2") : $("rt"));
+
+  const doneNow = () => !!S.media[o.id] || (S.answers[o.id] || "").length >= 25;
+  let curState = "idle";
+  const buttons = (state) => {
+    curState = state;
+    const B = {
+      back: `<button class="b alt" id="bk">Back</button>`,
+      open: `<button class="b go" id="oaud">${saved ? "Re-record audio" : "Record audio"}</button><button class="b alt" id="ovid">${saved ? "Re-record on video" : "Record on video"}</button>`,
+      next: doneNow() ? `<button class="b go" id="nx">Next</button>` : "",
+      rec: `<button class="b rec" id="rec">● Record</button>`,
+      stop: `<button class="b rec" id="stop">■ Stop</button>`,
+      redo: `<button class="b alt" id="redo">Record again</button>`,
+      use: `<button class="b go" id="use">Use this recording</button>`,
+    };
+    act.innerHTML = {
+      idle: B.back + B.open + B.next, live: B.back + B.rec, recording: B.stop, review: B.redo + B.use,
+    }[state];
+    $("bk") && ($("bk").onclick = () => { keepNote(); stopCamera(); back(); });
+    $("nx") && ($("nx").onclick = () => { keepNote(); next(); });
+    $("oaud") && ($("oaud").onclick = () => openCam("audio"));
+    $("ovid") && ($("ovid").onclick = () => openCam("video"));
+    $("rec") && ($("rec").onclick = start);
+    $("stop") && ($("stop").onclick = () => recorder && recorder.stop());
+    $("redo") && ($("redo").onclick = () => openCam(mode));
+    $("use") && ($("use").onclick = upload);
+  };
+
+  async function openCam(m = "audio") {
+    msg("");
+    mode = m; S.mode = m;
+    mime = mode === "audio" ? pickAudioMime() : pickMime();
+    $("file").accept = mode === "audio" ? "audio/*" : "video/*";
+    if (mode === "video") $("file").setAttribute("capture", "user"); else $("file").removeAttribute("capture");
+    if (!mime || !navigator.mediaDevices?.getUserMedia) return $("file").click();
+    try {
+      stream = await navigator.mediaDevices.getUserMedia(mode === "audio" ? { audio: true }
+        : { video: { facingMode: "user", width: { ideal: 720 }, height: { ideal: 960 } }, audio: true });
+    } catch {
+      msg(mode === "audio" ? "We couldn't use your microphone. Allow the microphone in your browser, or upload a recording from your phone."
+        : "Camera blocked. Allow camera and microphone in your browser, or record with your phone's camera instead.");
+      act.insertAdjacentHTML("afterbegin", `<button class="b alt" id="fb">Upload from my phone</button>`);
+      $("fb").onclick = () => $("file").click();
+      return;
+    }
+    au.hidden = true; au.removeAttribute("src");
+    if (mode === "audio") {
+      $("cam").hidden = true; $("voice").hidden = false;
+      $("lim2").textContent = `max ${MAX_SECONDS}s`;
+    } else {
+      $("voice").hidden = true; $("cam").hidden = false; $("cue").hidden = false;
+      v.srcObject = stream; v.muted = true; v.controls = false; v.classList.add("mirror"); await v.play();
+      $("lim").textContent = `max ${MAX_SECONDS}s`;
+    }
+    buttons("live");
+  }
+
+  function start() {
+    chunks = [];
+    recorder = new MediaRecorder(stream, mode === "audio" ? { mimeType: mime, audioBitsPerSecond: 64000 } : { mimeType: mime, videoBitsPerSecond: 900000, audioBitsPerSecond: 64000 });
+    recorder.ondataavailable = (e) => e.data.size && chunks.push(e.data);
+    recorder.onstop = () => {
+      clearInterval(timer);
+      blob = new Blob(chunks, { type: mime.split(";")[0] });
+      stream && stream.getTracks().forEach((t) => t.stop());
+      if (mode === "audio") { au.src = URL.createObjectURL(blob); au.hidden = false; rtEl().hidden = true; }
+      else { v.srcObject = null; v.src = URL.createObjectURL(blob); v.muted = false; v.controls = true; v.classList.remove("mirror"); $("rt").hidden = true; $("cue").hidden = true; }
+      buttons("review");
+    };
+    recorder.start(1000);
+    const t0 = Date.now(); seconds = 0; rtEl().hidden = false;
+    timer = setInterval(() => {
+      seconds = Math.round((Date.now() - t0) / 1000);
+      rtEl().textContent = `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
+      if (seconds >= MAX_SECONDS) recorder.stop();
+    }, 250);
+    buttons("recording");
+  }
+
+  $("file").onchange = () => {
+    const f = $("file").files[0]; if (!f) return;
+    blob = f; mime = f.type || (mode === "audio" ? "audio/mp4" : "video/mp4");
+    const isAudio = mime.startsWith("audio/");
+    mode = isAudio ? "audio" : "video"; S.mode = mode;
+    const url = URL.createObjectURL(f);
+    if (isAudio) {
+      $("cam").hidden = true; $("voice").hidden = false; $("lim2").textContent = ""; au.src = url; au.hidden = false;
+      au.onloadedmetadata = () => { seconds = Math.round(au.duration) || 0; };
+    } else {
+      $("voice").hidden = true; $("cam").hidden = false; $("cue").hidden = true;
+      v.srcObject = null; v.src = url; v.controls = true; v.muted = false; v.classList.remove("mirror");
+      v.onloadedmetadata = () => { seconds = Math.round(v.duration) || 0; };
+    }
+    buttons("review");
+  };
+
+  async function upload() {
+    if (!blob) return;
+    keepNote();
+    const btn = $("use"); btn.disabled = true; btn.textContent = "Saving securely…";
+    try {
+      const type = (blob.type || mime).split(";")[0];
+      const u = await api({ action: "upload", token: S.token, kind: type.startsWith("audio/") ? "audio" : "video", scene: o.id, mime: type, bytes: blob.size });
+      const { error } = await client.storage.from("applications").uploadToSignedUrl(u.path, u.uploadToken, blob, { contentType: type });
+      if (error) throw new Error("Upload failed. Check your connection and try again.");
+      S.media[o.id] = { kind: type.startsWith("audio/") ? "audio" : "video", scene: o.id, path: u.path, mime: type, bytes: blob.size, seconds };
+      stopCamera();
+      paint(); // re-render: shows "saved" and, for lease scenes, what actually happens
+    } catch (e) { msg(e.message); btn.disabled = false; btn.textContent = "Use this recording"; }
+  }
+
+  buttons("idle");
+}
+
+function photos() {
+  const slot = (id, label) => {
+    const p = S.photos[id];
+    return `<label class="photo">${p ? (p.preview ? `<img src="${p.preview}" alt="">` : `<span>✅<br>${label}<br>saved</span>`) : `<span>📷<br>${label}</span>`}
+      <input type="file" accept="image/*" capture="environment" data-photo="${id}" aria-label="${label}"></label>`;
+  };
+  stage.innerHTML = `<div class="card">
+    <div class="kicker">Optional · How you care for a home</div>
+    <h2 class="q">Show us how you keep a home.</h2>
+    <p class="muted">If you have a place now, snap your kitchen sink and bathroom sink as they are today. This is optional, and if you're in a shelter, staying with someone, or without a place right now, just skip it.</p>
+    <div class="photos">${slot("kitchen", "Kitchen sink")}${slot("bathroom", "Bathroom sink")}</div>
+    <div class="msg"></div>
+    <div class="actions"><button class="b alt" id="bk">Back</button><button class="b go" id="nx">Next</button></div>
+  </div>`;
+  $("bk").onclick = back;
+  $("nx").onclick = next;
+  stage.querySelectorAll("[data-photo]").forEach((inp) => inp.onchange = async () => {
+    const f = inp.files[0]; if (!f) return;
+    const id = inp.dataset.photo, type = f.type || "image/jpeg";
+    msg("Saving securely…", "ok");
+    try {
+      const u = await api({ action: "upload", token: S.token, kind: "photo", scene: id, mime: type, bytes: f.size });
+      const { error } = await client.storage.from("applications").uploadToSignedUrl(u.path, u.uploadToken, f, { contentType: type });
+      if (error) throw new Error("Upload failed. Try again.");
+      S.photos[id] = { kind: "photo", scene: id, path: u.path, mime: type, bytes: f.size, preview: URL.createObjectURL(f) };
+      photos();
+    } catch (e) { msg(e.message); }
+  });
+}
+
+function review() {
+  const need = ["pledge", ...SCENES.map((s) => s.id)];
+  const written = (id) => (S.answers[id] || "").length >= 25;
+  const label = (id) => id === "pledge" ? "Your plan" : SCENES.find((s) => s.id === id).title;
+  const missing = need.filter((id) => !S.media[id] && !written(id)).concat(["id_front", "id_back"].filter((d) => !S.docs[d]));
+  stage.innerHTML = `<div class="card">
+    <div class="kicker">Last step · Review</div>
+    <h2 class="q">Ready to send, ${esc(S.applicant.name.split(" ")[0])}?</h2>
+    <ul class="review-list">
+      ${need.map((id) => `<li><span>${esc(label(id))}</span>${S.media[id] ? `<span class="ok">✓ ${S.media[id].seconds}s</span>` : written(id) ? `<span class="ok">✓ written</span>` : `<span class="no">missing</span>`}</li>`).join("")}
+      <li><span>Household</span><span>${S.household.length ? S.household.length + " more" : "Just you"}</span></li>
+      <li><span>Home photos</span><span>${Object.keys(S.photos).length || "skipped"}</span></li>
+      <li><span>ID</span><span class="${S.docs.id_front && S.docs.id_back ? "ok" : "no"}">${S.docs.id_front && S.docs.id_back ? "✓ " + esc([S.identity.first, S.identity.last].join(" ")) : "missing"}</span></li>
+      <li><span>Animals</span><span>${S.animal === "assistance" ? "assistance animal" : "none"}</span></li>
+    </ul>
+    <label class="checks" style="margin-top:1.2rem;display:flex;gap:0.6rem;align-items:flex-start">
+      <input type="checkbox" id="agree" style="margin-top:0.25rem">
+      <span class="muted small">Everything I said is true. I agree that 2nd Chance Housing may keep my recordings and photos privately to review this application. If I'm not approved, they are deleted within 90 days.</span>
+    </label>
+    ${LOCK}
+    <div class="msg"></div>
+    <div class="actions"><button class="b alt" id="bk">Back</button><button class="b go" id="send" ${missing.length && !WT ? "disabled" : ""}>Send my application</button></div>
+  </div>`;
+  if (missing.length && !WT) msg(`Some items are missing (${missing.length}). Go back and complete them.`);
+  $("bk").onclick = back;
+  $("send").onclick = async () => {
+    if (WT) { S.ref = "WALKTHROUGH"; return next(); }
+    if (!$("agree").checked) return msg("Please check the box to confirm.");
+    const btn = $("send"); btn.disabled = true; btn.textContent = "Sending…";
+    try {
+      const media = [...Object.values(S.media), ...[...Object.values(S.photos), ...Object.values(S.docs)].map(({ preview, ...m }) => m)];
+      const d = S.identity;
+      const identity = { first: d.first, middle: d.middle, last: d.last, dob: d.dob,
+        id_number: d.id_number, id_state: d.id_state, id_expires: d.id_expires, from_barcode: d.from_barcode };
+      const r = await api({ action: "submit", token: S.token, applicant: S.applicant, household: S.household, answers: S.answers, media, scene_version: SCENE_VERSION,
+        identity, animal: S.animal, offender: S.offender, assistance_animal: S.animal === "assistance" ? S.assistance : null, pet_caution_ack: S.petAck });
+      S.ref = r.ref; next();
+    } catch (e) { msg(e.message); btn.disabled = false; btn.textContent = "Send my application"; }
+  };
+}
+
+function done() {
+  stage.innerHTML = `<div class="card">
+    <div class="kicker">Sent</div>
+    <h1 class="big">Thank you. <em>We heard you.</em></h1>
+    <p class="muted">Your application is in. A member of our team will review your recordings and reach out by text or email. Your reference number is <strong>${esc(S.ref)}</strong>.</p>
+    <p class="muted" style="margin-top:1rem">Questions? <a href="mailto:info@2ndchinc.org">info@2ndchinc.org</a></p>
+    <div class="actions"><a class="b alt" href="/" style="text-decoration:none">Back to home</a></div>
+  </div>`;
+  S.token = "";
+}
+
+// The units on offer come from the listing (/data/listings.json), the same file as the landing page.
+let LISTED = [], STAIRS = [], STAIRS_NOTE = "";
+try { const J = await (await fetch("/data/listings.json", { cache: "no-cache" })).json(); STAIRS = J.stairs_only_units || []; STAIRS_NOTE = J.stairs_caution || ""; LISTED = J.units.filter((u) => u.listed && u.applications_open !== false); } catch {}   // applications_open false: not on this page
+// Rent ready is set by staff (https://2ndchinc.org/staff/waitlist/); a unit that is not rent ready is open for applications (Stephen, 11/10/2026).
+{ let ready = []; try { ready = (await client.rpc("public_units_rent_ready")).data || []; } catch {}
+  for (const u of LISTED) u.status = ready.includes(String(u.unit)) ? "ready" : "open"; }
+try { const held = (await client.rpc("public_units_under_contract")).data || []; for (const u of LISTED) if (u.status === "ready" && held.includes(String(u.unit))) u.status = "under_contract"; } catch {}
+try { const leased = (await client.rpc("public_units_leased")).data; if (Array.isArray(leased)) LISTED = LISTED.filter((u) => !leased.includes(String(u.unit))); } catch {}
+{ const u = new URLSearchParams(location.search).get("unit"); if (LISTED.some((x) => x.unit === u)) S.applicant.units = [u]; }
+
+window.addEventListener("beforeunload", (e) => { if (S.token && at > 1 && steps[at] !== "done") { e.preventDefault(); e.returnValue = ""; } });
+paint();
+</script>
+<script src="/assets/report.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Quit Claim Deeds — 2nd Chance Housing Staff</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/portal/portal.css">
+<style>
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-bottom: 12px; max-width: 760px; }
+  .meta { color: var(--muted); font-size: 0.9rem; }
+  .form { display: grid; gap: 12px; }
+  .form label { display: grid; gap: 4px; font-size: 0.9rem; color: var(--muted); }
+  .form input, .form select, .form textarea { font: inherit; padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); color: inherit; width: 100%; box-sizing: border-box; }
+  .form label.check { display: flex; gap: 8px; align-items: center; }
+  .form label.check input { width: auto; }
+  .row2 { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 560px) { .two { grid-template-columns: 1fr; } }
+  [hidden] { display: none !important; }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+</head>
+<body>
+<div class="appbar" data-nav="staff">
+  <div class="appbar-in">
+    <div class="org">2nd Chance Housing<span>Quit claim deeds · Staff</span></div>
+    <div class="row" id="userBar" hidden>
+      <button class="linkbtn" type="button" id="signOutBtn">Sign out</button>
+    </div>
+  </div>
+</div>
+<main class="wrap">
+  <header><h1>Quit claim deeds</h1><p class="lead">For a deed after an owner has died, start at <a href="https://2ndchinc.org/staff/deeds/transfer/">https://2ndchinc.org/staff/deeds/transfer/</a>. Fill in a deed, save it, and print the PDF. The PDF is drawn in your browser from the saved information. A deed is not valid until it is signed and recorded; have the final wording checked by an attorney before recording.</p></header>
+  <div id="signin" class="narrow"></div>
+  <div id="app" hidden>
+    <div class="card"><div class="row2"><b>Saved deeds</b><button class="btn" type="button" id="newBtn">New deed</button></div><div id="list" style="margin-top:8px"></div></div>
+    <div class="card" id="editor"><h2 style="margin-top:0" id="edTitle">New deed</h2>
+      <form class="form" id="f" autocomplete="off">
+        <div class="two">
+          <label>Layout<select id="template"><option value="cook">Cook County style (Illinois statutory)</option><option value="peoria">Peoria County style (Illinois)</option></select></label>
+          <label>Property (fills the fields below)<select id="unit"></select></label>
+        </div>
+        <label>Label for the list (not printed)<input id="title" type="text" maxlength="120"></label>
+        <div class="two">
+          <label>Grantor 1 (current owner)<input id="g0" type="text" maxlength="120"></label>
+          <label>Grantor 2<input id="g1" type="text" maxlength="120"></label>
+          <label>Grantor 3<input id="g2" type="text" maxlength="120"></label>
+          <label>Grantor 4<input id="g3" type="text" maxlength="120"></label>
+        </div>
+        <div class="two">
+          <label>Grantor's city or village<input id="grantor_city" type="text" maxlength="80"></label>
+          <label>Grantor's county<input id="grantor_county" type="text" maxlength="80" placeholder="Cook"></label>
+        </div>
+        <div class="two">
+          <label>Grantee 1 (receives the property)<input id="e0" type="text" maxlength="120"></label>
+          <label>Grantee 2<input id="e1" type="text" maxlength="120"></label>
+          <label>Grantee 3<input id="e2" type="text" maxlength="120"></label>
+          <label>Grantee 4<input id="e3" type="text" maxlength="120"></label>
+        </div>
+        <div class="two">
+          <label>Grantee's city or village<input id="grantee_city" type="text" maxlength="80"></label>
+          <label>Grantee's county<input id="grantee_county" type="text" maxlength="80" placeholder="Cook"></label>
+        </div>
+        <label data-for="peoria">Form of ownership (for example joint tenants, tenants in common)<input id="ownership_form" type="text" maxlength="120"></label>
+        <label>Consideration (blank prints: Ten ($10.00) DOLLARS and other good and valuable consideration(s))<input id="consideration" type="text" maxlength="200"></label>
+        <label>Legal description<textarea id="legal_description" rows="5"></textarea></label>
+        <label class="check"><input type="checkbox" id="saveLegal"> Also save this legal description on the property for next time</label>
+        <div class="two">
+          <label>Permanent index number (PIN)<input id="pin" type="text" maxlength="60"></label>
+          <label>Property county<input id="property_county" type="text" maxlength="80" placeholder="Cook"></label>
+        </div>
+        <label>Property address<input id="property_address" type="text" maxlength="200"></label>
+        <label>Date of the deed (blank prints a blank date)<input id="deed_date" type="date"></label>
+        <div class="two"><label>Approved for signing by (counsel or reviewer)<input id="approved_by" type="text" maxlength="160"></label><label>Date approved<input id="approved_on" type="date"></label></div>
+        <div class="meta">A deed with no approval prints with a DRAFT watermark on every page. Changing the deed's facts after approval should be re-approved: clear these two fields.</div>
+        <div class="two" data-for="cook">
+          <label>Mail to (up to 4 lines)<textarea id="mail_to" rows="4"></textarea></label>
+          <label>Name and address of tax payer (up to 3 lines)<textarea id="taxpayer" rows="3"></textarea></label>
+        </div>
+        <div class="two" data-for="peoria">
+          <label>This document prepared by (up to 4 lines)<textarea id="prepared_by" rows="3"></textarea></label>
+          <label>Return document to (up to 4 lines)<textarea id="return_to" rows="3"></textarea></label>
+        </div>
+        <label data-for="peoria">Transfer tax exemption paragraph, 35 ILCS 200/31-45 (letter, for example e)<input id="exempt_letter" type="text" maxlength="4"></label>
+        <div class="row2">
+          <button class="btn primary" type="submit">Save and print PDF</button>
+          <button class="btn" type="button" id="saveOnly">Save only</button>
+          <button class="btn" type="button" id="blankPdf">Print a blank form</button>
+        </div>
+        <div class="meta" id="msg" role="status"></div>
+      </form>
+    </div>
+  </div>
+</main>
+<script type="module">
+import { client, $, esc, signIn, signOut, errorText } from "/assets/portal/portal.js";
+import { buildDeedPdf } from "/staff/deeds/deed-pdf.js?v=2";
+const say = (t, bad) => { $("msg").textContent = t; $("msg").style.color = bad ? "var(--bad)" : ""; };
+const rpc = async (fn, args) => { const { data, error } = await client.rpc(fn, args); if (error) throw new Error(await errorText(error)); return data; };
+const TEXT = ["title", "grantor_city", "grantor_county", "grantee_city", "grantee_county", "ownership_form", "consideration", "legal_description", "pin", "property_county", "property_address", "deed_date", "mail_to", "taxpayer", "prepared_by", "return_to", "exempt_letter", "approved_by", "approved_on"];
+let units = [], deeds = [], editing = null, editingVersion = null;
+
+const showFor = () => document.querySelectorAll("[data-for]").forEach((el) => { el.hidden = el.dataset.for !== $("template").value; });
+const read = () => {
+  const o = { id: editing || null, template: $("template").value, unit_id: $("unit").value || null,
+    grantors: [0, 1, 2, 3].map((i) => $("g" + i).value.trim()).filter(Boolean), grantees: [0, 1, 2, 3].map((i) => $("e" + i).value.trim()).filter(Boolean) };
+  for (const k of TEXT) o[k] = $(k).value;
+  if (editing) o.version = editingVersion;
+  return o;
+};
+const fill = (d) => {
+  editing = d.id || null; editingVersion = d.version ?? null;
+  $("edTitle").textContent = editing ? "Edit deed" : "New deed";
+  $("template").value = d.template || "cook"; $("unit").value = d.unit_id || "";
+  [0, 1, 2, 3].forEach((i) => { $("g" + i).value = (d.grantors || [])[i] || ""; $("e" + i).value = (d.grantees || [])[i] || ""; });
+  for (const k of TEXT) $(k).value = d[k] || "";
+  $("saveLegal").checked = false; showFor(); say("");
+};
+const printPdf = async (d) => {
+  const win = window.open("", "_blank");
+  try {
+    const bytes = await buildDeedPdf(d);
+    const url = URL.createObjectURL(new Blob([bytes], { type: "application/pdf" }));
+    if (win) win.location.href = url; else { const a = document.createElement("a"); a.href = url; a.download = "quit-claim-deed.pdf"; a.click(); }
+  } catch (err) { if (win) win.close(); throw err; }
+};
+const renderList = () => {
+  $("list").innerHTML = deeds.map((d) => `<div class="row2" style="margin-bottom:6px"><span><b>${esc(d.title || "(no label)")}</b> · ${d.template === "peoria" ? "Peoria" : "Cook"} · updated ${new Date(d.updated_at).toLocaleDateString("en-US")}</span>
+    <button class="linkbtn" data-edit="${esc(d.id)}">Edit</button><button class="linkbtn" data-print="${esc(d.id)}">Print PDF</button><button class="linkbtn" data-del="${esc(d.id)}">Delete</button></div>`).join("") || '<p class="meta">No deeds saved yet.</p>';
+};
+const load = async () => {
+  units = await rpc("deed_staff_units"); deeds = await rpc("deed_staff_list");
+  $("unit").innerHTML = '<option value="">No property chosen</option>' + units.map((u) => `<option value="${esc(u.id)}">Unit ${esc(u.unit)} · ${esc(u.address || "")}</option>`).join("");
+  renderList();
+};
+const save = async () => {
+  const d = read();
+  if (!d.title.trim()) d.title = (d.property_address || "Deed") + (d.grantees[0] ? " to " + d.grantees[0] : "");
+  const id = await rpc("deed_staff_save", { p: d, p_save_legal: $("saveLegal").checked });
+  editing = id; $("edTitle").textContent = "Edit deed"; d.id = id;
+  await load(); editingVersion = (deeds.find((x) => x.id === id) || {}).version ?? null; d.version = editingVersion; return d;
+};
+$("template").addEventListener("change", showFor);
+$("unit").addEventListener("change", () => {
+  const u = units.find((x) => x.id === $("unit").value); if (!u) return;
+  // Everything that belongs to the property is replaced, never merged: no owner, address, PIN or legal description from the previous property can remain.
+  for (const i of [0, 1, 2, 3]) $("g" + i).value = "";
+  $("property_address").value = u.address || ""; $("pin").value = u.pin || ""; $("legal_description").value = u.legal || ""; $("property_county").value = "";
+  (u.owners || []).slice(0, 4).forEach((n, i) => { $("g" + i).value = n; });
+  if ((u.owners || []).length > 4) say("This property has " + u.owners.length + " owners; the form shows four. Add the rest on an attached addendum with counsel.", true);
+});
+$("newBtn").addEventListener("click", () => fill({}));
+$("f").addEventListener("submit", async (e) => {
+  e.preventDefault(); say("Saving…");
+  try { const d = await save(); await printPdf(d); say("Saved. The PDF opened in a new tab."); } catch (err) { say(err.message, true); }
+});
+$("saveOnly").addEventListener("click", async () => { say("Saving…"); try { await save(); say("Saved."); } catch (err) { say(err.message, true); } });
+$("blankPdf").addEventListener("click", async () => { try { await printPdf({ template: $("template").value, blank: true }); say(""); } catch (err) { say(err.message, true); } });
+$("list").addEventListener("click", async (e) => {
+  const t = e.target.dataset || {};
+  try {
+    if (t.edit) { fill(deeds.find((d) => d.id === t.edit)); $("editor").scrollIntoView({ behavior: "smooth" }); }
+    else if (t.print) await printPdf(deeds.find((d) => d.id === t.print));
+    else if (t.del && confirm("Delete this saved deed?")) { await rpc("deed_staff_delete", { p_id: t.del }); if (editing === t.del) fill({}); await load(); }
+  } catch (err) { say(err.message, true); }
+});
+$("signOutBtn").addEventListener("click", signOut);
+const who = await signIn($("signin"), { audience: "staff" });
+$("userBar").hidden = false;
+if (who.role !== "staff") location.replace("/association-owners/roca1/"); else { $("app").hidden = false; fill({}); await load();
+  const ed = new URLSearchParams(location.search).get("edit"); const dd = deeds.find((x) => x.id === ed); if (dd) fill(dd);
+}
+</script>
+</body>
+</html>
