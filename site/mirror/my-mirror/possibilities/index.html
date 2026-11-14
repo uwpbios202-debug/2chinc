@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>See My Possibilities | The Human Mirror</title>
+<link rel="icon" href="/favicon.png">
+<link rel="stylesheet" href="/mirror/assets/mirror.css?v=30261113l">
+<link rel="stylesheet" href="/mirror/assets/possibilities/mirror.css?v=3">
+</head>
+<body data-area="my">
+<main id="main" class="mm-main">
+  <p id="ip-loading" role="status">Loading My Mirror…</p>
+  <section class="ip" hidden>
+    <p><a href="/mirror/my-mirror/">My Mirror</a> / <a href="/mirror/my-mirror/vision/">My vision</a></p>
+    <h1>See My Possibilities</h1>
+    <p class="mm-lead">Explore three possibilities with your own photo or follow one fictional person through every scene.</p>
+    <div class="ip-layout">
+      <section class="ip-card" aria-labelledby="ip-reflection-title">
+        <h2 id="ip-reflection-title">My reflection</h2>
+        <div class="ip-mirror">
+          <div id="ip-placeholder" class="ip-placeholder">
+            <img src="/mirror/assets/possibilities/2ch.png" alt="2nd Chance Housing Inc.">
+            <p>Your photo can go here.</p>
+          </div>
+          <img id="ip-photo" alt="Your selected photo in the mirror" hidden>
+        </div>
+        <label for="ip-person"><strong>Choose a sample person</strong></label><br>
+        <select id="ip-person"><option value="">Scene without a sample person</option></select><p class="mm-small">Sample people are fictional. Choose whoever you’d like to follow.</p>
+        <label for="ip-file"><strong>Choose a photo (optional)</strong></label><br>
+        <input type="file" id="ip-file" accept="image/jpeg,image/png,image/webp" aria-describedby="ip-privacy">
+        <p id="ip-privacy" class="mm-small">Your photo appears inside each scene and clears when you leave or reload. The mirror uses your original photo as a collage.</p>
+        <div id="ip-crop" class="ip-crop" hidden>
+          <label for="ip-position">Vertical position</label>
+          <input id="ip-position" type="range" min="0" max="100" value="42">
+          <label for="ip-zoom">Zoom</label>
+          <input id="ip-zoom" type="range" min="100" max="200" value="100">
+        </div>
+        <button class="mm-btn mm-btn-quiet" id="ip-remove" type="button" hidden>Remove photo</button>
+        <p class="ip-status mm-small" id="ip-status" role="status"></p>
+      </section>
+      <section class="ip-card" aria-label="Choose a possibility">
+        <fieldset>
+          <legend><strong>What could my future include?</strong></legend>
+          <label><input type="radio" name="ip-scene" value="home" checked> A place of my own</label>
+          <label><input type="radio" name="ip-scene" value="trade"> At work</label>
+          <label><input type="radio" name="ip-scene" value="community"> Giving back</label>
+        </fieldset>
+        <div class="ip-scene-image">
+          <img id="ip-art" class="ip-art" width="800" height="533" alt="">
+          <div id="ip-inset" hidden><img id="ip-scene-photo" alt="Your selected photo inside the possibility"></div>
+        </div>
+        <p id="ip-image-description" class="mm-small"></p>
+        <div aria-live="polite">
+          <h2 id="ip-title"></h2>
+          <p><strong>One step I could take</strong></p>
+          <p id="ip-step"></p>
+        </div>
+        <a class="mm-btn" id="ip-goal" href="/mirror/my-mirror/plan/">Use this idea in My Plan</a>
+        <p class="mm-small">You can change the words and decide whether to save the goal.</p>
+      </section>
+    </div>
+  </section>
+</main>
+<script type="module" src="/mirror/assets/mirror-ui.js?v=20261113h"></script>
+<script type="module">
+import { requireArea } from "/mirror/assets/mirror-client.js?v=20261113p";
+import { mountMirror } from "/mirror/assets/possibilities/mirror.js?v=3";
+const loading = document.getElementById("ip-loading");
+try {
+  await requireArea("my");
+  const panel = document.querySelector(".ip");
+  mountMirror(panel);
+  panel.hidden = false;
+  loading.remove();
+} catch {
+  loading.textContent = "My Mirror couldn’t open. Return to sign-in and try again.";
+}
+</script>
+</body>
+</html>

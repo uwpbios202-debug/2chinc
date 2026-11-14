@@ -20,7 +20,17 @@
 <script type="module" src="/mirror/assets/mirror-ui.js?v=20261113h"></script>
 <script type="module">
 import { reflectionPage } from "/mirror/assets/reflection-page.js?v=20261113p";
-reflectionPage();
+await reflectionPage();
+const head = document.querySelector("#mmHead h1");
+if (head) {
+  const row = document.createElement("p");
+  const link = document.createElement("a");
+  link.className = "mm-btn mm-btn-secondary";
+  link.href = "/mirror/my-mirror/possibilities/";
+  link.textContent = "See My Possibilities";
+  row.append(link);
+  document.getElementById("mmHead").append(row);
+}
 </script>
 </body>
 </html>

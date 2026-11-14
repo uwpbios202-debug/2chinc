@@ -1,0 +1,452 @@
+[
+  {
+    "id": "maya",
+    "name": "Maya",
+    "age": 26,
+    "role": "Small-appliance repair trainee",
+    "characterBrief": "Black woman, deep brown skin, short natural puff, round face, plus size, olive shirt",
+    "sceneBrief": "checking an unplugged fan at a repair bench",
+    "alt": "Maya, a fictional small-appliance repair trainee, in a workplace scene.",
+    "personality": "Curious and methodical. Likes finding the reason a thing stopped working.",
+    "scenes": {
+      "home": "people/maya-home.webp",
+      "work": "people/maya-trade.webp",
+      "givingBack": "people/maya-community.webp"
+    }
+  },
+  {
+    "id": "mateo",
+    "name": "Mateo",
+    "age": 34,
+    "role": "Bicycle mechanic",
+    "characterBrief": "Latino man, tan skin, close dark curls, short beard, teal overshirt, manual wheelchair",
+    "sceneBrief": "adjusting a brake cable on a bicycle repair stand",
+    "alt": "Mateo, a fictional bicycle mechanic, in a workplace scene.",
+    "personality": "Neighborly and direct. Likes showing riders the repair as he does it.",
+    "scenes": {
+      "home": "people/mateo-home.webp",
+      "work": "people/mateo-trade.webp",
+      "givingBack": "people/mateo-community.webp"
+    }
+  },
+  {
+    "id": "avery",
+    "name": "Avery",
+    "age": 44,
+    "role": "Tailor",
+    "characterBrief": "East Asian nonbinary adult, slender, short dark hair, glasses, rust overshirt",
+    "sceneBrief": "hemming trousers at a sewing machine",
+    "alt": "Avery, a fictional tailor, in a workplace scene.",
+    "personality": "Precise and quietly expressive. Notices how clothes move on different bodies.",
+    "scenes": {
+      "home": "people/avery-home.webp",
+      "work": "people/avery-trade.webp",
+      "givingBack": "people/avery-community.webp"
+    }
+  },
+  {
+    "id": "denise",
+    "name": "Denise",
+    "age": 67,
+    "role": "Bakery assistant",
+    "characterBrief": "white woman, short silver hair, stocky build, blue cardigan, hearing aid, rollator",
+    "sceneBrief": "portioning dough onto a bakery tray",
+    "alt": "Denise, a fictional bakery assistant, in a workplace scene.",
+    "personality": "Steady and warm. Likes the rhythm of making something people will share.",
+    "scenes": {
+      "home": "people/denise-home.webp",
+      "work": "people/denise-trade.webp",
+      "givingBack": "people/denise-community.webp"
+    }
+  },
+  {
+    "id": "samir",
+    "name": "Samir",
+    "age": 58,
+    "role": "Inventory clerk",
+    "characterBrief": "Arab American man, brown skin, broad build, salt-and-pepper beard, manual wheelchair",
+    "sceneBrief": "scanning a carton at a reachable inventory station",
+    "alt": "Samir, a fictional inventory clerk, in a workplace scene.",
+    "personality": "Orderly and dry-witted. Enjoys making a busy stockroom easier to navigate.",
+    "scenes": {
+      "home": "people/samir-home.webp",
+      "work": "people/samir-trade.webp",
+      "givingBack": "people/samir-community.webp"
+    }
+  },
+  {
+    "id": "robin",
+    "name": "Robin",
+    "age": 23,
+    "role": "Solar installation trainee",
+    "characterBrief": "Indigenous woman, tan skin, athletic build, dark braided hair, plum overshirt",
+    "sceneBrief": "fastening a mounting bracket on a ground-level solar training rack",
+    "alt": "Robin, a fictional solar installation trainee, in a workplace scene.",
+    "personality": "Practical and outdoorsy. Likes getting a system right before it goes up.",
+    "scenes": {
+      "home": "people/robin-home.webp",
+      "work": "people/robin-trade.webp",
+      "givingBack": "people/robin-community.webp"
+    }
+  },
+  {
+    "id": "amina",
+    "name": "Amina",
+    "age": 31,
+    "role": "Welder",
+    "characterBrief": "Somali woman, tall, dark brown skin, close-fitting head covering",
+    "sceneBrief": "welding a steel practice joint with helmet down, welding jacket and gloves in a screened booth",
+    "alt": "Amina, a fictional welder, in a workplace scene.",
+    "personality": "Patient and exacting. Checks her practice joints before moving on.",
+    "scenes": {
+      "home": "people/amina-home.webp",
+      "work": "people/amina-trade.webp",
+      "givingBack": "people/amina-community.webp"
+    }
+  },
+  {
+    "id": "devon",
+    "name": "Devon",
+    "age": 48,
+    "role": "Security guard",
+    "characterBrief": "Black man, broad build, shaved head and glasses",
+    "sceneBrief": "unarmed building security guard checking a visitor log at a lobby desk, no weapon or police insignia",
+    "alt": "Devon, a fictional security guard, in a workplace scene.",
+    "personality": "Calm and observant. Likes helping visitors get where they need to go.",
+    "scenes": {
+      "home": "people/devon-home.webp",
+      "work": "people/devon-trade.webp",
+      "givingBack": "people/devon-community.webp"
+    }
+  },
+  {
+    "id": "lucia",
+    "name": "Lucía",
+    "age": 52,
+    "role": "Commercial cleaning technician",
+    "characterBrief": "Latina woman, petite, wavy dark hair with gray streaks",
+    "sceneBrief": "wiping a lobby counter with a microfiber cloth beside a cleaning cart, using gloves",
+    "alt": "Lucía, a fictional commercial cleaning technician, in a workplace scene.",
+    "personality": "Independent and thorough. Plans her route before starting a shift.",
+    "scenes": {
+      "home": "people/lucia-home.webp",
+      "work": "people/lucia-trade.webp",
+      "givingBack": "people/lucia-community.webp"
+    }
+  },
+  {
+    "id": "linh",
+    "name": "Linh",
+    "age": 29,
+    "role": "Mobile phone repair technician",
+    "characterBrief": "Vietnamese woman, bob haircut, amber glasses",
+    "sceneBrief": "examining a disassembled phone at an anti-static bench",
+    "alt": "Linh, a fictional mobile phone repair technician, in a workplace scene.",
+    "personality": "Unhurried and focused. Keeps tiny parts organized as she works.",
+    "scenes": {
+      "home": "people/linh-home.webp",
+      "work": "people/linh-trade.webp",
+      "givingBack": "people/linh-community.webp"
+    }
+  },
+  {
+    "id": "rasheed",
+    "name": "Rasheed",
+    "age": 41,
+    "role": "Plumbing apprentice",
+    "characterBrief": "Pakistani man, curly hair, medium-dark brown skin, slim build",
+    "sceneBrief": "fitting a sink trap on an open practice rig",
+    "alt": "Rasheed, a fictional plumbing apprentice, in a workplace scene.",
+    "personality": "Good-humored and systematic. Likes tracing how water moves through a building.",
+    "scenes": {
+      "home": "people/rasheed-home.webp",
+      "work": "people/rasheed-trade.webp",
+      "givingBack": "people/rasheed-community.webp"
+    }
+  },
+  {
+    "id": "jules",
+    "name": "Jules",
+    "age": 24,
+    "role": "Tile setter",
+    "characterBrief": "white nonbinary adult, freckles, short auburn hair",
+    "sceneBrief": "lining up ceramic tiles with spacers on a practice wall",
+    "alt": "Jules, a fictional tile setter, in a workplace scene.",
+    "personality": "Visually minded and persistent. Enjoys seeing a pattern line up.",
+    "scenes": {
+      "home": "people/jules-home.webp",
+      "work": "people/jules-trade.webp",
+      "givingBack": "people/jules-community.webp"
+    }
+  },
+  {
+    "id": "nia",
+    "name": "Nia",
+    "age": 37,
+    "role": "Electrician apprentice",
+    "characterBrief": "Caribbean Black woman, medium build, shoulder-length locs",
+    "sceneBrief": "wiring an outlet on a de-energized classroom board",
+    "alt": "Nia, a fictional electrician apprentice, in a workplace scene.",
+    "personality": "Inquisitive and careful. Likes understanding a diagram before touching a tool.",
+    "scenes": {
+      "home": "people/nia-home.webp",
+      "work": "people/nia-trade.webp",
+      "givingBack": "people/nia-community.webp"
+    }
+  },
+  {
+    "id": "kenji",
+    "name": "Kenji",
+    "age": 63,
+    "role": "Shoe repair worker",
+    "characterBrief": "Japanese man, silver hair, lean build",
+    "sceneBrief": "stitching a boot sole at a cobbler’s bench",
+    "alt": "Kenji, a fictional shoe repair worker, in a workplace scene.",
+    "personality": "Resourceful and patient. Enjoys making familiar objects last longer.",
+    "scenes": {
+      "home": "people/kenji-home.webp",
+      "work": "people/kenji-trade.webp",
+      "givingBack": "people/kenji-community.webp"
+    }
+  },
+  {
+    "id": "zuri",
+    "name": "Zuri",
+    "age": 28,
+    "role": "Upholstery trainee",
+    "characterBrief": "East African woman, dark skin, broad-shouldered, cropped curls",
+    "sceneBrief": "fitting fabric onto a chair seat",
+    "alt": "Zuri, a fictional upholstery trainee, in a workplace scene.",
+    "personality": "Inventive and tactile. Likes seeing a worn piece of furniture take shape again.",
+    "scenes": {
+      "home": "people/zuri-home.webp",
+      "work": "people/zuri-trade.webp",
+      "givingBack": "people/zuri-community.webp"
+    }
+  },
+  {
+    "id": "omar",
+    "name": "Omar",
+    "age": 55,
+    "role": "Kitchen prep worker",
+    "characterBrief": "North African man, brown skin, heavyset, trimmed gray beard",
+    "sceneBrief": "portioning vegetables into containers on a commercial prep counter",
+    "alt": "Omar, a fictional kitchen prep worker, in a workplace scene.",
+    "personality": "Quietly competitive. Takes pride in getting prep done before the rush.",
+    "scenes": {
+      "home": "people/omar-home.webp",
+      "work": "people/omar-trade.webp",
+      "givingBack": "people/omar-community.webp"
+    }
+  },
+  {
+    "id": "marisol",
+    "name": "Marisol",
+    "age": 39,
+    "role": "Food packing worker",
+    "characterBrief": "Afro-Latina woman, medium-brown skin, short curls",
+    "sceneBrief": "weighing dried beans at a food packing station with hair restraint",
+    "alt": "Marisol, a fictional food packing worker, in a workplace scene.",
+    "personality": "Practical and consistent. Prefers a routine she can steadily improve.",
+    "scenes": {
+      "home": "people/marisol-home.webp",
+      "work": "people/marisol-trade.webp",
+      "givingBack": "people/marisol-community.webp"
+    }
+  },
+  {
+    "id": "meera",
+    "name": "Meera",
+    "age": 60,
+    "role": "Plant nursery worker",
+    "characterBrief": "South Asian woman, silver braid, glasses, lightweight cane",
+    "sceneBrief": "transplanting seedlings at a raised nursery bench",
+    "alt": "Meera, a fictional plant nursery worker, in a workplace scene.",
+    "personality": "Observant and generous. Remembers which plants people ask about.",
+    "scenes": {
+      "home": "people/meera-home.webp",
+      "work": "people/meera-trade.webp",
+      "givingBack": "people/meera-community.webp"
+    }
+  },
+  {
+    "id": "isaac",
+    "name": "Isaac",
+    "age": 27,
+    "role": "Irrigation assistant",
+    "characterBrief": "Black man, slender, short twist hairstyle, forearm crutch",
+    "sceneBrief": "checking a drip irrigation line in a greenhouse",
+    "alt": "Isaac, a fictional irrigation assistant, in a workplace scene.",
+    "personality": "Hands-on and exploratory. Enjoys testing a small change and seeing the result.",
+    "scenes": {
+      "home": "people/isaac-home.webp",
+      "work": "people/isaac-trade.webp",
+      "givingBack": "people/isaac-community.webp"
+    }
+  },
+  {
+    "id": "elena",
+    "name": "Elena",
+    "age": 46,
+    "role": "Laundry attendant",
+    "characterBrief": "Eastern European woman, freckled skin, curly auburn hair",
+    "sceneBrief": "sorting and tagging towels at a commercial laundry",
+    "alt": "Elena, a fictional laundry attendant, in a workplace scene.",
+    "personality": "Dependable and quick to laugh. Likes keeping supplies ready for the next shift.",
+    "scenes": {
+      "home": "people/elena-home.webp",
+      "work": "people/elena-trade.webp",
+      "givingBack": "people/elena-community.webp"
+    }
+  },
+  {
+    "id": "tariq",
+    "name": "Tariq",
+    "age": 22,
+    "role": "Barber trainee",
+    "characterBrief": "mixed Black and Arab man, tall, short curly hair",
+    "sceneBrief": "practicing a clipper technique on a mannequin in barber school",
+    "alt": "Tariq, a fictional barber trainee, in a workplace scene.",
+    "personality": "Sociable and receptive to coaching. Wants people to feel comfortable in his chair.",
+    "scenes": {
+      "home": "people/tariq-home.webp",
+      "work": "people/tariq-trade.webp",
+      "givingBack": "people/tariq-community.webp"
+    }
+  },
+  {
+    "id": "jo",
+    "name": "Jo",
+    "age": 36,
+    "role": "Market stall worker",
+    "characterBrief": "Filipino nonbinary adult, short swept hair, stocky build",
+    "sceneBrief": "weighing produce for a customer at an open-air market",
+    "alt": "Jo, a fictional market stall worker, in a workplace scene.",
+    "personality": "Quick with numbers and conversation. Likes recognizing returning customers.",
+    "scenes": {
+      "home": "people/jo-home.webp",
+      "work": "people/jo-trade.webp",
+      "givingBack": "people/jo-community.webp"
+    }
+  },
+  {
+    "id": "pavel",
+    "name": "Pavel",
+    "age": 57,
+    "role": "Assembly quality checker",
+    "characterBrief": "Central Asian man, salt-and-pepper hair, solid build",
+    "sceneBrief": "checking a finished mechanical part against a gauge at a manufacturing station",
+    "alt": "Pavel, a fictional assembly quality checker, in a workplace scene.",
+    "personality": "Detail-oriented and soft-spoken. Notices when a measurement is just a little off.",
+    "scenes": {
+      "home": "people/pavel-home.webp",
+      "work": "people/pavel-trade.webp",
+      "givingBack": "people/pavel-community.webp"
+    }
+  },
+  {
+    "id": "imani",
+    "name": "Imani",
+    "age": 33,
+    "role": "Building maintenance assistant",
+    "characterBrief": "Black woman, medium build, short braids, upper-limb prosthesis",
+    "sceneBrief": "fitting a cabinet hinge at a maintenance workstation",
+    "alt": "Imani, a fictional building maintenance assistant, in a workplace scene.",
+    "personality": "Adaptable and persistent. Likes solving the little problems that interrupt a day.",
+    "scenes": {
+      "home": "people/imani-home.webp",
+      "work": "people/imani-trade.webp",
+      "givingBack": "people/imani-community.webp"
+    }
+  },
+  {
+    "id": "sofie",
+    "name": "Sofie",
+    "age": 43,
+    "role": "Home support worker trainee",
+    "characterBrief": "white woman, short blond hair, full figure",
+    "sceneBrief": "preparing a simple meal with an older adult who chooses ingredients",
+    "alt": "Sofie, a fictional home support worker trainee, in a workplace scene.",
+    "personality": "Attentive and collaborative. Asks people how they prefer things done.",
+    "scenes": {
+      "home": "people/sofie-home.webp",
+      "work": "people/sofie-trade.webp",
+      "givingBack": "people/sofie-community.webp"
+    }
+  },
+  {
+    "id": "kofi",
+    "name": "Kofi",
+    "age": 64,
+    "role": "Materials recovery worker",
+    "characterBrief": "Ghanaian man, silver beard, lean build",
+    "sceneBrief": "sorting reusable material at a collection station, gloves and high-vis vest",
+    "alt": "Kofi, a fictional materials recovery worker, in a workplace scene.",
+    "personality": "Frugal and inventive. Spots uses for materials others might pass over.",
+    "scenes": {
+      "home": "people/kofi-home.webp",
+      "work": "people/kofi-trade.webp",
+      "givingBack": "people/kofi-community.webp"
+    }
+  },
+  {
+    "id": "leilani",
+    "name": "Leilani",
+    "age": 35,
+    "role": "Print finishing operator",
+    "characterBrief": "Pacific Islander woman, broad build, wavy black hair",
+    "sceneBrief": "checking folded booklets at a print shop finishing station",
+    "alt": "Leilani, a fictional print finishing operator, in a workplace scene.",
+    "personality": "Visually sharp and organized. Likes checking small details before a job ships.",
+    "scenes": {
+      "home": "people/leilani-home.webp",
+      "work": "people/leilani-trade.webp",
+      "givingBack": "people/leilani-community.webp"
+    }
+  },
+  {
+    "id": "nadia",
+    "name": "Nadia",
+    "age": 50,
+    "role": "Pottery studio assistant",
+    "characterBrief": "Middle Eastern woman, oval face, dark hair streaked with gray and tied back",
+    "sceneBrief": "trimming a clay bowl on a pottery wheel",
+    "alt": "Nadia, a fictional pottery studio assistant, in a workplace scene.",
+    "personality": "Reflective and patient. Enjoys refining one form over several attempts.",
+    "scenes": {
+      "home": "people/nadia-home.webp",
+      "work": "people/nadia-trade.webp",
+      "givingBack": "people/nadia-community.webp"
+    }
+  },
+  {
+    "id": "andre",
+    "name": "André",
+    "age": 45,
+    "role": "Bus driver trainee",
+    "characterBrief": "Afro-Brazilian man, medium build, shaved head, short beard",
+    "sceneBrief": "checking mirrors from driver’s seat of stationary training bus",
+    "alt": "André, a fictional bus driver trainee, in a workplace scene.",
+    "personality": "Even-tempered and punctual. Takes pride in helping people get where they are going.",
+    "scenes": {
+      "home": "people/andre-home.webp",
+      "work": "people/andre-trade.webp",
+      "givingBack": "people/andre-community.webp"
+    }
+  },
+  {
+    "id": "saanvi",
+    "name": "Saanvi",
+    "age": 30,
+    "role": "Computer refurbishment technician",
+    "characterBrief": "Indian woman, petite, shoulder-length wavy hair, glasses",
+    "sceneBrief": "installing memory in an unplugged desktop PC at a refurbishment bench",
+    "alt": "Saanvi, a fictional computer refurbishment technician, in a workplace scene.",
+    "personality": "Curious and generous with what she knows. Likes making older hardware useful again.",
+    "scenes": {
+      "home": "people/saanvi-home.webp",
+      "work": "people/saanvi-trade.webp",
+      "givingBack": "people/saanvi-community.webp"
+    }
+  }
+]

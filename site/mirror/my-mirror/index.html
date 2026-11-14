@@ -67,6 +67,7 @@ box.innerHTML = `
     <p class="mm-lead">This is your space. Answer at your own pace, in any order, by speaking or typing. Skip anything. Come back any time.</p>
     ${done === 0 ? notice("info", "<p>A good place to start is <strong>Who am I today?</strong> There are no wrong answers, and every question can be skipped.</p>") : ""}
   </div>
+  <p><a class="mm-btn mm-btn-secondary" href="/mirror/my-mirror/possibilities/">See My Possibilities</a></p>
   ${inviteBox}
   ${nextSet ? `<p class="mm-row"><a class="mm-btn" href="/mirror/my-mirror/${PAGES[next]}/">${done === 0 ? "Start" : "Continue"}: ${esc(nextSet.title)}</a></p>` : ""}
   ${helpBox}
@@ -84,22 +85,13 @@ box.innerHTML = `
   <p><a class="mm-btn mm-btn-secondary" href="/mirror/my-mirror/conversation/">A conversation</a></p>
   <h2>My needs</h2>
   <p class="mm-read">Each thing you need, one at a time, from "noted" to "got it". You decide what goes on the list.</p>
-  <p><a class="mm-btn mm-btn-secondary" href="/mirror/my-mirror/my-needs/">My needs list</a></p>
+  <p><a class="mm-btn mm-btn-secondary" href="/mirror/my-mirror/my-needs/">My needs</a></p>
   <h2>My strengths</h2>
   <p class="mm-read">Your skills, talents, experience, papers and training, languages, interests and the people in your corner. Your answers suggest some; you choose.</p>
-  <p><a class="mm-btn mm-btn-secondary" href="/mirror/my-mirror/my-strengths/">My strengths list</a></p>
+  <p><a class="mm-btn mm-btn-secondary" href="/mirror/my-mirror/my-strengths/">My strengths</a></p>
   <h2>Help I could get</h2>
   <p class="mm-read">Programs from the housing resource directory that may help with your needs. Each one is a suggestion until someone checks with the program.</p>
-  <p class="mm-row"><a class="mm-btn mm-btn-secondary" href="/mirror/my-mirror/resources/">Help I could get</a>
-    <a class="mm-btn mm-btn-secondary" href="/mirror/my-mirror/referrals/">My referrals</a>
-    <a class="mm-btn mm-btn-secondary" href="/mirror/my-mirror/services/">My services</a></p>
-  <h2>My appointments</h2>
-  <p class="mm-read">Appointments with the organizations you work with, and your own (they stay yours). Also every note an organization writes about a visit or call with you.</p>
-  <p class="mm-row"><a class="mm-btn mm-btn-secondary" href="/mirror/my-mirror/appointments/">My appointments</a>
-    <a class="mm-btn mm-btn-secondary" href="/mirror/my-mirror/notes/">Notes about me</a></p>
-  <h2>My documents</h2>
-  <p class="mm-read">Keep photos or PDFs of your ID, birth certificate, benefit letters and other papers, so you have them when a program asks. Only you see them, unless you share Documents in Settings.</p>
-  <p><a class="mm-btn mm-btn-secondary" href="/mirror/my-mirror/documents/">My documents</a></p>
+  <p><a class="mm-btn mm-btn-secondary" href="/mirror/my-mirror/resources/">Help I could get</a></p>
   <h2>My plan</h2>
   <p class="mm-read">The goals you choose, sorted by stage (labels, not deadlines), the steps toward them, and the milestones you reach along the way.</p>
   <p class="mm-row"><a class="mm-btn mm-btn-secondary" href="/mirror/my-mirror/plan/">My plan</a>
@@ -111,8 +103,7 @@ box.innerHTML = `
   <h2>Where and how I'd like to live</h2>
   <p class="mm-read">Where you live now, the ways of living you'd like to learn about, and how everyday activities go for you. You choose; it is never a diagnosis.</p>
   <p class="mm-row"><a class="mm-btn mm-btn-secondary" href="/mirror/my-mirror/living/">Where I live</a>
-    <a class="mm-btn mm-btn-secondary" href="/mirror/my-mirror/abilities/activities/">Everyday activities</a>
-    <a class="mm-btn mm-btn-secondary" href="/mirror/my-mirror/clothing/">Clothes and laundry</a></p>
+    <a class="mm-btn mm-btn-secondary" href="/mirror/my-mirror/abilities/activities/">Everyday activities</a></p>
   <p class="mm-muted" style="margin-top:var(--mm-space-6)">There is no score. These counts only show where you've been so far.</p>
   <p class="mm-row"><a class="mm-btn mm-btn-quiet" href="/mirror/my-mirror/settings/">Who can see my answers</a>
     ${w.memberships && w.memberships.length ? '<a class="mm-btn mm-btn-quiet" href="/mirror/workspace/">Go to the workspace</a>' : ""}

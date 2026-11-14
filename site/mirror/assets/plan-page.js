@@ -32,7 +32,10 @@ const who = (role) => (role === "self" ? "" : ' <span class="mm-muted mm-small">
 /** @type {{ self: boolean, goals: any[], actions: any[], milestones: any[], needs: any[] }} */
 let P = { self: true, goals: [], actions: [], milestones: [], needs: [] };
 /** Goal ideas from the Vision reflection ("Who do I want to become?"). @type {any[]} */
+import { scenes as possibilities } from "./possibilities/scenes.js?v=3";
+
 let SUG = [];
+let possibilityDraft = null;
 let box = /** @type {HTMLElement} */ (document.body);
 let kind = "plan";
 
@@ -40,6 +43,10 @@ export async function planPage() {
   kind = document.body.dataset.plan || "plan";
   box = /** @type {HTMLElement} */ (document.getElementById("mmBox"));
   await requireArea("my");
+  if (kind === "plan") {
+    const key = new URLSearchParams(location.search).get("possibility");
+    possibilityDraft = possibilities.find((scene) => scene.key === key) || null;
+  }
   load();
 }
 
@@ -52,6 +59,13 @@ async function load(note = "") {
   box.innerHTML = note + (kind === "actions" ? actionsView() : kind === "milestones" ? milestonesView() : planView());
   voiceAll(box);
   wire();
+  if (possibilityDraft) {
+    const url = new URL(location.href);
+    url.searchParams.delete("possibility");
+    history.replaceState(history.state, "", url);
+    possibilityDraft = null;
+    box.querySelector("#gt-new")?.focus();
+  }
 }
 
 const NAV = `<p class="mm-small mm-row" style="gap:var(--mm-space-3)"><a href="/mirror/my-mirror/plan/">My plan</a>
@@ -63,7 +77,7 @@ const PRIVACY = `<p>Organizations you work with see goals, steps and milestones 
 
 // ---------------------------------------------------------------- forms
 function goalForm(g) {
-  const v = g || { dimension: "", title: "", detail: "", stage: null, hope_by: "", status: "active" };
+  const v = g || { dimension: possibilityDraft?.dimension || "", title: possibilityDraft?.title || "", detail: "", stage: null, hope_by: "", status: "active" };
   const id = g ? g.id : "new";
   return `<form class="mm-card" data-goal-form="${esc(id)}" novalidate style="margin-bottom:var(--mm-space-4)">
     <div class="mm-field"><label for="gt-${id}">Your goal</label>
