@@ -67,7 +67,6 @@ const cards = DIMENSIONS.map((dimension, index) => {
   return { card, art };
 });
 grid.replaceChildren(...cards.map(({ card }) => card));
-document.querySelector("#life-original").hidden = true;
 document.querySelector("#life-gallery").hidden = false;
 
 function showDetail() {
