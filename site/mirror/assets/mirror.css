@@ -364,3 +364,24 @@ body[data-area="workspace"] .mm-main, body[data-area="admin"] .mm-main { padding
 .mm-checklist .mm-done { color: var(--mm-ink-2); }
 .mm-checklist .mm-done span[aria-hidden] { color: var(--mm-ok); font-weight: 700; }
 .mm-cheaper li { margin-bottom: var(--mm-space-3); }
+
+/* Public Mirror title link, with readable copy over the reflected doorway. */
+[data-area="public"] .mm-wordmark {
+  box-sizing:border-box;
+  min-height:78px;
+  max-width:100%;
+  padding:.55rem 1rem;
+  border-radius:8px;
+  background:linear-gradient(90deg,rgba(16,30,23,.94),rgba(16,30,23,.79) 43%,rgba(16,30,23,.56) 85%), url("/mirror/assets/human-mirror-banner-desktop.webp") center / cover no-repeat;
+  background-color:#26382b;
+  color:#fff;
+  flex:1 1 24rem;
+}
+[data-area="public"] .mm-wordmark strong,
+[data-area="public"] .mm-wordmark span { color:#fff; text-shadow:0 1px 3px #102016; }
+[data-area="public"] .mm-wordmark:hover strong { text-decoration:underline; }
+@media (max-width:600px) {
+  [data-area="public"] .mm-wordmark {
+    background-image:linear-gradient(90deg,rgba(16,30,23,.94),rgba(16,30,23,.78) 68%,rgba(16,30,23,.56)),url("/mirror/assets/human-mirror-banner-mobile.webp");
+  }
+}
