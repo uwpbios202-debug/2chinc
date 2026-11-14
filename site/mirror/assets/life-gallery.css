@@ -1,0 +1,21 @@
+.life-banner { display:block; margin:0 0 1.75rem; }
+.life-banner img { display:block; width:100%; height:auto; border-radius:8px; }
+.life-picker { background:#edf3eb; border:1px solid #ccd9cc; border-radius:14px; padding:1rem; margin:1.5rem 0; color:#17382b; }
+.life-picker label { display:block; font-weight:700; margin-bottom:.4rem; }
+.life-picker select { width:min(100%,33rem); max-width:100%; color:inherit; font:inherit; padding:.55rem; background:white; border:1px solid #607b6b; border-radius:8px; }
+.life-picker p { margin:.5rem 0 0; }
+.life-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,16rem),1fr)); gap:1rem; list-style:none; padding:0; }
+.life-card { display:flex; flex-direction:column; background:white; border:1px solid #d7e0d6; border-radius:14px; overflow:hidden; }
+.life-art { aspect-ratio:4/3; background:#edf3eb; color:#17382b; display:grid; place-items:center; overflow:hidden; }
+.life-art:empty { display:none; }
+.life-art img { display:block; width:100%; height:100%; min-height:0; object-fit:contain; }
+.life-copy { padding:1rem; display:flex; align-items:flex-start; flex-direction:column; flex:1; }
+.life-copy h3 { margin:.25rem 0; }
+.life-copy p { margin:.4rem 0 1rem; }
+.life-copy button { margin-top:auto; }
+.life-number { color:#855a2d; font-weight:700; }
+.life-dialog { width:min(calc(100% - 2rem),42rem); max-height:85vh; padding:1rem; color:#17382b; background:#fff; border:1px solid #d7e0d6; border-radius:14px; }
+.life-dialog::backdrop { background:#10251cb8; }
+.life-dialog form { text-align:right; }
+.life-dialog .life-art { max-height:42vh; }
+.life-controls { display:flex; justify-content:space-between; align-items:center; gap:.5rem; flex-wrap:wrap; }
