@@ -11,9 +11,14 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Source+Serif+4:opsz,wght@8..60,600&display=swap">
 <link rel="stylesheet" href="/mirror/assets/mirror.css?v=20261113l">
+<link rel="stylesheet" href="/mirror/assets/life-gallery.css?v=1">
 </head>
 <body data-area="public">
 <main id="main" class="mm-main" data-mm-listen>
+  <picture class="life-banner">
+    <source media="(max-width: 600px)" srcset="/mirror/assets/human-mirror-banner-mobile.webp" width="840" height="148">
+    <img src="/mirror/assets/human-mirror-banner-desktop.webp" width="1920" height="135" alt="2nd Chance Housing Inc.">
+  </picture>
   <p class="mm-eyebrow">Life dimensions</p>
   <h1>Fifteen areas of a life</h1>
   <p class="mm-lead">Housing is one part of a life, not the whole of it. The Mirror looks at all fifteen.</p>
@@ -22,7 +27,27 @@
       and what would help. You choose which areas to start with; many people begin with the one that's on their mind today.</p>
   </div>
   <h2 class="mm-sr">The fifteen areas</h2>
-  <ol data-mm-list="dimensions"><li>Turn on JavaScript to see the list.</li></ol>
+  <ol id="life-original" data-mm-list="dimensions"><li>Turn on JavaScript to see the list.</li></ol>
+  <div id="life-gallery" hidden>
+    <div class="life-picker">
+      <label for="life-person">Choose a fictional person</label>
+      <select id="life-person" disabled><option>Loading people…</option></select>
+      <p id="life-status" role="status">Loading scenes…</p>
+    </div>
+    <ol id="life-grid" class="life-grid"></ol>
+    <dialog id="life-dialog" class="life-dialog" aria-labelledby="life-detail-title" aria-describedby="life-detail-copy">
+      <form method="dialog"><button class="mm-btn mm-btn-secondary" autofocus>Close</button></form>
+      <h2 id="life-detail-title"></h2>
+      <div class="life-art"></div>
+      <p id="life-detail-copy"></p>
+      <p id="life-detail-person"></p>
+      <div class="life-controls">
+        <button type="button" class="mm-btn mm-btn-secondary" data-previous>Previous</button>
+        <span id="life-detail-position" aria-live="polite"></span>
+        <button type="button" class="mm-btn mm-btn-secondary" data-next>Next</button>
+      </div>
+    </dialog>
+  </div>
   <div class="mm-read">
     <p class="mm-muted" style="margin-top:var(--mm-space-5)">Leaving an area blank never counts against you. It only means we haven't talked about it yet.</p>
     <p class="mm-row"><a class="mm-btn" href="/mirror/how-it-works/">How it works</a></p>
@@ -31,5 +56,6 @@
 <script type="module" src="/mirror/assets/mirror-ui.js?v=20261113h"></script>
 <script type="module" src="/mirror/assets/dimensions.js?v=20261113a"></script>
 <script type="module" src="/mirror/assets/mirror-voice.js?v=20261113c"></script>
+<script type="module" src="/mirror/assets/life-gallery.js?v=1"></script>
 </body>
 </html>
